@@ -5,8 +5,6 @@ from django.contrib import admin
 
 from django.views.generic.base import RedirectView
 
-from traceback import print_exc
-
 urlpatterns = [
     # Examples:
     # url(r'^$', 'giscube.views.home', name='home'),

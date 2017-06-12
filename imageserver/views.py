@@ -1,4 +1,3 @@
-import os
 import time
 
 from django.views.generic import View
@@ -27,8 +26,9 @@ class ImageserverProxy(View):
             try:
                 r = requests.get(url)
                 content_type = r.headers['content-type']
-                if content_type == 'text/xml' and 'ServiceException' in r.content:
-                    print '======================================================'
+                if content_type == 'text/xml' and \
+                        'ServiceException' in r.content:
+                    print '==================================================='
                     print r.content
                 if content_type == 'text/xml':
                     print '********************'
