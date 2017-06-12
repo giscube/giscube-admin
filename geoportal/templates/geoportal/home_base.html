@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>{% block title %}GISCube Geoportal{% endblock %}</title>
+
+    <!-- jQuery -->
+    <script src="{{ STATIC_URL }}geoportal/jquery/jquery-2.1.1.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link  href="{{ STATIC_URL }}geoportal/bootstrap-3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="{{ STATIC_URL }}geoportal/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- jquery-ui -->
+    <link  href="{{ STATIC_URL }}geoportal/jquery-ui-1.11.2.custom/jquery-ui.min.css" rel="stylesheet">
+    <script src="{{ STATIC_URL }}geoportal/jquery-ui-1.11.2.custom/jquery-ui.min.js"></script>
+
+    <!-- jsPanel -->
+    <link  href="{{ STATIC_URL }}geoportal/jsPanel-2.2.3/jquery.jspanel.min.css" rel="stylesheet">
+    <script src="{{ STATIC_URL }}geoportal/jsPanel-2.2.3/jquery.jspanel.js"></script>
+
+    <!-- Hogan -->
+    <script src="{{ STATIC_URL }}geoportal/hogan-3.0.2/hogan-3.0.2.min.js"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}geoportal/leaflet-0.7.3/leaflet.css" />
+    <script src="{{ STATIC_URL }}geoportal/leaflet-0.7.3/leaflet.js"></script>
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}geoportal/css/geoportal.css" />
+
+    <script type="text/javascript">
+    var search_panel;
+    $(document).ready(function() {
+        {% block js_ready_start %}{% endblock %}
+        map = L.map('map', { 'zoomControl': false });
+
+        {% block map_controls %}
+        var zoom_control = L.control.zoom({'position': 'bottomright'});
+        map.addControl(zoom_control);
+        {% endblock %}
+
+        {% block map_baselayers %}
+        var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
+
+        var baseMaps = {'OpenStreetMap': osm};
+        var overlayMaps = {};
+        {% endblock %}
+
+        {% block map_layerswitcher %}
+        var layerswitcher = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
+        map.layerswitcher = layerswitcher;
+        {% endblock %}
+
+        $('#search_input').focus();
+
+        {% block js_ready_end %}
+        map.setView([0, 0], 2);
+        {% endblock %}
+    });
+    </script>
+    <style>
+    label {
+        font-weight: normal !important;
+    }
+    #map { height: 100%; width: 100%; background-color: #ddd; border: 1px dashed #ccc }
+
+    .list-group-item { padding: 5px 7px }
+    .list-group-header { padding: 0; margin: 0 }
+    .results-header { background-color: #ddd; font-weight: bold }
+    .results-children { margin: 0 0 5px 10px }
+    .results-children .list-group-item { background-color: #eeeef4 }
+
+    {% block extra_style %}
+    {% endblock %}
+    </style>
+  </head>
+
+  <body>
+
+<!-- Wrap all page content here -->
+<div id="wrap">
+
+  <!-- Fixed navbar -->
+  <div class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">{% block brand %}GISCube Geoportal{% endblock %}</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <form id="search_form" class="navbar-form navbar-left" role="search">
+          <div class="input-group">
+              <input id="search_input" type="text" class="form-control" placeholder="Search"
+                     style="width: 400px">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="submit">
+                  <span class="glyphicon glyphicon-search"></span>
+                </button>
+              </span>
+          </div><!-- /input-group -->
+        </form>
+        {% block header_after_form %}{% endblock %}
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+
+  <!-- Begin page content -->
+  <div class="center-container">
+
+    <div class="center-row">
+
+        <div id="map"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div id="footer">
+  <div class="container">
+    <p><a href="http://github.com/giscube/">GISCube</a></p>
+  </div>
+</div>
+
+{% block extra_content %}
+{% endblock extra_content%}
+
+<script id="search-results-panel-template" type="text">
+  <div id="search-results-panel">
+
+  {% block search-results-start %}{% endblock %}
+
+  {% block search-results %}
+  {% for search in searches %}
+  <ul class="list-group-header"><li class="list-group-item results-header">{{ search.title }}</li></ul>
+  <div id="search-results-{{ search.name }}" class="list-group"></div>
+  {% endfor %}
+  {% endblock %}
+
+  {% block search-results-end %}{% endblock %}
+  </div>
+</script>
+
+{% verbatim %}
+<script id="search-results-geoportal-template" type="text">
+<a href="#" class="list-group-item {{#group}}group{{/group}}">{{ title }}</a>
+</script>
+{% endverbatim %}
+
+<script type="text/javascript">
+{% block search_js %}
+var results_panel;
+var result_html = $('#search-results-geoportal-template').html();
+var result_template = Hogan.compile(result_html);
+
+{% for search in searches %}
+{% if search.is_geojson %}
+// create a layer to contain geojson information
+var layer_{{ search.name }} = L.geoJson('', {
+    onEachFeature: function (feature, layer) {
+        layer.bindPopup(feature.properties.title);
+    }
+});
+{% endif %}
+
+$('#search_form').on('search-start', function(event, q) {
+    var search_url = '{{ search.url }}';
+
+    var results = $('#search-results-{{ search.name }}', results_panel.content);
+    results.html('<p class="list-group-item">Searching for "' + q + '"</p>');
+
+    {% if search.is_geojson %}
+    layer_{{ search.name }}.clearLayers();
+    {% endif %}
+
+    $.ajax({
+        url: search_url + '?q=' + q
+    })
+    .done(
+        function (data, textStatus, jqXHR) {
+            if (data.results == undefined) {
+                results.html('<p class="list-group-item">Error retrieving results</p>');
+                return;
+            }
+
+            if (data['results'].length == 0) {
+                results.html('<p class="list-group-item">No matches found</p>');
+                return;
+            }
+
+            results.html('');
+
+            $.each(data['results'], function(index, element) {
+                var item = $(result_template.render(element));
+                item = $(item).data('element', element);
+                results.append(item);
+
+                {% if search.is_geojson %}
+                if (element.geojson) {
+                    if ('type' in element.geojson && element.geojson['type'] == 'Feature') {
+                        var layer = L.GeoJSON.geometryToLayer(element.geojson);
+                        layer.bindPopup(element.geojson.properties.title);
+                        layer_{{ search.name }}.addLayer(layer);
+
+                        $(item).data('layer', layer);
+                        $(item).on('click', function(e) {
+                            var item = e.target;
+                            var layer = $(item).data('layer');
+                            var bounds;
+                            if ('getLatLng' in layer) {
+                                var latlng = layer.getLatLng();
+                                bounds = L.latLngBounds(latlng, latlng);
+                            } else {
+                                bounds = layer.getBounds();
+                            }
+
+                            map.fitBounds(bounds,
+                                {
+                                    'maxZoom': 20,
+                                    'paddingTopLeft': [330, 30],
+                                    'paddingBottomRight': [30, 30]
+                                }
+                            );
+                            layer.openPopup();
+                        });
+                    }
+                }
+                {% endif %}
+
+                if (element.group && element.children.length > 0) {
+                    var children = $('<div>')
+                        .addClass('results-children')
+                        .css('display', 'none');
+                    for (var i in element.children) {
+                        var child = element.children[i];
+                        var item = result_template.render(child);
+                        item = $(item).data('element', child);
+                        child.parent_title = element.title;
+                        console.log(child.parent_title);
+                        children.append(item);
+                    }
+                    results.append(children);
+                }
+            });
+
+            {% if search.is_geojson %}
+            layer_{{ search.name }}.addTo(map);
+            {% endif %}
+
+            $('a', results).on('click', function(e) {
+                var element = $(e.target).data('element');
+
+                if (element.group) {
+                    $(e.target).next().toggle();
+                } else {
+                    if (element.type == 'WMS') {
+                        var wms = L.tileLayer.wms(element.url, {
+                            layers: element.layers,
+                            format: 'image/png',
+                            transparent: true,
+                            maxZoom: 22
+                        }).addTo(map);
+                        map.layerswitcher.addOverlay(wms, element.parent_title);
+                    } else if (element.type == 'TMS') {
+                    	var tms = L.tileLayer(element.url, {
+                            transparent: true,
+                            maxZoom: 22
+                        }).addTo(map);
+                        map.layerswitcher.addOverlay(tms, element.parent_title);
+                    }
+                }
+            });
+
+       }
+    ).fail(
+        function( jqXHR, textStatus, errorThrown) {
+            $('#search-results-sit', results_panel.content)
+                .html(jqXHR.responseText);
+        }
+    );
+});
+
+{% endfor %}
+
+
+$('#search_form').submit(function() {
+    var q = $('#search_input').val();
+
+    if (results_panel == undefined) {
+        results_panel = $.jsPanel({
+            id: 'results_panel',
+            content:  "<p>Loading...</p>",
+            overflow: 'scroll',
+            controls: { buttons: 'closeonly', iconfont: 'bootstrap' },
+            title:    "{% block search-results-title %}Search results{% endblock %}",
+            size:     { width:  300, height: 300 },
+            bootstrap: "primary",
+            position: "top left",
+            offset:   { top: 60, left: 10 },
+            theme:    "success"
+        });
+        results_panel.content.html($('#search-results-panel-template').html());
+
+        $("body").on( "jspanelclosed", function closeHandler(event, id) {
+            if( id == "results_panel" ) {
+                results_panel = undefined;
+                // close handlers attached to body should be removed again
+                $("body").off("jspanelclosed", closeHandler);
+            }
+        });
+    }
+
+    $('#search_form').trigger('search-start', [q]);
+
+    return false;
+});
+{% endblock %}
+</script>
+
+{% block footer_js %}{% endblock %}
+
+  </body>
+</html>

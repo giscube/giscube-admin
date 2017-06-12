@@ -1,0 +1,7 @@
+*~
+*.pyc
+.pydevproject
+.DS_Store
+giscube/static/
+/env/
+/.project

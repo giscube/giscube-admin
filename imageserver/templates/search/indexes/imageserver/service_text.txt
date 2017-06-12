@@ -1,0 +1,3 @@
+{{ object.keywords }}
+{{ object.title }} Image service
+{{ object.description }}

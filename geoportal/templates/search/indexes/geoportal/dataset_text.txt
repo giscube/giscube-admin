@@ -1,0 +1,6 @@
+{{ object.keywords }}
+{{ object.keywords|slugify }}
+{{ object.title }}
+{{ object.title|slugify }}
+{{ object.description }}
+{{ object.description|slugify }}
