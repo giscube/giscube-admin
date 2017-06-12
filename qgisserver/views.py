@@ -1,6 +1,3 @@
-import os
-import time
-import subprocess
 import logging
 
 from django.views.generic import View
@@ -9,7 +6,6 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 import requests
-from requests.exceptions import ConnectionError
 
 from qgisserver.models import Service
 
@@ -43,10 +39,10 @@ class QGISProxy(View):
 
     def _build_url(self, request, service_name):
         service = get_object_or_404(Service, name=service_name)
-        qserver_url = "http://localhost/fcgis/qgisserver/"
+        server_url = settings.GISCUBE_QGIS_SERVER_URL
         meta = request.META.get('QUERY_STRING', '?')
         mapfile = "map=%s" % service.project.path
-        url = "%s?%s&%s" % (qserver_url, meta, mapfile)
+        url = "%s?%s&%s" % (server_url, meta, mapfile)
         return url
 
     def _process_remote_response(self, r):

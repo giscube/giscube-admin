@@ -62,6 +62,9 @@ if GISCUBE_IMAGE_SERVER_ENABLED:
 
 
 if GISCUBE_GIS_SERVER_ENABLED:
+    GISCUBE_QGIS_SERVER_URL = 'http://localhost/fcgis/giscube_qgisserver/'
+    GISCUBE_QGIS_SERVER_URL = os.environ.get(
+        'GISCUBE_QGIS_SERVER_URL', GISCUBE_QGIS_SERVER_URL)
     INSTALLED_APPS += ['qgisserver']
 
 if GISCUBE_GEOPORTAL_ENABLED:
