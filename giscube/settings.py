@@ -19,6 +19,7 @@ APPNAME = os.path.dirname(os.path.abspath(__file__))
 
 APPURL = ''
 APPURL = os.getenv('APPURL', APPURL)
+SESSION_COOKIE_PATH = '%s/' % APPURL
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
