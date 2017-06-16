@@ -3,12 +3,12 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from django.views.generic.base import RedirectView
+# from django.views.generic.base import RedirectView
 
 urlpatterns = [
     # Examples:
     # url(r'^$', 'giscube.views.home', name='home'),
-    url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
+    # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
 
     url(r'^admin/', include(admin.site.urls)),
 ]
