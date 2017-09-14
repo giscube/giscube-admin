@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APPNAME = os.path.dirname(os.path.abspath(__file__))
+APP_NAME = os.path.dirname(os.path.abspath(__file__))
 
 APPURL = ''
 APPURL = os.getenv('APPURL', APPURL)
@@ -184,13 +184,19 @@ LOGGING = {
 # Overwrite settings
 # -------------------------------------
 ENVIRONMENT_NAME = os.environ.get('ENVIRONMENT_NAME', '')
+
 extra_settings = 'settings-%s.py' % ENVIRONMENT_NAME
-try:
-    print "extra config from %s" % extra_settings
-    execfile(os.path.join(BASE_DIR, APPNAME, extra_settings), globals())
-except IOError, e:
-    print e
-    pass
+extra_settings_path = os.path.join(BASE_DIR, APP_NAME, extra_settings)
+print(extra_settings_path)
+if os.path.exists(extra_settings_path):
+    print('Try to load extra settings: %s' % extra_settings)
+    # Python 2 only:
+    # execfile(extra_settings_path, globals())
+    # Python 2 and 3:
+    exec(compile(
+        open(
+            extra_settings_path, "rb"
+            ).read(), extra_settings_path, 'exec'), globals())
 
 # Covers regular testing and django-coverage
 if 'test' in sys.argv or 'test_coverage' in sys.argv:
