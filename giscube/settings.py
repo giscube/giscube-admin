@@ -79,6 +79,8 @@ if GISCUBE_GEOPORTAL_ENABLED:
     }
 
 INSTALLED_APPS += [
+    'theme_giscube',
+
     # django
     'django.contrib.gis',
     'django.contrib.admin',
