@@ -24,7 +24,10 @@ class RasterOptimizerView(TemplateView):
     form = ActionForm
 
     def __init__(self):
-        self.storage = FileSystemStorage(settings.IMAGESERVER_DATA['ROOT'])
+        # FIXME: support for multiple directories
+        print('DIR', settings.GISCUBE_IMAGESERVER['DATA_ROOT'][0])
+        self.storage = FileSystemStorage(
+            settings.GISCUBE_IMAGESERVER['DATA_ROOT'][0])
 
     def get_context_data(self, **kwargs):
         context = super(RasterOptimizerView, self).get_context_data(**kwargs)

@@ -176,6 +176,12 @@ EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 # From address for error messages
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 
+GISCUBE_IMAGESERVER = {
+    'DATA_ROOT': os.environ.get(
+                    'GISCUBE_IMAGESERVER_DATA_ROOT',
+                    os.path.join(APP_ROOT, 'imageserver')).split(',')
+}
+
 # try:
 #     import tilescache
 #     if tilescache.giscube:
