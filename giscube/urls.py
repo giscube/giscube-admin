@@ -15,17 +15,17 @@ urlpatterns = [
 
 # Additional modules
 
-if settings.GISCUBE_IMAGE_SERVER_ENABLED:
+if not settings.GISCUBE_IMAGE_SERVER_DISABLED:
     urlpatterns += [
         url(r'^imageserver/', include('imageserver.urls'))
     ]
 
-if settings.GISCUBE_GIS_SERVER_ENABLED:
+if not settings.GISCUBE_GIS_SERVER_DISABLED:
     urlpatterns += [
         url(r'^qgisserver/', include('qgisserver.urls'))
     ]
 
-if settings.GISCUBE_GEOPORTAL_ENABLED:
+if not settings.GISCUBE_GEOPORTAL_DISABLED:
     urlpatterns += [
         url(r'^geoportal/', include('geoportal.urls'))
     ]
