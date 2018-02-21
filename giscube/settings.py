@@ -170,6 +170,9 @@ STATIC_URL = os.getenv('STATIC_URL', STATIC_URL)
 STATIC_ROOT = os.path.join(APP_ROOT, 'static')
 STATIC_ROOT = os.getenv('STATIC_ROOT', STATIC_ROOT)
 
+EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
+# From address for error messages
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 
 # try:
 #     import tilescache
