@@ -49,11 +49,6 @@ if GISCUBE_IMAGE_SERVER_ENABLED:
     GISCUBE_IMAGE_SERVER_URL = 'http://localhost/fcgis/giscube_imageserver/'
     GISCUBE_IMAGE_SERVER_URL = os.environ.get(
         'GISCUBE_IMAGE_SERVER_URL', GISCUBE_IMAGE_SERVER_URL)
-    VAR_ROOT = os.path.join(BASE_DIR, 'var')
-    VAR_ROOT = os.environ.get('GISCUBE_IMAGE_SERVER_VAR_ROOT', VAR_ROOT)
-    VAR_URL = '%s/var/' % APPURL
-    VAR_URL = os.environ.get('GISCUBE_IMAGE_SERVER_VAR_URL', VAR_URL)
-
 
 if GISCUBE_GIS_SERVER_ENABLED:
     GISCUBE_QGIS_SERVER_URL = 'http://localhost/fcgis/giscube_qgisserver/'
@@ -169,6 +164,11 @@ STATIC_URL = '%s/static/' % APP_URL
 STATIC_URL = os.getenv('STATIC_URL', STATIC_URL)
 STATIC_ROOT = os.path.join(APP_ROOT, 'static')
 STATIC_ROOT = os.getenv('STATIC_ROOT', STATIC_ROOT)
+
+VAR_URL = '%s/var/' % APP_URL
+VAR_URL = os.environ.get('VAR_URL', VAR_URL)
+VAR_ROOT = os.path.join(APP_ROOT, 'var')
+VAR_ROOT = os.environ.get('VAR_ROOT', VAR_ROOT)
 
 EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 # From address for error messages
