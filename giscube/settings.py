@@ -30,11 +30,11 @@ GISCUBE_URL = os.environ.get('GISCUBE_URL',
                              'http://localhost:8080/apps/giscube')
 
 GISCUBE_IMAGE_SERVER_DISABLED = os.environ.get('GISCUBE_IMAGE_SERVER_DISABLED',
-                                              'False').lower() == 'true'
+                                               'False').lower() == 'true'
 GISCUBE_GIS_SERVER_DISABLED = os.environ.get('GISCUBE_GIS_SERVER_DISABLED',
-                                            'False').lower() == 'true'
+                                             'False').lower() == 'true'
 GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
-                                           'False').lower() == 'true'
+                                            'False').lower() == 'true'
 
 
 # Application definition
