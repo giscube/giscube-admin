@@ -15,7 +15,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SESSION_COOKIE_PATH = '%s/' % APPURL
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -169,6 +168,9 @@ VAR_URL = '%s/var/' % APP_URL
 VAR_URL = os.environ.get('VAR_URL', VAR_URL)
 VAR_ROOT = os.path.join(APP_ROOT, 'var')
 VAR_ROOT = os.environ.get('VAR_ROOT', VAR_ROOT)
+
+SESSION_COOKIE_NAME = 'sessionid_%s' % APP_URL.replace('/', '_')
+SESSION_COOKIE_PATH = '%s/' % APP_URL
 
 EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 # From address for error messages
