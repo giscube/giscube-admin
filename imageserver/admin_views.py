@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 
 from imageserver.gdal_utils import gdal_build_overviews
 
+
 class OptimizerEntry(object):
     def __init__(self):
         self.type = None
