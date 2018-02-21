@@ -15,10 +15,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP_NAME = os.path.dirname(os.path.abspath(__file__))
-
-APPURL = ''
-APPURL = os.getenv('APPURL', APPURL)
 SESSION_COOKIE_PATH = '%s/' % APPURL
 
 # Quick-start development settings - unsuitable for production
@@ -157,15 +153,23 @@ USE_L10N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
-MEDIA_ROOT = os.getenv('MEDIA_ROOT', MEDIA_ROOT)
-MEDIA_URL = '%s/media/' % APPURL
+APP_NAME = os.path.dirname(os.path.abspath(__file__))
+APP_NAME = os.getenv('APP_NAME', APP_NAME)
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+APP_URL = '/%s/' % APP_NAME
+APP_URL = os.getenv('APP_URL', APP_URL)
+APP_ROOT = os.getenv('APP_PATH', BASE_DIR)
+
+MEDIA_URL = '%s/media/' % APP_URL
+MEDIA_URL = os.getenv('MEDIA_URL', MEDIA_URL)
+MEDIA_ROOT = os.path.join(APP_ROOT, 'media')
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', MEDIA_ROOT)
+
+STATIC_URL = '%s/static/' % APP_URL
+STATIC_URL = os.getenv('STATIC_URL', STATIC_URL)
+STATIC_ROOT = os.path.join(APP_ROOT, 'static')
 STATIC_ROOT = os.getenv('STATIC_ROOT', STATIC_ROOT)
 
-
-STATIC_URL = '%s/static/' % APPURL
 
 # try:
 #     import tilescache
