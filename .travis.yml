@@ -22,6 +22,7 @@ addons:
   apt:
     packages:
     - libgdal-dev
+    - libsqlite3-mod-spatialite
 
 install:
   - pip install -q $DJANGO
