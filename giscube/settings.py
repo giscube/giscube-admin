@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # app
     'giscube',
     'oauth2_provider',
+    'rest_framework',
 ]
 
 if not GISCUBE_IMAGE_SERVER_DISABLED:
@@ -207,8 +208,27 @@ MIDDLEWARE_CLASSES.insert(index + 1,
                           'oauth2_provider.middleware.OAuth2TokenMiddleware')
 
 OAUTH2_PROVIDER = {
-    'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 7,
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 365,
 }
+
+# rest-framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    # 'DEFAULT_RENDERER_CLASSES': (
+    #     'drf_ujson.renderers.UJSONRenderer',
+    # ),
+    # 'DEFAULT_PARSER_CLASSES': (
+    #     'drf_ujson.parsers.UJSONParser',
+    # ),
+    'PAGE_SIZE': 100
+}
+
 
 LOGGING = {
     'version': 1,
