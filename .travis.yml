@@ -19,7 +19,7 @@ install:
 
 script:
   - python -Wall tests/manage.py test tests --settings=settings
-  - coverage run --omit='quicktest.py,setup.py' --source=. tests/manage.py test tests
+  - coverage run --omit='quicktest.py,setup.py' --source=. manage.py test tests
 
 after_success: coveralls
 
