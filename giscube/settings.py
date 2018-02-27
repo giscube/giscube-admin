@@ -40,7 +40,8 @@ GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
 # Application definition
 INSTALLED_APPS = [
     # app
-    'giscube'
+    'giscube',
+    'oauth2_provider',
 ]
 
 if not GISCUBE_IMAGE_SERVER_DISABLED:
