@@ -56,3 +56,8 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class Project(models.Model):
+    name = models.CharField(max_length=50)
+    data = models.TextField()

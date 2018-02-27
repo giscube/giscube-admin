@@ -4,6 +4,11 @@ from django.conf.urls import include, url
 from django.contrib import admin
 # from django.views.generic.base import RedirectView
 import oauth2_provider.views as oauth2_views
+from rest_framework import routers
+
+from qgisserver import api as qgisserver_api
+
+router = routers.DefaultRouter()
 
 # OAuth2 provider endpoints
 oauth2_endpoint_views = [
@@ -37,6 +42,8 @@ if not settings.GISCUBE_GIS_SERVER_DISABLED:
     urlpatterns += [
         url(r'^qgisserver/', include('qgisserver.urls'))
     ]
+    router.register(r'qgisserver/project', qgisserver_api.ProjectViewSet,
+                    base_name='qgisserver_project')
 
 if not settings.GISCUBE_GEOPORTAL_DISABLED:
     urlpatterns += [
@@ -49,3 +56,7 @@ if not settings.GISCUBE_GEOPORTAL_DISABLED:
 #         urlpatterns += [
 #             url(r'^tilescache/', include('tilescache.urls'))
 #         ]
+
+urlpatterns += [
+    url(r'api/v1/', include(router.urls)),
+]
