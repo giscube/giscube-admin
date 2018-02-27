@@ -77,7 +77,7 @@ INSTALLED_APPS += [
     'django.contrib.staticfiles',
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,7 +85,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'giscube.urls'
 
@@ -190,6 +190,21 @@ GISCUBE_IMAGESERVER = {
 #     print "[settings.py] tilescache not available: %s" % e
 #     logger.exception(e)
 
+# oauth-toolkit
+AUTHENTICATION_BACKENDS = (
+    'oauth2_provider.backends.OAuth2Backend',
+    # Uncomment following if you want to access the admin
+    'django.contrib.auth.backends.ModelBackend'
+)
+
+index = MIDDLEWARE_CLASSES.index('django.contrib.auth.middleware.'
+                                 'AuthenticationMiddleware')
+MIDDLEWARE_CLASSES.insert(index + 1,
+                          'oauth2_provider.middleware.OAuth2TokenMiddleware')
+
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 7,
+}
 
 LOGGING = {
     'version': 1,
