@@ -248,12 +248,11 @@ LOGGING = {
 # Overwrite settings
 # -------------------------------------
 ENVIRONMENT_NAME = os.environ.get('ENVIRONMENT_NAME', '')
-
-extra_settings = 'settings-%s.py' % ENVIRONMENT_NAME
-extra_settings_path = os.path.join(BASE_DIR, APP_NAME, extra_settings)
-print(extra_settings_path)
+extra_settings_file = 'settings-%s.py' % ENVIRONMENT_NAME
+extra_settings_dir = os.path.dirname(os.path.abspath(__file__))
+extra_settings_path = os.path.join(extra_settings_dir, extra_settings_file)
 if os.path.exists(extra_settings_path):
-    print('Try to load extra settings: %s' % extra_settings)
+    print('Try to load extra settings: %s' % extra_settings_file)
     # Python 2 only:
     # execfile(extra_settings_path, globals())
     # Python 2 and 3:
@@ -261,8 +260,3 @@ if os.path.exists(extra_settings_path):
         open(
             extra_settings_path, "rb"
             ).read(), extra_settings_path, 'exec'), globals())
-
-# Covers regular testing and django-coverage
-if 'test' in sys.argv or 'test_coverage' in sys.argv:
-    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'tests/media')
