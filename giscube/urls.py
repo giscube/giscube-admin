@@ -28,7 +28,7 @@ urlpatterns = [
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^admin/', include('loginas.urls')),
 ]
 

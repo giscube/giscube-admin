@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('url', models.CharField(max_length=255, null=True, blank=True)),
                 ('layers', models.CharField(max_length=255, null=True, blank=True)),
                 ('projection', models.IntegerField(help_text=b'EPSG code')),
-                ('dataset', models.ForeignKey(to='geoportal.Dataset')),
+                ('dataset', models.ForeignKey(to='geoportal.Dataset', on_delete=models.CASCADE)),
             ],
             options={
             },
