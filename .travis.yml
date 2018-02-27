@@ -14,9 +14,9 @@ env:
   - DJANGO="https://github.com/django/django/archive/master.tar.gz"
 
 addons:
-apt:
-  packages:
-  - libgdal-dev
+  apt:
+    packages:
+    - libgdal-dev
 
 install:
   - pip install -q $DJANGO
