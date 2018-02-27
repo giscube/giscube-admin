@@ -9,9 +9,13 @@ python:
   - "3.7"
 
 env:
-  - DJANGO="Django>=1.11,<2.0"
-  - DJANGO="Django>=2.0,<2.1"
-  - DJANGO="https://github.com/django/django/archive/master.tar.gz"
+  global:
+    - CPLUS_INCLUDE_PATH=/usr/include/gdal
+    - C_INCLUDE_PATH=/usr/include/gdal
+  matrix:
+    - DJANGO="Django>=1.11,<2.0"
+    - DJANGO="Django>=2.0,<2.1"
+    - DJANGO="https://github.com/django/django/archive/master.tar.gz"
 
 addons:
   apt:
