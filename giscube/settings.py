@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'giscube',
     'oauth2_provider',
     'rest_framework',
+    'loginas',
 ]
 
 if not GISCUBE_IMAGE_SERVER_DISABLED:
