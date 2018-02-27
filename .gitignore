@@ -5,3 +5,4 @@
 giscube/static/
 /env/
 /.project
+/.coverage
