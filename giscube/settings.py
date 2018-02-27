@@ -247,6 +247,10 @@ LOGGING = {
 
 # Overwrite settings
 # -------------------------------------
+# Covers regular testing and django-coverage
+if 'test' in sys.argv or 'test_coverage' in sys.argv:
+    ENVIRONMENT_NAME = 'test'
+
 ENVIRONMENT_NAME = os.environ.get('ENVIRONMENT_NAME', '')
 extra_settings_file = 'settings-%s.py' % ENVIRONMENT_NAME
 extra_settings_dir = os.path.dirname(os.path.abspath(__file__))
