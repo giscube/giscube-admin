@@ -155,6 +155,9 @@ APP_URL = '/%s/' % APP_NAME
 APP_URL = os.getenv('APP_URL', APP_URL)
 APP_ROOT = os.getenv('APP_PATH', BASE_DIR)
 
+LOGIN_URL = '%s/admin/login/' % APP_URL
+LOGIN_REDIRECT_URL = '%s/admin/' % APP_URL
+
 MEDIA_URL = '%s/media/' % APP_URL
 MEDIA_URL = os.getenv('MEDIA_URL', MEDIA_URL)
 MEDIA_ROOT = os.path.join(APP_ROOT, 'media')
