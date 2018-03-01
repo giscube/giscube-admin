@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LayerPreview',
             fields=[
-                ('layer', models.OneToOneField(primary_key=True, serialize=False, to='imageserver.Layer')),
+                ('layer', models.OneToOneField(primary_key=True, serialize=False, to='imageserver.Layer', on_delete=models.CASCADE)),
                 ('name', models.CharField(unique=True, max_length=50)),
                 ('service_path', models.CharField(max_length=255)),
             ],
@@ -71,8 +71,8 @@ class Migration(migrations.Migration):
             name='ServiceLayer',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('layer', models.ForeignKey(to='imageserver.Layer')),
-                ('service', models.ForeignKey(to='imageserver.Service')),
+                ('layer', models.ForeignKey(to='imageserver.Layer', on_delete=models.CASCADE)),
+                ('service', models.ForeignKey(to='imageserver.Service', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='layer',
             name='named_mask',
-            field=models.ForeignKey(blank=True, to='imageserver.NamedMask', null=True),
+            field=models.ForeignKey(blank=True, to='imageserver.NamedMask', null=True, on_delete=models.SET_NULL),
             preserve_default=True,
         ),
     ]

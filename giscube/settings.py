@@ -80,7 +80,7 @@ INSTALLED_APPS += [
     'django.contrib.staticfiles',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -203,9 +203,9 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend'
 )
 
-index = MIDDLEWARE_CLASSES.index('django.contrib.auth.middleware.'
+index = MIDDLEWARE.index('django.contrib.auth.middleware.'
                                  'AuthenticationMiddleware')
-MIDDLEWARE_CLASSES.insert(index + 1,
+MIDDLEWARE.insert(index + 1,
                           'oauth2_provider.middleware.OAuth2TokenMiddleware')
 
 OAUTH2_PROVIDER = {
@@ -227,7 +227,7 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PARSER_CLASSES': (
     #     'drf_ujson.parsers.UJSONParser',
     # ),
-    'PAGE_SIZE': 100
+    # 'PAGE_SIZE': 100
 }
 
 

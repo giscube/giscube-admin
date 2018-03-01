@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oauth2_provider.models import (
     get_access_token_model, get_application_model

@@ -12,6 +12,6 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class ProjectViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
-    queryset = Project.objects.all()
+    queryset = Project.objects.all().order_by('pk')
     serializer_class = ProjectSerializer
     pagination_class = StandardResultsSetPagination

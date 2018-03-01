@@ -19,7 +19,8 @@ RESOURCE_TYPE_CHOICES = [
 
 
 class Resource(models.Model):
-    dataset = models.ForeignKey(Dataset, related_name='resources')
+    dataset = models.ForeignKey(
+        Dataset, related_name='resources', on_delete=models.CASCADE)
     type = models.CharField(max_length=12, choices=RESOURCE_TYPE_CHOICES)
     name = models.CharField(max_length=50)
     title = models.CharField(max_length=100, null=True, blank=True)

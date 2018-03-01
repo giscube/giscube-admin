@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
+from django.core.validators import validate_comma_separated_integer_list
 
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import NamedMaskStorage, LayerStorage
@@ -29,18 +30,16 @@ class Service(models.Model):
     description = models.TextField(null=True, blank=True)
     keywords = models.CharField(max_length=100, null=True, blank=True)
     projection = models.IntegerField(help_text='EPSG code')
-    supported_srs = models.CommaSeparatedIntegerField(
-                        max_length=400,
-                        help_text='Comma separated list of supported EPSG'
-                                  ' codes')
+    supported_srs = models.CharField(
+        max_length=400,
+        help_text='Comma separated list of supported EPSG codes',
+        validators=[validate_comma_separated_integer_list])
     extent = models.PolygonField(null=True, blank=True)
     service_path = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
     visibility = models.CharField(max_length=10, default='private',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
-
-    objects = models.GeoManager()
 
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':
@@ -104,7 +103,8 @@ class Layer(models.Model):
     projection = models.IntegerField(help_text='EPSG code')
     extent = models.PolygonField(null=True, blank=True)
     layer_path = models.CharField(max_length=255)
-    named_mask = models.ForeignKey(NamedMask, null=True, blank=True)
+    named_mask = models.ForeignKey(
+        NamedMask, null=True, blank=True, on_delete=models.SET_NULL)
     mask = models.FileField(upload_to=get_mask_upload_path,
                             storage=layerStorage,
                             null=True, blank=True)
@@ -112,8 +112,6 @@ class Layer(models.Model):
     image = models.CharField(max_length=255,
                                  help_text='Image file or folder with'
                                            ' tiled images')
-
-    objects = models.GeoManager()
 
     def save(self, *args, **kwargs):
         if self.layer_path is None or self.layer_path == '':
@@ -154,12 +152,14 @@ class Layer(models.Model):
 
 
 class ServiceLayer(models.Model):
-    service = models.ForeignKey(Service)
-    layer = models.ForeignKey(Layer, related_name="services")
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    layer = models.ForeignKey(
+        Layer, related_name="services", on_delete=models.CASCADE)
 
 
 class LayerPreview(models.Model):
-    layer = models.OneToOneField(Layer, primary_key=True)
+    layer = models.OneToOneField(
+        Layer, primary_key=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
     service_path = models.CharField(max_length=255)
 
