@@ -227,7 +227,7 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PARSER_CLASSES': (
     #     'drf_ujson.parsers.UJSONParser',
     # ),
-    'PAGE_SIZE': 100
+    # 'PAGE_SIZE': 100
 }
 
 

@@ -22,8 +22,8 @@ oauth2_endpoint_views = [
 urlpatterns = [
     # oauth-toolkit
     # auth urls only
-    url(r'^o/', include(oauth2_endpoint_views, namespace="oauth2_provider")),
-
+    url(r'^o/', include((oauth2_endpoint_views, 'oauth2_provider'),
+                        namespace='oauth2_provider')),
     # Examples:
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),

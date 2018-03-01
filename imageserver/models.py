@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
+from django.core.validators import validate_comma_separated_integer_list
 
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import NamedMaskStorage, LayerStorage
@@ -29,10 +30,10 @@ class Service(models.Model):
     description = models.TextField(null=True, blank=True)
     keywords = models.CharField(max_length=100, null=True, blank=True)
     projection = models.IntegerField(help_text='EPSG code')
-    supported_srs = models.CommaSeparatedIntegerField(
-                        max_length=400,
-                        help_text='Comma separated list of supported EPSG'
-                                  ' codes')
+    supported_srs = models.CharField(
+        max_length=400,
+        help_text='Comma separated list of supported EPSG codes',
+        validators=[validate_comma_separated_integer_list])
     extent = models.PolygonField(null=True, blank=True)
     service_path = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
