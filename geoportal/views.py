@@ -46,6 +46,8 @@ class GeoportalSearchView(View):
 
             results.append({
                 'title': r.title,
+                'description': r.description,
+                'keywords': r.keywords,
                 'group': getattr(r, 'has_children', False),
                 'children': children,
             })

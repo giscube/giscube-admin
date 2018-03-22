@@ -9,6 +9,8 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     name = indexes.CharField(model_attr='name')
     title = indexes.CharField(model_attr='title')
+    description = indexes.CharField(model_attr='description')
+    keywords = indexes.CharField(model_attr='keywords')
     has_children = indexes.BooleanField()
     children = indexes.CharField()
 
