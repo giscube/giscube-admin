@@ -60,12 +60,6 @@ if not GISCUBE_GIS_SERVER_DISABLED:
 
 if not GISCUBE_GEOPORTAL_DISABLED:
     INSTALLED_APPS += ['geoportal', 'haystack']
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-            'PATH': os.path.join(BASE_DIR, 'var', 'whoosh_index'),
-        },
-    }
 
 INSTALLED_APPS += [
     'theme_giscube',
@@ -186,6 +180,13 @@ GISCUBE_IMAGESERVER = {
     'DATA_ROOT': os.environ.get(
                     'GISCUBE_IMAGESERVER_DATA_ROOT',
                     os.path.join(APP_ROOT, 'imageserver')).split(',')
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(VAR_ROOT, 'whoosh_index'),
+    },
 }
 
 # try:
