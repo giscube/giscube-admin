@@ -1,4 +1,5 @@
 Django==1.11.10
+django-cors-headers==2.2.0
 psycopg2-binary==2.7.4
 requests==2.18.4
 django-haystack==2.7.0

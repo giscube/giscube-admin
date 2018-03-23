@@ -41,6 +41,7 @@ GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
 INSTALLED_APPS = [
     # app
     'giscube',
+    'corsheaders',
     'oauth2_provider',
     'rest_framework',
     'loginas',
@@ -76,6 +77,8 @@ INSTALLED_APPS += [
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # cors headers
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -175,6 +178,14 @@ SESSION_COOKIE_PATH = '%s/' % APP_URL
 EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 # From address for error messages
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
+
+# corsheaders
+CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL',
+                                  'False').lower() == 'true'
+# CORS_ORIGIN_WHITELIST = (
+#     'www.example.com',
+# )
+# CORS_ALLOW_CREDENTIALS = True
 
 GISCUBE_IMAGESERVER = {
     'DATA_ROOT': os.environ.get(
