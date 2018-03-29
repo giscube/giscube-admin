@@ -7,7 +7,7 @@ from qgisserver.models import Service
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('title', 'url_wms')
     exclude = ('service_path',)
-    search_fields = ('name', 'title',)
+    search_fields = ('name', 'title', 'keywords')
 
     def url_wms(self, obj):
         return '<a target="_blank" href="%s/qgisserver/services/%s">WMS URL %s</a>' % (
