@@ -30,7 +30,7 @@ class Dataset(models.Model):
         return '%s' % self.title or self.name
 
 
-RESOURCE_TYPE_CHOICES = [ 
+RESOURCE_TYPE_CHOICES = [
     ('TMS', 'TMS'),
     ('WMS', 'WMS'),
 ]
