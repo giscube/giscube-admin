@@ -5,7 +5,7 @@ class Dataset(models.Model):
     name = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    keywords = models.CharField(max_length=100, null=True, blank=True)
+    keywords = models.CharField(max_length=200, null=True, blank=True)
     active = models.BooleanField(default=True)
 
     def __unicode__(self):

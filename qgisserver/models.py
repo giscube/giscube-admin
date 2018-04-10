@@ -16,7 +16,7 @@ class Service(models.Model):
     name = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    keywords = models.CharField(max_length=100, null=True, blank=True)
+    keywords = models.CharField(max_length=200, null=True, blank=True)
     project_file = models.FileField(upload_to=unique_service_directory)
     service_path = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
