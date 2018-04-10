@@ -26,7 +26,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
         children = []
         url = '%s/qgisserver/services/%s/' % (settings.GISCUBE_URL, obj.name)
 
-        project_file = os.path.basename(obj.project.url)
+        project_file = os.path.basename(obj.project_file.url)
         filename, file_extension = os.path.splitext(project_file)
 
         children.append({

@@ -41,7 +41,7 @@ class QGISProxy(View):
         service = get_object_or_404(Service, name=service_name)
         server_url = settings.GISCUBE_QGIS_SERVER_URL
         meta = request.META.get('QUERY_STRING', '?')
-        mapfile = "map=%s" % service.project.path
+        mapfile = "map=%s" % service.project_file.path
         url = "%s?%s&%s" % (server_url, meta, mapfile)
         return url
 

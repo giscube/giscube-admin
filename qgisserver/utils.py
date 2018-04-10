@@ -6,7 +6,7 @@ from django.conf import settings
 
 
 def patch_qgis_project(service):
-    filename = service.project.path
+    filename = service.project_file.path
     tree = ET.parse(filename)
     root = tree.getroot()
     properties = root.find('properties')

@@ -17,7 +17,7 @@ class Service(models.Model):
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     keywords = models.CharField(max_length=100, null=True, blank=True)
-    project = models.FileField(upload_to=unique_service_directory)
+    project_file = models.FileField(upload_to=unique_service_directory)
     service_path = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
     visibility = models.CharField(max_length=10, default='private',
@@ -34,9 +34,9 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     """
     Delete the project file if the service is deleted
     """
-    if instance.project:
-        if os.path.isfile(instance.project.path):
-            os.remove(instance.project.path)
+    if instance.project_file:
+        if os.path.isfile(instance.project_file.path):
+            os.remove(instance.project_file.path)
 
 
 @receiver(models.signals.pre_save, sender=Service)
@@ -48,11 +48,11 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         return False
 
     try:
-        old_file = Service.objects.get(pk=instance.pk).project
+        old_file = Service.objects.get(pk=instance.pk).project_file
     except Service.DoesNotExist:
         return False
 
-    new_file = instance.project
+    new_file = instance.project_file
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
