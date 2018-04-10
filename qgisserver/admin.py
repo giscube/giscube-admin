@@ -1,7 +1,13 @@
 from django.contrib import admin
 from django.conf import settings
 
-from qgisserver.models import Service
+from qgisserver.models import Project, Service
+
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
 
 
 class ServiceAdmin(admin.ModelAdmin):
