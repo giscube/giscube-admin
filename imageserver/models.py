@@ -15,6 +15,8 @@ from imageserver.utils import unique_service_directory, unique_layer_directory, 
 
 from gdal_utils import get_image_file_info, get_image_dir_info
 
+from geoportal.models import Category
+
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
     ('public', 'Public'),
@@ -25,6 +27,9 @@ namedMaskStorage = NamedMaskStorage()
 
 
 class Service(models.Model):
+    category = models.ForeignKey(
+        Category, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='imageserver_services')
     name = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)

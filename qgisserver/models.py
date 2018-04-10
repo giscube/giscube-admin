@@ -6,6 +6,8 @@ from django.dispatch import receiver
 from qgisserver.utils import unique_service_directory
 from qgisserver.utils import patch_qgis_project
 
+from geoportal.models import Category
+
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
     ('public', 'Public'),
@@ -13,6 +15,9 @@ SERVICE_VISIBILITY_CHOICES = [
 
 
 class Service(models.Model):
+    category = models.ForeignKey(
+        Category, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='qgisserver_services')
     name = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)

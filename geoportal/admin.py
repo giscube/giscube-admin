@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from geoportal.models import Dataset, Resource
+from geoportal.models import Category, Dataset, Resource
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'parent', '__unicode__')
+    search_fields = ('name', 'parent__name')
 
 
 class ResourceInline(admin.StackedInline):
