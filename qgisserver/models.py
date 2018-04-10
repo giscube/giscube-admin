@@ -28,6 +28,9 @@ class Service(models.Model):
         super(Service, self).save(*args, **kwargs)
         patch_qgis_project(self)
 
+    def __unicode__(self):
+        return unicode(self.title or self.name)
+
 
 @receiver(models.signals.post_delete, sender=Service)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
