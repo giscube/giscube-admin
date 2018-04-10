@@ -2,5 +2,5 @@ Django==1.11.10
 psycopg2-binary==2.7.4
 requests==2.18.4
 django-haystack==2.7.0
-djangorestframework==3.7.7
+djangorestframework==3.8.2
 GDAL==2.2.3
