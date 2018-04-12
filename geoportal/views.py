@@ -32,10 +32,8 @@ class GeoportalHomeView(TemplateView):
         return context
 
 
-class GeoportalSearchView(View):
-    def get(self, request):
-        sqs = SearchQuerySet().filter(content=AutoQuery(request.GET['q']))
-
+class ResultsMixin():
+    def format_results(self, sqs):
         results = []
         for r in sqs.all():
             try:
@@ -45,6 +43,7 @@ class GeoportalSearchView(View):
                 children = []
 
             results.append({
+                'category_id': r.category_id,
                 'title': r.title,
                 'description': r.description,
                 'keywords': r.keywords,
@@ -53,3 +52,16 @@ class GeoportalSearchView(View):
             })
         return HttpResponse(json.dumps({'results': results}),
                             content_type='application/json')
+
+
+class GeoportalCatalogView(ResultsMixin, View):
+    def get(self, request):
+        category_id = request.GET.get('category_id', '')
+        sqs = SearchQuerySet().filter(category_id__exact=category_id)
+        return self.format_results(sqs)
+
+
+class GeoportalSearchView(ResultsMixin, View):
+    def get(self, request):
+        sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q', '')))
+        return self.format_results(sqs)
