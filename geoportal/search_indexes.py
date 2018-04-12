@@ -6,6 +6,7 @@ from geoportal.models import Dataset
 
 class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
+    category_id = indexes.IntegerField(model_attr='category_id', null=True)
     name = indexes.CharField(model_attr='name')
     title = indexes.CharField(model_attr='title')
     description = indexes.CharField(model_attr='description', null=True)
