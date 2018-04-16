@@ -58,6 +58,7 @@ class GeoportalCatalogView(ResultsMixin, View):
     def get(self, request):
         category_id = request.GET.get('category_id', '')
         sqs = SearchQuerySet().filter(category_id__exact=category_id)
+        sqs = sqs.order_by('title')
         return self.format_results(sqs)
 
 
