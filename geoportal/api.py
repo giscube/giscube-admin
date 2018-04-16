@@ -12,5 +12,5 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        queryset = Category.objects.all()
+        queryset = Category.objects.all().order_by('name')
         return queryset
