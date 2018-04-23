@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-class Migration(migrations.Migration):
 
-    dependencies = [
-        ('giscube', '0001_initial'),
-    ]
+def forwards(apps, schema_editor):
+
+    if not (schema_editor.connection.vendor == 'postgres'):
+        return
+
     sql0 = '''
     INSERT INTO giscube_category SELECT * FROM geoportal_category;
     '''
@@ -16,8 +17,16 @@ class Migration(migrations.Migration):
     SELECT setval('giscube_category_id_seq', max(id))
     FROM geoportal_category;
     '''
+    migrations.RunSQL(sql0),
+    migrations.RunSQL(sql1),
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('giscube', '0001_initial'),
+    ]
+
     operations = [
-        # migrations.RunPython(forwards_func, reverse_func),
-        migrations.RunSQL(sql0),
-        migrations.RunSQL(sql1),
+        migrations.RunPython(forwards),
     ]
