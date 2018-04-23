@@ -9,3 +9,4 @@ djangorestframework==3.8.2
 GDAL==1.10.0
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
 Whoosh==2.7.4
+sqlparse==0.2.4
