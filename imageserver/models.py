@@ -15,7 +15,7 @@ from imageserver.utils import unique_service_directory, unique_layer_directory, 
 
 from gdal_utils import get_image_file_info, get_image_dir_info
 
-from geoportal.models import Category
+from giscube.models import Category
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),

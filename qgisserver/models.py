@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from qgisserver.utils import unique_service_directory
 from qgisserver.utils import patch_qgis_project
 
-from geoportal.models import Category
+from giscube.models import Category
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
