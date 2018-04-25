@@ -44,7 +44,7 @@ class QGISProxy(View):
 
                 url = self._build_url(request, service_name)
 
-                wms = WMS(layers, url=url, srs=srs,
+                wms = WMS(layers, url=url, srs=srs, levels=30,
                           spherical_mercator='true')
                 wms.cache = NoCache()
                 wms.size = map(int, [width, height])
