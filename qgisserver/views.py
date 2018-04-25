@@ -14,6 +14,58 @@ logger = logging.getLogger(__name__)
 
 class QGISProxy(View):
     def get(self, request, service_name):
+        service = get_object_or_404(Service, name=service_name)
+
+        if service.wms_buffer_enabled:
+            wms_service = request.GET.get('service', '').lower()
+            wms_request = request.GET.get('request', '').lower()
+            layers = request.GET.get('layers')
+            srs = request.GET.get('srs')
+            bbox = request.GET.get('bbox', '')
+            bbox = map(float, bbox.split(','))
+            width = request.GET.get('width', '')
+            height = request.GET.get('height', '')
+            dpi = request.GET.get('dpi', '')
+
+            size_matches = True
+            if service.wms_tile_sizes:
+                size_matches = False
+                size_requested = '%s,%s' % (width, height)
+                for line in service.wms_tile_sizes.splitlines():
+                    if line == size_requested:
+                        size_matches = True
+                        break
+
+            if wms_service == 'wms' and wms_request == 'getmap' and \
+                    len(bbox) == 4 and size_matches:
+
+                from TileCache.Layers.WMS import WMS
+                from TileCache.Caches.Test import Test as NoCache
+
+                url = self._build_url(request, service_name)
+
+                wms = WMS(layers, url=url, srs=srs,
+                          spherical_mercator='true')
+                wms.cache = NoCache()
+                wms.size = map(int, [width, height])
+                tile = wms.getTile(bbox)
+
+                wms.metaSize = (1, 1)
+                buffer = map(int, service.wms_buffer_size.split(','))
+
+                # if dpi is specified, adjust buffer
+                if dpi:
+                    ratio = float(dpi) / 91.0
+                    buffer = map(lambda x: int(x * ratio), buffer)
+
+                wms.metaBuffer = buffer
+                metatile = wms.getMetaTile(tile)
+                image = wms.renderMetaTile(metatile, tile)
+
+                response = HttpResponse(image, content_type='image/png')
+                response.status_code = 200
+                return response
+
         url = self._build_url(request, service_name)
 
         response = None
