@@ -6,10 +6,12 @@ from django.contrib import admin
 import oauth2_provider.views as oauth2_views
 from rest_framework import routers
 
-from geoportal import api as geoportal_api
 from qgisserver import api as qgisserver_api
+from . import api
 
 router = routers.DefaultRouter()
+router.register(r'giscube/category', api.CategoryViewSet,
+                base_name='giscube_category')
 
 # OAuth2 provider endpoints
 oauth2_endpoint_views = [
@@ -51,8 +53,7 @@ if not settings.GISCUBE_GEOPORTAL_DISABLED:
     urlpatterns += [
         url(r'^geoportal/', include('geoportal.urls'))
     ]
-    router.register(r'geoportal/category', geoportal_api.CategoryViewSet,
-                    base_name='geoportal_category')
+
 # try:
 #     import tilescache
 #     if tilescache.giscube:
