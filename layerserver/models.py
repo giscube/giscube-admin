@@ -49,12 +49,12 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
             },
             'style': {
                 'shapetype': self.shapetype,
-                'shape_radius': self.shape_radius,
+                'shape_radius': str(self.shape_radius),
                 'stroke_color': self.stroke_color,
-                'stroke_width': self.stroke_width,
+                'stroke_width': str(self.stroke_width),
                 'stroke_dash_array': self.stroke_dash_array,
                 'fill_color': self.fill_color,
-                'fill_opacity': self.fill_opacity
+                'fill_opacity': str(self.fill_opacity)
             }
         }
 

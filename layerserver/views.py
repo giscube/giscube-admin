@@ -9,7 +9,8 @@ from .models import GeoJsonLayer
 
 
 def GeoJSONLayerView(request, layer_name):
-    layer_name = ''.join(layer_name.split('.')[:-1])
+    # FIXME: why is this needed?
+    # layer_name = ''.join(layer_name.split('.')[:-1])
     layer = GeoJsonLayer.objects.filter(
         active=True,
         name=layer_name).first()
