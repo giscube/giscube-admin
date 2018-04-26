@@ -2,7 +2,8 @@ from django.conf import settings
 
 from django.conf.urls import include, url
 from django.contrib import admin
-# from django.views.generic.base import RedirectView
+from django.conf.urls.static import static
+
 import oauth2_provider.views as oauth2_views
 from rest_framework import routers
 
@@ -35,6 +36,8 @@ urlpatterns = [
     url(r'^admin/', include('loginas.urls')),
 ]
 
+urlpatterns += static('media', document_root=settings.MEDIA_ROOT)
+
 # Additional modules
 
 if not settings.GISCUBE_IMAGE_SERVER_DISABLED:
@@ -52,6 +55,11 @@ if not settings.GISCUBE_GIS_SERVER_DISABLED:
 if not settings.GISCUBE_GEOPORTAL_DISABLED:
     urlpatterns += [
         url(r'^geoportal/', include('geoportal.urls'))
+    ]
+
+if not settings.GISCUBE_LAYERSERVER_DISABLED:
+    urlpatterns += [
+        url(r'^layerserver/', include('layerserver.urls'))
     ]
 
 # try:

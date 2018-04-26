@@ -35,6 +35,8 @@ GISCUBE_GIS_SERVER_DISABLED = os.environ.get('GISCUBE_GIS_SERVER_DISABLED',
 GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
                                             'False').lower() == 'true'
 
+GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
+                                              'False').lower() == 'true'
 
 # Application definition
 INSTALLED_APPS = [
@@ -61,8 +63,13 @@ if not GISCUBE_GIS_SERVER_DISABLED:
 if not GISCUBE_GEOPORTAL_DISABLED:
     INSTALLED_APPS += ['geoportal', 'haystack']
 
+if not GISCUBE_LAYERSERVER_DISABLED:
+    INSTALLED_APPS += ['colorfield', 'layerserver']
+
+
 INSTALLED_APPS += [
     'theme_giscube',
+    'django_vue_tabs',
 
     # django
     'django.contrib.gis',
@@ -240,6 +247,10 @@ REST_FRAMEWORK = {
     # ),
     # 'PAGE_SIZE': 100
 }
+
+if not GISCUBE_LAYERSERVER_DISABLED:
+    LAYERSERVER_STYLE_STROKE_COLOR = '#FF3333'
+    LAYERSERVER_STYLE_FILL_COLOR = '#FFC300'
 
 
 LOGGING = {
