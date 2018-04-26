@@ -12,20 +12,29 @@ from qgisserver.models import Service
 logger = logging.getLogger(__name__)
 
 
+def param_get(data, param, default=None):
+    return data.get(param.lower(), data.get(param.upper(), default))
+
+
 class QGISProxy(View):
     def get(self, request, service_name):
         service = get_object_or_404(Service, name=service_name)
 
         if service.wms_buffer_enabled:
-            wms_service = request.GET.get('service', '').lower()
-            wms_request = request.GET.get('request', '').lower()
-            layers = request.GET.get('layers')
-            srs = request.GET.get('srs')
-            bbox = request.GET.get('bbox', '')
-            bbox = map(float, bbox.split(','))
-            width = request.GET.get('width', '')
-            height = request.GET.get('height', '')
-            dpi = request.GET.get('dpi', '')
+            wms_service = param_get(request.GET, 'service', '').lower()
+            wms_request = param_get(request.GET, 'request', '').lower()
+            layers = param_get(request.GET, 'layers')
+            srs = param_get(request.GET, 'srs')
+            bbox = param_get(request.GET, 'bbox', '')
+            if bbox:
+                try:
+                    bbox = map(float, bbox.split(','))
+                    print('BBOX', bbox)
+                except:
+                    bbox = []
+            width = param_get(request.GET, 'width', '')
+            height = param_get(request.GET, 'height', '')
+            dpi = param_get(request.GET, 'dpi', '')
 
             size_matches = True
             if service.wms_tile_sizes:
@@ -48,23 +57,27 @@ class QGISProxy(View):
                           spherical_mercator='true')
                 wms.cache = NoCache()
                 wms.size = map(int, [width, height])
-                tile = wms.getTile(bbox)
+                try:
+                    tile = wms.getTile(bbox)
 
-                wms.metaSize = (1, 1)
-                buffer = map(int, service.wms_buffer_size.split(','))
+                    wms.metaSize = (1, 1)
+                    buffer = map(int, service.wms_buffer_size.split(','))
 
-                # if dpi is specified, adjust buffer
-                if dpi:
-                    ratio = float(dpi) / 91.0
-                    buffer = map(lambda x: int(x * ratio), buffer)
+                    # if dpi is specified, adjust buffer
+                    if dpi:
+                        ratio = float(dpi) / 91.0
+                        buffer = map(lambda x: int(x * ratio), buffer)
 
-                wms.metaBuffer = buffer
-                metatile = wms.getMetaTile(tile)
-                image = wms.renderMetaTile(metatile, tile)
+                    wms.metaBuffer = buffer
+                    metatile = wms.getMetaTile(tile)
+                    image = wms.renderMetaTile(metatile, tile)
 
-                response = HttpResponse(image, content_type='image/png')
-                response.status_code = 200
-                return response
+                    response = HttpResponse(image, content_type='image/png')
+                    response.status_code = 200
+                    return response
+                except Exception as e:
+                    # wms request is not a tile
+                    print('wms request is not a tile: %s' % e)
 
         url = self._build_url(request, service_name)
 
