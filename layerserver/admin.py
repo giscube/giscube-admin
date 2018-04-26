@@ -69,15 +69,17 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         if obj.url:
             if not obj.service_path:
                 unique_service_directory(obj)
-                try:
-                    r = requests.get(obj.url)
-                    content = ContentFile(r.text)
+            try:
+                r = requests.get(obj.url)
+                content = ContentFile(r.text)
+                # empty files are not valid
+                if content:
                     obj.data_file.save('remote.json', content, save=True)
                     obj.last_fetch_on = timezone.localtime()
-                except Exception:
-                    pass
-                obj.save()
-                self.generateGeoJsonLayer(obj)
+            except Exception as e:
+                print('Error getting file %s' % e)
+            obj.save()
+            self.generateGeoJsonLayer(obj)
         else:
             if 'data_file' in form.changed_data:
                 self.generateGeoJsonLayer(obj)
