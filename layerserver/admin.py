@@ -65,7 +65,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     # TODO: validate both data_file and url
     def save_model(self, request, obj, form, change):
-        super(GeoJsonLayerAdmin, self).save(request, obj, form, change)
+        super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
         if obj.url:
             if not obj.service_path:
                 unique_service_directory(obj)

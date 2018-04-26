@@ -75,7 +75,7 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
 
 
 @receiver(pre_save, sender=GeoJsonLayer)
-def geojsonlayer_pre_save(sender, instance, created, **kwargs):
+def geojsonlayer_pre_save(sender, instance, *args, **kwargs):
     if not hasattr(instance, '_disable_pre_save'):
         instance._disable_pre_save = True
         instance._old_data_file = None
