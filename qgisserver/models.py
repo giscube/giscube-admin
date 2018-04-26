@@ -1,17 +1,43 @@
 import os
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.dispatch import receiver
-
-from qgisserver.utils import unique_service_directory
-from qgisserver.utils import patch_qgis_project
+from django.utils.translation import gettext as _
 
 from giscube.models import Category
+from qgisserver.utils import patch_qgis_project, unique_service_directory
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
     ('public', 'Public'),
 ]
+
+
+def validate_integer_pair(value):
+    values = []
+    try:
+        values = map(int, value.split(','))
+    except:
+        pass
+
+    if len(values) == 2:
+        if not value == ('%s,%s' % tuple(values)):
+            raise ValidationError(
+                _('Enter only digits separated by commas.'),
+            )
+
+    else:
+        raise ValidationError(
+            _('%(value)s must be a pair of integer, e.g. 12,12'),
+            params={'value': value},
+        )
+
+
+def validate_integer_pair_list(value):
+    for line in value.splitlines():
+        validate_integer_pair(line)
 
 
 class Service(models.Model):
@@ -28,6 +54,19 @@ class Service(models.Model):
     visibility = models.CharField(max_length=10, default='private',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
+    wms_buffer_enabled = models.BooleanField(
+        _('buffer enabled'), default=False
+    )
+    wms_buffer_size = models.CharField(
+        _('buffer size'), max_length=12, null=True, blank=True,
+        help_text='Buffer around tiles, e.g. 64,64',
+        validators=[validate_integer_pair]
+    )
+    wms_tile_sizes = models.TextField(
+        _('tile sizes'), null=True, blank=True,
+        help_text='Integer pairs in different lines e.g.<br/>256,256<br/>512,512',
+        validators=[validate_integer_pair_list]
+    )
 
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)

@@ -8,4 +8,6 @@ django-oauth-toolkit==1.0.0
 djangorestframework==3.8.2
 GDAL==1.10.0
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
+Pillow==5.1.0
+-e git+https://github.com/giscube/tilecache.git#egg=TileCache&subdirectory=tilecache
 Whoosh==2.7.4
