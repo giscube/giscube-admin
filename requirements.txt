@@ -14,4 +14,6 @@ GDAL==1.10.0
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
 requests==2.18.4
 ujson==1.35
+Pillow==5.1.0
+-e git+https://github.com/giscube/tilecache.git#egg=TileCache&subdirectory=tilecache
 Whoosh==2.7.4
