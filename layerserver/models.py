@@ -10,7 +10,7 @@ from django.contrib.gis.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
-# from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
 from .mixins import BaseLayerMixin, StyleMixin
 from .utils import generateGeoJsonLayer
@@ -71,8 +71,8 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
 
     class Meta:
         """Meta information."""
-        verbose_name = 'GeoJSONLayer'
-        verbose_name_plural = 'GeoJSONLayers'
+        verbose_name = _('GeoJSONLayer')
+        verbose_name_plural = _('GeoJSONLayers')
 
 
 @receiver(pre_save, sender=GeoJsonLayer)
