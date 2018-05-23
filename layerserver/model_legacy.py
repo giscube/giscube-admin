@@ -6,8 +6,6 @@ import re
 from collections import OrderedDict
 
 from django.contrib.gis.db import models
-# from layer_manager import settings
-from django.db import connections
 
 
 """
@@ -228,21 +226,22 @@ def get_fields(connection, table_name):
     return fields
 
 
-def create_model(table, connection):
+def create_dblayer_model(layer):
 
     class Meta:
         app_label = 'layerserver_databaselayer'
-        db_table = table.lower()
+        db_table = layer.table.lower()
+        verbose_name = layer.name
 
-    table_name = str(table)
+    table_name = str(layer.table)
 
     attrs = {
         '__module__': 'layerserver',
         'Meta': Meta,
-        'databaselayer_db_connection': connection.connection_name()
+        'databaselayer_db_connection': layer.db_connection.connection_name()
     }
 
-    attrs.update(get_fields(connection.get_connection(), table_name))
+    attrs.update(get_fields(layer.db_connection.get_connection(), table_name))
     model = type(table_name, (models.Model,), attrs)
 
     return model

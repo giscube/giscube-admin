@@ -14,7 +14,10 @@ from django.utils import timezone
 
 from django_vue_tabs.admin import TabsMixin
 
-from .models import GeoJsonLayer, DataBaseLayer, DataBaseLayerField
+from .models import (
+    GeoJsonLayer, DataBaseLayer, DataBaseLayerField,
+    DBLayerGroup, DBLayerUser
+)
 from giscube.utils import unique_service_directory
 
 
@@ -87,6 +90,22 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             obj.save()
 
 
+class DBLayerGroupInline(admin.TabularInline):
+    model = DBLayerGroup
+    extra = 1
+    classes = ('tab-permissions',)
+    verbose_name = _('Group')
+    verbose_name_plural = _('Groups')
+
+
+class DBLayerUserInline(admin.TabularInline):
+    model = DBLayerUser
+    extra = 1
+    classes = ('tab-permissions',)
+    verbose_name = _('User')
+    verbose_name_plural = _('Users')
+
+
 class DataBaseLayerFieldsInline(admin.TabularInline):
     model = DataBaseLayerField
     extra = 0
@@ -119,6 +138,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Data base'), ('tab-data-base',)),
         (_('Fields'), ('tab-fields',)),
         (_('Style'), ('tab-style',)),
+        (_('Permissions'), ('tab-permissions',)),
 
     )
 
@@ -156,7 +176,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         self.tabs = self.edit_tabs
         self.fieldsets = self.edit_fieldsets
 
-        self.inlines = [DataBaseLayerFieldsInline]
+        self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline,
+                        DBLayerGroupInline]
         return super(DataBaseLayerAdmin,
                      self).change_view(
                          request, object_id, form_url,

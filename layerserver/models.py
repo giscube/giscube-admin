@@ -6,6 +6,7 @@ from slugify import slugify
 import shutil
 
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
@@ -114,6 +115,12 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     pk_field = models.CharField(max_length=255, blank=False, null=False)
     geom_field = models.CharField(max_length=255, blank=False, null=False)
 
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.name
+
     class Meta:
         """Meta information."""
         verbose_name = 'DataBaseLayer'
@@ -123,8 +130,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
 @receiver(pre_save, sender=DataBaseLayer)
 def pre_dblayer(sender, instance, **kwargs):
     if not instance.pk:
-        model = model_legacy.create_model(instance.table,
-                                          instance.db_connection)
+        model = model_legacy.create_dblayer_model(instance)
         instance.pk_field = model._meta.pk.name.split('.')[-1]
         for f in model._meta.fields:
             if type(f) == models.fields.GeometryField:
@@ -161,3 +167,41 @@ class DataBaseLayerField(models.Model):
     class Meta:
         verbose_name = _('Field')
         verbose_name_plural = _('Fields')
+
+
+class DBLayerGroup(models.Model):
+    layer = models.ForeignKey(DataBaseLayer, related_name='layer_groups')
+    group = models.ForeignKey(Group, verbose_name=_('Group'))
+    can_view = models.BooleanField(_('Can view'), default=True)
+    can_add = models.BooleanField(_('Can add'), default=True)
+    can_update = models.BooleanField(_('Can update'), default=True)
+    can_delete = models.BooleanField(_('Can delete'), default=True)
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
+
+
+class DBLayerUser(models.Model):
+    layer = models.ForeignKey(DataBaseLayer, related_name='layer_users')
+    user = models.ForeignKey(User, verbose_name=_('User'), )
+    can_view = models.BooleanField(_('Can view'), default=True)
+    can_add = models.BooleanField(_('Can add'), default=True)
+    can_update = models.BooleanField(_('Can update'), default=True)
+    can_delete = models.BooleanField(_('Can delete'), default=True)
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
