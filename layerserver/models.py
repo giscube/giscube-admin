@@ -120,6 +120,18 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
         verbose_name_plural = 'DataBaseLayers'
 
 
+@receiver(pre_save, sender=DataBaseLayer)
+def pre_dblayer(sender, instance, **kwargs):
+    if not instance.pk:
+        model = model_legacy.create_model(instance.table,
+                                          instance.db_connection)
+        instance.pk_field = model._meta.pk.name.split('.')[-1]
+        for f in model._meta.fields:
+            if type(f) == models.fields.GeometryField:
+                instance.geom_field = f.name.split('.')[-1]
+                break
+
+
 @receiver(post_save, sender=DataBaseLayer)
 def add_fields(sender, instance, created, **kwargs):
     if created:
