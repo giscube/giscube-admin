@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% block bodyclass %}{% endblock %}
+{% block submit_buttons_bottom %}
+{% load i18n admin_urls %}
+<div class="submit-row">
+<input type="submit" value="{% trans 'Save and continue editing' %}" name="_continue" />
+</div>
+{% endblock %}

@@ -252,6 +252,8 @@ if not GISCUBE_LAYERSERVER_DISABLED:
     LAYERSERVER_STYLE_STROKE_COLOR = '#FF3333'
     LAYERSERVER_STYLE_FILL_COLOR = '#FFC300'
 
+    DATABASE_ROUTERS = ['layerserver.routers.DataBaseLayersRouter']
+
 
 LOGGING = {
     'version': 1,

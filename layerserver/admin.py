@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from django_vue_tabs.admin import TabsMixin
 
-from .models import GeoJsonLayer
+from .models import GeoJsonLayer, DataBaseLayer, DataBaseLayerField
 from giscube.utils import unique_service_directory
 
 
@@ -25,7 +25,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     tabs = (
         (_('Information'), ('fieldset-information',)),
-        (_('Data'), ('fieldset-data',)),
+        (_('GEOJson'), ('fieldset-geojson',)),
         (_('Style'), ('fieldset-style',))
     )
 
@@ -43,7 +43,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'url', 'data_file', 'cache_time', 'last_fetch_on',
                 'generated_on',
             ],
-            'classes': ('fieldset-data',),
+            'classes': ('fieldset-geojson',),
         }),
         (None, {
             'fields': [
@@ -85,3 +85,90 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                     obj.last_fetch_on = timezone.localtime()
 
             obj.save()
+
+
+class DataBaseLayerFieldsInline(admin.TabularInline):
+    model = DataBaseLayerField
+    extra = 0
+
+    can_delete = False
+    fields = ('enabled', 'field', 'alias',)
+    readonly_fields = ('field',)
+    # FIXME: tab-fields
+    classes = ('tab-fields',)
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(DataBaseLayer)
+class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+    list_display = ('slug', 'name', 'table')
+    list_display_links = list_display
+    inlines = []
+
+    add_fieldsets = (
+        ('Layer', {
+            'fields': ('db_connection', 'slug', 'name', 'table')
+        }),
+    )
+    tabs = None
+    edit_tabs = (
+        (_('Information'), ('tab-information',)),
+        (_('Data base'), ('tab-data-base',)),
+        (_('Fields'), ('tab-fields',)),
+        (_('Style'), ('tab-style',)),
+
+    )
+
+    edit_fieldsets = [
+        (None, {
+            'fields': [
+                'category', 'slug', 'name', 'title',
+                'description', 'keywords', 'active', 'visibility',
+                'visible_on_geoportal',
+            ],
+            'classes': ('tab-information',),
+        }),
+        (None, {
+            'fields': [
+                'db_connection', 'table', 'pk_field', 'geom_field'
+            ],
+            'classes': ('tab-data-base',),
+        }),
+        (None, {
+            'fields': [
+                'shapetype', 'shape_radius', 'stroke_color', 'stroke_width',
+                'stroke_dash_array', 'fill_color', 'fill_opacity',
+            ],
+            'classes': ('tab-style',),
+        }),
+    ]
+
+    def add_view(self, request, form_url='', extra_context=None):
+        self.fieldsets = self.add_fieldsets
+        self.inlines = []
+        return super(DataBaseLayerAdmin, self).add_view(
+            request, form_url, extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.tabs = self.edit_tabs
+        self.fieldsets = self.edit_fieldsets
+
+        self.inlines = [DataBaseLayerFieldsInline]
+        return super(DataBaseLayerAdmin,
+                     self).change_view(
+                         request, object_id, form_url,
+                         extra_context=extra_context)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Override add_form template
+        """
+        defaults = {}
+        if obj is None:
+            self.add_form_template = 'admin/data_base_layer/add_form.html'
+        defaults.update(kwargs)
+        return super(
+            DataBaseLayerAdmin, self).get_form(request, obj, **defaults)

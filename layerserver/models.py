@@ -13,8 +13,10 @@ from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
 
 from .mixins import BaseLayerMixin, StyleMixin
+import layerserver.model_legacy as model_legacy
 from .utils import generateGeoJsonLayer
 from giscube.utils import unique_service_directory
+from giscube.models import DBConnection
 
 
 def get_jsonlayer_url(instance, filename):
@@ -98,3 +100,52 @@ def geojsonlayer_delete(sender, instance, **kwargs):
         path = os.path.join(settings.MEDIA_ROOT, instance.service_path)
         if os.path.exists(path):
             shutil.rmtree(path)
+
+
+class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
+    db_connection = models.ForeignKey(
+        DBConnection, null=False, blank=False, on_delete=models.PROTECT,
+        related_name='db_connections')
+    slug = models.SlugField(max_length=255, blank=False, null=False,
+                            unique=True)
+    name = models.CharField(max_length=255, blank=False, null=False)
+
+    table = models.CharField(max_length=255)
+    pk_field = models.CharField(max_length=255, blank=False, null=False)
+    geom_field = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta:
+        """Meta information."""
+        verbose_name = 'DataBaseLayer'
+        verbose_name_plural = 'DataBaseLayers'
+
+
+@receiver(post_save, sender=DataBaseLayer)
+def add_fields(sender, instance, created, **kwargs):
+    if created:
+        conn = instance.db_connection.get_connection()
+        fields = model_legacy.get_fields(conn, instance.table)
+        for field in fields:
+            db_field = DataBaseLayerField()
+            db_field.layer = instance
+            db_field.field = field
+            db_field.save()
+
+
+class DataBaseLayerField(models.Model):
+    layer = models.ForeignKey(
+        DataBaseLayer, null=False, blank=False,
+        related_name='fields')
+    field = models.CharField(max_length=255, blank=False, null=False)
+    alias = models.CharField(max_length=255, blank=True, null=True)
+    enabled = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.alias or self.field
+
+    class Meta:
+        verbose_name = _('Field')
+        verbose_name_plural = _('Fields')
