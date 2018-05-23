@@ -27,12 +27,13 @@ def get_jsonlayer_url(instance, filename):
     return 'layerserver/geojsonlayer/{0}/{1}'.format(instance.id, filename)
 
 
-class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
-    def upload_path(instance, filename):
-        return unique_service_directory(instance, 'remote.json')
+def geojsonlayer_upload_path(instance, filename):
+    return unique_service_directory(instance, 'remote.json')
 
+
+class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
     url = models.CharField(max_length=100, null=True, blank=True)
-    data_file = models.FileField(upload_to=upload_path,
+    data_file = models.FileField(upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
     service_path = models.CharField(max_length=255)
     cache_time = models.IntegerField(blank=True, null=True)

@@ -55,36 +55,33 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     ]
 
     def generateGeoJsonLayer(self, layer):
-        path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
-        data = json.load(open(path))
-        data['metadata'] = layer.metadata
-        fixed_file = os.path.join(
-            settings.MEDIA_ROOT, layer.service_path, 'data.json')
-        with open(path, "wb") as fixed_file:
-            fixed_file.write(json.dumps(data))
+        if layer.data_file:
+            path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
+            data = json.load(open(path))
+            data['metadata'] = layer.metadata
+            fixed_file = os.path.join(
+                settings.MEDIA_ROOT, layer.service_path, 'data.json')
+            with open(path, "wb") as fixed_file:
+                fixed_file.write(json.dumps(data))
 
     # TODO: validate both data_file and url
     def save_model(self, request, obj, form, change):
+        if not obj.service_path:
+            unique_service_directory(obj)
         super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
         if obj.url:
-            if not obj.service_path:
-                unique_service_directory(obj)
             try:
                 r = requests.get(obj.url)
-                content = ContentFile(r.text)
-                # empty files are not valid
-                if content:
-                    obj.data_file.save('remote.json', content, save=True)
-                    obj.last_fetch_on = timezone.localtime()
             except Exception as e:
                 print('Error getting file %s' % e)
-            obj.save()
-            self.generateGeoJsonLayer(obj)
-        else:
-            if 'data_file' in form.changed_data:
-                self.generateGeoJsonLayer(obj)
+            else:
+                content = ContentFile(r.text)
+                if content:
+                    remote_file = os.path.join(
+                        settings.MEDIA_ROOT, obj.service_path, 'remote.json')
+                    if os.path.exists(remote_file):
+                        os.remove(remote_file)
+                    obj.data_file.save('remote.json', content, save=True)
+                    obj.last_fetch_on = timezone.localtime()
 
-        # Cas fitxer
-        # - si ha canviat cal generar el corregit
-        # Cas url
-        # - descarregar i guardar i corregir
+            obj.save()
