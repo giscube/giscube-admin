@@ -37,8 +37,8 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
                                  null=True, blank=True)
     service_path = models.CharField(max_length=255)
     cache_time = models.IntegerField(blank=True, null=True)
-    last_fetch_on = models.DateField(null=True, blank=True)
-    generated_on = models.DateField(null=True, blank=True)
+    last_fetch_on = models.DateTimeField(null=True, blank=True)
+    generated_on = models.DateTimeField(null=True, blank=True)
 
     @property
     def metadata(self):
