@@ -239,14 +239,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    # 'DEFAULT_RENDERER_CLASSES': (
-    #     'drf_ujson.renderers.UJSONRenderer',
-    # ),
-    # 'DEFAULT_PARSER_CLASSES': (
-    #     'drf_ujson.parsers.UJSONParser',
-    # ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'drf_ujson.renderers.UJSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'drf_ujson.parsers.UJSONParser',
+    ),
     # 'PAGE_SIZE': 100
 }
+
 
 if not GISCUBE_LAYERSERVER_DISABLED:
     LAYERSERVER_STYLE_STROKE_COLOR = '#FF3333'
