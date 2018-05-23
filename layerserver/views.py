@@ -94,7 +94,6 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         return qs
 
     def get_serializer_class(self, *args, **kwargs):
-        print(self.model, self._fields, self.lookup_field)
         return create_serializer(self.model, self._fields, self.lookup_field)
 
     def delete_multiple(self, request, *args, **kwargs):
