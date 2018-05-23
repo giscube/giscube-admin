@@ -75,9 +75,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
         self.model = create_model(
-            self.layer.table, {
-                'name': self.layer.db_connection.connection_name(),
-                'connection': self.layer.db_connection.get_connection()})
+            self.layer.table, self.layer.db_connection)
         self.lookup_field = self.layer.pk_field
         self._fields = list(self.layer.fields.filter(
             enabled=True).values_list('field', flat=True))

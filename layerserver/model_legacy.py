@@ -239,10 +239,10 @@ def create_model(table, connection):
     attrs = {
         '__module__': 'layerserver',
         'Meta': Meta,
-        'databaselayer_db_connection': connection['name']
+        'databaselayer_db_connection': connection.connection_name()
     }
 
-    attrs.update(get_fields(connection['connection'], table_name))
+    attrs.update(get_fields(connection.get_connection(), table_name))
     model = type(table_name, (models.Model,), attrs)
 
     return model
