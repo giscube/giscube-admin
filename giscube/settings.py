@@ -255,6 +255,9 @@ if not GISCUBE_LAYERSERVER_DISABLED:
 
     DATABASE_ROUTERS = ['layerserver.routers.DataBaseLayersRouter']
 
+    INSTALLED_APPS += [
+        'rest_framework_gis',
+     ]
 
 LOGGING = {
     'version': 1,
