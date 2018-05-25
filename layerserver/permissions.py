@@ -13,10 +13,11 @@ class DBLayerPermissions():
             'update': False,
             'delete': False
         }
-        layer_user = None
-        if type(user) != AnonymousUser:
-            layer_user = layer.layer_users.filter(user=user).first()
 
+        if type(user) == AnonymousUser:
+            return permission
+
+        layer_user = layer.layer_users.filter(user=user).first()
         if layer_user:
             permission['view'] = layer_user.can_view
             permission['add'] = layer_user.can_add
