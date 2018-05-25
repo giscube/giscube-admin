@@ -38,15 +38,6 @@ class DBLayerPermissions():
                 if p.can_delete:
                     permission['delete'] = p.can_delete
 
-                if p.can_view:
-                    permission['view'] = p.can_view
-                if p.can_add:
-                    permission['add'] = p.can_add
-                if p.can_update:
-                    permission['update'] = p.can_update
-                if p.can_delete:
-                    permission['delete'] = p.can_delete
-
         return permission
 
 
