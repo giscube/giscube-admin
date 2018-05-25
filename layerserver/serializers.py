@@ -80,18 +80,17 @@ def create_dblayer_serializer(model, fields, id_field):
     if len(fields) > 0:
         attrs = {
             '__module__': 'layerserver',
-            'Meta': type('Meta', (object,),
+            'Meta': type(str('Meta'), (object,),
                          {'model': model, 'geo_field': geo_field,
                           'id_field': id_field, 'fields': fields_serialize})
         }
     else:
         attrs = {
             '__module__': 'layerserver',
-            'Meta': type('Meta', (object,), {'model': model,
-                                             'id_field': id_field,
-                                             'geo_field': geo_field})
+            'Meta': type(str('Meta'), (object,), {
+                'model': model, 'id_field': id_field, 'geo_field': geo_field})
         }
-    serializer = type('%s_serializer' % str(model._meta.db_table),
+    serializer = type(str('%s_serializer') % str(model._meta.db_table),
                       (Geom4326Serializer,), attrs)
 
     return serializer
