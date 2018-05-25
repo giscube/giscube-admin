@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import permissions
 from .models import DBLayerGroup
 
@@ -12,8 +13,9 @@ class DBLayerPermissions():
             'update': False,
             'delete': False
         }
-
-        layer_user = layer.layer_users.filter(user=user).first()
+        layer_user = None
+        if type(user) != AnonymousUser:
+            layer_user = layer.layer_users.filter(user=user).first()
 
         if layer_user:
             permission['view'] = layer_user.can_view
