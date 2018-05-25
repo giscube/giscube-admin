@@ -153,7 +153,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'db_connection', 'table', 'pk_field', 'geom_field'
+                'db_connection', 'table', 'pk_field', 'geom_field', 'srid'
             ],
             'classes': ('tab-data-base',),
         }),

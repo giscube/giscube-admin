@@ -140,7 +140,7 @@ def get_fields(connection, table_name):
     column_to_field_name = {}  # Maps column names to names of model fields
     for row in connection.introspection.get_table_description(cursor,
                                                               table_name):
-        print(row)
+
         comment_notes = []  # Holds Field notes, to be displayed in a Python comment.
         extra_params = OrderedDict()  # Holds Field parameters such as 'db_column'.
         column_name = row[0]
@@ -223,6 +223,7 @@ def get_fields(connection, table_name):
 
     # for meta_line in self.get_meta(table_name, constraints, column_to_field_name):
     #     yield meta_line
+
     return fields
 
 
@@ -234,14 +235,14 @@ def create_dblayer_model(layer):
         verbose_name = layer.name
 
     table_name = str(layer.table)
-
     attrs = {
         '__module__': 'layerserver',
         'Meta': Meta,
         'databaselayer_db_connection': layer.db_connection.connection_name()
     }
-
-    attrs.update(get_fields(layer.db_connection.get_connection(), table_name))
+    fields = get_fields(layer.db_connection.get_connection(), table_name)
+    fields[layer.geom_field].srid = layer.srid
+    attrs.update(fields)
     model = type(table_name, (models.Model,), attrs)
 
     return model

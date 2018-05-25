@@ -114,6 +114,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     table = models.CharField(max_length=255)
     pk_field = models.CharField(max_length=255, blank=False, null=False)
     geom_field = models.CharField(max_length=255, blank=False, null=False)
+    srid = models.IntegerField(default=4326)
 
     def __unicode__(self):
         return self.__str__()
