@@ -1,5 +1,10 @@
-from django.contrib.auth.models import AnonymousUser
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from rest_framework import permissions
+
+from django.contrib.auth.models import AnonymousUser
+
 from .models import DBLayerGroup
 
 

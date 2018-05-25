@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+
 class DataBaseLayersRouter:
     """
     A router to control all database operations for databaslayers
