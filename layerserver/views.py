@@ -13,16 +13,16 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 
-from .models import GeoJsonLayer, DataBaseLayer
-import layerserver.model_legacy as model_legacy
-from .serializers import create_serializer
-from .permissions import DBLayerIsValidUser
 from .authentication import CsrfExemptSessionAuthentication
 from .filters import filterset_factory
-
+from .model_legacy import create_dblayer_model
+from .models import GeoJsonLayer, DataBaseLayer
+from .pagination import CustomGeoJsonPagination
+from .permissions import DBLayerIsValidUser
 
 from .serializers import (
-    DBLayerSerializer, DBLayerDetailSerializer
+    DBLayerSerializer, DBLayerDetailSerializer,
+    create_dblayer_serializer
 )
 
 
@@ -79,6 +79,9 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     model = None
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
+    pagination_class = CustomGeoJsonPagination
+    page_size_query_param = 'page_size'
+    page_size = 50
     ordering_fields = '__all__'
     filter_fields = []
     filter_class = None
@@ -87,7 +90,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
 
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
-        self.model = model_legacy.create_dblayer_model(self.layer)
+        self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
         self._fields = list(self.layer.fields.filter(
             enabled=True).values_list('field', flat=True))
@@ -101,17 +104,44 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
                      self).dispatch(
                          request, *args, **kwargs)
 
+    def bbox2wkt(self, bbox, srid):
+        from django.contrib.gis.geos import GEOSGeometry
+        from django.contrib.gis.gdal import SpatialReference, CoordTransform
+        bbox = bbox.split(',')
+        minx, miny, maxx, maxy = tuple(bbox)
+        wkt = ('SRID=4326;'
+               'POLYGON ('
+               '(%s %s, %s %s, %s %s, %s %s, %s %s))' %
+               (minx, miny, maxx, miny, maxx, maxy, minx, maxy, minx, miny))
+        geom = GEOSGeometry(wkt, srid=4326)
+        if srid != 4326:
+            srs_to = SpatialReference(srid)
+            srs_4326 = SpatialReference(4326)
+            trans = CoordTransform(srs_4326, srs_to)
+            geom.transform(trans)
+        return geom
+
     def get_queryset(self):
         qs = self.model.objects.all()
+        if self.layer.geom_field:
+            in_bbox = self.request.query_params.get('in_bbox', None)
+            if in_bbox:
+                poly__bboverlaps = '%s__bboverlaps' % self.layer.geom_field
+                qs = qs.filter(**{poly__bboverlaps: self.bbox2wkt(
+                    in_bbox, self.layer.srid)})
         model_filter = filterset_factory(self.model, self.filter_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
         return qs
 
     def get_serializer_class(self, *args, **kwargs):
-        return create_serializer(self.model, self._fields, self.lookup_field)
+        return create_dblayer_serializer(
+            self.model, self._fields, self.lookup_field)
 
     def delete_multiple(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         queryset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    class Meta:
+        filter_overrides = ['geom']
