@@ -106,7 +106,7 @@ def geojsonlayer_delete(sender, instance, **kwargs):
 class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
-        related_name='db_connections')
+        related_name='db_connections', verbose_name='Database connection')
     slug = models.SlugField(max_length=255, blank=False, null=False,
                             unique=True)
     name = models.CharField(max_length=255, blank=False, null=False)
