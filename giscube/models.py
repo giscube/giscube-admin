@@ -89,5 +89,5 @@ class DBConnection(models.Model):
 
     class Meta:
         """Meta information."""
-        verbose_name = 'DBConnection'
-        verbose_name_plural = 'DBConnections'
+        verbose_name = 'Database connection'
+        verbose_name_plural = 'Database connections'
