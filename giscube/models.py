@@ -83,8 +83,9 @@ class DBConnection(models.Model):
         if not self.check_connection():
             raise ValidationError('DATABASE CONNECTION ERROR')
 
-    def __str__(self):
-        return self.alias or self.name
+    def __unicode__(self):
+        return '%s' % self.alias or self.name
+
 
     class Meta:
         """Meta information."""
