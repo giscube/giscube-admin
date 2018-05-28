@@ -36,7 +36,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         s = instance.service
         s.name = ('%s-%s') % (request.data.get('name'), time.time())
-        s.category_id = request.data.get('category')
+        s.category_id = int(request.data.get('category'))
         s.title = request.data.get('title')
         s.description = request.data.get('description')
         s.keywords = request.data.get('keywords')
