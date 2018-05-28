@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import os
 import ujson as json
@@ -163,6 +162,13 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
+        }),
+        ('Anonymous user', {
+            'fields': [
+                'anonymous_view', 'anonymous_add', 'anonymous_update',
+                'anonymous_delete'
+            ],
+            'classes': ('tab-permissions',),
         }),
     ]
 

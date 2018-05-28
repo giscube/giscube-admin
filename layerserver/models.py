@@ -116,6 +116,11 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     geom_field = models.CharField(max_length=255, blank=False, null=False)
     srid = models.IntegerField(default=4326)
 
+    anonymous_view = models.BooleanField(_('Can view'), default=False)
+    anonymous_add = models.BooleanField(_('Can add'), default=False)
+    anonymous_update = models.BooleanField(_('Can update'), default=False)
+    anonymous_delete = models.BooleanField(_('Can delete'), default=False)
+
     def __unicode__(self):
         return self.__str__()
 

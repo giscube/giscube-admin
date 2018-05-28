@@ -8,6 +8,7 @@ from django.http import (
     FileResponse
 )
 from django.db.models import Q
+from django.contrib.auth.models import AnonymousUser
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -56,16 +57,28 @@ class DBLayerViewSet(viewsets.ModelViewSet):
 
     def initial(self, request, *args, **kwargs):
         self.user = request.user
-        self.user_groups = request.user.groups.values_list('name', flat=True)
+        if type(self.user) == AnonymousUser:
+            self.user_groups = []
+        else:
+            self.user_groups = request.user.groups.values_list(
+                'name', flat=True)
+
         return super(DBLayerViewSet,
                      self).initial(
                          request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        return self.model.objects.filter(
-            active=True).filter(
-                Q(layer_groups__group__name__in=self.user_groups) | Q(
-                    layer_users__user__in=[self.user])).all().distinct()
+        qs = self.model.objects.filter(active=True)
+        if type(self.user) == AnonymousUser:
+            qs = qs.filter(
+                Q(anonymous_view=True) | Q(
+                    anonymous_add=True) | Q(anonymous_delete=True))
+        else:
+            qs = qs.filter(
+                    Q(layer_groups__group__name__in=self.user_groups) | Q(
+                        layer_users__user__in=[self.user])).all().distinct()
+
+        return qs
 
 
 class DBLayerDetailViewSet(DBLayerViewSet):
