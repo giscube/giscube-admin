@@ -11,3 +11,6 @@ GDAL==1.10.0
 Pillow==5.1.0
 -e git+https://github.com/giscube/tilecache.git#egg=TileCache&subdirectory=tilecache
 Whoosh==2.7.4
+celery==4.1.0
+redis==2.10.6
+django_celery_monitor==1.1.2

@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import logging
+from kombu import Exchange, Queue
+
+
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
     'loginas',
+    'django_celery_monitor',
 ]
 
 if not GISCUBE_IMAGE_SERVER_DISABLED:
@@ -241,7 +245,25 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 100
 }
 
+# celery
+CELERY_DEFAULT_QUEUE = 'default'
 
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    Queue('sequential_queue', Exchange('long'), routing_key='sequential_queue')
+)
+CELERY_ROUTES = {
+    'giscube.tasks.async_haystack_rebuild_index': {
+        'queue': 'sequential_queue'},
+    }
+
+
+# logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

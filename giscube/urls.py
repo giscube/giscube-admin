@@ -6,8 +6,10 @@ from django.contrib import admin
 import oauth2_provider.views as oauth2_views
 from rest_framework import routers
 
+from giscube import api
+from giscube.admin_views import RebuildIndexView
 from qgisserver import api as qgisserver_api
-from . import api
+
 
 router = routers.DefaultRouter()
 router.register(r'giscube/category', api.CategoryViewSet,
@@ -31,6 +33,9 @@ urlpatterns = [
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
 
+    url(r'^admin/giscube/rebuild_index/$',
+        admin.site.admin_view(RebuildIndexView.as_view()),
+        name='rebuild_index'),
     url(r'^admin/', admin.site.urls),
     url(r'^admin/', include('loginas.urls')),
 ]
