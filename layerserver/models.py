@@ -18,6 +18,7 @@ import layerserver.model_legacy as model_legacy
 from .utils import generateGeoJsonLayer
 from giscube.utils import unique_service_directory
 from giscube.models import DBConnection
+from qgisserver.models import Service
 
 
 def get_jsonlayer_url(instance, filename):
@@ -173,6 +174,24 @@ class DataBaseLayerField(models.Model):
     class Meta:
         verbose_name = _('Field')
         verbose_name_plural = _('Fields')
+
+
+class DataBaseLayerReference(models.Model):
+    layer = models.ForeignKey(
+        DataBaseLayer, null=False, blank=False,
+        related_name='references'
+        )
+    service = models.ForeignKey(
+        Service, null=False, blank=False)
+
+    def __unicode__(self):
+        return unicode(self.service.title or self.service.name)
+
+
+    class Meta:
+        verbose_name = _('Reference')
+        verbose_name_plural = _('References')
+        unique_together = ('layer', 'service',)
 
 
 class DBLayerGroup(models.Model):

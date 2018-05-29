@@ -13,9 +13,9 @@ from django.utils import timezone
 
 from django_vue_tabs.admin import TabsMixin
 
-from .models import (
+from layerserver.models import (
     GeoJsonLayer, DataBaseLayer, DataBaseLayerField,
-    DBLayerGroup, DBLayerUser
+    DBLayerGroup, DBLayerUser, DataBaseLayerReference
 )
 from giscube.utils import unique_service_directory
 
@@ -119,6 +119,14 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
         return False
 
 
+class DataBaseLayerReferencesInline(admin.TabularInline):
+    model = DataBaseLayerReference
+    extra = 0
+
+    fields = ('service',)
+    classes = ('tab-references',)
+
+
 @admin.register(DataBaseLayer)
 class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
@@ -138,6 +146,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Fields'), ('tab-fields',)),
         (_('Style'), ('tab-style',)),
         (_('Permissions'), ('tab-permissions',)),
+        (_('References'), ('tab-references',)),
 
     )
 
@@ -183,7 +192,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         self.fieldsets = self.edit_fieldsets
 
         self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline,
-                        DBLayerGroupInline]
+                        DBLayerGroupInline, DataBaseLayerReferencesInline]
         return super(DataBaseLayerAdmin,
                      self).change_view(
                          request, object_id, form_url,
