@@ -8,7 +8,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = ('id', 'name', 'title', 'description', 'keywords', 'active',
-                  'visible_on_geoportal')
+                  'visible_on_geoportal', 'category')
 
 
 class ProjectSerializer(serializers.ModelSerializer):
