@@ -19,8 +19,12 @@ class CustomGeoJsonPagination(pagination.PageNumberPagination):
         return Response(OrderedDict([
             ('type', 'FeatureCollection'),
             ('count', self.page.paginator.count),
+            ('from', self.page.start_index()),
+            ('to', self.page.end_index()),
+            ('page', self.page.number),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
+            ('page_size', self.get_page_size(self.request)),
             ('total_pages', self.page.paginator.num_pages),
             ('features', data['features']),
         ]))
