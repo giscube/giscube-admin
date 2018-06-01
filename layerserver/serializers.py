@@ -52,7 +52,8 @@ class Geom4326Serializer(GeoFeatureModelSerializer):
         elif self.Meta.bbox_geo_field:
             field = self.fields[self.Meta.bbox_geo_field]
             value = field.get_attribute(instance)
-            feature["bbox"] = value.extent if hasattr(value, 'extent') else None
+            feature["bbox"] = value.extent if hasattr(
+                value, 'extent') else None
             fields.remove(field)
 
         # GeoJSON properties
