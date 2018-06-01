@@ -163,6 +163,8 @@ class DataBaseLayerField(models.Model):
         related_name='fields')
     field = models.CharField(max_length=255, blank=False, null=False)
     alias = models.CharField(max_length=255, blank=True, null=True)
+    search = models.BooleanField(default=True)
+    fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
 
     def __unicode__(self):

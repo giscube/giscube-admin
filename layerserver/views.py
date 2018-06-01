@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 import os
+from operator import __or__ as OR
 
 from django.http import (
     HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError,
     FileResponse
 )
 from django.db.models import Q
+from django.db.models import fields as django_fieds
 from django.contrib.auth.models import AnonymousUser
 
 from rest_framework import viewsets, status
@@ -99,20 +101,24 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     filter_fields = []
     filter_class = None
     lookup_url_kwarg = 'pk'
-    _fields = []
+    _fields = {}
 
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
-        self._fields = list(self.layer.fields.filter(
-            enabled=True).values_list('field', flat=True))
-        self.filter_fields = self._fields
+        self.filter_fields = []
+        self._fields = {}
+        for field in self.layer.fields.filter(enabled=True):
+            if field.search is True:
+                self.filter_fields.append(field.field)
+            self._fields[field.field] = {
+                'fullsearch': field.fullsearch
+            }
         lookup_field_value = kwargs.get(self.lookup_url_kwarg)
         defaults = {}
         defaults[self.lookup_field] = lookup_field_value
         kwargs.update(defaults)
-
         return super(DBLayerContentViewSet,
                      self).dispatch(
                          request, *args, **kwargs)
@@ -134,14 +140,32 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
             geom.transform(trans)
         return geom
 
-    def get_queryset(self):
-        qs = self.model.objects.all()
-        if self.layer.geom_field:
+    def _geom_filters(self, qs):
+        if self.layer.geom_field and 'in_bbox' in self.request.GET:
             in_bbox = self.request.query_params.get('in_bbox', None)
             if in_bbox:
                 poly__bboverlaps = '%s__bboverlaps' % self.layer.geom_field
                 qs = qs.filter(**{poly__bboverlaps: self.bbox2wkt(
                     in_bbox, self.layer.srid)})
+        return qs
+
+    def _fulsearch_filters(self, qs):
+        q = self.request.query_params.get('q', None)
+        if q:
+            lst = []
+            for name, field in self._fields.iteritems():
+                if field['fullsearch'] is True:
+                    if name != self.layer.geom_field:
+                        contains = '%s__contains' % name
+                        lst.append(Q(**{contains: q}))
+            if len(lst) > 0:
+                qs = qs.filter(reduce(OR, lst)) # NOQA: E0602
+        return qs
+
+    def get_queryset(self):
+        qs = self.model.objects.all()
+        qs = self._fulsearch_filters(qs)
+        qs = self._geom_filters(qs)
         model_filter = filterset_factory(self.model, self.filter_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
@@ -149,7 +173,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self, *args, **kwargs):
         return create_dblayer_serializer(
-            self.model, self._fields, self.lookup_field)
+            self.model, self._fields.keys(), self.lookup_field)
 
     def delete_multiple(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

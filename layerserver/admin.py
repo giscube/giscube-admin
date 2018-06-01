@@ -110,7 +110,7 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     extra = 0
 
     can_delete = False
-    fields = ('enabled', 'field', 'alias',)
+    fields = ('enabled', 'field', 'alias', 'search', 'fullsearch')
     readonly_fields = ('field',)
     # FIXME: tab-fields
     classes = ('tab-fields',)
