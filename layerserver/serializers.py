@@ -6,9 +6,12 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
+from django.conf import settings
 from django.contrib.gis.db.models.fields import GeometryField
 
-from .models import DataBaseLayer, DataBaseLayerField
+from layerserver.models import (
+    DataBaseLayer, DataBaseLayerField, DataBaseLayerReference
+)
 
 
 class Geom4326Serializer(GeoFeatureModelSerializer):
@@ -103,8 +106,28 @@ class DBLayerSerializer(serializers.ModelSerializer):
         fields = ['slug', 'name', 'pk_field', 'geom_field']
 
 
-class DBLayerFieldListSerializer(serializers.ListSerializer):
+class DBLayerReferenceSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
 
+    def get_title(self, obj):
+        if obj.service is None:
+            return serializers.empty
+        return obj.service.title or obj.service.name
+
+    def get_url(self, obj):
+        if obj.service is None:
+            return serializers.empty
+        url = ('%s/qgisserver/services/%s/' % (
+            settings.GISCUBE_URL, obj.service.name)).replace('//', '')
+        return url
+
+    class Meta:
+        model = DataBaseLayerReference
+        fields = ['title', 'url']
+
+
+class DBLayerFieldListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = data.filter(enabled=True)
         return super(
@@ -121,6 +144,7 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
 class DBLayerDetailSerializer(serializers.ModelSerializer):
     # TODO: serialize category
     fields = DBLayerFieldSerializer(many=True, read_only=True)
+    references = DBLayerReferenceSerializer(many=True, read_only=True)
 
     def to_representation(self, obj):
         data = super(
@@ -140,4 +164,4 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataBaseLayer
         fields = ['slug', 'name', 'title', 'description', 'keywords',
-                  'pk_field', 'geom_field', 'fields']
+                  'pk_field', 'geom_field', 'fields', 'references']
