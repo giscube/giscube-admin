@@ -6,7 +6,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
-import django.contrib.gis.db.models.fields
+from django.contrib.gis.db.models.fields import GeometryField
 
 from .models import DataBaseLayer, DataBaseLayerField
 
@@ -67,7 +67,7 @@ def create_dblayer_serializer(model, fields, id_field):
 
     geo_field = None
     for f in model._meta.fields:
-        if type(f) == django.contrib.gis.db.models.fields.GeometryField:
+        if type(f) == GeometryField:
             geo_field = str(f).split('.')[-1]
             break
 
