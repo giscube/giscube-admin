@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.db.models import fields as django_fieds
 from django.contrib.auth.models import AnonymousUser
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 
@@ -100,6 +100,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     ordering_fields = '__all__'
     filter_fields = []
     filter_class = None
+    filter_backends = (filters.OrderingFilter,)
     lookup_url_kwarg = 'pk'
     _fields = {}
 
