@@ -18,20 +18,29 @@ class DBLayerPermissions():
             'update': False,
             'delete': False
         }
-    
+
         if type(user) == AnonymousUser:
             permission['view'] = layer.anonymous_view
             permission['add'] = layer.anonymous_add
             permission['update'] = layer.anonymous_update
             permission['delete'] = layer.anonymous_delete
             return permission
+        else:
+            permission['view'] = layer.anonymous_view
+            permission['add'] = layer.anonymous_add
+            permission['update'] = layer.anonymous_update
+            permission['delete'] = layer.anonymous_delete
 
-        layer_user = layer.layer_users.filter(user=user).first()
-        if layer_user:
-            permission['view'] = layer_user.can_view
-            permission['add'] = layer_user.can_add
-            permission['update'] = layer_user.can_update
-            permission['delete'] = layer_user.can_delete
+        p = layer.layer_users.filter(user=user).first()
+        if p:
+            if p.can_view:
+                permission['view'] = p.can_view
+            if p.can_add:
+                permission['add'] = p.can_add
+            if p.can_update:
+                permission['update'] = p.can_update
+            if p.can_delete:
+                permission['delete'] = p.can_delete
         else:
             ps = DBLayerGroup.objects.filter(
                 layer=layer,
