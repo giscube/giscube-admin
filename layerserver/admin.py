@@ -13,10 +13,14 @@ from django.utils import timezone
 
 from django_vue_tabs.admin import TabsMixin
 
+from layerserver.admin_forms import (
+    DataBaseLayerAddForm, DataBaseLayerChangeForm
+)
 from layerserver.models import (
     GeoJsonLayer, DataBaseLayer, DataBaseLayerField,
     DBLayerGroup, DBLayerUser, DataBaseLayerReference
 )
+
 from giscube.utils import unique_service_directory
 
 
@@ -135,7 +139,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'slug', 'name', 'table')
+            'fields': ('db_connection', 'slug', 'name', 'table', 'geom_field',
+                       'srid')
         }),
     )
     tabs = None
@@ -180,6 +185,11 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ('table', 'geom_field', 'srid')
+        return self.readonly_fields
+
     def add_view(self, request, form_url='', extra_context=None):
         self.fieldsets = self.add_fieldsets
         self.inlines = []
@@ -204,6 +214,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         defaults = {}
         if obj is None:
             self.add_form_template = 'admin/data_base_layer/add_form.html'
+            defaults['form'] = DataBaseLayerAddForm
+        else:
+            defaults['form'] = DataBaseLayerChangeForm
         defaults.update(kwargs)
         return super(
             DataBaseLayerAdmin, self).get_form(request, obj, **defaults)
