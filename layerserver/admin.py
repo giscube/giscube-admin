@@ -60,15 +60,6 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
-    def generateGeoJsonLayer(self, layer):
-        if layer.data_file:
-            path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
-            data = json.load(open(path))
-            data['metadata'] = layer.metadata
-            fixed_file = os.path.join(
-                settings.MEDIA_ROOT, layer.service_path, 'data.json')
-            with open(path, "wb") as fixed_file:
-                fixed_file.write(json.dumps(data))
 
     # TODO: validate both data_file and url
     def save_model(self, request, obj, form, change):
