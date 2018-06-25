@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import ujson as json
 import requests
 
 
