@@ -74,7 +74,6 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
             unique_service_directory(obj)
-        super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
         if obj.url:
             try:
                 r = requests.get(obj.url)
@@ -90,7 +89,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                     obj.data_file.save('remote.json', content, save=True)
                     obj.last_fetch_on = timezone.localtime()
 
-            obj.save()
+        super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
 
 
 class DBLayerGroupInline(admin.TabularInline):
