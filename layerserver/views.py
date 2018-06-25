@@ -11,6 +11,7 @@ from django.http import (
 from django.db.models import Q
 from django.db.models import fields as django_fieds
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
 
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
@@ -40,7 +41,7 @@ def GeoJSONLayerView(request, layer_name):
     if layer.visibility == 'private' and not request.user.is_authenticated():
         return HttpResponseForbidden()
 
-    path = layer.data_file.path
+    path = os.path.join(settings.MEDIA_ROOT, layer.service_path, 'data.json')
 
     if not os.path.isfile(path):
         return HttpResponseServerError(path)
