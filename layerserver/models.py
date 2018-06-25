@@ -12,6 +12,7 @@ from django.contrib.gis.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from .mixins import BaseLayerMixin, StyleMixin
@@ -101,6 +102,7 @@ def geojsonlayer_post_save(sender, instance, created, **kwargs):
                 settings.MEDIA_ROOT, instance.service_path, 'data.json')
             with open(outfile_path, "wb") as fixed_file:
                 fixed_file.write(json.dumps(data))
+            instance.generated_on = timezone.localtime()
 
 
 @receiver(post_delete, sender=GeoJsonLayer)
