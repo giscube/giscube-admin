@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.contrib import admin
-from .models import Category
+
+from django_vue_tabs.admin import TabsMixin
+
+from .models import Category, DBConnection
+
 
 admin.site.site_title = 'GISCube Admin'
 admin.site.site_header = 'GISCube'
@@ -9,3 +16,8 @@ admin.site.site_header = 'GISCube'
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'parent', '__unicode__')
     search_fields = ('name', 'parent__name')
+
+
+@admin.register(DBConnection)
+class DBConnectionAdmin(TabsMixin, admin.ModelAdmin):
+    pass

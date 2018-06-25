@@ -38,6 +38,8 @@ GISCUBE_GIS_SERVER_DISABLED = os.environ.get('GISCUBE_GIS_SERVER_DISABLED',
 GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
                                             'False').lower() == 'true'
 
+GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
+                                              'False').lower() == 'true'
 
 # Application definition
 INSTALLED_APPS = [
@@ -65,8 +67,13 @@ if not GISCUBE_GIS_SERVER_DISABLED:
 if not GISCUBE_GEOPORTAL_DISABLED:
     INSTALLED_APPS += ['geoportal', 'haystack']
 
+if not GISCUBE_LAYERSERVER_DISABLED:
+    INSTALLED_APPS += ['colorfield', 'layerserver']
+
+
 INSTALLED_APPS += [
     'theme_giscube',
+    'django_vue_tabs',
 
     # django
     'django.contrib.gis',
@@ -236,13 +243,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    # 'DEFAULT_RENDERER_CLASSES': (
-    #     'drf_ujson.renderers.UJSONRenderer',
-    # ),
-    # 'DEFAULT_PARSER_CLASSES': (
-    #     'drf_ujson.parsers.UJSONParser',
-    # ),
-    # 'PAGE_SIZE': 100
+    'DEFAULT_RENDERER_CLASSES': (
+        'drf_ujson.renderers.UJSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'drf_ujson.parsers.UJSONParser',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
 
 # celery
@@ -263,7 +270,16 @@ CELERY_ROUTES = {
     }
 
 
-# logging
+if not GISCUBE_LAYERSERVER_DISABLED:
+    LAYERSERVER_STYLE_STROKE_COLOR = '#FF3333'
+    LAYERSERVER_STYLE_FILL_COLOR = '#FFC300'
+
+    DATABASE_ROUTERS = ['layerserver.routers.DataBaseLayersRouter']
+
+    INSTALLED_APPS += [
+        'rest_framework_gis',
+     ]
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
