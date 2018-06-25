@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import os
-import json
+import ujson as json
 from slugify import slugify
 import shutil
 
