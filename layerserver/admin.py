@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import ujson as json
 import requests
 
 
@@ -60,21 +59,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
-    def generateGeoJsonLayer(self, layer):
-        if layer.data_file:
-            path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
-            data = json.load(open(path))
-            data['metadata'] = layer.metadata
-            fixed_file = os.path.join(
-                settings.MEDIA_ROOT, layer.service_path, 'data.json')
-            with open(path, "wb") as fixed_file:
-                fixed_file.write(json.dumps(data))
 
     # TODO: validate both data_file and url
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
             unique_service_directory(obj)
-        super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
         if obj.url:
             try:
                 r = requests.get(obj.url)
@@ -90,7 +79,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                     obj.data_file.save('remote.json', content, save=True)
                     obj.last_fetch_on = timezone.localtime()
 
-            obj.save()
+        super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
 
 
 class DBLayerGroupInline(admin.TabularInline):
