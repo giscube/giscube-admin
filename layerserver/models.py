@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import ujson as json
 from slugify import slugify
 import shutil
 
@@ -11,11 +12,11 @@ from django.contrib.gis.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from .mixins import BaseLayerMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
-from .utils import generateGeoJsonLayer
 from giscube.utils import unique_service_directory
 from giscube.models import DBConnection
 from qgisserver.models import Service
@@ -93,7 +94,15 @@ def geojsonlayer_pre_save(sender, instance, *args, **kwargs):
 def geojsonlayer_post_save(sender, instance, created, **kwargs):
     if not hasattr(instance, '_disable_post_save'):
         instance._disable_post_save = True
-        generateGeoJsonLayer(instance)
+        if instance.data_file:
+            path = os.path.join(settings.MEDIA_ROOT, instance.data_file.path)
+            data = json.load(open(path))
+            data['metadata'] = instance.metadata
+            outfile_path = os.path.join(
+                settings.MEDIA_ROOT, instance.service_path, 'data.json')
+            with open(outfile_path, "wb") as fixed_file:
+                fixed_file.write(json.dumps(data))
+            instance.generated_on = timezone.localtime()
 
 
 @receiver(post_delete, sender=GeoJsonLayer)
