@@ -7,16 +7,8 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('geoportal', '0005_auto_20180410_1217'),
-        ('qgisserver', '0006_auto_20180410_1201'),
+        ('qgisserver', '0006_auto_20180410_1201')
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='service',
-            name='category',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='qgisserver_services', to='geoportal.Category'),
-        ),
-    ]
+    operations = []
