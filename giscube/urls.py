@@ -56,6 +56,8 @@ if not settings.GISCUBE_GIS_SERVER_DISABLED:
     ]
     router.register(r'qgisserver/project', qgisserver_api.ProjectViewSet,
                     base_name='qgisserver_project')
+    router.register(r'qgisserver/service', qgisserver_api.ServiceViewSet,
+                    base_name='qgisserver_service')
 
 if not settings.GISCUBE_GEOPORTAL_DISABLED:
     urlpatterns += [
