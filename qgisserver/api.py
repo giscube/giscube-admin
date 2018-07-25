@@ -55,6 +55,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class ServiceViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
-    queryset = Project.objects.all().order_by('pk')
+    queryset = Service.objects.all().order_by('pk')
     serializer_class = ServiceSerializer
     pagination_class = StandardResultsSetPagination
