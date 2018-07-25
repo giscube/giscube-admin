@@ -244,6 +244,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_RENDERER_CLASSES': (
+#       'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
         'drf_ujson.renderers.UJSONRenderer',
     ),
     'DEFAULT_PARSER_CLASSES': (
