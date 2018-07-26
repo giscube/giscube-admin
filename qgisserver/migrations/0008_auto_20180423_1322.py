@@ -10,13 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('qgisserver', '0007_service_category'),
-        ('giscube', '0002_update'),
     ]
 
-    operations = [
-        migrations.AlterField(
-            model_name='service',
-            name='category',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='qgisserver_services', to='giscube.Category'),
-        ),
-    ]
+    operations = []

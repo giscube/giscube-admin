@@ -8,7 +8,14 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
+        ('giscube', '0005_auto_20180529_1051'),
         ('qgisserver', '0006_auto_20180410_1201')
     ]
 
-    operations = []
+    operations = [
+        migrations.AddField(
+            model_name='service',
+            name='category',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='qgisserver_services', to='giscube.Category'),
+        ),
+    ]
