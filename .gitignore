@@ -6,3 +6,4 @@ giscube/static/
 /env/
 /.project
 /.coverage
+test.db
