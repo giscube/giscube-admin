@@ -9,12 +9,12 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('giscube', '0005_auto_20180529_1051'),
         ('imageserver', '0007_service_category'),
-        ('giscube', '0002_update'),
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='service',
             name='category',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='imageserver_services', to='giscube.Category'),
