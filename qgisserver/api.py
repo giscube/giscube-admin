@@ -9,7 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from .models import Project, Service
-from .serializers import ProjectSerializer
+from .serializers import ProjectSerializer, ServiceSerializer
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -51,3 +51,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         data = serializer.data
 
         return Response(data)
+
+
+class ServiceViewSet(viewsets.ModelViewSet):
+    lookup_field = 'name'
+    queryset = Service.objects.all().order_by('pk')
+    serializer_class = ServiceSerializer
+    pagination_class = StandardResultsSetPagination
