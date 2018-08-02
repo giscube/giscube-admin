@@ -7,7 +7,10 @@ from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
 from giscube.models import Category, Server
-from qgisserver.utils import patch_qgis_project, unique_service_directory
+from qgisserver.utils import (
+    unique_service_directory,
+    patch_qgis_project, update_external_service,
+)
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
@@ -70,8 +73,10 @@ class Service(models.Model):
     servers = models.ManyToManyField(Server, blank=True)
 
     def save(self, *args, **kwargs):
+        self.active = self.services.filter(this_server=True).exists()
         super(Service, self).save(*args, **kwargs)
         patch_qgis_project(self)
+        update_external_service(self)
 
     def __unicode__(self):
         return unicode(self.title or self.name)
