@@ -6,7 +6,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
-from giscube.models import Category
+from giscube.models import Category, Server
 from qgisserver.utils import patch_qgis_project, unique_service_directory
 
 SERVICE_VISIBILITY_CHOICES = [
@@ -67,6 +67,7 @@ class Service(models.Model):
         help_text='Integer pairs in different lines e.g.<br/>256,256<br/>512,512',
         validators=[validate_integer_pair_list]
     )
+    servers = models.ManyToManyField(Server, blank=True)
 
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
