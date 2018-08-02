@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from giscube.models import Category, Server
 from qgisserver.utils import (
     unique_service_directory,
-    patch_qgis_project, update_external_service,
+    patch_qgis_project, update_external_service, deactivate_services,
 )
 
 SERVICE_VISIBILITY_CHOICES = [
@@ -109,6 +109,19 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+@receiver(models.signals.m2m_changed, sender=Service.servers.through)
+def auto_dectivate_external_services(sender, **kwargs):
+    """
+    Request the server which no longer has the service to deactivate it
+    """
+    instance = kwargs.pop('instance', None)
+    pk_set = kwargs.pop('pk_set', None)
+    action = kwargs.pop('action', None)
+
+    if action == 'post_remove' or action == 'post_clear':
+        deactivate_services(instance.name, pk_set)
 
 
 class Project(models.Model):

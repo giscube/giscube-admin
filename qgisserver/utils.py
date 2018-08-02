@@ -46,7 +46,6 @@ def update_external_service(service):
     data = dict(ServiceSerializer(service).data)
     data['active'] = True
 
-    for server in Server.objects.filter(service=service, this_server=False):
     for server in service.servers.filter(this_server=False):
 
         # Server configuration
@@ -68,3 +67,20 @@ def update_external_service(service):
             )
 
         # TODO: handle other errors
+
+
+@shared_task
+def deactivate_services(service_name, server_pks):
+    from .models import Server
+
+    api_url = reverse('qgisserver_service-detail', args=[service_name])
+    data = { 'active': False }
+
+    for server in Server.objects.filter(pk__in=server_pks, this_server=False):
+        # Server configuration
+        headers = {
+            'Authorization': 'Bearer %s' % server.token
+        }
+        requests.patch(server.url+api_url, data=data, headers=headers)
+
+        # TODO: handle errors
