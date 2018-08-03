@@ -12,7 +12,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('title', 'url_wms')
-    exclude = ('service_path',)
+    exclude = ('service_path', 'active')
     search_fields = ('name', 'title', 'keywords')
     filter_horizontal = ('servers',)
 

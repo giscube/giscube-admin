@@ -53,7 +53,7 @@ class Service(models.Model):
     keywords = models.CharField(max_length=200, null=True, blank=True)
     project_file = models.FileField(upload_to=unique_service_directory)
     service_path = models.CharField(max_length=255)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=False)
     visibility = models.CharField(max_length=10, default='private',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
