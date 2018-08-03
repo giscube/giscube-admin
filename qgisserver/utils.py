@@ -47,6 +47,8 @@ def update_external_service(service):
     data['active'] = True
 
     for server in service.servers.filter(this_server=False):
+        if not server.url:
+            continue
 
         # Server configuration
         headers = {
@@ -77,6 +79,9 @@ def deactivate_services(service_name, server_pks):
     data = { 'active': False }
 
     for server in Server.objects.filter(pk__in=server_pks, this_server=False):
+        if not server.url:
+            continue
+
         # Server configuration
         headers = {
             'Authorization': 'Bearer %s' % server.token
