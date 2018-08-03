@@ -73,7 +73,6 @@ class Service(models.Model):
     servers = models.ManyToManyField(Server, blank=True)
 
     def save(self, *args, **kwargs):
-        self.active = self.services.filter(this_server=True).exists()
         super(Service, self).save(*args, **kwargs)
         patch_qgis_project(self)
         update_external_service(self)
@@ -109,6 +108,20 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+@receiver(models.signals.m2m_changed, sender=Service.servers.through)
+def service_active_auto_control(sender, **kwargs):
+    """
+    Request the server which no longer has the service to deactivate it
+    """
+    instance = kwargs.pop('instance', None)
+    pk_set = kwargs.pop('pk_set', None)
+    action = kwargs.pop('action', None)
+
+    if action == 'post_add' or action == 'post_remove' or action == 'post_clear':
+         instance.active = Server.objects.filter(service=instance, this_server=True).exists()
+         instance.save()
 
 
 @receiver(models.signals.m2m_changed, sender=Service.servers.through)
