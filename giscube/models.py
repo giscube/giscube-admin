@@ -95,7 +95,7 @@ class DBConnection(models.Model):
 
 class Server(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    url = models.GenericIPAddressField(null=True, blank=True)
+    url = models.URLField(null=True, blank=True)
     token = models.CharField(max_length=255, null=True, blank=True)
     this_server = models.BooleanField(default=False)
 
