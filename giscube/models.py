@@ -91,3 +91,18 @@ class DBConnection(models.Model):
         """Meta information."""
         verbose_name = 'Database connection'
         verbose_name_plural = 'Database connections'
+
+
+class Server(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    url = models.URLField(null=True, blank=True)
+    token = models.CharField(max_length=255, null=True, blank=True)
+    this_server = models.BooleanField(default=False)
+
+    class Meta:
+        """Meta information."""
+        verbose_name = 'Server connection'
+        verbose_name_plural = 'Server connections'
+
+    def __unicode__(self):
+        return '%s' % self.name

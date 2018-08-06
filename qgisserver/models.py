@@ -6,8 +6,11 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
-from giscube.models import Category
-from qgisserver.utils import patch_qgis_project, unique_service_directory
+from giscube.models import Category, Server
+from qgisserver.utils import (
+    unique_service_directory,
+    patch_qgis_project, update_external_service, deactivate_services,
+)
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
@@ -50,7 +53,7 @@ class Service(models.Model):
     keywords = models.CharField(max_length=200, null=True, blank=True)
     project_file = models.FileField(upload_to=unique_service_directory)
     service_path = models.CharField(max_length=255)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=False)
     visibility = models.CharField(max_length=10, default='private',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
@@ -67,10 +70,12 @@ class Service(models.Model):
         help_text='Integer pairs in different lines e.g.<br/>256,256<br/>512,512',
         validators=[validate_integer_pair_list]
     )
+    servers = models.ManyToManyField(Server, blank=True)
 
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
         patch_qgis_project(self)
+        update_external_service(self)
 
     def __unicode__(self):
         return unicode(self.title or self.name)
@@ -103,6 +108,33 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+@receiver(models.signals.m2m_changed, sender=Service.servers.through)
+def service_active_auto_control(sender, **kwargs):
+    """
+    Request the server which no longer has the service to deactivate it
+    """
+    instance = kwargs.pop('instance', None)
+    pk_set = kwargs.pop('pk_set', None)
+    action = kwargs.pop('action', None)
+
+    if action == 'post_add' or action == 'post_remove' or action == 'post_clear':
+         instance.active = Server.objects.filter(service=instance, this_server=True).exists()
+         instance.save()
+
+
+@receiver(models.signals.m2m_changed, sender=Service.servers.through)
+def auto_dectivate_external_services(sender, **kwargs):
+    """
+    Request the server which no longer has the service to deactivate it
+    """
+    instance = kwargs.pop('instance', None)
+    pk_set = kwargs.pop('pk_set', None)
+    action = kwargs.pop('action', None)
+
+    if action == 'post_remove' or action == 'post_clear':
+        deactivate_services(instance.name, pk_set)
 
 
 class Project(models.Model):
