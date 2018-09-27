@@ -76,7 +76,7 @@ def deactivate_services(service_name, server_pks):
     from .models import Server
 
     api_url = reverse('qgisserver_service-detail', args=[service_name])
-    data = { 'active': False }
+    data = {'active': False}
 
     for server in Server.objects.filter(pk__in=server_pks, this_server=False):
         if not server.url:

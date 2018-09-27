@@ -1,7 +1,6 @@
 import os
 
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
@@ -22,7 +21,7 @@ def validate_integer_pair(value):
     values = []
     try:
         values = map(int, value.split(','))
-    except:
+    except Exception:
         pass
 
     if len(values) == 2:
@@ -116,12 +115,11 @@ def service_active_auto_control(sender, **kwargs):
     Request the server which no longer has the service to deactivate it
     """
     instance = kwargs.pop('instance', None)
-    pk_set = kwargs.pop('pk_set', None)
     action = kwargs.pop('action', None)
 
     if action == 'post_add' or action == 'post_remove' or action == 'post_clear':
-         instance.active = Server.objects.filter(service=instance, this_server=True).exists()
-         instance.save()
+        instance.active = Server.objects.filter(service=instance, this_server=True).exists()
+        instance.save()
 
 
 @receiver(models.signals.m2m_changed, sender=Service.servers.through)
