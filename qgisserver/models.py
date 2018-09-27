@@ -74,7 +74,7 @@ class Service(models.Model):
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
         patch_qgis_project(self)
-        update_external_service(self)
+        update_external_service.delay(self.pk)
 
     def __unicode__(self):
         return unicode(self.title or self.name)
@@ -132,7 +132,7 @@ def auto_dectivate_external_services(sender, **kwargs):
     action = kwargs.pop('action', None)
 
     if action == 'post_remove' or action == 'post_clear':
-        deactivate_services(instance.name, pk_set)
+        deactivate_services.delay(instance.name, list(pk_set))
 
 
 class Project(models.Model):
