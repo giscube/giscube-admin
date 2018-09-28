@@ -6,6 +6,8 @@ import tempfile
 from celery import shared_task
 import xml.etree.ElementTree as ET
 
+from rest_framework import status
+
 from django.conf import settings
 from django.urls import reverse
 
@@ -36,37 +38,55 @@ def unique_service_directory(instance, filename):
 
 
 @shared_task
-def update_external_service(service):
-    from .models import Server
+def update_external_service(service_pk):
+    from .models import Service
     from .serializers import ServiceSerializer
-
+    service = Service.objects.get(pk=service_pk)
     # Generic configuration
     api_put_url = reverse('qgisserver_service-detail', args=[service.name])
+    api_put_url = api_put_url.replace(settings.APP_URL, '')
     api_post_url = reverse('qgisserver_service-list')
+    api_post_url = api_post_url.replace(settings.APP_URL, '')
     data = dict(ServiceSerializer(service).data)
     data['active'] = True
+
+    headers = {}
+    project_file = None
+    files = None
+
+    file_name = os.path.basename(service.project_file.name)
+    file_path = os.path.join(settings.MEDIA_ROOT, service.project_file.name)
 
     for server in service.servers.filter(this_server=False):
         if not server.url:
             continue
 
         # Server configuration
-        headers = {
-            'Authorization': 'Bearer %s' % server.token
-        }
+        headers['Authorization'] = 'Bearer %s' % server.token
 
+        project_file = open(file_path, 'rb')
+        files = {'project_file': (file_name, project_file, "text/xml")}
         # Update or create server
         response = requests.put(
-            server.url+api_put_url,
+            '%s%s' % (server.url, api_put_url),
             data=data,
             headers=headers,
+            files=files
         )
+        project_file.close()
+
         if response.status_code == 404:
+            project_file = open(file_path, 'rb')
+            files = {'project_file': (file_name, project_file, "text/xml")}
             response = requests.post(
-                server.url+api_post_url,
+                '%s%s' % (server.url, api_post_url),
                 data=data,
                 headers=headers,
+                files=files
             )
+            project_file.close()
+            if response.status_code != status.HTTP_201_CREATED:
+                raise Exception('SERVER response status [%s]' % response.status_code)
 
         # TODO: handle other errors
 

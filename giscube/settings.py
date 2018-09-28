@@ -244,15 +244,18 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_RENDERER_CLASSES': (
-#       'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-        'drf_ujson.renderers.UJSONRenderer',
+       # 'rest_framework.renderers.JSONRenderer',
+       # 'rest_framework.renderers.BrowsableAPIRenderer',
+       'drf_ujson.renderers.UJSONRenderer',
     ),
     'DEFAULT_PARSER_CLASSES': (
+        # 'rest_framework.parsers.JSONParser',
         'drf_ujson.parsers.UJSONParser',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2621440 * 10
 
 # celery
 CELERY_DEFAULT_QUEUE = 'default'
