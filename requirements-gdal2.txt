@@ -3,7 +3,7 @@ Django==2.1.2
 django-colorfield==0.1.15
 django-cors-headers==2.4.0
 psycopg2-binary==2.7.5
-python-slugify==1.2.5
+python-slugify==1.2.6
 requests==2.18.4
 django-haystack==2.7.0
 django-loginas==0.3.3
