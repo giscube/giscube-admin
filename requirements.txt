@@ -1,4 +1,4 @@
-celery==4.1.1
+celery==4.2.1
 Django==1.11.12
 django-colorfield==0.1.14
 django-cors-headers==2.2.0
