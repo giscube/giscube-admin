@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import os
-import ujson as json
 from slugify import slugify
 import shutil
 
@@ -12,7 +11,6 @@ from django.contrib.gis.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
-from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from .mixins import BaseLayerMixin, StyleMixin
@@ -41,7 +39,7 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
     data_file = models.FileField(upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
     service_path = models.CharField(max_length=255)
-    cache_time = models.IntegerField(blank=True, null=True)
+    cache_time = models.IntegerField(blank=True, null=True, help_text='In seconds')
     last_fetch_on = models.DateTimeField(null=True, blank=True)
     generated_on = models.DateTimeField(null=True, blank=True)
 
@@ -88,21 +86,6 @@ def geojsonlayer_pre_save(sender, instance, *args, **kwargs):
         if instance.pk:
             me = GeoJsonLayer.objects.filter(pk=instance.pk).first()
             instance._old_data = model_to_dict(me)
-
-
-@receiver(post_save, sender=GeoJsonLayer)
-def geojsonlayer_post_save(sender, instance, created, **kwargs):
-    if not hasattr(instance, '_disable_post_save'):
-        instance._disable_post_save = True
-        if instance.data_file:
-            path = os.path.join(settings.MEDIA_ROOT, instance.data_file.path)
-            data = json.load(open(path))
-            data['metadata'] = instance.metadata
-            outfile_path = os.path.join(
-                settings.MEDIA_ROOT, instance.service_path, 'data.json')
-            with open(outfile_path, "wb") as fixed_file:
-                fixed_file.write(json.dumps(data))
-            instance.generated_on = timezone.localtime()
 
 
 @receiver(post_delete, sender=GeoJsonLayer)
@@ -197,7 +180,6 @@ class DataBaseLayerReference(models.Model):
 
     def __unicode__(self):
         return unicode(self.service.title or self.service.name)
-
 
     class Meta:
         verbose_name = _('Reference')
