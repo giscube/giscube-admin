@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import os
+
 from operator import __or__ as OR
 
 from django.http import (
@@ -9,7 +11,6 @@ from django.http import (
     FileResponse
 )
 from django.db.models import Q
-from django.db.models import fields as django_fieds
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
@@ -28,6 +29,7 @@ from .serializers import (
     DBLayerSerializer, DBLayerDetailSerializer,
     create_dblayer_serializer
 )
+from .utils import geojsonlayer_check_cache
 
 
 def GeoJSONLayerView(request, layer_name):
@@ -36,17 +38,17 @@ def GeoJSONLayerView(request, layer_name):
     layer = GeoJsonLayer.objects.filter(
         active=True,
         name=layer_name).first()
-    if not layer or not layer.data_file:
-        return HttpResponseNotFound()
     if layer.visibility == 'private' and not request.user.is_authenticated():
         return HttpResponseForbidden()
 
-    path = os.path.join(settings.MEDIA_ROOT, layer.service_path, 'data.json')
+    if layer and layer.data_file:
+        path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
+        if os.path.isfile(path):
+            geojsonlayer_check_cache(layer)
+            return FileResponse(open(path, 'rb'))
 
-    if not os.path.isfile(path):
-        return HttpResponseServerError(path)
-
-    return FileResponse(open(path, 'rb'))
+    error = {'error': 'DATA_FILE_NOT_FOUND'}
+    return HttpResponseServerError(json.dumps(error))
 
 
 class DBLayerViewSet(viewsets.ModelViewSet):

@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
-
-import os
-import requests
-
-
-from django.conf import settings
-from django.contrib import admin
-from django.core.files.base import ContentFile
+from django.db import transaction
+from django.contrib import admin, messages
 from django.utils.translation import gettext as _
-from django.utils import timezone
 
 from django_vue_tabs.admin import TabsMixin
 
+from giscube.utils import unique_service_directory
 from layerserver.admin_forms import (
     DataBaseLayerAddForm, DataBaseLayerChangeForm
 )
@@ -19,14 +13,14 @@ from layerserver.models import (
     GeoJsonLayer, DataBaseLayer, DataBaseLayerField,
     DBLayerGroup, DBLayerUser, DataBaseLayerReference
 )
-
-from giscube.utils import unique_service_directory
+from layerserver.tasks import async_geojsonlayer_refresh
 
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     list_display = ('name', 'title',)
     search_fields = ('name', 'title', 'keywords')
+    readonly_fields = ('last_fetch_on', 'generated_on',)
 
     tabs = (
         (_('Information'), ('fieldset-information',)),
@@ -59,27 +53,17 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
-
-    # TODO: validate both data_file and url
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
             unique_service_directory(obj)
-        if obj.url:
-            try:
-                r = requests.get(obj.url)
-            except Exception as e:
-                print('Error getting file %s' % e)
-            else:
-                content = ContentFile(r.text)
-                if content:
-                    remote_file = os.path.join(
-                        settings.MEDIA_ROOT, obj.service_path, 'remote.json')
-                    if os.path.exists(remote_file):
-                        os.remove(remote_file)
-                    obj.data_file.save('remote.json', content, save=True)
-                    obj.last_fetch_on = timezone.localtime()
-
         super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
+        if obj.url:
+            messages.info(request, '[%s] will be requested in background.' % obj.url)
+        elif obj.data_file:
+            messages.info(request, 'GeoJsonLayer will be generated/updated in background.')
+        transaction.on_commit(
+            lambda: async_geojsonlayer_refresh.delay(obj.pk)
+        )
 
 
 class DBLayerGroupInline(admin.TabularInline):
