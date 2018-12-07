@@ -260,7 +260,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 2621440 * 10
 # celery
 CELERY_DEFAULT_QUEUE = 'default'
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 BROKER_URL = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -269,10 +269,10 @@ CELERY_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
     Queue('sequential_queue', Exchange('long'), routing_key='sequential_queue')
 )
+
 CELERY_ROUTES = {
-    'giscube.tasks.async_haystack_rebuild_index': {
-        'queue': 'sequential_queue'},
-    }
+    'giscube.tasks.async_haystack_rebuild_index': {'queue': 'sequential_queue'}
+}
 
 
 if not GISCUBE_LAYERSERVER_DISABLED:
