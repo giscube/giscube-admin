@@ -166,6 +166,12 @@ def add_fields(sender, instance, created, **kwargs):
             db_field.save()
 
 
+VALUES_LIST_TYPLE_CHOICES = [
+    ('flatlist', 'Flat list, one line per value'),
+    ('sql', 'SQL'),
+]
+
+
 class DataBaseLayerField(models.Model):
     layer = models.ForeignKey(
         DataBaseLayer, null=False, blank=False,
@@ -175,6 +181,9 @@ class DataBaseLayerField(models.Model):
     search = models.BooleanField(default=True)
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
+    values_list_type = models.CharField(max_length=25, null=True, blank=True,
+                                        choices=VALUES_LIST_TYPLE_CHOICES)
+    values_list = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
         return self.__str__()
