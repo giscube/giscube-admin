@@ -135,9 +135,35 @@ class DBLayerFieldListSerializer(serializers.ListSerializer):
 
 
 class DBLayerFieldSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        data = super(
+            DBLayerFieldSerializer, self).to_representation(obj)
+        if obj.values_list_type == 'flatlist':
+            rows = []
+            for line in data['values_list'].splitlines():
+                parts = line.split(',')
+                if len(parts) == 1:
+                    rows.append(parts[0])
+                elif len(parts) == 2:
+                    rows.append(parts)
+                else:
+                    rows.append('error')
+            data['values_list'] = rows
+        elif obj.values_list_type == 'sql':
+            rows = []
+            for r in obj.layer.db_connection.fetchall(obj.values_list):
+                if len(r) == 1:
+                    rows.append(r[0])
+                else:
+                    rows.append(r)
+            data['values_list'] = rows
+        else:
+            del data['values_list']
+        return data
+
     class Meta:
         model = DataBaseLayerField
-        fields = ['field', 'alias', 'search', 'fullsearch']
+        fields = ['field', 'alias', 'search', 'fullsearch', 'values_list']
         list_serializer_class = DBLayerFieldListSerializer
 
 

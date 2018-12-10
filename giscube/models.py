@@ -78,6 +78,18 @@ class DBConnection(models.Model):
             settings.DATABASES[name] = db_conf
         return connections[name]
 
+    def fetchall(self, sql):
+        rows = []
+        conn = self.get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute(sql)
+            rows = cur.fetchall()
+            cur.close()
+        except Exception:
+            rows = ['error']
+        return rows
+
     def full_clean(self, *args, **kwargs):
         from django.core.validators import ValidationError
         if not self.check_connection():
