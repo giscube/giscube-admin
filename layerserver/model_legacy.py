@@ -236,7 +236,7 @@ def create_dblayer_model(layer):
 
     table_name = str(layer.table)
     attrs = {
-        '__module__': 'layerserver',
+        '__module__': 'layerserver_databaselayer',
         'Meta': Meta,
         'databaselayer_db_connection': layer.db_connection.connection_name()
     }
