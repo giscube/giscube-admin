@@ -153,7 +153,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
                     in_bbox, self.layer.srid)})
         return qs
 
-    def _fulsearch_filters(self, qs):
+    def _fullsearch_filters(self, qs):
         q = self.request.query_params.get('q', None)
         if q:
             lst = []
@@ -168,7 +168,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = self.model.objects.all()
-        qs = self._fulsearch_filters(qs)
+        qs = self._fullsearch_filters(qs)
         qs = self._geom_filters(qs)
         model_filter = filterset_factory(self.model, self.filter_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
