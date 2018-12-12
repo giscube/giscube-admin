@@ -22,7 +22,6 @@ class APITestCase(BaseTest):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-
     def test_api_qgisserver_service_list_unathenticated(self):
         url = reverse('qgisserver_service-list')
         response = self.client.get(url)

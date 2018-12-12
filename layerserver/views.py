@@ -13,6 +13,7 @@ from django.http import (
 from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
@@ -57,31 +58,25 @@ class DBLayerViewSet(viewsets.ModelViewSet):
     queryset = []
     model = DataBaseLayer
     serializer_class = DBLayerSerializer
-    user_groups = []
     user = None
-
-    def initial(self, request, *args, **kwargs):
-        self.user = request.user
-        if type(self.user) == AnonymousUser:
-            self.user_groups = []
-        else:
-            self.user_groups = request.user.groups.values_list(
-                'name', flat=True)
-
-        return super(DBLayerViewSet,
-                     self).initial(
-                         request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.filter(active=True)
-        if type(self.user) == AnonymousUser:
-            qs = qs.filter(
-                Q(anonymous_view=True) | Q(
-                    anonymous_add=True) | Q(anonymous_delete=True))
+        filter_anonymous = Q(anonymous_view=True) | Q(anonymous_add=True) | Q(anonymous_update=True) \
+            | Q(anonymous_delete=True)
+
+        if type(self.request.user) is AnonymousUser:
+            qs = qs.filter(filter_anonymous)
         else:
-            qs = qs.filter(
-                    Q(layer_groups__group__name__in=self.user_groups) | Q(
-                        layer_users__user__in=[self.user])).all().distinct()
+            self.user_groups = self.request.user.groups.values_list('name', flat=True)
+            filter_group = Q(layer_groups__group__name__in=self.user_groups) & Q(
+                Q(layer_groups__can_view=True) | Q(layer_groups__can_add=True) | Q(layer_groups__can_update=True) |
+                Q(layer_groups__can_delete=True))
+
+            filter_user = Q(layer_users__user=self.request.user) & Q(
+                Q(layer_users__can_view=True) | Q(layer_users__can_add=True) |
+                Q(layer_users__can_update=True) | Q(layer_users__can_delete=True))
+            qs = qs.filter(Q(filter_anonymous) | Q(filter_user) | Q(filter_group))
 
         return qs
 
