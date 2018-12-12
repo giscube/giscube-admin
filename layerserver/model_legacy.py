@@ -243,7 +243,7 @@ def create_dblayer_model(layer):
     fields = get_fields(layer.db_connection.get_connection(), table_name)
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid
-        attrs.update(fields)
+    attrs.update(fields)
     model = type(table_name, (models.Model,), attrs)
 
     return model
