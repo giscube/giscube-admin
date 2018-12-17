@@ -36,7 +36,7 @@ class DBConnection(models.Model):
     host = models.CharField(max_length=100, null=True, blank=True)
     port = models.CharField(max_length=20, null=True, blank=True)
 
-    def db_conf(self):
+    def db_conf(self, schema=None):
         db = {}
         db['ENGINE'] = self.engine
         db['NAME'] = self.name
@@ -48,10 +48,24 @@ class DBConnection(models.Model):
             db['HOST'] = self.host
         if self.port:
             db['PORT'] = self.port
+        if schema:
+            postgres_engines = [
+                'django.db.backends.postgresql',
+                'django.db.backends.postgresql_psycopg2',
+                'django.contrib.gis.db.backends.postgis'
+            ]
+            if self.engine in (postgres_engines):
+                db['OPTIONS'] = {
+                    'options': '-c search_path=%s,public' % schema
+                }
+
         return db
 
-    def connection_name(self):
-        return 'giscube_connection_%s' % self.pk
+    def connection_name(self, schema=None):
+        if schema:
+            return 'giscube_connection_schema_%s_%s' % (self.pk, schema)
+        else:
+            return 'giscube_connection_%s' % self.pk
 
     def check_connection(self):
         db_conf = self.db_conf()
@@ -71,9 +85,10 @@ class DBConnection(models.Model):
         del settings.DATABASES[name]
         return res
 
-    def get_connection(self):
-        db_conf = self.db_conf()
-        name = self.connection_name()
+    def get_connection(self, schema=None):
+        self.schema = schema
+        db_conf = self.db_conf(schema)
+        name = self.connection_name(schema)
         if not(name in settings.DATABASES):
             settings.DATABASES[name] = db_conf
         return connections[name]

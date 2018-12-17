@@ -6,12 +6,11 @@ import re
 from collections import OrderedDict
 
 from django.contrib.gis.db import models
-
+from django.db.backends.postgresql.introspection import FieldInfo, force_text
 
 """
 Based on django.core.management.commands.inspectdb
 """
-
 
 def normalize_col_name(col_name, used_column_names, is_relation):
     """
@@ -109,7 +108,6 @@ def get_field_type(connection, table_name, row):
     return field_type, field_params, field_notes
 
 
-# def get_fields(table_name):
 def get_fields(connection, table_name):
     fields = {}
     cursor = connection.cursor()
@@ -117,30 +115,22 @@ def get_fields(connection, table_name):
     table2model = lambda table_name: re.sub(r'[^a-zA-Z0-9]', '', table_name)
     strip_prefix = lambda s: s[1:] if s.startswith("u'") else s
 
-
-    # yield ''
-    # yield ''
-    # yield 'class %s(models.Model):' % table2model(table_name)
-    # known_models.append(table2model(table_name))
-    # try:
-    #     relations = connection.introspection.get_relations(cursor, table_name)
-    # except NotImplementedError:
     relations = {}
+    table_name_simple = table_name
+    if '"."' in table_name:
+        table_name_simple = table_name.split(".")[1].replace('"', '')
     try:
-        indexes = connection.introspection.get_indexes(cursor, table_name)
+        indexes = connection.introspection.get_indexes(cursor, table_name_simple)
     except NotImplementedError:
         indexes = {}
-    try:
-        constraints = connection.introspection.get_constraints(cursor,
-                                                               table_name)
-    except NotImplementedError:
-        constraints = {}
-
+    # try:
+    #     constraints = connection.introspection.get_constraints(cursor, table_name_simple)
+    # except NotImplementedError:
+    #     constraints = {}
     used_column_names = []  # Holds column names used in the table so far
     column_to_field_name = {}  # Maps column names to names of model fields
-    for row in connection.introspection.get_table_description(cursor,
-                                                              table_name):
-
+    # for row in get_table_description(cursor, unicode(table_name_simple)):
+    for row in connection.introspection.get_table_description(cursor, unicode(table_name_simple)):
         comment_notes = []  # Holds Field notes, to be displayed in a Python comment.
         extra_params = OrderedDict()  # Holds Field parameters such as 'db_column'.
         column_name = row[0]
@@ -218,32 +208,34 @@ def get_fields(connection, table_name):
         # if comment_notes:
         #     field_desc += '  # ' + ' '.join(comment_notes)
         # yield '    %s' % field_desc
-        # print '    %s' % field_desc
         fields[att_name] = eval('    %s' % field_desc)
 
     # for meta_line in self.get_meta(table_name, constraints, column_to_field_name):
     #     yield meta_line
-
     return fields
 
 
 def create_dblayer_model(layer):
+    schema = None
+    if '"."' in layer.table:
+        schema = layer.table.split('"."')[0].replace('"', '')
 
     class Meta:
         app_label = 'layerserver_databaselayer'
-        db_table = layer.table.lower()
+        db_table = layer.table
         verbose_name = layer.name
-
-    table_name = str(layer.table)
     attrs = {
         '__module__': 'layerserver_databaselayer',
         'Meta': Meta,
-        'databaselayer_db_connection': layer.db_connection.connection_name()
+        'databaselayer_db_connection': layer.db_connection.connection_name(
+            schema=schema)
     }
-    fields = get_fields(layer.db_connection.get_connection(), table_name)
+
+    fields = get_fields(layer.db_connection.get_connection(schema=schema), layer.table)
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid
     attrs.update(fields)
-    model = type(table_name, (models.Model,), attrs)
+    model_name = str(layer.table.replace('.', ' ').title().replace(' ', ''))
+    model = type(model_name, (models.Model,), attrs)
 
     return model
