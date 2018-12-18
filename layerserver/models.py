@@ -17,7 +17,6 @@ from .mixins import BaseLayerMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.utils import unique_service_directory
 from giscube.models import DBConnection
-from qgisserver.models import Service
 
 
 def get_jsonlayer_url(instance, filename):
@@ -139,14 +138,26 @@ def pre_dblayer(sender, instance, **kwargs):
 
 @receiver(post_save, sender=DataBaseLayer)
 def add_fields(sender, instance, created, **kwargs):
-    if created:
-        conn = instance.db_connection.get_connection()
-        fields = model_legacy.get_fields(conn, instance.table)
-        for field in fields:
+    schema = None
+    if '"."' in instance.table:
+        schema = instance.table.split('"."').replace('"', '')
+    conn = instance.db_connection.get_connection(schema=schema)
+    fields = model_legacy.get_fields(conn, instance.table)
+    old_fields = []
+    if not created:
+        old_fields = [field.field for field in instance.fields.all()]
+    for field in fields.keys():
+        if field not in old_fields:
             db_field = DataBaseLayerField()
             db_field.layer = instance
             db_field.field = field
             db_field.save()
+        else:
+            if field in old_fields:
+                old_fields.remove(field)
+    if not created and len(old_fields) > 0:
+        DataBaseLayerField.objects.filter(
+            layer=instance, field__in=old_fields).delete()
 
 
 VALUES_LIST_TYPLE_CHOICES = [
@@ -158,7 +169,7 @@ VALUES_LIST_TYPLE_CHOICES = [
 class DataBaseLayerField(models.Model):
     layer = models.ForeignKey(
         DataBaseLayer, null=False, blank=False,
-        related_name='fields')
+        related_name='fields', on_delete=models.CASCADE)
     field = models.CharField(max_length=255, blank=False, null=False)
     alias = models.CharField(max_length=255, blank=True, null=True)
     search = models.BooleanField(default=True)
@@ -185,7 +196,7 @@ class DataBaseLayerReference(models.Model):
         related_name='references'
         )
     service = models.ForeignKey(
-        Service, null=False, blank=False)
+        'qgisserver.Service', null=False, blank=False)
 
     def __unicode__(self):
         return unicode(self.service.title or self.service.name)
