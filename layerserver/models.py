@@ -129,7 +129,8 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
 def pre_dblayer(sender, instance, **kwargs):
     if not instance.pk:
         model = model_legacy.create_dblayer_model(instance)
-        instance.pk_field = model._meta.pk.name.split('.')[-1]
+        if not instance.pk_field:
+            instance.pk_field = model._meta.pk.name.split('.')[-1]
         for f in model._meta.fields:
             if type(f) == models.fields.GeometryField:
                 instance.geom_field = f.name.split('.')[-1]
