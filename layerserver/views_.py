@@ -211,8 +211,7 @@ class DBLayerContentBulkViewSet(views.APIView):
         data = request.data
         response = {'ADD': [], 'UPDATE': [], 'DELETE': []}
         errors = {}
-        autocommit = transaction.get_autocommit()
-        transaction.set_autocommit(False)
+        sid = transaction.savepoint()
         try:
             if 'ADD' in data and len(data['ADD']) > 0:
                 to_add = data['ADD']
@@ -234,9 +233,10 @@ class DBLayerContentBulkViewSet(views.APIView):
                 qs = self.get_queryset().filter(**{filter: ids})
                 if len(ids) != qs.count():
                     raise Exception('ITEM_NOT_FOUND')
+                items = [item for item in qs]
                 Serializer = create_dblayer_serializer(
                     self.model, self._fields.keys(), self.lookup_field, map_id_field=True)
-                serializer = Serializer(instance=qs, data=to_update, many=True, partial=True)
+                serializer = Serializer(instance=items, data=to_update, many=True, partial=True)
                 if serializer.is_valid():
                     response['UPDATE'] = serializer.to_representation(
                         serializer.save())
@@ -252,17 +252,14 @@ class DBLayerContentBulkViewSet(views.APIView):
                 response['DELETE'] = ids
 
             if errors:
-                transaction.rollback()
-                transaction.set_autocommit(autocommit)
+                transaction.savepoint_rollback(sid)
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                transaction.commit()
-                transaction.set_autocommit(autocommit)
+                transaction.savepoint_commit(sid)
                 return Response(response, status=status.HTTP_200_OK)
 
         except Exception as e:
-            transaction.rollback()
-            transaction.set_autocommit(autocommit)
+            transaction.savepoint_rollback(sid)
             if e.message == 'ITEM_NOT_FOUND':
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
             else:
