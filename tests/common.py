@@ -6,7 +6,7 @@ from django.urls import reverse
 from oauth2_provider.models import (
     get_access_token_model, get_application_model
     )
-from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 
 UserModel = get_user_model()
@@ -14,7 +14,7 @@ ApplicationModel = get_application_model()
 AccessTokenModel = get_access_token_model()
 
 
-class BaseTest(APITestCase):
+class BaseTest(APITransactionTestCase):
     def setUp(self):
         self.superuser = UserModel.objects.create_superuser(
                             'superuser', 'superuser@example.com', '123456')

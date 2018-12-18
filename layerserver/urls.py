@@ -5,7 +5,7 @@ from django.conf.urls import url
 
 from .views import (
     GeoJSONLayerView, DBLayerViewSet, DBLayerDetailViewSet,
-    DBLayerContentViewSet
+    DBLayerContentViewSet, DBLayerContentBulkViewSet
 )
 
 
@@ -19,7 +19,7 @@ layer_detail = DBLayerDetailViewSet.as_view({
 content_list = DBLayerContentViewSet.as_view({
     'get': 'list',
     'post': 'create',
-    'delete': 'delete_multiple'
+    # 'delete': 'delete_multiple'
 })
 
 content_detail = DBLayerContentViewSet.as_view({
@@ -29,6 +29,8 @@ content_detail = DBLayerContentViewSet.as_view({
     'delete': 'destroy'
 })
 
+content_bulk = DBLayerContentBulkViewSet.as_view()
+
 urlpatterns = [
     url(r'^geojsonlayers/(?P<layer_name>[^/]+)(.*)',
         GeoJSONLayerView, name='geojsonlayer'),
@@ -36,6 +38,8 @@ urlpatterns = [
         content_detail, name='content-detail'),
     url(r'^databaselayers/(?P<layer_slug>[-\w]+)/data/?$', content_list,
         name='content-list'),
+    url(r'^databaselayers/(?P<layer_slug>[-\w]+)/bulk/?$', content_bulk,
+        name='content-bulk'),
     url(r'^databaselayers/(?P<slug>[-\w]+)(/?)$', layer_detail,
         name='layer-detail'),
     url(r'^databaselayers/$', layer_list, name='layer-list'),
