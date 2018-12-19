@@ -7,14 +7,15 @@ import os
 from operator import __or__ as OR
 
 from django.http import (
-    HttpResponseForbidden, HttpResponseServerError, FileResponse
+    HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError,
+    FileResponse
 )
-from django.db import transaction
 from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, status, views, viewsets
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 
@@ -23,7 +24,7 @@ from .filters import filterset_factory
 from .model_legacy import create_dblayer_model
 from .models import GeoJsonLayer, DataBaseLayer
 from .pagination import CustomGeoJsonPagination
-from .permissions import DBLayerIsValidUser, BulkDBLayerIsValidUser
+from .permissions import DBLayerIsValidUser
 
 from .serializers import (
     DBLayerSerializer, DBLayerDetailSerializer,
@@ -173,97 +174,10 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         return create_dblayer_serializer(
             self.model, self._fields.keys(), self.lookup_field)
 
-    # def delete_multiple(self, request, *args, **kwargs):
-    #     queryset = self.filter_queryset(self.get_queryset())
-    #     queryset.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete_multiple(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     class Meta:
         filter_overrides = ['geom']
-
-
-class DBLayerContentBulkViewSet(views.APIView):
-    csrf_exempt = True
-    permission_classes = (BulkDBLayerIsValidUser,)
-    queryset = []
-    model = None
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-    lookup_url_kwarg = 'pk'
-    _fields = {}
-
-    def dispatch(self, request, *args, **kwargs):
-        self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
-        self.model = create_dblayer_model(self.layer)
-        self.lookup_field = self.layer.pk_field
-        self._fields = {}
-        for field in self.layer.fields.filter(enabled=True):
-            self._fields[field.field] = {}
-        return super(DBLayerContentBulkViewSet,
-                     self).dispatch(
-                         request, *args, **kwargs)
-
-    def get_queryset(self):
-        qs = self.model.objects.all()
-        return qs
-
-    def post(self, request, layer_slug):
-        data = request.data
-        response = {'ADD': [], 'UPDATE': [], 'DELETE': []}
-        errors = {}
-        autocommit = transaction.get_autocommit()
-        transaction.set_autocommit(False)
-        try:
-            if 'ADD' in data and len(data['ADD']) > 0:
-                to_add = data['ADD']
-                Serializer = create_dblayer_serializer(
-                    self.model, self._fields.keys(), self.lookup_field)
-                serializer = Serializer(data=to_add, many=True)
-                if serializer.is_valid():
-                    response['ADD'] = serializer.to_representation(
-                        serializer.save())
-                else:
-                    errors['ADD'] = serializer.errors
-
-            if 'UPDATE' in data and len(data['UPDATE']) > 0:
-                to_update = data['UPDATE']
-                ids = []
-                for item in to_update:
-                    ids.append(item[self.lookup_field])
-                filter = '%s__in' % self.lookup_field
-                qs = self.get_queryset().filter(**{filter: ids})
-                if len(ids) != qs.count():
-                    raise Exception('ITEM_NOT_FOUND')
-                Serializer = create_dblayer_serializer(
-                    self.model, self._fields.keys(), self.lookup_field, map_id_field=True)
-                serializer = Serializer(instance=qs, data=to_update, many=True, partial=True)
-                if serializer.is_valid():
-                    response['UPDATE'] = serializer.to_representation(
-                        serializer.save())
-                else:
-                    errors['UPDATE'] = serializer.errors
-
-            if 'DELETE' in data and len(data['DELETE']) > 0:
-                to_delete = data['DELETE']
-                filter = '%s__in' % self.lookup_field
-                qs = self.get_queryset().filter(**{filter: to_delete})
-                ids = qs.values_list(self.lookup_field, flat=True)
-                qs.delete()
-                response['DELETE'] = ids
-
-            if errors:
-                transaction.rollback()
-                transaction.set_autocommit(autocommit)
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                transaction.commit()
-                transaction.set_autocommit(autocommit)
-                return Response(response, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            transaction.rollback()
-            transaction.set_autocommit(autocommit)
-            if e.message == 'ITEM_NOT_FOUND':
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                raise

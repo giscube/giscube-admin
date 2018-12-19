@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import AnonymousUser
 from rest_framework import permissions
+
+from django.contrib.auth.models import AnonymousUser
 
 from .models import DBLayerGroup
 
 
 class DBLayerPermissions():
+
     @staticmethod
     def get_permissions(layer, user):
         permission = {
@@ -58,7 +60,9 @@ class DBLayerPermissions():
 
 
 class DBLayerIsValidUser(permissions.BasePermission, DBLayerPermissions):
+
     def has_permission(self, request, view):
+
         permission = self.get_permissions(view.layer, request.user)
         permissions = []
 
@@ -77,9 +81,3 @@ class DBLayerIsValidUser(permissions.BasePermission, DBLayerPermissions):
             return True
         else:
             return False
-
-
-class BulkDBLayerIsValidUser(permissions.BasePermission, DBLayerPermissions):
-    def has_permission(self, request, view):
-        permission = self.get_permissions(view.layer, request.user)
-        return permission['add'] and permission['update'] and permission['delete']
