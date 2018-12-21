@@ -12,6 +12,7 @@ from django.db.backends.postgresql.introspection import FieldInfo, force_text
 Based on django.core.management.commands.inspectdb
 """
 
+
 def normalize_col_name(col_name, used_column_names, is_relation):
     """
     Modify the column name to make it Python-compatible as a field name
@@ -235,7 +236,7 @@ def create_dblayer_model(layer):
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid
     attrs.update(fields)
-    model_name = str(layer.table.replace('.', ' ').title().replace(' ', ''))
-    model = type(model_name, (models.Model,), attrs)
+    model_name = layer.table.replace('".""', ' ').replace('"', '').replace('.', ' ').title().replace(' ', '')
+    model = type(str(model_name), (models.Model,), attrs)
 
     return model
