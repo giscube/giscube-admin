@@ -1,0 +1,15 @@
+CREATE ROLE sit_example LOGIN
+  ENCRYPTED PASSWORD 'sit_example'
+  SUPERUSER NOINHERIT CREATEDB CREATEROLE NOREPLICATION;
+
+CREATE ROLE sit_example_others LOGIN
+ENCRYPTED PASSWORD 'sit_example'
+SUPERUSER NOINHERIT CREATEDB CREATEROLE NOREPLICATION;
+
+CREATE DATABASE "sit_example"
+  WITH OWNER = sit_example
+       ENCODING = 'UTF8'
+       TABLESPACE = pg_default;
+
+ALTER DATABASE "sit_example"
+  SET search_path = "$user", public;
