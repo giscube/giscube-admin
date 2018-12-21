@@ -122,6 +122,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -140,6 +141,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -160,6 +162,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.login_test_user()
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -185,6 +188,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.login_test_user()
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -270,6 +274,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -288,6 +293,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -308,6 +314,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.login_test_user()
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
@@ -333,6 +340,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.login_test_user()
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         data = {
+            'code': '01',
             'address': 'Test',
             'geometry': 'POINT(0 0)'
         }
