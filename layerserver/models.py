@@ -141,7 +141,7 @@ def pre_dblayer(sender, instance, **kwargs):
 def add_fields(sender, instance, created, **kwargs):
     schema = None
     if '"."' in instance.table:
-        schema = instance.table.split('"."').replace('"', '')
+        schema = instance.table.split('"."')[0].replace('"', '')
     conn = instance.db_connection.get_connection(schema=schema)
     fields = model_legacy.get_fields(conn, instance.table)
     old_fields = []
