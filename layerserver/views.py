@@ -248,7 +248,8 @@ class DBLayerContentBulkViewSet(views.APIView):
                 filter = '%s__in' % self.lookup_field
                 qs = self.get_queryset().filter(**{filter: to_delete})
                 ids = qs.values_list(self.lookup_field, flat=True)
-                qs.delete()
+                for item in qs:
+                    item.delete()
                 response['DELETE'] = ids
 
             if errors:
