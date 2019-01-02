@@ -84,6 +84,13 @@ class Geom4326Serializer(GeoFeatureModelSerializer):
 
         return feature
 
+    def to_internal_value(self, data):
+        internal_value = super(Geom4326Serializer, self).to_internal_value(data)
+        if self.Meta.geo_field in internal_value and internal_value[self.Meta.geo_field] and \
+                internal_value[self.Meta.geo_field].srid is None:
+            internal_value[self.Meta.geo_field].srid = 4326
+        return internal_value
+
 
 SERIALIZER_FIELD_MAPPING = {
     models.AutoField: serializers.IntegerField,
