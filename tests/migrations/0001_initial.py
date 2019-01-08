@@ -23,4 +23,13 @@ class Migration(migrations.Migration):
                 ('geometry', django.contrib.gis.db.models.fields.PointField(srid=4326)),
             ],
         ),
+        migrations.CreateModel(
+            name='Location_25831',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('code', models.CharField(max_length=10, unique=True)),
+                ('address', models.CharField(blank=True, max_length=50, null=True)),
+                ('geometry', django.contrib.gis.db.models.fields.PointField(srid=25831)),
+            ],
+        ),
     ]

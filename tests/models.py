@@ -8,6 +8,12 @@ class Location(models.Model):
     geometry = models.PointField()
 
 
+class Location_25831(models.Model):
+    code = models.CharField(max_length=10, blank=False, null=False, unique=True)
+    address = models.CharField(max_length=50, blank=True, null=True)
+    geometry = models.PointField(srid=25831)
+
+
 class TestField(models.Model):
     code = models.CharField(max_length=10, blank=False, null=False, unique=True)
     name = models.CharField(max_length=50, blank=True, null=True)
