@@ -132,7 +132,7 @@ def create_dblayer_serializer(model, fields, id_field, map_id_field=False):
 
     geo_field = None
     for f in model._meta.fields:
-        if type(f) == models.GeometryField:
+        if isinstance(f, models.GeometryField):
             geo_field = str(f).split('.')[-1]
             break
 
