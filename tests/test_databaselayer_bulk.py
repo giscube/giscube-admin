@@ -86,6 +86,13 @@ class DataBaseLayerBulkAPITestCase(BaseTest, TransactionTestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 200)
 
+        obj = self.Location.objects.get(code=data['ADD'][0]['code'])
+        self.assertEqual(obj.geometry.wkt, data['ADD'][0]['geometry'])
+        self.assertEqual(obj.address, data['ADD'][0]['address'])
+        obj = self.Location.objects.get(code=data['ADD'][1]['code'])
+        self.assertEqual(obj.geometry.wkt, data['ADD'][1]['geometry'])
+        self.assertEqual(obj.address, data['ADD'][1]['address'])
+
         obj = self.Location.objects.get(code=self.locations[2].code)
         self.assertEqual(obj.geometry.wkt, data['UPDATE'][0]['geometry'])
 
@@ -95,6 +102,95 @@ class DataBaseLayerBulkAPITestCase(BaseTest, TransactionTestCase):
 
         obj = self.Location.objects.get(code=self.locations[1].code)
         self.assertEqual(obj.address, data['UPDATE'][2]['address'])
+
+        self.assertEqual(
+            0, self.Location.objects.filter(code__in=data['DELETE']).count())
+
+
+    def test_bulk_ok_geojson(self):
+        data = {
+            'ADD': [
+                {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [0.0, 10.0]
+                    },
+                    'properties': {
+                        'code': 'A101',
+                        'address': 'C/ Jaume 100, Girona'
+                    }
+                },
+                {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [11.0, 10.0]
+                    },
+                    'properties': {
+                        'code': 'A102',
+                        'address': 'C/ Jaume 100, Girona'
+                    }
+                }
+            ],
+            'UPDATE': [
+                {
+                    'type': 'Feature',
+                    'id': self.locations[2].code,
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [0, 10]
+                    },
+                    'properties': {}
+                },
+                {
+                    'type': 'Feature',
+                    'id': self.locations[5].code,
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [11, 10]
+                    },
+                    'properties': {
+                        'address': 'C/ Cor de Maria 5, Girona'
+                    }
+                },
+                {
+                    'type': 'Feature',
+                    'id': self.locations[1].code,
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [11, 10]
+                    },
+                    'properties': {
+                        'address': 'C/ Cor de Maria 1, Girona'
+                    }
+                }
+            ],
+            'DELETE': [self.locations[9].code, self.locations[10].code]
+        }
+
+        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        obj = self.Location.objects.get(code=data['ADD'][0]['properties']['code'])
+        self.assertEqual(list(obj.geometry.get_coords()), data['ADD'][0]['geometry']['coordinates'])
+        self.assertEqual(obj.address, data['ADD'][0]['properties']['address'])
+
+        obj = self.Location.objects.get(code=data['ADD'][1]['properties']['code'])
+        self.assertEqual(list(obj.geometry.get_coords()), data['ADD'][1]['geometry']['coordinates'])
+        self.assertEqual(obj.address, data['ADD'][1]['properties']['address'])
+
+        obj = self.Location.objects.get(code=self.locations[2].code)
+        self.assertEqual(list(obj.geometry.get_coords()), data['UPDATE'][0]['geometry']['coordinates'])
+
+        obj = self.Location.objects.get(code=self.locations[5].code)
+        self.assertEqual(list(obj.geometry.get_coords()), data['UPDATE'][1]['geometry']['coordinates'])
+        self.assertEqual(obj.address, data['UPDATE'][1]['properties']['address'])
+
+        obj = self.Location.objects.get(code=self.locations[1].code)
+        self.assertEqual(list(obj.geometry.get_coords()), data['UPDATE'][2]['geometry']['coordinates'])
+        self.assertEqual(obj.address, data['UPDATE'][2]['properties']['address'])
 
         self.assertEqual(
             0, self.Location.objects.filter(code__in=data['DELETE']).count())
