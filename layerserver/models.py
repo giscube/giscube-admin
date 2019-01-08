@@ -132,7 +132,7 @@ def pre_dblayer(sender, instance, **kwargs):
         if not instance.pk_field:
             instance.pk_field = model._meta.pk.name.split('.')[-1]
         for f in model._meta.fields:
-            if type(f) == models.fields.GeometryField:
+            if isinstance(f, models.GeometryField):
                 instance.geom_field = f.name.split('.')[-1]
                 break
 
