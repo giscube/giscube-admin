@@ -229,7 +229,10 @@ class DBLayerContentBulkViewSet(views.APIView):
                 to_update = data['UPDATE']
                 ids = []
                 for item in to_update:
-                    ids.append(item[self.lookup_field])
+                    if 'geometry' in item and type(item['geometry']) is dict:
+                        ids.append(item['id'])
+                    else:
+                        ids.append(item[self.lookup_field])
                 filter = '%s__in' % self.lookup_field
                 qs = self.get_queryset().filter(**{filter: ids})
                 if len(ids) != qs.count():

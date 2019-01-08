@@ -23,8 +23,14 @@ class Geom4326ListSerializer(GeoFeatureModelListSerializer):
         for obj in instance:
             map_obj[getattr(obj, id_field)] = obj
         ret = []
-        for data in validated_data:
-            obj = map_obj[data[id_field]]
+        for i in range(len(validated_data)):
+            data = validated_data[i]
+            original = self.initial_data[i]
+            if 'geometry' in original and type(original['geometry']) is dict:
+                pk = original['id']
+            else:
+                pk = data[id_field]
+            obj = map_obj[pk]
             ret.append(self.child.update(obj, data))
         return ret
 
