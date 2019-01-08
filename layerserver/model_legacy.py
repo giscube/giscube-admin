@@ -106,6 +106,10 @@ def get_field_type(connection, table_name, row):
             field_params['max_digits'] = row[4]
             field_params['decimal_places'] = row[5]
 
+    if field_type == 'GeometryField':
+        field_type, field_params = connection.introspection.get_geometry_type(table_name, row[0])
+        field_notes = []
+
     return field_type, field_params, field_notes
 
 
