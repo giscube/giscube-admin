@@ -38,7 +38,7 @@ class DBConnection(models.Model):
 
     def db_conf(self, schema=None):
         db = {}
-        db['ENGINE'] = self.engine
+        db['ENGINE'] = self.get_engine(self.engine)
         db['NAME'] = self.name
         if self.user:
             db['USER'] = self.user
@@ -50,9 +50,7 @@ class DBConnection(models.Model):
             db['PORT'] = self.port
         if schema:
             postgres_engines = [
-                'django.db.backends.postgresql',
-                'django.db.backends.postgresql_psycopg2',
-                'django.contrib.gis.db.backends.postgis'
+                'giscube.db.backends.postgis',
             ]
             if self.engine in (postgres_engines):
                 db['OPTIONS'] = {
@@ -93,6 +91,11 @@ class DBConnection(models.Model):
             settings.DATABASES[name] = db_conf
         return connections[name]
 
+    def get_engine(self, engine):
+        if engine == 'django.contrib.gis.db.backends.postgis':
+            engine = 'giscube.db.backends.postgis'
+        return engine
+
     def fetchall(self, sql):
         rows = []
         conn = self.get_connection()
@@ -112,7 +115,6 @@ class DBConnection(models.Model):
 
     def __unicode__(self):
         return '%s' % self.alias or self.name
-
 
     class Meta:
         """Meta information."""
