@@ -4,6 +4,8 @@ from django.db.backends.postgresql.introspection import DatabaseIntrospection as
 from django.contrib.gis.db.backends.postgis.introspection import GeoIntrospectionError
 from django.contrib.gis.db.backends.postgis.introspection import PostGISIntrospection as OriginalPostGISIntrospection
 
+from giscube.db.utils import get_table_parts
+
 
 class DatabaseIntrospection(OriginalDatabaseIntrospection):
     pass
@@ -18,11 +20,10 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         PointField or a PolygonField).  Thus, this routine queries the PostGIS
         metadata tables to determine the geometry type,
         """
-        table_schema = None
-        if '.' in table_name:
-            table_parts = table_name.replace('"', '').split('.')
-            table_schema = table_parts[0]
-            table_name = table_parts[1]
+        table_parts = get_table_parts(table_name)
+        table_name = table_parts['table_name']
+        table_schema = table_parts['table_schema']
+
         cursor = self.connection.cursor()
         try:
             try:

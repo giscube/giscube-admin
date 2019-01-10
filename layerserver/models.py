@@ -15,6 +15,7 @@ from django.utils.translation import gettext as _
 
 from .mixins import BaseLayerMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
+from giscube.db.utils import get_table_parts
 from giscube.utils import unique_service_directory
 from giscube.models import DBConnection
 
@@ -131,18 +132,13 @@ def pre_dblayer(sender, instance, **kwargs):
         model = model_legacy.create_dblayer_model(instance)
         if not instance.pk_field:
             instance.pk_field = model._meta.pk.name.split('.')[-1]
-        for f in model._meta.fields:
-            if isinstance(f, models.GeometryField):
-                instance.geom_field = f.name.split('.')[-1]
-                break
 
 
 @receiver(post_save, sender=DataBaseLayer)
 def add_fields(sender, instance, created, **kwargs):
-    schema = None
-    if '"."' in instance.table:
-        schema = instance.table.split('"."')[0].replace('"', '')
-    conn = instance.db_connection.get_connection(schema=schema)
+    table_parts = get_table_parts(instance.table)
+    table_schema = table_parts['table_schema']
+    conn = instance.db_connection.get_connection(schema=table_schema)
     fields = model_legacy.get_fields(conn, instance.table)
     old_fields = []
     if not created:
