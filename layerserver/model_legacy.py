@@ -8,6 +8,9 @@ from collections import OrderedDict
 from django.contrib.gis.db import models
 from django.db.backends.postgresql.introspection import FieldInfo, force_text
 
+from giscube.db.utils import get_table_parts
+
+
 """
 Based on django.core.management.commands.inspectdb
 """
@@ -80,6 +83,7 @@ def get_field_type(connection, table_name, row):
     field_notes = []
 
     try:
+        # TODO: fix with schema
         field_type = connection.introspection.get_field_type(row[1], row)
     except KeyError:
         field_type = 'TextField'
@@ -114,6 +118,8 @@ def get_field_type(connection, table_name, row):
 
 
 def get_fields(connection, table_name):
+    table_parts = get_table_parts(table_name)
+    table_name_simple = table_parts['table_name']
     fields = {}
     cursor = connection.cursor()
 
@@ -121,9 +127,6 @@ def get_fields(connection, table_name):
     strip_prefix = lambda s: s[1:] if s.startswith("u'") else s
 
     relations = {}
-    table_name_simple = table_name
-    if '"."' in table_name:
-        table_name_simple = table_name.split(".")[1].replace('"', '')
     try:
         indexes = connection.introspection.get_indexes(cursor, table_name_simple)
     except NotImplementedError:
@@ -221,9 +224,9 @@ def get_fields(connection, table_name):
 
 
 def create_dblayer_model(layer):
-    schema = None
-    if '"."' in layer.table:
-        schema = layer.table.split('"."')[0].replace('"', '')
+    table_parts = get_table_parts(layer.table)
+    table_schema = table_parts['table_schema']
+    table = table_parts['fixed']
 
     class Meta:
         app_label = 'layerserver_databaselayer'
@@ -233,10 +236,10 @@ def create_dblayer_model(layer):
         '__module__': 'layerserver_databaselayer',
         'Meta': Meta,
         'databaselayer_db_connection': layer.db_connection.connection_name(
-            schema=schema)
+            schema=table_schema)
     }
 
-    fields = get_fields(layer.db_connection.get_connection(schema=schema), layer.table)
+    fields = get_fields(layer.db_connection.get_connection(schema=table_schema), table)
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid
     attrs.update(fields)

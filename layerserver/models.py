@@ -131,10 +131,6 @@ def pre_dblayer(sender, instance, **kwargs):
         model = model_legacy.create_dblayer_model(instance)
         if not instance.pk_field:
             instance.pk_field = model._meta.pk.name.split('.')[-1]
-        for f in model._meta.fields:
-            if isinstance(f, models.GeometryField):
-                instance.geom_field = f.name.split('.')[-1]
-                break
 
 
 @receiver(post_save, sender=DataBaseLayer)
