@@ -134,6 +134,30 @@ def pre_dblayer(sender, instance, **kwargs):
             instance.pk_field = model._meta.pk.name.split('.')[-1]
 
 
+def get_field_type(field):
+    data_types = {
+        models.AutoField: 'integer',
+        models.BooleanField: 'boolean',
+        models.BinaryField: 'string',
+        models.IntegerField: 'integer',
+        models.TextField: 'string',
+        models.EmailField: 'string',
+        models.FloatField: 'float',
+        models.GenericIPAddressField: 'string',
+        models.CharField: 'string',
+        models.DateField: 'date',
+        models.TimeField: 'time',
+        models.DateTimeField: 'datetime',
+        models.DecimalField: 'float',
+        models.UUIDField: 'string',
+        models.GeometryField: 'geometry',
+    }
+    for k, v in data_types.items():
+        if isinstance(field, k):
+            return v
+    return None
+
+
 @receiver(post_save, sender=DataBaseLayer)
 def add_fields(sender, instance, created, **kwargs):
     table_parts = get_table_parts(instance.table)
@@ -145,9 +169,11 @@ def add_fields(sender, instance, created, **kwargs):
         old_fields = [field.field for field in instance.fields.all()]
     for field in fields.keys():
         if field not in old_fields:
+            type = get_field_type(fields[field])
             db_field = DataBaseLayerField()
             db_field.layer = instance
             db_field.field = field
+            db_field.type = type
             db_field.save()
         else:
             if field in old_fields:
@@ -169,6 +195,7 @@ class DataBaseLayerField(models.Model):
         related_name='fields', on_delete=models.CASCADE)
     field = models.CharField(max_length=255, blank=False, null=False)
     alias = models.CharField(max_length=255, blank=True, null=True)
+    type = models.CharField(max_length=25, blank=True, null=True)
     search = models.BooleanField(default=True)
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)

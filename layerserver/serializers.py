@@ -235,7 +235,7 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DataBaseLayerField
-        fields = ['field', 'alias', 'search', 'fullsearch', 'values_list']
+        fields = ['field', 'type', 'alias', 'search', 'fullsearch', 'values_list']
         list_serializer_class = DBLayerFieldListSerializer
 
 

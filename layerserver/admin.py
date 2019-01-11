@@ -87,8 +87,8 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     extra = 0
 
     can_delete = False
-    fields = ('enabled', 'field', 'alias', 'search', 'fullsearch', 'values_list_type', 'values_list')
-    readonly_fields = ('field',)
+    fields = ('enabled', 'field', 'type', 'alias', 'search', 'fullsearch', 'values_list_type', 'values_list')
+    readonly_fields = ('field', 'type')
     classes = ('tab-fields',)
 
     def has_add_permission(self, request):
