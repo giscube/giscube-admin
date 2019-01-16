@@ -40,7 +40,7 @@ urlpatterns = [
         name='content-list'),
     url(r'^databaselayers/(?P<layer_slug>[-\w]+)/bulk/?$', content_bulk,
         name='content-bulk'),
-    url(r'^databaselayers/(?P<slug>[-\w]+)(/?)$', layer_detail,
+    url(r'^databaselayers/(?P<slug>[-\w]+)/?$', layer_detail,
         name='layer-detail'),
     url(r'^databaselayers/$', layer_list, name='layer-list'),
 ]
