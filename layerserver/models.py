@@ -114,6 +114,14 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     anonymous_update = models.BooleanField(_('Can update'), default=False)
     anonymous_delete = models.BooleanField(_('Can delete'), default=False)
 
+    def get_model_field(self, field_name):
+        if not hasattr(self, '_model_fields'):
+            LayerModel = model_legacy.create_dblayer_model(self)
+            setattr(self, '_model_fields', LayerModel._meta.get_fields())
+        for f in self._model_fields:
+            if f.name == field_name:
+                return f
+
     def __unicode__(self):
         return self.__str__()
 
@@ -142,20 +150,36 @@ def add_fields(sender, instance, created, **kwargs):
     fields = model_legacy.get_fields(conn, instance.table)
     old_fields = []
     if not created:
-        old_fields = [field.field for field in instance.fields.all()]
+        old_fields = [field.name for field in instance.fields.all()]
     for field in fields.keys():
         if field not in old_fields:
             db_field = DataBaseLayerField()
             db_field.layer = instance
-            db_field.field = field
+            db_field.name = field
             db_field.save()
         else:
             if field in old_fields:
                 old_fields.remove(field)
     if not created and len(old_fields) > 0:
         DataBaseLayerField.objects.filter(
-            layer=instance, field__in=old_fields).delete()
+            layer=instance, name__in=old_fields).delete()
 
+
+DATA_TYPES = {
+    models.GeometryField: 'geometry',
+    models.GenericIPAddressField: 'string',
+    models.UUIDField: 'string',
+    models.DateField: 'date',
+    models.TimeField: 'time',
+    models.DateTimeField: 'datetime',
+    models.AutoField: 'number',
+    models.BooleanField: 'boolean',
+    models.DecimalField: 'number',
+    models.FloatField: 'number',
+    models.IntegerField: 'number',
+    models.TextField: 'string',
+    models.CharField: 'string',
+}
 
 VALUES_LIST_TYPLE_CHOICES = [
     ('flatlist', 'Flat list, one line per value'),
@@ -167,8 +191,8 @@ class DataBaseLayerField(models.Model):
     layer = models.ForeignKey(
         DataBaseLayer, null=False, blank=False,
         related_name='fields', on_delete=models.CASCADE)
-    field = models.CharField(max_length=255, blank=False, null=False)
-    alias = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=False, null=False)
+    label = models.CharField(max_length=255, blank=True, null=True)
     search = models.BooleanField(default=True)
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
@@ -176,11 +200,63 @@ class DataBaseLayerField(models.Model):
                                         choices=VALUES_LIST_TYPLE_CHOICES)
     values_list = models.TextField(null=True, blank=True)
 
+    @property
+    def type(self):
+        if not hasattr(self, '_type'):
+            self._type = None
+            model_field = self.get_model_field()
+            if model_field:
+                self._type = DATA_TYPES.get(type(model_field))
+                if not self._type:
+                    for k, v in DATA_TYPES.items():
+                        if isinstance(model_field, k):
+                            self._type = v
+                            break
+        return self._type
+
+    @property
+    def null(self):
+        model_field = self.get_model_field()
+        if model_field:
+            return model_field.null
+
+    @property
+    def size(self):
+        if not hasattr(self, '_size'):
+            self._size = None
+            model_field = self.get_model_field()
+            if model_field and self.type:
+                if self.type == 'string':
+                    if hasattr(model_field, 'max_length'):
+                        self._size = model_field.max_length
+                elif self.type == 'number':
+                    if isinstance(model_field, models.DecimalField):
+                        self._size = model_field.max_digits
+        return self._size
+
+    @property
+    def decimals(self):
+        if not hasattr(self, '_decimals'):
+            self._decimals = None
+            model_field = self.get_model_field()
+            if model_field and self.type:
+                if self.type == 'number':
+                    if isinstance(model_field, models.IntegerField):
+                        self._decimals = 0
+                    elif isinstance(model_field, models.DecimalField):
+                        self._decimals = model_field.decimal_places
+        return self._decimals
+
+    def get_model_field(self):
+        if not hasattr(self, '_model_field'):
+            self._model_field = self.layer.get_model_field(self.name)
+        return self._model_field
+
     def __unicode__(self):
         return self.__str__()
 
     def __str__(self):
-        return self.alias or self.field
+        return self.label or self.name
 
     class Meta:
         verbose_name = _('Field')
