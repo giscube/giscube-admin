@@ -30,22 +30,22 @@ class DataBaseLayerAPITestCase(BaseTest):
 
     def test_fields_changed(self):
         conn = self.layer.db_connection.get_connection()
-        self.assertEqual(1, self.layer.fields.filter(field='address').count())
+        self.assertEqual(1, self.layer.fields.filter(name='address').count())
         cursor = conn.cursor()
         cursor.execute('ALTER TABLE tests_location RENAME COLUMN address'
                        ' TO new_address;')
         conn.commit()
         self.layer.save()
         self.layer.refresh_from_db()
-        self.assertEqual(0, self.layer.fields.filter(field='address').count())
+        self.assertEqual(0, self.layer.fields.filter(name='address').count())
         self.assertEqual(
-            1, self.layer.fields.filter(field='new_address').count())
+            1, self.layer.fields.filter(name='new_address').count())
 
         cursor.execute('ALTER TABLE tests_location ADD COLUMN status VARCHAR;')
         conn.commit()
         self.layer.save()
         self.layer.refresh_from_db()
-        self.assertEqual(1, self.layer.fields.filter(field='status').count())
+        self.assertEqual(1, self.layer.fields.filter(name='status').count())
 
         # Restore column name to avoid problems with other tests
         cursor.execute('ALTER TABLE tests_location RENAME COLUMN new_address'

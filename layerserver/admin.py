@@ -87,12 +87,31 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     extra = 0
 
     can_delete = False
-    fields = ('enabled', 'field', 'alias', 'search', 'fullsearch', 'values_list_type', 'values_list')
-    readonly_fields = ('field',)
+    fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch', 'values_list_type', 'values_list',)
+    readonly_fields = ('name', 'get_type', 'get_size', 'get_decimals', 'get_null')
     classes = ('tab-fields',)
 
     def has_add_permission(self, request):
         return False
+
+    def get_type(self, obj):
+        return obj.type or ''
+    get_type.short_description = "Type"
+
+    def get_size(self, obj):
+        return obj.size or ''
+    get_size.short_description = "Size"
+
+    def get_decimals(self, obj):
+        return obj.decimals or ''
+    get_decimals.short_description = "Decimals"
+
+    def get_null(self, obj):
+        if obj.null is None:
+            return ''
+        else:
+            return obj.null
+    get_null.short_description = "Null"
 
 
 class DataBaseLayerReferencesInline(admin.TabularInline):
