@@ -205,11 +205,16 @@ class DBLayerFieldListSerializer(serializers.ListSerializer):
         return super(
             DBLayerFieldListSerializer, self).to_representation(data)
 
-
 class DBLayerFieldSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super(
             DBLayerFieldSerializer, self).to_representation(obj)
+
+        data['type'] = obj.type
+        data['null'] = obj.null
+        data['size'] = obj.size
+        data['decimals'] = obj.decimals
+
         if obj.values_list_type == 'flatlist':
             rows = []
             for line in data['values_list'].splitlines():
@@ -235,7 +240,7 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DataBaseLayerField
-        fields = ['field', 'alias', 'search', 'fullsearch', 'values_list']
+        fields = ['name', 'label', 'search', 'fullsearch', 'values_list']
         list_serializer_class = DBLayerFieldListSerializer
 
 

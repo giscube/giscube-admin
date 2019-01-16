@@ -109,8 +109,8 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self._fields = {}
         for field in self.layer.fields.filter(enabled=True):
             if field.search is True:
-                self.filter_fields.append(field.field)
-            self._fields[field.field] = {
+                self.filter_fields.append(field.name)
+            self._fields[field.name] = {
                 'fullsearch': field.fullsearch
             }
         lookup_field_value = kwargs.get(self.lookup_url_kwarg)
@@ -198,7 +198,7 @@ class DBLayerContentBulkViewSet(views.APIView):
         self.lookup_field = self.layer.pk_field
         self._fields = {}
         for field in self.layer.fields.filter(enabled=True):
-            self._fields[field.field] = {}
+            self._fields[field.name] = {}
         return super(DBLayerContentBulkViewSet,
                      self).dispatch(
                          request, *args, **kwargs)
