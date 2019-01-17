@@ -30,7 +30,7 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
         layer.name = 'tests_testfield'
         layer.table = 'tests_testfield'
         layer.pk_field = 'id'
-        layer.geometry_field = 'geometry'
+        layer.geom_field = 'geometry'
         layer.anonymous_view = True
         layer.anonymous_add = True
         layer.anonymous_update = True
@@ -73,3 +73,9 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
         self.assertEqual(fields['price']['decimals'], 2)
         self.assertEqual(fields['x']['decimals'], None)
         self.assertEqual(fields['geometry']['decimals'], None)
+
+    def test_geom_field_type(self):
+        url = reverse('layer-detail', kwargs={'slug': self.layer.slug})
+        response = self.client.get(url)
+        result = response.json()
+        self.assertEqual(result['geom_type'], 'POINT')
