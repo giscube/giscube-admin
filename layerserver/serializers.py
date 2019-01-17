@@ -14,6 +14,7 @@ from rest_framework_gis.serializers import (
 from layerserver.models import (
     DataBaseLayer, DataBaseLayerField, DataBaseLayerReference
 )
+from layerserver.model_legacy import create_dblayer_model
 
 
 class Geom4326ListSerializer(GeoFeatureModelListSerializer):
@@ -261,6 +262,12 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
                     'fill_color': obj.fill_color,
                     'fill_opacity': obj.fill_opacity
             }
+        Layer = create_dblayer_model(obj)
+        data['geom_type'] = None
+        if obj.geom_field is not None:
+            field = Layer._meta.get_field(obj.geom_field)
+            data['geom_type'] = field.geom_type
+
         return data
 
     class Meta:
