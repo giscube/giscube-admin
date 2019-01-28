@@ -2,6 +2,14 @@ import os
 import tempfile
 
 from django.conf import settings
+from django.utils.version import get_version as django_get_version
+
+
+def get_version(version=None):
+    if version is None:
+        from . import VERSION as version
+
+    return django_get_version(version)
 
 
 def unique_service_directory(instance, filename=None):
