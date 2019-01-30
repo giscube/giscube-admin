@@ -79,3 +79,14 @@ if not settings.GISCUBE_LAYERSERVER_DISABLED:
 urlpatterns += [
     url(r'api/v1/', include(router.urls)),
 ]
+
+
+if settings.USE_CAS:
+    import django_cas_ng.views
+    cas_login_urls = [
+        url(r'^accounts/login$', django_cas_ng.views.LoginView.as_view(),
+            name='cas_ng_login'),
+        url(r'^accounts/logout$', django_cas_ng.views.LogoutView.as_view(),
+            name='cas_ng_logout'),
+    ]
+    urlpatterns.extend(cas_login_urls)
