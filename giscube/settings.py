@@ -16,7 +16,12 @@ from kombu import Exchange, Queue
 
 logger = logging.getLogger(__name__)
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.abspath(os.path.dirname(BASE_DIR))
+
+APP_URL = ''
+APP_URL = os.getenv('APP_URL', APP_URL)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -218,20 +223,58 @@ HAYSTACK_CONNECTIONS = {
 #     print "[settings.py] tilescache not available: %s" % e
 #     logger.exception(e)
 
+USE_CAS = os.getenv('USE_CAS', 'True').lower() == 'true'
+
+if USE_CAS:
+
+    INSTALLED_APPS += (
+        'django_cas_ng',
+    )
+
+    needle = 'django.contrib.auth.middleware.AuthenticationMiddleware'
+    index = MIDDLEWARE.index(needle)
+    cas_middleware = 'django_cas_ng.middleware.CASMiddleware'
+    MIDDLEWARE.insert(index + 1, cas_middleware)
+
+    AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+        'django_cas_ng.backends.CASBackend',
+    ]
+
+    CAS_SERVER_URL = os.getenv('CAS_SERVER_URL', 'CAS_SERVER_URL not defined')
+    CAS_REDIRECT_URL = '%s' % APP_URL
+    CAS_CREATE_USER = False
+    CAS_LOGOUT_COMPLETELY = True
+    CAS_VERSION = 3
+
+    LOGIN_URL = '%s/accounts/login/' % APP_URL
+    LOGOUT_URL = '%s/accounts/logout/' % APP_URL
+    LOGIN_REDIRECT_URL = '%s' % APP_URL
+
 # oauth-toolkit
-AUTHENTICATION_BACKENDS = (
-    'oauth2_provider.backends.OAuth2Backend',
-    # Uncomment following if you want to access the admin
-    'django.contrib.auth.backends.ModelBackend'
-)
+if USE_CAS:
+    AUTHENTICATION_BACKENDS = [
+        'oauth2_provider.backends.OAuth2Backend',
+    ] + AUTHENTICATION_BACKENDS
+else:
+    AUTHENTICATION_BACKENDS = [
+        'oauth2_provider.backends.OAuth2Backend',
+        'django.contrib.auth.backends.ModelBackend',
+    ]
 
 index = MIDDLEWARE.index('django.contrib.auth.middleware.'
-                                 'AuthenticationMiddleware')
+                         'AuthenticationMiddleware')
 MIDDLEWARE.insert(index + 1,
-                          'oauth2_provider.middleware.OAuth2TokenMiddleware')
+                  'oauth2_provider.middleware.OAuth2TokenMiddleware')
 
 OAUTH2_PROVIDER = {
-    'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 365,
+    'RESOURCE_SERVER_INTROSPECTION_URL': os.environ.get(
+        'RESOURCE_SERVER_INTROSPECTION_URL'),
+    'RESOURCE_SERVER_AUTH_TOKEN': os.environ.get(
+        'RESOURCE_SERVER_AUTH_TOKEN'),
+    'RESOURCE_SERVER_TOKEN_CACHING_SECONDS': 60 * 60 * 10,
+
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 365 * 10,
 }
 
 # rest-framework
