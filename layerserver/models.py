@@ -173,6 +173,7 @@ DATA_TYPES = {
     models.TimeField: 'time',
     models.DateTimeField: 'datetime',
     models.AutoField: 'number',
+    models.NullBooleanField: 'boolean',
     models.BooleanField: 'boolean',
     models.DecimalField: 'number',
     models.FloatField: 'number',
@@ -216,9 +217,12 @@ class DataBaseLayerField(models.Model):
 
     @property
     def null(self):
-        model_field = self.get_model_field()
-        if model_field:
-            return model_field.null
+        if not hasattr(self, '_null'):
+            self._null = None
+            model_field = self.get_model_field()
+            if model_field:
+                self._null = model_field.null
+        return self._null
 
     @property
     def size(self):

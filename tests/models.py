@@ -11,6 +11,8 @@ class Location(models.Model):
 class TestField(models.Model):
     code = models.CharField(max_length=10, blank=False, null=False, unique=True)
     name = models.CharField(max_length=50, blank=True, null=True)
+    enabled = models.BooleanField()
+    accepted = models.NullBooleanField()
     price = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     x = models.FloatField(blank=True, null=True)
     y = models.FloatField(blank=True, null=True)
