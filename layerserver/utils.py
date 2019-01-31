@@ -64,8 +64,7 @@ def geojsonlayer_refresh_layer(layer):
         path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
         data = json.load(open(path))
         data['metadata'] = layer.metadata
-        outfile_path = os.path.join(
-            settings.MEDIA_ROOT, layer.service_path, 'data.json')
+        outfile_path = layer.get_data_file_path()
         with open(outfile_path, 'wb') as fixed_file:
             fixed_file.write(json.dumps(data))
         layer.generated_on = timezone.localtime()
