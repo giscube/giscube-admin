@@ -42,7 +42,7 @@ def GeoJSONLayerView(request, layer_name):
         return HttpResponseForbidden()
 
     if layer and layer.data_file:
-        path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
+        path = layer.get_data_file_path()
         if os.path.isfile(path):
             geojsonlayer_check_cache(layer)
             return FileResponse(open(path, 'rb'))
