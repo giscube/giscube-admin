@@ -43,6 +43,11 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
     last_fetch_on = models.DateTimeField(null=True, blank=True)
     generated_on = models.DateTimeField(null=True, blank=True)
 
+    def get_data_file_path(self):
+        if self.service_path:
+            return os.path.join(
+                settings.MEDIA_ROOT, self.service_path, 'data.json')
+
     @property
     def metadata(self):
         return {
