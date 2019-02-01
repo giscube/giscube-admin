@@ -7,4 +7,4 @@ giscube/static/
 /.project
 /.coverage
 test.db
-docker/requirements.txt
+docker-test/requirements.txt
