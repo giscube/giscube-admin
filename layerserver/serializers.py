@@ -206,6 +206,7 @@ class DBLayerFieldListSerializer(serializers.ListSerializer):
         return super(
             DBLayerFieldListSerializer, self).to_representation(data)
 
+
 class DBLayerFieldSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super(
@@ -228,20 +229,30 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
                     rows.append('error')
             data['values_list'] = rows
         elif obj.values_list_type == 'sql':
+            headers = []
             rows = []
-            for r in obj.layer.db_connection.fetchall(obj.values_list):
-                if len(r) == 1:
-                    rows.append(r[0])
-                else:
-                    rows.append(r)
+            with obj.layer.db_connection.get_connection().cursor() as cursor:
+                cursor.execute('%s LIMIT 0' % obj.values_list)
+                for header in cursor.description:
+                    headers.append(header.name)
+                cursor.execute(obj.values_list)
+                for r in cursor.fetchall():
+                    if len(r) == 1:
+                        rows.append(r[0])
+                    else:
+                        rows.append(r)
+            data['values_list_headers'] = headers
             data['values_list'] = rows
         else:
-            del data['values_list']
+            if 'values_list_headers' in data:
+                del data['values_list_headers']
+            if 'values_list' in data:
+                del data['values_list']
         return data
 
     class Meta:
         model = DataBaseLayerField
-        fields = ['name', 'label', 'search', 'fullsearch', 'values_list']
+        fields = ['name', 'label', 'search', 'fullsearch']
         list_serializer_class = DBLayerFieldListSerializer
 
 
