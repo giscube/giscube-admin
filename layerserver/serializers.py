@@ -219,28 +219,30 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
 
         if obj.values_list_type == 'flatlist':
             rows = []
-            for line in data['values_list'].splitlines():
-                parts = line.split(',')
-                if len(parts) == 1:
-                    rows.append(parts[0])
-                elif len(parts) == 2:
-                    rows.append(parts)
-                else:
-                    rows.append('error')
+            if obj.values_list is not None:
+                for line in obj.values_list.splitlines():
+                    parts = line.split(',')
+                    if len(parts) == 1:
+                        rows.append(parts[0])
+                    elif len(parts) == 2:
+                        rows.append(parts)
+                    else:
+                        rows.append('error')
             data['values_list'] = rows
         elif obj.values_list_type == 'sql':
             headers = []
             rows = []
-            with obj.layer.db_connection.get_connection().cursor() as cursor:
-                cursor.execute('%s LIMIT 0' % obj.values_list)
-                for header in cursor.description:
-                    headers.append(header.name)
-                cursor.execute(obj.values_list)
-                for r in cursor.fetchall():
-                    if len(r) == 1:
-                        rows.append(r[0])
-                    else:
-                        rows.append(r)
+            if obj.values_list is not None:
+                with obj.layer.db_connection.get_connection().cursor() as cursor:
+                    cursor.execute('%s LIMIT 0' % obj.values_list)
+                    for header in cursor.description:
+                        headers.append(header.name)
+                    cursor.execute(obj.values_list)
+                    for r in cursor.fetchall():
+                        if len(r) == 1:
+                            rows.append(r[0])
+                        else:
+                            rows.append(r)
             data['values_list_headers'] = headers
             data['values_list'] = rows
         else:
