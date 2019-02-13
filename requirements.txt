@@ -9,7 +9,7 @@ django-haystack==2.7.0
 django-loginas==0.3.3
 django-oauth-toolkit==1.0.0
 django-vue-tabs==0.0.7
-djangorestframework==3.8.2
+djangorestframework==3.9.1
 djangorestframework-gis==0.13
 django-url-filter==0.3.5
 GDAL==1.10.0
