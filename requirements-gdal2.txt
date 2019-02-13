@@ -5,7 +5,7 @@ django-colorfield==0.1.14
 django-cors-headers==2.2.0
 psycopg2-binary==2.7.4
 python-slugify==1.2.5
-django-haystack==2.7.0
+django-haystack==2.8.1
 django-loginas==0.3.3
 django-oauth-toolkit==1.0.0
 django-vue-tabs==0.0.7
