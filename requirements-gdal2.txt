@@ -1,5 +1,5 @@
 celery==4.1.1
-Django==1.11.18
+Django==2.1.7
 django-cas-ng==3.6.0
 django-colorfield==0.1.14
 django-cors-headers==2.2.0
