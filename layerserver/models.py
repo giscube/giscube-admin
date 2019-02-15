@@ -13,6 +13,8 @@ from django.dispatch import receiver
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
 
+from model_utils import Choices
+
 from .mixins import BaseLayerMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.db.utils import get_table_parts
@@ -187,13 +189,16 @@ DATA_TYPES = {
     models.CharField: 'string',
 }
 
-VALUES_LIST_TYPLE_CHOICES = [
-    ('flatlist', 'Flat list, one line per value'),
-    ('sql', 'SQL'),
-]
-
 
 class DataBaseLayerField(models.Model):
+
+    WIDGET_CHOICES = Choices(
+        ('auto', 'Auto'),
+        ('choices', 'Choices, one line per value'),
+        ('linkedfield', 'Linked Field'),
+        ('sqlchoices', 'SQL choices'),
+    )
+
     layer = models.ForeignKey(
         DataBaseLayer, null=False, blank=False,
         related_name='fields', on_delete=models.CASCADE)
@@ -202,9 +207,9 @@ class DataBaseLayerField(models.Model):
     search = models.BooleanField(default=True)
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
-    values_list_type = models.CharField(max_length=25, null=True, blank=True,
-                                        choices=VALUES_LIST_TYPLE_CHOICES)
-    values_list = models.TextField(null=True, blank=True)
+    widget = models.CharField(max_length=25, blank=False,
+                              choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
+    widget_options = models.TextField(null=True, blank=True)
 
     @property
     def type(self):
