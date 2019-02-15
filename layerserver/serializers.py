@@ -12,9 +12,10 @@ from rest_framework_gis.serializers import (
 )
 
 from layerserver.models import (
-    DataBaseLayer, DataBaseLayerField, DataBaseLayerReference
+    DataBaseLayer, DataBaseLayerReference
 )
 from layerserver.model_legacy import create_dblayer_model
+from .serializers_dblayer_field import DBLayerFieldSerializer
 
 
 class Geom4326ListSerializer(GeoFeatureModelListSerializer):
@@ -198,64 +199,6 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataBaseLayerReference
         fields = ['title', 'url']
-
-
-class DBLayerFieldListSerializer(serializers.ListSerializer):
-    def to_representation(self, data):
-        data = data.filter(enabled=True)
-        return super(
-            DBLayerFieldListSerializer, self).to_representation(data)
-
-
-class DBLayerFieldSerializer(serializers.ModelSerializer):
-    def to_representation(self, obj):
-        data = super(
-            DBLayerFieldSerializer, self).to_representation(obj)
-
-        data['type'] = obj.type
-        data['null'] = obj.null
-        data['size'] = obj.size
-        data['decimals'] = obj.decimals
-
-        if obj.values_list_type == 'flatlist':
-            rows = []
-            if obj.values_list is not None:
-                for line in obj.values_list.splitlines():
-                    parts = line.split(',')
-                    if len(parts) == 1:
-                        rows.append(parts[0])
-                    elif len(parts) == 2:
-                        rows.append(parts)
-                    else:
-                        rows.append('error')
-            data['values_list'] = rows
-        elif obj.values_list_type == 'sql':
-            headers = []
-            rows = []
-            if obj.values_list is not None:
-                with obj.layer.db_connection.get_connection().cursor() as cursor:
-                    cursor.execute('%s LIMIT 0' % obj.values_list)
-                    for header in cursor.description:
-                        headers.append(header.name)
-                    cursor.execute(obj.values_list)
-                    for r in cursor.fetchall():
-                        if len(r) == 1:
-                            rows.append(r[0])
-                        else:
-                            rows.append(r)
-            data['values_list_headers'] = headers
-            data['values_list'] = rows
-        else:
-            if 'values_list_headers' in data:
-                del data['values_list_headers']
-            if 'values_list' in data:
-                del data['values_list']
-        return data
-
-    class Meta:
-        model = DataBaseLayerField
-        fields = ['name', 'label', 'search', 'fullsearch']
-        list_serializer_class = DBLayerFieldListSerializer
 
 
 class DBLayerDetailSerializer(serializers.ModelSerializer):
