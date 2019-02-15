@@ -87,7 +87,8 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     extra = 0
 
     can_delete = False
-    fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch', 'values_list_type', 'values_list',)
+    fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch',
+              'widget', 'widget_options',)
     readonly_fields = ('name', 'get_type', 'get_size', 'get_decimals', 'get_null')
     classes = ('tab-fields',)
 
