@@ -74,10 +74,12 @@ class DataBaseLayerBulkUTMAPITestCase(BaseTest, TransactionTestCase):
         self.assertEqual(response.status_code, 200)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['code'])
-        self.assertEqual(obj.geometry.wkt, 'POINT (482974.6931716673 4647178.590265266)')
+        self.assertAlmostEqual(obj.geometry.x, 482974.6931716673, places=6)
+        self.assertAlmostEqual(obj.geometry.y, 4647178.590265266, places=6)
 
         obj = self.Location.objects.get(code=self.locations[0].code)
-        self.assertEqual(obj.geometry.wkt, 'POINT (483011.1623463448 4647185.164621412)')
+        self.assertAlmostEqual(obj.geometry.x, 483011.1623463448, places=6)
+        self.assertAlmostEqual(obj.geometry.y, 4647185.164621412, places=6)
 
     def test_bulk_utm(self):
         data = {
