@@ -173,22 +173,22 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         self.assertEqual(response.status_code, 200)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['properties']['code'])
-        self.assertEqual(list(obj.geometry.get_coords()), data['ADD'][0]['geometry']['coordinates'])
+        self.assertEqual(list(obj.geometry.coords), data['ADD'][0]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['ADD'][0]['properties']['address'])
 
         obj = self.Location.objects.get(code=data['ADD'][1]['properties']['code'])
-        self.assertEqual(list(obj.geometry.get_coords()), data['ADD'][1]['geometry']['coordinates'])
+        self.assertEqual(list(obj.geometry.coords), data['ADD'][1]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['ADD'][1]['properties']['address'])
 
         obj = self.Location.objects.get(code=self.locations[2].code)
-        self.assertEqual(list(obj.geometry.get_coords()), data['UPDATE'][0]['geometry']['coordinates'])
+        self.assertEqual(list(obj.geometry.coords), data['UPDATE'][0]['geometry']['coordinates'])
 
         obj = self.Location.objects.get(code=self.locations[5].code)
-        self.assertEqual(list(obj.geometry.get_coords()), data['UPDATE'][1]['geometry']['coordinates'])
+        self.assertEqual(list(obj.geometry.coords), data['UPDATE'][1]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['UPDATE'][1]['properties']['address'])
 
         obj = self.Location.objects.get(code=self.locations[1].code)
-        self.assertEqual(list(obj.geometry.get_coords()), data['UPDATE'][2]['geometry']['coordinates'])
+        self.assertEqual(list(obj.geometry.coords), data['UPDATE'][2]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['UPDATE'][2]['properties']['address'])
 
         self.assertEqual(
