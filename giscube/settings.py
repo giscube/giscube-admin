@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import logging
+import re
 from kombu import Exchange, Queue
 
 
@@ -199,7 +200,8 @@ CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL',
                                   'False').lower() == 'true'
 CORS_ORIGIN_WHITELIST = tuple(
     whitelisted
-    for whitelisted in os.getenv('CORS_ORIGIN_WHITELIST', '').split(',')
+    for whitelisted
+    in re.sub('\s', '', os.getenv('CORS_ORIGIN_WHITELIST', '')).split(',')
     if whitelisted
 )
 # CORS_ALLOW_CREDENTIALS = True
