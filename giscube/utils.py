@@ -2,6 +2,7 @@ import os
 import tempfile
 
 from django.conf import settings
+from django.utils.module_loading import import_string
 from django.utils.version import get_version as django_get_version
 
 
@@ -25,3 +26,15 @@ def unique_service_directory(instance, filename=None):
         return os.path.join(instance.service_path, filename)
     else:
         return instance.service_path
+
+
+def get_cls(key, default=None):
+    value = getattr(settings, key, None)
+    if type(value) is type:
+        return value
+    elif type(value) is tuple or type(value) is list:
+        return tuple(import_string(p) for p in value if type(p) is str)
+    elif type(value) is str:
+        return import_string(value)
+    else:
+        return default

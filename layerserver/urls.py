@@ -34,7 +34,7 @@ content_bulk = DBLayerContentBulkViewSet.as_view()
 urlpatterns = [
     url(r'^geojsonlayers/(?P<layer_name>[^/]+)(.*)',
         GeoJSONLayerView, name='geojsonlayer'),
-    url(r'^databaselayers/(?P<layer_slug>[-\w]+)/data/(?P<pk>[0-9]+)/?$',
+    url(r'^databaselayers/(?P<layer_slug>[-\w]+)/data/(?P<pk>.*)/?$',
         content_detail, name='content-detail'),
     url(r'^databaselayers/(?P<layer_slug>[-\w]+)/data/?$', content_list,
         name='content-list'),

@@ -11,10 +11,15 @@ from giscube import api
 from giscube.admin_views import RebuildIndexView
 from qgisserver import api as qgisserver_api
 
+from . import views
+
 
 router = routers.DefaultRouter()
 router.register(r'giscube/category', api.CategoryViewSet,
                 base_name='giscube_category')
+
+router.register(r'giscube/user-assets', api.UserAssetViewSet,
+                base_name='user_assets')
 
 # OAuth2 provider endpoints
 oauth2_endpoint_views = [
@@ -34,14 +39,13 @@ urlpatterns = [
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
 
+    url(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
     url(r'^admin/giscube/rebuild_index/$',
         admin.site.admin_view(RebuildIndexView.as_view()),
         name='rebuild_index'),
     url(r'^admin/', admin.site.urls),
     url(r'^admin/', include('loginas.urls')),
 ]
-
-urlpatterns += static('media', document_root=settings.MEDIA_ROOT)
 
 # Additional modules
 

@@ -27,4 +27,13 @@ class Migration(migrations.Migration):
                 ('geometry', django.contrib.gis.db.models.fields.PointField(srid=4326)),
             ],
         ),
+        migrations.CreateModel(
+            name='TestImageField',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('code', models.CharField(max_length=10, unique=True)),
+                ('image', models.CharField(blank=True, max_length=255, null=True)),
+                ('geometry', django.contrib.gis.db.models.fields.PointField(srid=4326))
+            ],
+        ),
     ]
