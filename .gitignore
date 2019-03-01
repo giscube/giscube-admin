@@ -8,3 +8,4 @@ giscube/static/
 /.coverage
 test.db
 docker-test/requirements.txt
+tests/media/*
