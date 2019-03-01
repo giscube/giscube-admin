@@ -84,7 +84,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest, TransactionTestCase):
 
         url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['code'])
         self.assertEqual(obj.geometry.wkt, data['ADD'][0]['geometry'])
@@ -105,7 +105,6 @@ class DataBaseLayerBulkAPITestCase(BaseTest, TransactionTestCase):
 
         self.assertEqual(
             0, self.Location.objects.filter(code__in=data['DELETE']).count())
-
 
     def test_bulk_ok_geojson(self):
         data = {
@@ -171,7 +170,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest, TransactionTestCase):
 
         url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['properties']['code'])
         self.assertEqual(list(obj.geometry.coords), data['ADD'][0]['geometry']['coordinates'])
@@ -236,4 +235,4 @@ class DataBaseLayerBulkAPITestCase(BaseTest, TransactionTestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
         result = response.json()
-        self.assertTrue('geometry' in result['UPDATE'][0])
+        self.assertTrue('geometry' in result['UPDATE'])

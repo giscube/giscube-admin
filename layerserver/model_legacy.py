@@ -1,20 +1,21 @@
 # flake8: noqa
 from __future__ import unicode_literals
 
+import json
 import keyword
 import re
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib.gis.db import models
-from django.db.backends.postgresql.introspection import FieldInfo, force_text
 
 from giscube.db.utils import get_table_parts
+from .storage import get_thumbnail_storage_klass
 
 
 """
 Based on django.core.management.commands.inspectdb
 """
-
 
 def normalize_col_name(col_name, used_column_names, is_relation):
     """
@@ -223,6 +224,45 @@ def get_fields(connection, table_name):
     return fields
 
 
+class ImageWithThumbnailField(models.FileField):
+    pass
+
+
+def to_image_field(field, original_field):
+    widget_options = json.loads(field.widget_options)
+    StorageKlass = get_thumbnail_storage_klass()
+    options = {
+        'validators': [],
+        'blank': original_field.blank,
+        'null': original_field.null,
+        'db_index': original_field.db_index,
+        'primary_key': original_field.db_index,
+        'name': original_field.name,
+        'db_tablespace': original_field.db_tablespace,
+        'db_column': original_field.db_column,
+        'default': original_field.default,
+        'editable': original_field.editable,
+        'max_length': original_field.max_length,
+        'storage': StorageKlass(
+            location=widget_options['upload_root'],
+            base_url=widget_options['base_url'],
+            thumbnail_location=widget_options.get('thumbnail_root', None),
+            thumbnail_base_url=widget_options.get('thumbnail_base_url', None),
+            thumbnail_width=widget_options.get('thumbnail_width', settings.LAYERSERVER_THUMBNAIL_WIDTH),
+            thumbnail_height=widget_options.get('thumbnail_height', settings.LAYERSERVER_THUMBNAIL_HEIGHT)
+            )
+    }
+    a = ImageWithThumbnailField(**options)
+    a.validators = []
+    return a
+
+
+def apply_widgets(layer, fields):
+    from .models import DataBaseLayerField
+    for field in layer.fields.filter(widget=DataBaseLayerField.WIDGET_CHOICES.image):
+        fields[field.name] = to_image_field(field, fields[field.name])
+
+
 def create_dblayer_model(layer):
     table_parts = get_table_parts(layer.table)
     table_schema = table_parts['table_schema']
@@ -240,6 +280,7 @@ def create_dblayer_model(layer):
     }
 
     fields = get_fields(layer.db_connection.get_connection(schema=table_schema), table)
+    apply_widgets(layer, fields)
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid
     attrs.update(fields)

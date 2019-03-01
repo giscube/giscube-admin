@@ -1,9 +1,17 @@
+import logging
+import os
 import time
+import uuid
 
-from django.db import models
+from django.db import connections, models
 from django.conf import settings
-from django.db import connections
+from django.core.files.storage import FileSystemStorage
 from django.utils.translation import gettext as _
+
+
+from .utils import get_cls
+
+logger = logging.getLogger(__name__)
 
 
 class Category(models.Model):
@@ -135,3 +143,42 @@ class Server(models.Model):
 
     def __unicode__(self):
         return '%s' % self.name
+
+
+def user_asset_upload_to(instance, filename, uuid_folder=None):
+    storage_class = get_cls('USER_ASSETS_STORAGE_CLASS')
+    storage = storage_class(location='user/assets/{0}'.format(instance.user.id))
+
+    dirs = []
+    files = []
+    try:
+        dirs, files = storage.listdir('.')
+    except Exception as e:
+        if settings.DEBUG:
+            logger.warning(str(e), exc_info=True)
+    else:
+        for dir in dirs:
+            path = 'user/assets/{0}/{1}/{2}'.format(instance.user.id, dir, filename)
+            if not storage.exists(path):
+                return path
+    return 'user/assets/{0}/{1}/{2}'.format(instance.user.id, instance.uuid, filename)
+
+
+class UserAsset(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    file = models.FileField(max_length=255, upload_to=user_asset_upload_to)
+    created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assets')
+
+    def delete(self, *args, **kwargs):
+        super(UserAsset, self).delete(*args, **kwargs)
+        if self.file:
+            folder = os.path.dirname(self.file.name)
+            self.file.delete(save=False)
+            delete_parent = None
+            if isinstance(self.file.storage, FileSystemStorage):
+                dirs, files = self.file.storage.listdir(folder)
+                if len(files) == 0:
+                    delete_parent = os.path.join(self.file.storage.location, folder)
+            if delete_parent is not None:
+                os.rmdir(delete_parent)
