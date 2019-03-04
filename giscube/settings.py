@@ -105,10 +105,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'giscube.urls'
 
+TEMPLATES_DIRS = os.getenv('TEMPLATES', '').split(',') + [os.path.join(BASE_DIR, 'templates/')]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': os.getenv('TEMPLATES', '').split(','),
+        'DIRS': TEMPLATES_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,6 +118,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'giscube.context_processors.app_version'
             ],
         },
     },
