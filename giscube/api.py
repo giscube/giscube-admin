@@ -6,7 +6,6 @@ from .serializers import CategorySerializer
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    lookup_field = 'referencia_cadastral'
     queryset = []
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
