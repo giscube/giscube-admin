@@ -20,7 +20,7 @@ SERVICE_VISIBILITY_CHOICES = [
 def validate_integer_pair(value):
     values = []
     try:
-        values = map(int, value.split(','))
+        values = list(map(int, value.split(',')))
     except Exception:
         pass
 
@@ -76,8 +76,8 @@ class Service(models.Model):
         patch_qgis_project(self)
         update_external_service.delay(self.pk)
 
-    def __unicode__(self):
-        return unicode(self.title or self.name)
+    def __str__(self):
+        return str(self.title or self.name)
 
 
 @receiver(models.signals.post_delete, sender=Service)

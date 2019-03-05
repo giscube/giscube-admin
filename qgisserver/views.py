@@ -28,7 +28,7 @@ class QGISProxy(View):
             bbox = param_get(request.GET, 'bbox', '')
             if bbox:
                 try:
-                    bbox = map(float, bbox.split(','))
+                    bbox = list(map(float, bbox.split(',')))
                     print('BBOX', bbox)
                 except:
                     bbox = []
@@ -56,17 +56,17 @@ class QGISProxy(View):
                 wms = WMS(layers, url=url, srs=srs, levels=30,
                           spherical_mercator='true')
                 wms.cache = NoCache()
-                wms.size = map(int, [width, height])
+                wms.size = list(map(int, [width, height]))
                 try:
                     tile = wms.getTile(bbox)
 
                     wms.metaSize = (1, 1)
-                    buffer = map(int, service.wms_buffer_size.split(','))
+                    buffer = list(map(int, service.wms_buffer_size.split(',')))
 
                     # if dpi is specified, adjust buffer
                     if dpi:
                         ratio = float(dpi) / 91.0
-                        buffer = map(lambda x: int(x * ratio), buffer)
+                        buffer = [int(x * ratio) for x in buffer]
 
                     wms.metaBuffer = buffer
                     metatile = wms.getMetaTile(tile)
@@ -84,8 +84,8 @@ class QGISProxy(View):
         response = None
         try:
             r = requests.get(url)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
 
         response = self._process_remote_response(r)
         return response
@@ -96,8 +96,8 @@ class QGISProxy(View):
         response = None
         try:
             r = requests.post(url, data=request.body)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
 
         response = self._process_remote_response(r)
         return response
@@ -118,7 +118,7 @@ class QGISProxy(View):
             response.status_code = r.status_code
         else:
             logger.error(r.url)
-            print r.content
+            print(r.content)
             response = HttpResponse('Unable to contact server')
             response.status_code = 500
 

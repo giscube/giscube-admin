@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 import logging
@@ -37,6 +37,7 @@ from .serializers import (
     create_dblayer_serializer
 )
 from .utils import geojsonlayer_check_cache
+from functools import reduce
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ def GeoJSONLayerView(request, layer_name):
     layer = GeoJsonLayer.objects.filter(
         active=True,
         name=layer_name).first()
-    if layer.visibility == 'private' and not request.user.is_authenticated():
+    if layer.visibility == 'private' and not request.user.is_authenticated:
         return HttpResponseForbidden()
 
     if layer and layer.data_file:
@@ -162,7 +163,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         q = self.request.query_params.get('q', None)
         if q:
             lst = []
-            for name, field in self._fields.iteritems():
+            for name, field in self._fields.items():
                 if field['fullsearch'] is True:
                     if name != self.layer.geom_field:
                         contains = '%s__contains' % name
@@ -182,7 +183,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self, *args, **kwargs):
         return create_dblayer_serializer(
-            self.model, self._fields.keys(), self.lookup_field)
+            self.model, list(self._fields.keys()), self.lookup_field)
 
     # def delete_multiple(self, request, *args, **kwargs):
     #     queryset = self.filter_queryset(self.get_queryset())
@@ -286,7 +287,7 @@ class DBLayerContentBulkViewSet(views.APIView):
     def add(self, items):
         self.apply_widgets(items)
         Serializer = create_dblayer_serializer(
-            self.model, self._fields.keys(), self.lookup_field)
+            self.model, list(self._fields.keys()), self.lookup_field)
         add_serializers = []
         for item in items:
             serializer = Serializer(data=item)
@@ -311,13 +312,13 @@ class DBLayerContentBulkViewSet(views.APIView):
     def update(self, items):
         self.apply_widgets(items)
         Serializer = create_dblayer_serializer(
-            self.model, self._fields.keys(), self.lookup_field)
+            self.model, list(self._fields.keys()), self.lookup_field)
         update_serializers = []
         for item in items:
             filter = {}
             filter[self.lookup_field] = self.get_lookup_field_value(item)
             obj = self.model.objects.get(**filter)
-            self.original_updated_objects[filter.values()[0]] = model_to_dict(obj, exclude=['pk'])
+            self.original_updated_objects[list(filter.values())[0]] = model_to_dict(obj, exclude=['pk'])
             serializer = Serializer(instance=obj, data=item, partial=True)
             if serializer.is_valid():
                 update_serializers.append(serializer)
@@ -376,7 +377,7 @@ class DBLayerContentBulkViewSet(views.APIView):
             if 'DELETE' in data and len(data['DELETE']) > 0:
                 self.delete(data['DELETE'])
 
-            if len(errors.keys()) > 0:
+            if len(list(errors.keys())) > 0:
                 transaction.rollback(using=conn)
                 transaction.set_autocommit(autocommit, using=conn)
                 self.undo()
