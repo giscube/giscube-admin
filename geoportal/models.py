@@ -11,7 +11,7 @@ class Dataset(models.Model):
     keywords = models.CharField(max_length=200, null=True, blank=True)
     active = models.BooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.title or self.name
 
 
@@ -32,5 +32,5 @@ class Resource(models.Model):
     layers = models.CharField(max_length=255, null=True, blank=True)
     projection = models.IntegerField(help_text='EPSG code')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.title or self.name

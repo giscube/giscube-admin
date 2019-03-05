@@ -50,20 +50,20 @@ class ApiUserAssetsTests(APITestCase):
         self.assertEqual(len(response.data), len(files))
 
         for file in response.data:
-            self.assertTrue(str(file['uuid']) in assets.keys())
+            self.assertTrue(str(file['uuid']) in list(assets.keys()))
             parts = file['file'].split('/')
             self.assertTrue(parts[-1] in files)
-            self.assertTrue(parts[-2] in assets.keys())
+            self.assertTrue(parts[-2] in list(assets.keys()))
 
-        asset_key = assets.keys()[0]
+        asset_key = list(assets.keys())[0]
         url = reverse('user_assets-detail', args=[asset_key])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         file = response.data
-        self.assertTrue(str(file['uuid']) in assets.keys())
+        self.assertTrue(str(file['uuid']) in list(assets.keys()))
         parts = file['file'].split('/')
         self.assertTrue(parts[-1] in files)
-        self.assertTrue(parts[-2] in assets.keys())
+        self.assertTrue(parts[-2] in list(assets.keys()))
         response = self.client.get(file['url'])
         file_name = file['url'].split('/')[-1]
         self.assertTrue(file['file'].startswith('media://user/assets/%s/' % self.admin_user.pk))

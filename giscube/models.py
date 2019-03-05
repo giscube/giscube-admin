@@ -16,13 +16,13 @@ logger = logging.getLogger(__name__)
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
-    parent = models.ForeignKey('Category', null=True, blank=True)
+    parent = models.ForeignKey('Category', null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
 
-    def __unicode__(self):
+    def __str__(self):
         if self.parent:
             return '%s > %s' % (self.parent.name, self.name)
         else:
@@ -121,7 +121,7 @@ class DBConnection(models.Model):
         if not self.check_connection():
             raise ValidationError('DATABASE CONNECTION ERROR')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.alias or self.name
 
     class Meta:
@@ -141,7 +141,7 @@ class Server(models.Model):
         verbose_name = 'Server connection'
         verbose_name_plural = 'Server connections'
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.name
 
 
@@ -168,7 +168,7 @@ class UserAsset(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     file = models.FileField(max_length=255, upload_to=user_asset_upload_to)
     created = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assets')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assets', on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):
         super(UserAsset, self).delete(*args, **kwargs)

@@ -5,7 +5,7 @@ build:
 
 test:
 	docker run --rm -e LOCAL_USER_ID=${LOCAL_USER_ID} -e TEST_DB_ENGINE=postgres -e ENVIRONMENT_NAME=test -v ${PWD}:/app -ti microdisseny/giscube-admin-test /bin/bash \
-	    -c "python manage.py $(MAKECMDGOALS)"
+	    -c "python3 manage.py $(MAKECMDGOALS)"
 
 shell:
 	docker run --rm -e LOCAL_USER_ID=${LOCAL_USER_ID} -e TEST_DB_ENGINE=postgres -e ENVIRONMENT_NAME=test -v ${PWD}:/app -ti microdisseny/giscube-admin-test /bin/bash

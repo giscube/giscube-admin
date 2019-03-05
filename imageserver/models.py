@@ -13,7 +13,7 @@ from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import NamedMaskStorage, LayerStorage
 from imageserver.utils import unique_service_directory, unique_layer_directory, extract_zipfile, find_shapefile
 
-from gdal_utils import get_image_file_info, get_image_dir_info
+from .gdal_utils import get_image_file_info, get_image_dir_info
 
 from giscube.models import Category
 
@@ -91,7 +91,7 @@ class NamedMask(models.Model):
         self.mask_path = shape
         super(NamedMask, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.name, self.projection)
 
 
@@ -152,7 +152,7 @@ class Layer(models.Model):
         for serviceLayer in self.services.all():
             serviceLayer.service.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.title
 
 

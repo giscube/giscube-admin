@@ -96,7 +96,7 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
         return False
 
     def get_type(self, obj):
-        return obj.type or ''
+        return obj.field_type or ''
     get_type.short_description = "Type"
 
     def get_size(self, obj):

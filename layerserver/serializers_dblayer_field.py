@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-
 from rest_framework import serializers
 
 from layerserver.models import DataBaseLayerField
@@ -16,7 +12,7 @@ class DBLayerFieldListSerializer(serializers.ListSerializer):
 
 class DBLayerFieldSerializer(serializers.ModelSerializer):
     def _serialize_auto(self, obj, data):
-        data['widget'] = obj.type
+        data['widget'] = obj.field_type
 
     def _serialize_choices(self, obj, data):
         rows = []
