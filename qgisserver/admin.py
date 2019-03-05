@@ -1,5 +1,6 @@
-from django.contrib import admin
 from django.conf import settings
+from django.contrib import admin
+from django.utils.html import format_html
 
 from qgisserver.models import Project, Service
 
@@ -17,9 +18,8 @@ class ServiceAdmin(admin.ModelAdmin):
     filter_horizontal = ('servers',)
 
     def url_wms(self, obj):
-        return '<a target="_blank" href="%s/qgisserver/services/%s">WMS URL %s</a>' % (
-            settings.GISCUBE_URL, obj.name, obj.name)
-    url_wms.allow_tags = True
+        return format_html('<a target="_blank" href="{0}/qgisserver/services/{1}">WMS URL {1}</a>',
+                           settings.GISCUBE_URL, obj.name)
     url_wms.short_description = 'WMS URL'
 
 

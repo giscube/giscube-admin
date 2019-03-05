@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.contrib import admin
 
@@ -14,13 +14,14 @@ admin.site.site_header = 'GISCube'
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'parent', '__unicode__')
+    list_display = ('name', 'parent', '__str__')
     search_fields = ('name', 'parent__name')
 
 
 @admin.register(DBConnection)
 class DBConnectionAdmin(TabsMixin, admin.ModelAdmin):
     pass
+
 
 @admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):

@@ -9,8 +9,7 @@ DATABASES['default'] = {
     'PORT': '5432',
 }
 
-# https://www.caktusgroup.com/blog/2013/06/26/media-root-and-django-tests/
-MEDIA_ROOT = os.path.join(BASE_DIR, 'tests', 'media')
+MEDIA_ROOT = os.path.join('/tmp/', 'tests', 'media')
 MEDIA_URL = '/media/'
 
 SECRET_KEY = os.getenv(

@@ -8,6 +8,6 @@ script:
 notifications:
   email:
     recipients:
-      - ab@microdisseny.com
+      - tech@microdisseny.com
     on_success: always # default: change
     on_failure: always # default: always
