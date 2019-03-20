@@ -120,7 +120,12 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self.pagination_class = self.get_pagination_class(self.layer)
         self.filter_fields = []
         self._fields = {}
+        only_fields = self.request.GET.get('fields', None)
+        if only_fields is not None:
+            only_fields = only_fields.split(',') + [self.layer.pk_field, self.layer.geom_field]
         for field in self.layer.fields.filter(enabled=True):
+            if only_fields is not None and field.name not in only_fields:
+                continue
             if field.search is True:
                 self.filter_fields.append(field.name)
             self._fields[field.name] = {
