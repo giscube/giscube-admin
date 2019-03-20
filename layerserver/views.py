@@ -188,13 +188,14 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         return qs
 
     def get_pagination_class(self, layer):
-        page_size = settings.LAYERSERVER_PAGE_SIZE
-        if layer.page_size is not None:
-            page_size = layer.page_size
-        max_page_size = settings.LAYERSERVER_MAX_PAGE_SIZE
-        if layer.max_page_size is not None:
-            max_page_size = layer.max_page_size
-        return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
+        if layer.page_size != 0:
+            page_size = settings.LAYERSERVER_PAGE_SIZE
+            if layer.page_size is not None:
+                page_size = layer.page_size
+            max_page_size = settings.LAYERSERVER_MAX_PAGE_SIZE
+            if layer.max_page_size is not None:
+                max_page_size = layer.max_page_size
+            return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
 
     def get_serializer_class(self, *args, **kwargs):
         return create_dblayer_serializer(
