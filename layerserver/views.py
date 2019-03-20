@@ -49,7 +49,7 @@ def GeoJSONLayerView(request, layer_name):
     layer = GeoJsonLayer.objects.filter(
         active=True,
         name=layer_name).first()
-    if layer.visibility == 'private' and not request.user.is_authenticated:
+    if layer and (layer.visibility == 'private' and not request.user.is_authenticated):
         return HttpResponseForbidden()
 
     if layer and layer.data_file:
