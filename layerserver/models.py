@@ -115,6 +115,11 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     geom_field = models.CharField(max_length=255, blank=True, null=False)
     srid = models.IntegerField(default=4326, blank=False)
 
+    page_size = models.IntegerField(blank=True, null=True,
+                                    help_text='default=%s' % settings.LAYERSERVER_PAGE_SIZE)
+    max_page_size = models.IntegerField(blank=True, null=True,
+                                        help_text='default=%s' % settings.LAYERSERVER_MAX_PAGE_SIZE)
+
     anonymous_view = models.BooleanField(_('Can view'), default=False)
     anonymous_add = models.BooleanField(_('Can add'), default=False)
     anonymous_update = models.BooleanField(_('Can update'), default=False)

@@ -152,6 +152,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             'fields': [
                 'category', 'slug', 'name', 'title',
                 'description', 'keywords', 'active', 'visibility',
+                'page_size', 'max_page_size',
                 'visible_on_geoportal',
             ],
             'classes': ('tab-information',),
