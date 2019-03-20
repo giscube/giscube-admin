@@ -39,7 +39,7 @@ def geojsonlayer_upload_path(instance, filename):
 
 
 class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
-    url = models.CharField(max_length=100, null=True, blank=True)
+    url = models.CharField(max_length=255, null=True, blank=True)
     headers = models.TextField(null=True, blank=True)
     data_file = models.FileField(upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
