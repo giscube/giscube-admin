@@ -59,7 +59,8 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
             'description': {
                 'title': self.title or '',
                 'description': self.description or '',
-                'keywords': self.keywords or ''
+                'keywords': self.keywords or '',
+                'generated_on': self.generated_on or ''
             },
             'style': {
                 'shapetype': self.shapetype,
