@@ -75,7 +75,7 @@ def geojsonlayer_refresh_layer(layer):
         data = json.load(open(path))
         data['metadata'] = layer.metadata
         outfile_path = layer.get_data_file_path()
-            fixed_file.write(json.dumps(data))
         with open(outfile_path, 'w') as fixed_file:
+            fixed_file.write(json.dumps(data, cls=DateTimeJSONEncoder))
         layer.generated_on = timezone.localtime()
         layer.save()
