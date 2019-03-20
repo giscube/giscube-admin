@@ -29,7 +29,7 @@ from .authentication import CsrfExemptSessionAuthentication
 from .filters import filterset_factory
 from .model_legacy import create_dblayer_model
 from .models import GeoJsonLayer, DataBaseLayer
-from .pagination import CustomGeoJsonPagination
+from .pagination import create_geojson_pagination_class
 from .permissions import DBLayerIsValidUser, BulkDBLayerIsValidUser
 
 from .serializers import (
@@ -103,7 +103,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     model = None
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
-    pagination_class = CustomGeoJsonPagination
+    pagination_class = None
     page_size_query_param = 'page_size'
     page_size = 50
     ordering_fields = '__all__'
@@ -117,6 +117,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
+        self.pagination_class = self.get_pagination_class(self.layer)
         self.filter_fields = []
         self._fields = {}
         for field in self.layer.fields.filter(enabled=True):
@@ -180,6 +181,15 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
         return qs
+
+    def get_pagination_class(self, layer):
+        page_size = settings.LAYERSERVER_PAGE_SIZE
+        if layer.page_size is not None:
+            page_size = layer.page_size
+        max_page_size = settings.LAYERSERVER_MAX_PAGE_SIZE
+        if layer.max_page_size is not None:
+            max_page_size = layer.max_page_size
+        return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
 
     def get_serializer_class(self, *args, **kwargs):
         return create_dblayer_serializer(
