@@ -152,6 +152,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             'fields': [
                 'category', 'slug', 'name', 'title',
                 'description', 'keywords', 'active', 'visibility',
+                'page_size', 'max_page_size',
                 'visible_on_geoportal',
             ],
             'classes': ('tab-information',),
@@ -195,6 +196,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
         self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline,
                         DBLayerGroupInline, DataBaseLayerReferencesInline]
+        conn = self.model.objects.get(pk=object_id)
+        conn_status = self.model.objects.get(pk=object_id).db_connection.check_connection()
+        if not conn_status:
+            msg = 'ERROR: There was an error when connecting to: %s' % conn.db_connection
+            messages.add_message(request, messages.ERROR, msg)
+
         return super(DataBaseLayerAdmin,
                      self).change_view(
                          request, object_id, form_url,

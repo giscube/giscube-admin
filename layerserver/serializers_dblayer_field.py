@@ -55,7 +55,7 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
         data['size'] = obj.size
         data['decimals'] = obj.decimals
         data['widget'] = obj.widget
-        getattr(self, '_serialize_%s' % obj.widget, '_serialize_auto')(obj, data)
+        getattr(self, '_serialize_%s' % obj.widget, self._serialize_auto)(obj, data)
         return data
 
     class Meta:
