@@ -117,7 +117,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     geom_field = models.CharField(max_length=255, blank=True, null=False)
     srid = models.IntegerField(default=4326, blank=False)
     page_size = models.IntegerField(blank=True, null=True,
-                                    help_text=_('Default value is %(page_size)s')
+                                    help_text=_('Default value is %(page_size)s. Value 0 disables pagination.')
                                     % {'page_size': settings.LAYERSERVER_PAGE_SIZE})
     max_page_size = models.IntegerField(blank=True, null=True,
                                         help_text=_('Default value is %(max_page_size)s')
