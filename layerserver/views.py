@@ -166,7 +166,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
             for name, field in self._fields.items():
                 if field['fullsearch'] is True:
                     if name != self.layer.geom_field:
-                        contains = '%s__contains' % name
+                        contains = '%s__icontains' % name
                         lst.append(Q(**{contains: q}))
             if len(lst) > 0:
                 qs = qs.filter(reduce(OR, lst)) # NOQA: E0602
