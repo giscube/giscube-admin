@@ -49,7 +49,7 @@ def GeoJSONLayerView(request, layer_name):
     layer = GeoJsonLayer.objects.filter(
         active=True,
         name=layer_name).first()
-    if layer.visibility == 'private' and not request.user.is_authenticated:
+    if layer and (layer.visibility == 'private' and not request.user.is_authenticated):
         return HttpResponseForbidden()
 
     if layer and layer.data_file:
@@ -120,7 +120,12 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self.pagination_class = self.get_pagination_class(self.layer)
         self.filter_fields = []
         self._fields = {}
+        only_fields = self.request.GET.get('fields', None)
+        if only_fields is not None:
+            only_fields = only_fields.split(',') + [self.layer.pk_field, self.layer.geom_field]
         for field in self.layer.fields.filter(enabled=True):
+            if only_fields is not None and field.name not in only_fields:
+                continue
             if field.search is True:
                 self.filter_fields.append(field.name)
             self._fields[field.name] = {
@@ -183,13 +188,14 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         return qs
 
     def get_pagination_class(self, layer):
-        page_size = settings.LAYERSERVER_PAGE_SIZE
-        if layer.page_size is not None:
-            page_size = layer.page_size
-        max_page_size = settings.LAYERSERVER_MAX_PAGE_SIZE
-        if layer.max_page_size is not None:
-            max_page_size = layer.max_page_size
-        return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
+        if layer.page_size != 0:
+            page_size = settings.LAYERSERVER_PAGE_SIZE
+            if layer.page_size is not None:
+                page_size = layer.page_size
+            max_page_size = settings.LAYERSERVER_MAX_PAGE_SIZE
+            if layer.max_page_size is not None:
+                max_page_size = layer.max_page_size
+            return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
 
     def get_serializer_class(self, *args, **kwargs):
         return create_dblayer_serializer(

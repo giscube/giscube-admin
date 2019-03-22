@@ -21,6 +21,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     list_display = ('name', 'title',)
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on',)
+    save_as = True
 
     tabs = (
         (_('Information'), ('fieldset-information',)),
@@ -39,7 +40,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'url', 'data_file', 'cache_time', 'last_fetch_on',
+                'url', 'headers', 'data_file', 'cache_time', 'last_fetch_on',
                 'generated_on',
             ],
             'classes': ('fieldset-geojson',),

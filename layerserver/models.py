@@ -39,7 +39,8 @@ def geojsonlayer_upload_path(instance, filename):
 
 
 class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
-    url = models.CharField(max_length=100, null=True, blank=True)
+    url = models.CharField(max_length=255, null=True, blank=True)
+    headers = models.TextField(null=True, blank=True)
     data_file = models.FileField(upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
     service_path = models.CharField(max_length=255)
@@ -58,7 +59,8 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
             'description': {
                 'title': self.title or '',
                 'description': self.description or '',
-                'keywords': self.keywords or ''
+                'keywords': self.keywords or '',
+                'generated_on': self.generated_on or ''
             },
             'style': {
                 'shapetype': self.shapetype,
@@ -115,7 +117,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     geom_field = models.CharField(max_length=255, blank=True, null=False)
     srid = models.IntegerField(default=4326, blank=False)
     page_size = models.IntegerField(blank=True, null=True,
-                                    help_text=_('Default value is %(page_size)s')
+                                    help_text=_('Default value is %(page_size)s. Value 0 disables pagination.')
                                     % {'page_size': settings.LAYERSERVER_PAGE_SIZE})
     max_page_size = models.IntegerField(blank=True, null=True,
                                         help_text=_('Default value is %(max_page_size)s')
