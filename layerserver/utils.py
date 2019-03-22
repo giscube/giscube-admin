@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import pytz
+import re
 import requests
 
 from django.conf import settings
@@ -9,6 +10,8 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 
 from django_celery_monitor.models import TaskState
+
+from giscube.json_utils import DateTimeJSONEncoder
 
 from .models import GeoJsonLayer
 
@@ -46,26 +49,33 @@ def geojsonlayer_refresh(pk):
 
 def geojsonlayer_refresh_layer(layer):
     if layer.url:
+        headers = {}
+        if layer.headers:
+            # Extract headers in .env format "key=value"
+            matches = re.findall(r'^([^=#\n\r][^=]*)=(.*)$', layer.headers, flags=re.M)
+            for k, v in matches:
+                headers[k] = v
         try:
-            r = requests.get(layer.url)
+            r = requests.get(layer.url, headers=headers)
         except Exception as e:
             print('Error getting file %s' % e)
         else:
-            content = ContentFile(r.text)
-            if content:
-                remote_file = os.path.join(
-                    settings.MEDIA_ROOT, layer.service_path, 'remote.json')
-                if os.path.exists(remote_file):
-                    os.remove(remote_file)
-                layer.data_file.save('remote.json', content, save=True)
-                layer.last_fetch_on = timezone.localtime()
+            if r.status_code >= 200 and r.status_code < 300:
+                content = ContentFile(r.text)
+                if content:
+                    remote_file = os.path.join(
+                        settings.MEDIA_ROOT, layer.service_path, 'remote.json')
+                    if os.path.exists(remote_file):
+                        os.remove(remote_file)
+                    layer.data_file.save('remote.json', content, save=True)
+                    layer.last_fetch_on = timezone.localtime()
 
     if layer.data_file:
         path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
         data = json.load(open(path))
         data['metadata'] = layer.metadata
         outfile_path = layer.get_data_file_path()
-        with open(outfile_path, 'wb') as fixed_file:
-            fixed_file.write(json.dumps(data))
+        with open(outfile_path, 'w') as fixed_file:
+            fixed_file.write(json.dumps(data, cls=DateTimeJSONEncoder))
         layer.generated_on = timezone.localtime()
         layer.save()

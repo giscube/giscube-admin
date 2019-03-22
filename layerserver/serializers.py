@@ -1,95 +1,31 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import OrderedDict
 
+from django.db import transaction
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.core.files.uploadedfile import UploadedFile
 
 from rest_framework import serializers
-from rest_framework_gis.serializers import (
-    GeoFeatureModelSerializer, GeoFeatureModelListSerializer
-)
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
-from layerserver.models import (
-    DataBaseLayer, DataBaseLayerField, DataBaseLayerReference
-)
+from layerserver.models import DataBaseLayer, DataBaseLayerReference
 from layerserver.model_legacy import create_dblayer_model
-
-
-class Geom4326ListSerializer(GeoFeatureModelListSerializer):
-    def update(self, instance, validated_data):
-        id_field = self.child.__class__.Meta.id_field
-        map_obj = {}
-        for obj in instance:
-            map_obj[getattr(obj, id_field)] = obj
-        ret = []
-        for i in range(len(validated_data)):
-            data = validated_data[i]
-            original = self.initial_data[i]
-            if 'geometry' in original and type(original['geometry']) is dict:
-                pk = original['id']
-            else:
-                pk = data[id_field]
-            obj = map_obj[pk]
-            ret.append(self.child.update(obj, data))
-        return ret
+from .serializers_dblayer_field import DBLayerFieldSerializer
 
 
 class Geom4326Serializer(GeoFeatureModelSerializer):
-    @classmethod
-    def many_init(cls, *args, **kwargs):
-        kwargs['child'] = cls()
-        return Geom4326ListSerializer(*args, **kwargs)
-
     def to_representation(self, instance):
-        """
-        Serialize objects -> primitives.
-        """
-        # prepare OrderedDict geojson structure
-        feature = OrderedDict()
-        # the list of fields that will be processed by get_properties
-        # we will remove fields that have been already processed
-        # to increase performance on large numbers
-        fields = list(self.fields.values())
-
-        # optional id attribute
-        if self.Meta.id_field:
-            field = self.fields[self.Meta.id_field]
-            value = field.get_attribute(instance)
-            feature["id"] = field.to_representation(value)
-            fields.remove(field)
-
-        # required type attribute
-        # must be "Feature" according to GeoJSON spec
-        feature["type"] = "Feature"
-
-        # required geometry attribute
-        # MUST be present in output according to GeoJSON spec
+        data = super(Geom4326Serializer, self).to_representation(instance)
         field = self.fields[self.Meta.geo_field]
         geo_value = field.get_attribute(instance)
         if geo_value and geo_value.srid != 4326:
             geo_value = geo_value.clone()
             geo_value.transform(4326)
-        feature["geometry"] = field.to_representation(geo_value)
-        fields.remove(field)
-        # Bounding Box
-        # if auto_bbox feature is enabled
-        # bbox will be determined automatically automatically
-        if self.Meta.auto_bbox and geo_value:
-            feature["bbox"] = geo_value.extent
-        # otherwise it can be determined via another field
-        elif self.Meta.bbox_geo_field:
-            field = self.fields[self.Meta.bbox_geo_field]
-            value = field.get_attribute(instance)
-            feature["bbox"] = value.extent if hasattr(
-                value, 'extent') else None
-            fields.remove(field)
-
-        # GeoJSON properties
-        feature["properties"] = self.get_properties(instance, fields)
-
-        return feature
+            data["geometry"] = field.to_representation(geo_value)
+        return data
 
     def to_internal_value(self, data):
         internal_value = super(Geom4326Serializer, self).to_internal_value(data)
@@ -99,32 +35,85 @@ class Geom4326Serializer(GeoFeatureModelSerializer):
         return internal_value
 
 
-SERIALIZER_FIELD_MAPPING = {
+class UndoSerializerMixin(object):
+    def __init__(self, *args, **kwargs):
+        self.instance = None
+        return super(Geom4326Serializer, self).__init__(*args, **kwargs)
+
+    def create(self, validated_data):
+        """
+        Init instance, needed to undo
+        """
+        ModelClass = self.Meta.model
+        instance = ModelClass()
+        self.instance = instance
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        return super(Geom4326Serializer, self).create(validated_data)
+
+    def save(self, **kwargs):
+        """
+        Clean files
+        """
+        if self.instance is not None:
+            for k, v in self.fields.items():
+                if isinstance(v, serializers.FileField) and k in self.validated_data:
+                    old_value = getattr(self.instance, k)
+                    new_value = self.validated_data[k]
+                    if old_value is not None and (
+                            new_value is None or isinstance(new_value, UploadedFile)):
+                        transaction.on_commit(
+                            lambda: old_value.delete(save=False)
+                        )
+        return super(UndoSerializerMixin, self).save(**kwargs)
+
+
+SERIALIZER_ID_FIELD_MAPPING = {
     models.AutoField: serializers.IntegerField,
     models.BigIntegerField: serializers.IntegerField,
-    # models.BooleanField: serializers.BooleanField,
     models.CharField: serializers.CharField,
-    models.CommaSeparatedIntegerField: serializers.CharField,
     models.DateField: serializers.DateField,
     models.DateTimeField: serializers.DateTimeField,
     models.DecimalField: serializers.DecimalField,
     models.EmailField: serializers.CharField,
-    # models.Field: serializers.ModelField,
-    # models.FileField: serializers.FileField,
     models.FloatField: serializers.FloatField,
-    # models.ImageField: serializers.ImageField,
     models.IntegerField: serializers.IntegerField,
-    # models.NullBooleanField: serializers.NullBooleanField,
     models.PositiveIntegerField: serializers.IntegerField,
     models.PositiveSmallIntegerField: serializers.IntegerField,
-    models.SlugField: serializers.CharField,
     models.SmallIntegerField: serializers.IntegerField,
     models.TextField: serializers.CharField,
     models.TimeField: serializers.TimeField,
-    models.URLField: serializers.CharField,
-    models.GenericIPAddressField: serializers.CharField,
-    models.FilePathField: serializers.CharField,
 }
+
+
+class ImageWithThumbnailFieldSerializer(serializers.FileField):
+    def to_representation(self, value):
+        if value:
+            res = {
+                'src': value.storage.url(value.name)
+            }
+            thumbnail = value.storage.get_thumbnail(value.name)
+            if thumbnail:
+                res['thumbail'] = thumbnail['url']
+            return res
+
+
+def to_image_field(field_name, field):
+    field_kwargs = serializers.get_field_kwargs(field_name, field)
+    kwargs = {}
+    valid_attrs = ['max_length', 'required', 'allow_null']
+    for k, v in field_kwargs.items():
+        if k in valid_attrs:
+            kwargs[k] = v
+    return ImageWithThumbnailFieldSerializer(**kwargs)
+
+
+def apply_widgets(attrs, model, fields):
+    from layerserver.model_legacy import ImageWithThumbnailField
+    for field in fields:
+        f = model._meta.get_field(field)
+        if type(f) is ImageWithThumbnailField:
+            attrs[field] = to_image_field(field, f)
 
 
 def create_dblayer_serializer(model, fields, id_field, map_id_field=False):
@@ -161,14 +150,16 @@ def create_dblayer_serializer(model, fields, id_field, map_id_field=False):
         for f in model._meta.fields:
             if f.column == id_field:
                 fields = {}
-                if f.__class__ in SERIALIZER_FIELD_MAPPING:
-                    fields[id_field] = SERIALIZER_FIELD_MAPPING[f.__class__]()
+                if f.__class__ in SERIALIZER_ID_FIELD_MAPPING:
+                    fields[id_field] = SERIALIZER_ID_FIELD_MAPPING[f.__class__]()
                 else:
                     raise Exception('id_field type NOT SUPPORTED')
                 attrs.update(fields)
                 break
+
+    apply_widgets(attrs, model, fields)
     serializer = type(str('%s_serializer') % str(model._meta.db_table),
-                      (Geom4326Serializer,), attrs)
+                      (UndoSerializerMixin, Geom4326Serializer,), attrs)
 
     return serializer
 
@@ -198,64 +189,6 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataBaseLayerReference
         fields = ['title', 'url']
-
-
-class DBLayerFieldListSerializer(serializers.ListSerializer):
-    def to_representation(self, data):
-        data = data.filter(enabled=True)
-        return super(
-            DBLayerFieldListSerializer, self).to_representation(data)
-
-
-class DBLayerFieldSerializer(serializers.ModelSerializer):
-    def to_representation(self, obj):
-        data = super(
-            DBLayerFieldSerializer, self).to_representation(obj)
-
-        data['type'] = obj.type
-        data['null'] = obj.null
-        data['size'] = obj.size
-        data['decimals'] = obj.decimals
-
-        if obj.values_list_type == 'flatlist':
-            rows = []
-            if obj.values_list is not None:
-                for line in obj.values_list.splitlines():
-                    parts = line.split(',')
-                    if len(parts) == 1:
-                        rows.append(parts[0])
-                    elif len(parts) == 2:
-                        rows.append(parts)
-                    else:
-                        rows.append('error')
-            data['values_list'] = rows
-        elif obj.values_list_type == 'sql':
-            headers = []
-            rows = []
-            if obj.values_list is not None:
-                with obj.layer.db_connection.get_connection().cursor() as cursor:
-                    cursor.execute('%s LIMIT 0' % obj.values_list)
-                    for header in cursor.description:
-                        headers.append(header.name)
-                    cursor.execute(obj.values_list)
-                    for r in cursor.fetchall():
-                        if len(r) == 1:
-                            rows.append(r[0])
-                        else:
-                            rows.append(r)
-            data['values_list_headers'] = headers
-            data['values_list'] = rows
-        else:
-            if 'values_list_headers' in data:
-                del data['values_list_headers']
-            if 'values_list' in data:
-                del data['values_list']
-        return data
-
-    class Meta:
-        model = DataBaseLayerField
-        fields = ['name', 'label', 'search', 'fullsearch']
-        list_serializer_class = DBLayerFieldListSerializer
 
 
 class DBLayerDetailSerializer(serializers.ModelSerializer):

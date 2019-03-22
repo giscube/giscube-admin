@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
+import logging
 import os
 from slugify import slugify
 import shutil
@@ -11,13 +9,19 @@ from django.contrib.gis.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
+from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
+
+from model_utils import Choices
 
 from .mixins import BaseLayerMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.db.utils import get_table_parts
 from giscube.utils import unique_service_directory
 from giscube.models import DBConnection
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_jsonlayer_url(instance, filename):
@@ -35,7 +39,8 @@ def geojsonlayer_upload_path(instance, filename):
 
 
 class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
-    url = models.CharField(max_length=100, null=True, blank=True)
+    url = models.CharField(max_length=255, null=True, blank=True)
+    headers = models.TextField(null=True, blank=True)
     data_file = models.FileField(upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
     service_path = models.CharField(max_length=255)
@@ -54,7 +59,8 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
             'description': {
                 'title': self.title or '',
                 'description': self.description or '',
-                'keywords': self.keywords or ''
+                'keywords': self.keywords or '',
+                'generated_on': self.generated_on or ''
             },
             'style': {
                 'shapetype': self.shapetype,
@@ -70,9 +76,6 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
     def save(self, *args, **kwargs):
         self.name = slugify(self.name)
         super(self.__class__, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return self.__str__()
 
     def __str__(self):
         return self.name or self.title
@@ -113,6 +116,12 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
     pk_field = models.CharField(max_length=255, blank=False, null=False)
     geom_field = models.CharField(max_length=255, blank=True, null=False)
     srid = models.IntegerField(default=4326, blank=False)
+    page_size = models.IntegerField(blank=True, null=True,
+                                    help_text=_('Default value is %(page_size)s. Value 0 disables pagination.')
+                                    % {'page_size': settings.LAYERSERVER_PAGE_SIZE})
+    max_page_size = models.IntegerField(blank=True, null=True,
+                                        help_text=_('Default value is %(max_page_size)s')
+                                        % {'max_page_size': settings.LAYERSERVER_MAX_PAGE_SIZE})
 
     anonymous_view = models.BooleanField(_('Can view'), default=False)
     anonymous_add = models.BooleanField(_('Can add'), default=False)
@@ -126,9 +135,6 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
         for f in self._model_fields:
             if f.name == field_name:
                 return f
-
-    def __unicode__(self):
-        return self.__str__()
 
     def __str__(self):
         return self.name
@@ -156,7 +162,7 @@ def add_fields(sender, instance, created, **kwargs):
     old_fields = []
     if not created:
         old_fields = [field.name for field in instance.fields.all()]
-    for field in fields.keys():
+    for field in list(fields.keys()):
         if field not in old_fields:
             db_field = DataBaseLayerField()
             db_field.layer = instance
@@ -187,13 +193,17 @@ DATA_TYPES = {
     models.CharField: 'string',
 }
 
-VALUES_LIST_TYPLE_CHOICES = [
-    ('flatlist', 'Flat list, one line per value'),
-    ('sql', 'SQL'),
-]
-
 
 class DataBaseLayerField(models.Model):
+
+    WIDGET_CHOICES = Choices(
+        ('auto', 'Auto'),
+        ('choices', 'Choices, one line per value'),
+        ('image', 'Image'),
+        ('linkedfield', 'Linked Field'),
+        ('sqlchoices', 'SQL choices'),
+    )
+
     layer = models.ForeignKey(
         DataBaseLayer, null=False, blank=False,
         related_name='fields', on_delete=models.CASCADE)
@@ -202,67 +212,65 @@ class DataBaseLayerField(models.Model):
     search = models.BooleanField(default=True)
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
-    values_list_type = models.CharField(max_length=25, null=True, blank=True,
-                                        choices=VALUES_LIST_TYPLE_CHOICES)
-    values_list = models.TextField(null=True, blank=True)
+    widget = models.CharField(max_length=25, blank=False,
+                              choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
+    widget_options = models.TextField(null=True, blank=True)
 
-    @property
-    def type(self):
-        if not hasattr(self, '_type'):
-            self._type = None
-            model_field = self.get_model_field()
-            if model_field:
-                self._type = DATA_TYPES.get(type(model_field))
-                if not self._type:
-                    for k, v in DATA_TYPES.items():
-                        if isinstance(model_field, k):
-                            self._type = v
-                            break
-        return self._type
+    @cached_property
+    def field_type(self):
+        field_type = None
+        model_field = self.get_model_field()
+        if model_field:
+            type_ = type(model_field)
+            field_type = DATA_TYPES.get(type_)
+            if not field_type:
+                for k, v in DATA_TYPES.items():
+                    if isinstance(model_field, k):
+                        field_type = v
+                        break
+        return field_type
 
-    @property
+    @cached_property
     def null(self):
-        if not hasattr(self, '_null'):
-            self._null = None
-            model_field = self.get_model_field()
-            if model_field:
-                self._null = model_field.null
-        return self._null
+        null = None
+        model_field = self.get_model_field()
+        if model_field:
+            null = model_field.null
+        return null
 
-    @property
+    @cached_property
     def size(self):
-        if not hasattr(self, '_size'):
-            self._size = None
-            model_field = self.get_model_field()
-            if model_field and self.type:
-                if self.type == 'string':
-                    if hasattr(model_field, 'max_length'):
-                        self._size = model_field.max_length
-                elif self.type == 'number':
-                    if isinstance(model_field, models.DecimalField):
-                        self._size = model_field.max_digits
-        return self._size
+        size = None
+        model_field = self.get_model_field()
+        if model_field and self.field_type:
+            if self.field_type == 'string':
+                if hasattr(model_field, 'max_length'):
+                    size = model_field.max_length
+            elif self.field_type == 'number':
+                if isinstance(model_field, models.DecimalField):
+                    size = model_field.max_digits
+        return size
 
-    @property
+    @cached_property
     def decimals(self):
-        if not hasattr(self, '_decimals'):
-            self._decimals = None
-            model_field = self.get_model_field()
-            if model_field and self.type:
-                if self.type == 'number':
-                    if isinstance(model_field, models.IntegerField):
-                        self._decimals = 0
-                    elif isinstance(model_field, models.DecimalField):
-                        self._decimals = model_field.decimal_places
-        return self._decimals
+        decimals = None
+        model_field = self.get_model_field()
+        if model_field and self.field_type:
+            if self.field_type == 'number':
+                if isinstance(model_field, models.IntegerField):
+                    decimals = 0
+                elif isinstance(model_field, models.DecimalField):
+                    decimals = model_field.decimal_places
+        return decimals
 
     def get_model_field(self):
         if not hasattr(self, '_model_field'):
-            self._model_field = self.layer.get_model_field(self.name)
+            self._model_field = None
+            try:
+                self._model_field = self.layer.get_model_field(self.name)
+            except Exception as e:
+                logger.warning(str(e), exc_info=True)
         return self._model_field
-
-    def __unicode__(self):
-        return self.__str__()
 
     def __str__(self):
         return self.label or self.name
@@ -273,15 +281,12 @@ class DataBaseLayerField(models.Model):
 
 
 class DataBaseLayerReference(models.Model):
-    layer = models.ForeignKey(
-        DataBaseLayer, null=False, blank=False,
-        related_name='references'
-        )
-    service = models.ForeignKey(
-        'qgisserver.Service', null=False, blank=False)
+    layer = models.ForeignKey(DataBaseLayer, null=False, blank=False, related_name='references',
+                              on_delete=models.CASCADE)
+    service = models.ForeignKey('qgisserver.Service', null=False, blank=False, on_delete=models.CASCADE)
 
-    def __unicode__(self):
-        return unicode(self.service.title or self.service.name)
+    def __str__(self):
+        return str(self.service.title or self.service.name)
 
     class Meta:
         verbose_name = _('Reference')
@@ -290,15 +295,12 @@ class DataBaseLayerReference(models.Model):
 
 
 class DBLayerGroup(models.Model):
-    layer = models.ForeignKey(DataBaseLayer, related_name='layer_groups')
-    group = models.ForeignKey(Group, verbose_name=_('Group'))
+    layer = models.ForeignKey(DataBaseLayer, related_name='layer_groups', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, verbose_name=_('Group'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
     can_add = models.BooleanField(_('Can add'), default=True)
     can_update = models.BooleanField(_('Can update'), default=True)
     can_delete = models.BooleanField(_('Can delete'), default=True)
-
-    def __unicode__(self):
-        return self.__str__()
 
     def __str__(self):
         return self.group.name
@@ -309,15 +311,12 @@ class DBLayerGroup(models.Model):
 
 
 class DBLayerUser(models.Model):
-    layer = models.ForeignKey(DataBaseLayer, related_name='layer_users')
-    user = models.ForeignKey(User, verbose_name=_('User'), )
+    layer = models.ForeignKey(DataBaseLayer, related_name='layer_users', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
     can_add = models.BooleanField(_('Can add'), default=True)
     can_update = models.BooleanField(_('Can update'), default=True)
     can_delete = models.BooleanField(_('Can delete'), default=True)
-
-    def __unicode__(self):
-        return self.__str__()
 
     def __str__(self):
         return self.user.username

@@ -9,8 +9,7 @@ DATABASES['default'] = {
     'PORT': '5432',
 }
 
-# https://www.caktusgroup.com/blog/2013/06/26/media-root-and-django-tests/
-MEDIA_ROOT = os.path.join(BASE_DIR, 'tests', 'media')
+MEDIA_ROOT = os.path.join('/tmp/', 'tests', 'media')
 MEDIA_URL = '/media/'
 
 SECRET_KEY = os.getenv(
@@ -18,3 +17,26 @@ SECRET_KEY = os.getenv(
 
 
 INSTALLED_APPS = INSTALLED_APPS + ['tests']
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    }
+}

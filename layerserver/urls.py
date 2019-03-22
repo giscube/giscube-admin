@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.conf.urls import url
+from django.urls import path
 
 from .views import (
     GeoJSONLayerView, DBLayerViewSet, DBLayerDetailViewSet,
@@ -32,15 +29,10 @@ content_detail = DBLayerContentViewSet.as_view({
 content_bulk = DBLayerContentBulkViewSet.as_view()
 
 urlpatterns = [
-    url(r'^geojsonlayers/(?P<layer_name>[^/]+)(.*)',
-        GeoJSONLayerView, name='geojsonlayer'),
-    url(r'^databaselayers/(?P<layer_slug>[-\w]+)/data/(?P<pk>[0-9]+)/?$',
-        content_detail, name='content-detail'),
-    url(r'^databaselayers/(?P<layer_slug>[-\w]+)/data/?$', content_list,
-        name='content-list'),
-    url(r'^databaselayers/(?P<layer_slug>[-\w]+)/bulk/?$', content_bulk,
-        name='content-bulk'),
-    url(r'^databaselayers/(?P<slug>[-\w]+)/?$', layer_detail,
-        name='layer-detail'),
-    url(r'^databaselayers/$', layer_list, name='layer-list'),
+    path('geojsonlayers/<str:layer_name>', GeoJSONLayerView, name='geojsonlayer'),
+    path('databaselayers/<slug:layer_slug>/data/<str:pk>/', content_detail, name='content-detail'),
+    path('databaselayers/<slug:layer_slug>/data/', content_list, name='content-list'),
+    path('databaselayers/<slug:layer_slug>/bulk/', content_bulk, name='content-bulk'),
+    path('databaselayers/<slug:slug>/', layer_detail, name='layer-detail'),
+    path('databaselayers/', layer_list, name='layer-list'),
 ]

@@ -23,3 +23,9 @@ class TestField(models.Model):
     x = models.FloatField(blank=True, null=True)
     y = models.FloatField(blank=True, null=True)
     geometry = models.PointField()
+
+
+class TestImageField(models.Model):
+    code = models.CharField(max_length=10, blank=False, null=False, unique=True)
+    image = models.CharField(max_length=255, blank=True, null=True)
+    geometry = models.PointField()

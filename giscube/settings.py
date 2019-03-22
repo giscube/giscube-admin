@@ -92,13 +92,13 @@ INSTALLED_APPS += [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # cors headers
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -149,7 +149,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # e.g.: My name,admin@example.com,Other admin,admin2@example.com
 # ADMINS will be an empty array is it is not defined in the environment
-ADMINS = zip(*([iter(os.getenv('ADMINS', '').split(','))]*2))
+ADMINS = list(zip(*([iter(os.getenv('ADMINS', '').split(','))]*2)))
 
 LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', LANGUAGE_CODE)
@@ -227,7 +227,7 @@ HAYSTACK_CONNECTIONS = {
 #     print "[settings.py] tilescache not available: %s" % e
 #     logger.exception(e)
 
-USE_CAS = os.getenv('USE_CAS', 'True').lower() == 'true'
+USE_CAS = os.getenv('USE_CAS', 'False').lower() == 'true'
 
 if USE_CAS:
 
@@ -321,6 +321,17 @@ CELERY_ROUTES = {
         'queue': 'sequential_queue'},
     }
 
+
+USER_ASSETS_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
+
+LAYERSERVER_FILE_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
+LAYERSERVER_THUMBNAIL_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
+
+LAYERSERVER_THUMBNAIL_WIDTH = 256
+LAYERSERVER_THUMBNAIL_HEIGHT = 256
+
+LAYERSERVER_MAX_PAGE_SIZE = int(os.getenv('LAYERSERVER_MAX_PAGE_SIZE', '1000'))
+LAYERSERVER_PAGE_SIZE = int(os.getenv('LAYERSERVER_PAGE_SIZE', '50'))
 
 if not GISCUBE_LAYERSERVER_DISABLED:
     LAYERSERVER_STYLE_STROKE_COLOR = '#FF3333'

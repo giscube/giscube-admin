@@ -38,8 +38,8 @@ class ResultsMixin():
         for r in sqs.all():
             try:
                 children = json.loads(r.children)
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 children = []
 
             results.append({

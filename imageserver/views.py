@@ -28,21 +28,21 @@ class ImageserverProxy(View):
                 content_type = r.headers['content-type']
                 if content_type == 'text/xml' and \
                         'ServiceException' in r.content:
-                    print '==================================================='
-                    print r.content
+                    print('===================================================')
+                    print(r.content)
                 if content_type == 'text/xml':
-                    print '********************'
-                    print r.content
+                    print('********************')
+                    print(r.content)
                 response = HttpResponse(r.content,
                                         content_type=content_type)
                 response.status_code = r.status_code
                 break
-            except ConnectionError, e:
-                print e
+            except ConnectionError as e:
+                print(e)
 
                 if retrying:
                     # calm down
-                    print 'retry number %s' % retry
+                    print('retry number %s' % retry)
                     time.sleep(1)
                 else:
                     retrying = True

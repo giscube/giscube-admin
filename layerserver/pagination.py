@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from collections import OrderedDict
 
@@ -7,7 +7,7 @@ from rest_framework import pagination
 from rest_framework.response import Response
 
 
-class CustomGeoJsonPagination(pagination.PageNumberPagination):
+class GeoJsonPagination(pagination.PageNumberPagination):
     """
     A geoJSON implementation of a pagination serializer.
     """
@@ -28,3 +28,15 @@ class CustomGeoJsonPagination(pagination.PageNumberPagination):
             ('total_pages', self.page.paginator.num_pages),
             ('features', data['features']),
         ]))
+
+
+def create_geojson_pagination_class(page_size=50, max_page_size=1000):
+    attrs = {
+        '__module__': 'layerserver',
+        'Meta': type(str('Meta'), (object,), {
+        })
+    }
+    attrs['page_size'] = page_size
+    attrs['max_page_size'] = max_page_size
+
+    return type(str('CustomGeoJsonPagination'), (GeoJsonPagination,), attrs)

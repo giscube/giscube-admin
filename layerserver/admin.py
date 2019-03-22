@@ -21,6 +21,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     list_display = ('name', 'title',)
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on',)
+    save_as = True
 
     tabs = (
         (_('Information'), ('fieldset-information',)),
@@ -39,7 +40,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'url', 'data_file', 'cache_time', 'last_fetch_on',
+                'url', 'headers', 'data_file', 'cache_time', 'last_fetch_on',
                 'generated_on',
             ],
             'classes': ('fieldset-geojson',),
@@ -87,7 +88,8 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     extra = 0
 
     can_delete = False
-    fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch', 'values_list_type', 'values_list',)
+    fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch',
+              'widget', 'widget_options',)
     readonly_fields = ('name', 'get_type', 'get_size', 'get_decimals', 'get_null')
     classes = ('tab-fields',)
 
@@ -95,7 +97,7 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
         return False
 
     def get_type(self, obj):
-        return obj.type or ''
+        return obj.field_type or ''
     get_type.short_description = "Type"
 
     def get_size(self, obj):
@@ -151,6 +153,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             'fields': [
                 'category', 'slug', 'name', 'title',
                 'description', 'keywords', 'active', 'visibility',
+                'page_size', 'max_page_size',
                 'visible_on_geoportal',
             ],
             'classes': ('tab-information',),
@@ -194,6 +197,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
         self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline,
                         DBLayerGroupInline, DataBaseLayerReferencesInline]
+        conn = self.model.objects.get(pk=object_id)
+        conn_status = self.model.objects.get(pk=object_id).db_connection.check_connection()
+        if not conn_status:
+            msg = 'ERROR: There was an error when connecting to: %s' % conn.db_connection
+            messages.add_message(request, messages.ERROR, msg)
+
         return super(DataBaseLayerAdmin,
                      self).change_view(
                          request, object_id, form_url,

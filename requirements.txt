@@ -1,24 +1,26 @@
-celery==4.1.1
-Django==1.11.20
+celery==4.2.2
+Django==2.1.7
 django-cas-ng==3.6.0
 django-colorfield==0.1.15
-django-cors-headers==2.2.0
-psycopg2-binary==2.7.4
-python-slugify==1.2.5
-django-haystack==2.7.0
-django-loginas==0.3.4
+django-cors-headers==2.5.2
+psycopg2-binary==2.7.7
+python-slugify==3.0.0
+django-haystack==2.8.1
+django-loginas==0.3.5
+django-model-utils==3.1.2
 django-oauth-toolkit==1.0.0
 django-vue-tabs==0.0.10
 djangorestframework==3.9.2
-djangorestframework-gis==0.13
+djangorestframework-gis==0.14
 django-url-filter==0.3.5
 GDAL==1.10.0
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
 requests==2.21.0
 ujson==1.35
 drf-ujson==1.2
-Pillow==5.1.0
--e git+https://github.com/giscube/tilecache.git#egg=TileCache&subdirectory=tilecache
+Pillow==5.4.1
+-e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
 Whoosh==2.7.4
-redis==2.10.6
-django_celery_monitor==1.1.2
+redis==3.2.1
+-e git+https://github.com/Microdisseny/django-celery-monitor.git#egg=django_celery_monitor
+pdf2image==1.4.2
