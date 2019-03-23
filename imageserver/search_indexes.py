@@ -10,7 +10,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
     name = indexes.CharField(model_attr='name')
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='title', null=True, default='')
     description = indexes.CharField(model_attr='description', null=True)
     keywords = indexes.CharField(model_attr='keywords', null=True)
     has_children = indexes.BooleanField()
@@ -29,7 +29,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
         for sl in obj.servicelayer_set.all():
             layer = sl.layer
             children.append({
-                'title': layer.title,
+                'title': layer.title or layer.name,
                 'group': False,
                 'type': 'WMS',
                 'url': url,
@@ -41,6 +41,3 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
         return self.get_model().objects.filter(active=True)
-
-    def prepare_title(self, obj):
-        return "%s Image service" % (obj.title or '')

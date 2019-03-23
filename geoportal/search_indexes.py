@@ -8,7 +8,7 @@ class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
     name = indexes.CharField(model_attr='name')
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='title', null=True, default='')
     description = indexes.CharField(model_attr='description', null=True)
     keywords = indexes.CharField(model_attr='keywords', null=True)
     has_children = indexes.BooleanField()
@@ -24,7 +24,7 @@ class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
         children = []
         for r in obj.resources.all():
             children.append({
-                'title': r.title,
+                'title': r.title or r.name,
                 'group': False,
                 'type': r.type,
                 'url': r.url,

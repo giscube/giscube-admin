@@ -10,7 +10,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
     name = indexes.CharField(model_attr='name')
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='title', null=True, default='')
     description = indexes.CharField(model_attr='description', null=True)
     keywords = indexes.CharField(model_attr='keywords', null=True)
     has_children = indexes.BooleanField()
@@ -47,17 +47,15 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
     name = indexes.CharField(model_attr='name')
-    title = indexes.CharField(model_attr='title')
+    title = indexes.CharField(model_attr='title', null=True, default='')
     description = indexes.CharField(model_attr='description', null=True)
     keywords = indexes.CharField(model_attr='keywords', null=True)
     has_children = indexes.BooleanField()
     children = indexes.CharField()
+    private = indexes.BooleanField()
 
     def get_model(self):
         return DataBaseLayer
-
-    def prepare_title(self, obj):
-        return obj.title or obj.name
 
     def prepare_has_children(self, obj):
         return True
@@ -87,6 +85,9 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
         })
 
         return json.dumps(children)
+
+    def prepare_private(self, obj):
+        return obj.anonymous_view
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
