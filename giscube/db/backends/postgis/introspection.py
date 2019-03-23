@@ -1,5 +1,6 @@
 from django.contrib.gis.gdal import OGRGeomType
 from django.db.backends.postgresql.introspection import DatabaseIntrospection as OriginalDatabaseIntrospection
+from django.db.backends.postgresql.introspection import FieldInfo
 
 from django.contrib.gis.db.backends.postgis.introspection import GeoIntrospectionError
 from django.contrib.gis.db.backends.postgis.introspection import PostGISIntrospection as OriginalPostGISIntrospection
@@ -75,3 +76,30 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
             cursor.close()
 
         return field_type, field_params
+
+    def get_table_description(self, cursor, table_name):
+        """
+        Return a description of the table with the DB-API cursor.description
+        interface.
+        """
+        old_table_name = table_name
+        table_parts = get_table_parts(table_name)
+        table_name = table_parts['table_name']
+        table_schema = table_parts['table_schema']
+        # As cursor.description does not return reliably the nullable property,
+        # we have to query the information_schema (#7783)
+        cursor.execute("""
+            SELECT column_name, is_nullable, column_default
+            FROM information_schema.columns
+            WHERE table_name = %s""", [table_name])
+        field_map = {line[0]: line[1:] for line in cursor.fetchall()}
+        if table_schema:
+            sql = "SELECT * FROM %s.%s LIMIT 1" % (
+                self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
+        else:
+            sql = "SELECT * FROM %s LIMIT 1" % self.connection.ops.quote_name(table_name)
+        cursor.execute(sql)
+        return [
+            FieldInfo(*line[0:6], field_map[line.name][0] == 'YES', field_map[line.name][1])
+            for line in cursor.description
+        ]

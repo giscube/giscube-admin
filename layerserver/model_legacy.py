@@ -77,8 +77,7 @@ def get_fields(connection, table_name):
         c['columns'][0] for c in constraints.values()
         if c['unique'] and len(c['columns']) == 1
     ]
-    table_description = connection.introspection.get_table_description(cursor, str(table_name_simple))
-
+    table_description = connection.introspection.get_table_description(cursor, table_name)
     used_column_names = []  # Holds column names used in the table so far
     column_to_field_name = {}  # Maps column names to names of model fields
     # for row in get_table_description(cursor, unicode(table_name_simple)):
