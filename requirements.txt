@@ -23,4 +23,4 @@ Pillow==5.4.1
 Whoosh==2.7.4
 redis==3.2.1
 -e git+https://github.com/Microdisseny/django-celery-monitor.git#egg=django_celery_monitor
-pdf2image==1.4.2
+pdf2image==1.5.1
