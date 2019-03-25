@@ -41,8 +41,9 @@ class Service(models.Model):
         validators=[validate_comma_separated_integer_list])
     extent = models.PolygonField(null=True, blank=True)
     service_path = models.CharField(max_length=255)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, help_text='Enable/disable usage')
     visibility = models.CharField(max_length=10, default='private',
+                                  help_text='visibility=\'Private\' restricts usage to authenticated users',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
 

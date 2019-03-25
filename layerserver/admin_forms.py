@@ -14,15 +14,18 @@ class DataBaseLayerAddForm(ModelForm):
         table = table_parts['fixed']
         # Fixed name
         self.cleaned_data['table'] = table
-
         geom_field = self.cleaned_data['geom_field']
         db_connection = self.cleaned_data['db_connection'].connection_name()
         GeometryColumns = self.cleaned_data[
             'db_connection'].get_connection().ops.geometry_columns()
-        fields = GeometryColumns.objects.using(
-            db_connection).all()
+        try:
+            fields = GeometryColumns.objects.using(
+                db_connection).all()
+        except Exception:
+            raise ValidationError('ERROR getting geometry columns')
         has_geometry = False
         geom_field_has_geometry = False
+
         for f in fields:
             if table_name == getattr(f, f.table_name_col()) and (
                 not hasattr(f, 'f_table_schema') or (getattr(f, 'f_table_schema') == table_schema)

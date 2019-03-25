@@ -26,6 +26,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     tabs = (
         (_('Information'), ('fieldset-information',)),
         (_('GEOJson'), ('fieldset-geojson',)),
+        (_('Permissions'), ('tab-permissions',)),
         (_('Style'), ('fieldset-style',))
     )
 
@@ -33,8 +34,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visibility',
-                'visible_on_geoportal',
+                'description', 'keywords', 'active', 'visibility', 'visible_on_geoportal',
             ],
             'classes': ('fieldset-information',),
         }),
@@ -152,7 +152,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'category', 'slug', 'name', 'title',
-                'description', 'keywords', 'active', 'visibility',
+                'description', 'keywords', 'active',
                 'page_size', 'max_page_size',
                 'visible_on_geoportal',
             ],
