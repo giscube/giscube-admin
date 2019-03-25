@@ -38,6 +38,12 @@ def geojsonlayer_upload_path(instance, filename):
     return unique_service_directory(instance, 'remote.json')
 
 
+SERVICE_VISIBILITY_CHOICES = [
+    ('private', 'Private'),
+    ('public', 'Public'),
+]
+
+
 class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
     url = models.CharField(max_length=255, null=True, blank=True)
     headers = models.TextField(null=True, blank=True)
@@ -47,6 +53,9 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
     cache_time = models.IntegerField(blank=True, null=True, help_text='In seconds')
     last_fetch_on = models.DateTimeField(null=True, blank=True)
     generated_on = models.DateTimeField(null=True, blank=True)
+    visibility = models.CharField(max_length=10, default='private',
+                                  help_text='visibility=\'Private\' restricts usage to authenticated users',
+                                  choices=SERVICE_VISIBILITY_CHOICES)
 
     def get_data_file_path(self):
         if self.service_path:

@@ -9,10 +9,6 @@ from colorfield.fields import ColorField
 
 from giscube.models import Category
 
-SERVICE_VISIBILITY_CHOICES = [
-    ('private', 'Private'),
-    ('public', 'Public'),
-]
 
 SHAPE_TYPES_CHOICES = [
     ('marker', _('Marker')),
@@ -32,9 +28,7 @@ class BaseLayerMixin(models.Model):
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     keywords = models.CharField(max_length=200, null=True, blank=True)
-    active = models.BooleanField(default=True)
-    visibility = models.CharField(max_length=10, default='private',
-                                  choices=SERVICE_VISIBILITY_CHOICES)
+    active = models.BooleanField(default=True, help_text='Enable/disable usage')
     visible_on_geoportal = models.BooleanField(default=False)
 
     class Meta:

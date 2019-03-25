@@ -15,6 +15,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
     keywords = indexes.CharField(model_attr='keywords', null=True)
     has_children = indexes.BooleanField()
     children = indexes.CharField()
+    private = indexes.BooleanField()
 
     def get_model(self):
         return GeoJsonLayer
@@ -37,9 +38,12 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
         return json.dumps(children)
 
+    def prepare_private(self, obj):
+        return obj.anonymous_view
+
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.filter(active=True)
+        return self.get_model().objects.filter(active=True, visible_on_geoportal=True, anonymous_view=True)
 
 
 class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
@@ -91,7 +95,4 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.filter(
-            active=True,
-            visibility='public'
-        )
+        return self.get_model().objects.filter(active=True, visible_on_geoportal=True, anonymous_view=True)

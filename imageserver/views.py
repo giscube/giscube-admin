@@ -1,7 +1,7 @@
 import time
 
 from django.views.generic import View
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
@@ -14,7 +14,10 @@ from imageserver.models import Service
 
 class ImageserverProxy(View):
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name)
+        service = get_object_or_404(Service, name=service_name, active=True)
+        if service.visibility == 'private' and not request.user.is_authenticated:
+            return HttpResponseForbidden()
+
         server_url = settings.GISCUBE_IMAGE_SERVER_URL
         meta = request.META.get('QUERY_STRING', '?')
         mapfile = "map=%s" % service.mapfile_path
