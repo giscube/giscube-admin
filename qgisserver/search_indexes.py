@@ -44,4 +44,4 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.filter(active=True)
+        return self.get_model().objects.filter(active=True, visible_on_geoportal=True)

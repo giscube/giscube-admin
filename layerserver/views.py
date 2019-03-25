@@ -46,10 +46,10 @@ logger = logging.getLogger(__name__)
 def GeoJSONLayerView(request, layer_name):
     # FIXME: why is this needed?
     # layer_name = ''.join(layer_name.split('.')[:-1])
-    layer = GeoJsonLayer.objects.filter(
-        active=True,
-        name=layer_name).first()
-    if layer and (layer.visibility == 'private' and not request.user.is_authenticated):
+    layer = get_object_or_404(GeoJsonLayer, name=layer_name, active=True)
+    if service.visibility == 'private' and not request.user.is_authenticated:
+        return HttpResponseForbidden()
+    if layer.visibility == 'private' and not request.user.is_authenticated:
         return HttpResponseForbidden()
 
     if layer and layer.data_file:

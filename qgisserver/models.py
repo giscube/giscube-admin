@@ -52,8 +52,9 @@ class Service(models.Model):
     keywords = models.CharField(max_length=200, null=True, blank=True)
     project_file = models.FileField(upload_to=unique_service_directory)
     service_path = models.CharField(max_length=255)
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True, help_text='Enable/disable usage')
     visibility = models.CharField(max_length=10, default='private',
+                                  help_text='visibility=\'Private\' restricts usage to authenticated users',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
     wms_buffer_enabled = models.BooleanField(

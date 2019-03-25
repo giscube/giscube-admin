@@ -9,7 +9,7 @@ class Dataset(models.Model):
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     keywords = models.CharField(max_length=200, null=True, blank=True)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, help_text='Enable/disable usage')
 
     def __str__(self):
         return '%s' % self.title or self.name
