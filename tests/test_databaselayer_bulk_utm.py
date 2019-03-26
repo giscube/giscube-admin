@@ -3,7 +3,6 @@
 
 from django.conf import settings
 from django.urls import reverse
-from django.test import TransactionTestCase
 
 from giscube.models import DBConnection
 from layerserver.models import DataBaseLayer
@@ -12,7 +11,7 @@ from tests.common import BaseTest
 from layerserver.model_legacy import create_dblayer_model
 
 
-class DataBaseLayerBulkUTMAPITestCase(BaseTest, TransactionTestCase):
+class DataBaseLayerBulkUTMAPITestCase(BaseTest):
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()
