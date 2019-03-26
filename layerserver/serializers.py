@@ -25,6 +25,13 @@ class Geom4326Serializer(GeoFeatureModelSerializer):
             geo_value = geo_value.clone()
             geo_value.transform(4326)
             data["geometry"] = field.to_representation(geo_value)
+        # Remove id_field if it exists in properties
+        if not self.Meta.map_id_field and self.Meta.id_field in data['properties']:
+            del data['properties'][self.Meta.id_field]
+        # Add id_field if it not exists in properties
+        if self.Meta.map_id_field and self.Meta.id_field not in data['properties']:
+            field = self.fields[self.Meta.id_field]
+            data['properties'][self.Meta.id_field] = field.get_attribute(instance)
         return data
 
     def to_internal_value(self, data):
@@ -116,9 +123,11 @@ def apply_widgets(attrs, model, fields):
             attrs[field] = to_image_field(field, f)
 
 
-def create_dblayer_serializer(model, fields, id_field, map_id_field=False):
+def create_dblayer_serializer(model, fields, id_field):
     if id_field is None or id_field == '':
         id_field = id
+
+    map_id_field = id_field in fields
 
     geo_field = None
     for f in model._meta.fields:
@@ -129,33 +138,24 @@ def create_dblayer_serializer(model, fields, id_field, map_id_field=False):
     if geo_field is None:
         raise Exception('NO GEOM FIELD DEFINED')
 
-    fields_serialize = fields[:]
-    fields_serialize.remove(geo_field)
+    fields_to_serialize = fields[:]
+    fields_to_serialize.remove(geo_field)
+
+    # pk field is always needed by Geom4326Serializer
+    if id_field not in fields_to_serialize:
+        fields_to_serialize.append(id_field)
+
+    attrs = {
+        '__module__': 'layerserver',
+        'Meta': type(str('Meta'), (object,),
+                     {
+                         'model': model, 'geo_field': geo_field, 'id_field': id_field,
+                         'map_id_field': map_id_field
+                         })
+        }
 
     if len(fields) > 0:
-        attrs = {
-            '__module__': 'layerserver',
-            'Meta': type(str('Meta'), (object,),
-                         {'model': model, 'geo_field': geo_field,
-                          'id_field': id_field, 'fields': fields_serialize})
-        }
-    else:
-        attrs = {
-            '__module__': 'layerserver',
-            'Meta': type(str('Meta'), (object,), {
-                'model': model, 'id_field': id_field, 'geo_field': geo_field
-            })
-        }
-    if map_id_field:
-        for f in model._meta.fields:
-            if f.column == id_field:
-                fields = {}
-                if f.__class__ in SERIALIZER_ID_FIELD_MAPPING:
-                    fields[id_field] = SERIALIZER_ID_FIELD_MAPPING[f.__class__]()
-                else:
-                    raise Exception('id_field type NOT SUPPORTED')
-                attrs.update(fields)
-                break
+        setattr(attrs['Meta'], 'fields', fields_to_serialize)
 
     apply_widgets(attrs, model, fields)
     serializer = type(str('%s_serializer') % str(model._meta.db_table),
