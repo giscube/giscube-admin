@@ -212,6 +212,8 @@ def create_dblayer_model(layer):
         app_label = 'layerserver_databaselayer'
         db_table = layer.table
         verbose_name = layer.name
+        ordering = [layer.pk_field]
+
     attrs = {
         '__module__': 'layerserver_databaselayer',
         'Meta': Meta,
