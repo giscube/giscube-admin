@@ -1,0 +1,28 @@
+{% extends "django_vue_tabs/change_form.html" %}
+{% block extrahead %}{{ block.super }}
+<style>
+.tab-fields .vLargeTextField {
+  width: auto !important;
+  min-width: 24px;
+  min-height: 36px;
+  height: 0;
+  padding-bottom: 0;
+  overflow-y: hidden;
+}
+</style>
+{% endblock %}
+{% block admin_change_form_document_ready %}{{ block.super }}
+<script type="text/javascript">
+(function ($){
+	function resize() {
+		var e = $(this);
+		e.height(0);
+		e.height(this.scrollHeight);
+	}
+	$(document).ready(function(){
+		$('.tab-fields .vLargeTextField').each(resize);
+		$('.tab-fields .vLargeTextField').on('input', resize);
+	});
+})(django.jQuery);
+</script>
+{% endblock %}

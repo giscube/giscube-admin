@@ -126,6 +126,9 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
 
 @admin.register(DataBaseLayer)
 class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
+    add_form_template = 'admin/data_base_layer/add_form.html'
+    change_form_template = 'admin/data_base_layer/change_form.html'
+
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('slug', 'name', 'table')
     list_display_links = list_display
@@ -214,7 +217,6 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         """
         defaults = {}
         if obj is None:
-            self.add_form_template = 'admin/data_base_layer/add_form.html'
             defaults['form'] = DataBaseLayerAddForm
         else:
             defaults['form'] = DataBaseLayerChangeForm
