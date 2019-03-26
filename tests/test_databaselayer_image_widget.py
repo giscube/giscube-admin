@@ -102,7 +102,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
     def test_add_image(self):
         self.login_test_user()
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
-        self.login_test_user()
         path = 'tests/files/giscube_01.png'
         f = open(path, 'rb')
         data = {
