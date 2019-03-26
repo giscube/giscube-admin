@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 
 from model_utils import Choices
 
-from .models_mixins import BaseLayerMixin, StyleMixin
+from .models_mixins import BaseLayerMixin, PopupMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.db.utils import get_table_parts
 from giscube.utils import unique_service_directory
@@ -44,7 +44,7 @@ SERVICE_VISIBILITY_CHOICES = [
 ]
 
 
-class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
+class GeoJsonLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
     url = models.CharField(max_length=255, null=True, blank=True)
     headers = models.TextField(null=True, blank=True)
     data_file = models.FileField(upload_to=geojsonlayer_upload_path,
@@ -79,6 +79,9 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, models.Model):
                 'stroke_dash_array': self.stroke_dash_array,
                 'fill_color': self.fill_color,
                 'fill_opacity': str(self.fill_opacity)
+            },
+            'design': {
+                'popup': self.popup
             }
         }
 
@@ -113,7 +116,7 @@ def geojsonlayer_delete(sender, instance, **kwargs):
             shutil.rmtree(path)
 
 
-class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
+class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='db_connections', verbose_name='Database connection')
@@ -132,6 +135,9 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
                                         help_text=_('Default value is %(max_page_size)s')
                                         % {'max_page_size': settings.LAYERSERVER_MAX_PAGE_SIZE})
 
+    list_fields = models.TextField(blank=True, null=True)
+    form_fields = models.TextField(blank=True, null=True)
+
     anonymous_view = models.BooleanField(_('Can view'), default=False)
     anonymous_add = models.BooleanField(_('Can add'), default=False)
     anonymous_update = models.BooleanField(_('Can update'), default=False)
@@ -144,6 +150,12 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, models.Model):
         for f in self._model_fields:
             if f.name == field_name:
                 return f
+
+    def get_default_popup(self):
+        fields = {}
+        for field in self.fields.filter(enabled=True):
+            fields[field.name] = field.label or field.name
+        return self.get_default_popup_content(fields)
 
     def __str__(self):
         return self.name
@@ -164,6 +176,10 @@ def pre_dblayer(sender, instance, **kwargs):
 
 @receiver(post_save, sender=DataBaseLayer)
 def add_fields(sender, instance, created, **kwargs):
+    if hasattr(instance, '_disable_signal_add_fields'):
+        delattr(instance, '_disable_signal_add_fields')
+        return None
+
     table_parts = get_table_parts(instance.table)
     table_schema = table_parts['table_schema']
     conn = instance.db_connection.get_connection(schema=table_schema)
@@ -183,6 +199,24 @@ def add_fields(sender, instance, created, **kwargs):
     if not created and len(old_fields) > 0:
         DataBaseLayerField.objects.filter(
             layer=instance, name__in=old_fields).delete()
+
+    changes = 0
+    if instance.list_fields is None or instance.list_fields.strip(' \t\n\r') == '':
+        list_fields = list(fields.keys())
+        list_fields.sort()
+        instance.list_fields = ','.join(list_fields)
+        changes += 1
+    if instance.form_fields is None or instance.form_fields.strip(' \t\n\r') == '':
+        form_fields = list(fields.keys())
+        form_fields.sort()
+        instance.form_fields = ','.join(form_fields)
+        changes += 1
+    if instance.popup is None or instance.popup.strip(' \t\n\r') == '':
+        instance.popup = instance.get_default_popup()
+        changes += 1
+    if changes > 0:
+        instance._disable_signal_add_fields = True
+        instance.save()
 
 
 DATA_TYPES = {
@@ -287,6 +321,7 @@ class DataBaseLayerField(models.Model):
     class Meta:
         verbose_name = _('Field')
         verbose_name_plural = _('Fields')
+        ordering = ['layer', 'name']
 
 
 class DataBaseLayerReference(models.Model):

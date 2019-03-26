@@ -27,7 +27,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Information'), ('fieldset-information',)),
         (_('GEOJson'), ('fieldset-geojson',)),
         (_('Permissions'), ('tab-permissions',)),
-        (_('Style'), ('fieldset-style',))
+        (_('Style'), ('fieldset-style',)),
+        (_('Design'), ('tab-design',)),
     )
 
     fieldsets = [
@@ -51,6 +52,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('fieldset-style',),
+        }),
+        (None, {
+            'fields': ['popup'],
+            'classes': ('tab-design',),
         }),
     ]
 
@@ -86,6 +91,7 @@ class DBLayerUserInline(admin.TabularInline):
 class DataBaseLayerFieldsInline(admin.TabularInline):
     model = DataBaseLayerField
     extra = 0
+    ordering = ('name',)
 
     can_delete = False
     fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch',
@@ -148,7 +154,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Style'), ('tab-style',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('References'), ('tab-references',)),
-
+        (_('Design'), ('tab-design',)),
     )
 
     edit_fieldsets = [
@@ -180,6 +186,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'anonymous_delete'
             ],
             'classes': ('tab-permissions',),
+        }),
+        (None, {
+            'fields': [
+                'list_fields', 'form_fields', 'popup'
+            ],
+            'classes': ('tab-design',),
         }),
     ]
 
