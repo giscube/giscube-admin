@@ -19,7 +19,6 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UserAssetViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
                        mixins.ListModelMixin, viewsets.GenericViewSet):
-    authentication_classes = (SessionAuthentication,)
     lookup_field = 'uuid'
     queryset = []
     parser_classes = (parsers.MultiPartParser,)

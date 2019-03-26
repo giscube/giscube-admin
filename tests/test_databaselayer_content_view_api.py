@@ -48,7 +48,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
     def test_content_list_unathenticated(self):
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_list_authenticated_anonymous_permission(self):
         self.layer.anonymous_view = True
@@ -68,6 +68,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.can_delete = True
         permission.save()
 
+        self.login_test_user()
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
@@ -114,7 +115,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
             'geometry': 'POINT(0,0)'
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_add_authenticated_anonymous_permission(self):
         self.layer.anonymous_add = True
@@ -199,7 +200,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
     def test_content_detail_unathenticated(self):
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_detail_authenticated_anonymous_permission(self):
         self.layer.anonymous_view = True
@@ -221,7 +222,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_detail_authenticated_user_permission_can_add(self):
         permission = DBLayerUser()
@@ -265,7 +266,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
             'geometry': 'POINT(0 0)'
         }
         response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_update_authenticated_anonymous_permission(self):
         self.layer.anonymous_view = True
@@ -351,7 +352,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
     def test_content_delete_unathenticated(self):
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_delete_authenticated_anonymous_permission(self):
         self.layer.anonymous_delete = True
@@ -373,7 +374,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_content_delete_authenticated_user_permission_can_delete(self):
         permission = DBLayerUser()
