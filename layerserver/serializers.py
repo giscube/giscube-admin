@@ -208,6 +208,11 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
                     'fill_color': obj.fill_color,
                     'fill_opacity': obj.fill_opacity
             }
+        data['design'] = {
+            'list_fields': obj.list_fields,
+            'form_fields': obj.form_fields,
+            'popup': obj.popup
+            }
         Layer = create_dblayer_model(obj)
         data['geom_type'] = None
         if obj.geom_field is not None:

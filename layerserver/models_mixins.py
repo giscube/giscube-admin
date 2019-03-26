@@ -56,3 +56,19 @@ class StyleMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class PopupMixin(models.Model):
+    """
+    Popup mixin.
+    """
+    popup = models.TextField(blank=True, null=True)
+
+    def get_default_popup_content(self, fields):
+        content = []
+        for name, label in list(fields.items()):
+            content.append('<b>%s:</b>{%s}' % (label, name))
+        return '<br />\n'.join(content)
+
+    class Meta:
+        abstract = True
