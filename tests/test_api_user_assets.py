@@ -9,20 +9,18 @@ from django.urls import reverse
 
 from giscube.models import UserAsset
 from rest_framework import status
-from rest_framework.test import APITestCase
+
+from .common import BaseTest
 
 
 UserModel = get_user_model()
 
 
 @override_settings(DEBUG=True)
-class ApiUserAssetsTests(APITestCase):
-
-    def login(self):
-        self.client.login(username='admin', password='admin')
-
+class ApiUserAssetsTests(BaseTest):
     def setUp(self):
-        self.admin_user = UserModel.objects.create_superuser('admin', '', 'admin')
+        super().setUp()
+        self.admin_user = UserModel.objects.get(username='superuser')
         self.other = UserModel.objects.create_user('other', '', 'other')
 
     def tearDown(self):
@@ -31,7 +29,7 @@ class ApiUserAssetsTests(APITestCase):
         shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'user/assets/'))
 
     def test_list(self):
-        self.login()
+        self.login_superuser()
         files = ['2210571.jpg', 'images.docx', 'rgba1px.png']
         assets = {}
         for file in files:
@@ -70,7 +68,7 @@ class ApiUserAssetsTests(APITestCase):
         self.assertTrue(file['file'].endswith(file_name))
 
     def test_post_image(self):
-        self.login()
+        self.login_superuser()
         url = reverse('user_assets-list')
         path = 'tests/files/2210571.jpg'
         f = open(path, 'rb')
@@ -85,7 +83,7 @@ class ApiUserAssetsTests(APITestCase):
         self.assertEqual(file['file'], 'media://user/assets/%s/%s/%s' % (self.admin_user.pk, folder, file_name))
 
     def test_delete(self):
-        self.login()
+        self.login_superuser()
         name = '2210571.jpg'
         path = 'tests/files/%s' % name
         f = open(path, 'rb')
@@ -122,7 +120,7 @@ class ApiUserAssetsTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.client.logout()
 
-        self.login()
+        self.login_test_user()
         response = self.client.get(url_detail)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get(url_file)

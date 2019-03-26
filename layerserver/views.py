@@ -22,11 +22,9 @@ from django.utils.functional import cached_property
 
 from rest_framework import filters, parsers, status, views, viewsets
 from rest_framework.response import Response
-from rest_framework.authentication import BasicAuthentication
 
 from giscube.models import UserAsset
 
-from .authentication import CsrfExemptSessionAuthentication
 from .filters import filterset_factory
 from .model_legacy import create_dblayer_model
 from .models import GeoJsonLayer, DataBaseLayer
@@ -97,13 +95,10 @@ class DBLayerDetailViewSet(DBLayerViewSet):
 
 
 class DBLayerContentViewSet(viewsets.ModelViewSet):
-    csrf_exempt = True
     parser_classes = (parsers.MultiPartParser, parsers.JSONParser)
     permission_classes = (DBLayerIsValidUser,)
     queryset = []
     model = None
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
     pagination_class = None
     page_size_query_param = 'page_size'
     page_size = 50
@@ -216,8 +211,6 @@ class DBLayerContentBulkViewSet(views.APIView):
     permission_classes = (BulkDBLayerIsValidUser,)
     queryset = []
     model = None
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
     lookup_url_kwarg = 'pk'
 
     def __init__(self, *args, **kwargs):
