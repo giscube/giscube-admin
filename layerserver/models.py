@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 
 from model_utils import Choices
 
-from .mixins import BaseLayerMixin, StyleMixin
+from .models_mixins import BaseLayerMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.db.utils import get_table_parts
 from giscube.utils import unique_service_directory
