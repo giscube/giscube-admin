@@ -18,6 +18,7 @@ from layerserver.tasks import async_geojsonlayer_refresh
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
+    autocomplete_fields = ('category',)
     list_display = ('name', 'title',)
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on',)
@@ -135,6 +136,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     add_form_template = 'admin/data_base_layer/add_form.html'
     change_form_template = 'admin/data_base_layer/change_form.html'
 
+    autocomplete_fields = ['category']
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('slug', 'name', 'table')
     list_display_links = list_display
