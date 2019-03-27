@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 
 from model_utils import Choices
 
+from .model_legacy import ImageWithThumbnailField
 from .models_mixins import BaseLayerMixin, PopupMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.db.utils import get_table_parts
@@ -234,6 +235,7 @@ DATA_TYPES = {
     models.IntegerField: 'number',
     models.TextField: 'string',
     models.CharField: 'string',
+    ImageWithThumbnailField: 'image',
 }
 
 
