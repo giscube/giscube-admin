@@ -18,6 +18,7 @@ from layerserver.tasks import async_geojsonlayer_refresh
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
+    autocomplete_fields = ('category',)
     list_display = ('name', 'title',)
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on',)
@@ -27,7 +28,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Information'), ('fieldset-information',)),
         (_('GEOJson'), ('fieldset-geojson',)),
         (_('Permissions'), ('tab-permissions',)),
-        (_('Style'), ('fieldset-style',))
+        (_('Style'), ('fieldset-style',)),
+        (_('Design'), ('tab-design',)),
     )
 
     fieldsets = [
@@ -51,6 +53,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('fieldset-style',),
+        }),
+        (None, {
+            'fields': ['popup'],
+            'classes': ('tab-design',),
         }),
     ]
 
@@ -86,6 +92,7 @@ class DBLayerUserInline(admin.TabularInline):
 class DataBaseLayerFieldsInline(admin.TabularInline):
     model = DataBaseLayerField
     extra = 0
+    ordering = ('name',)
 
     can_delete = False
     fields = ('enabled', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch',
@@ -129,6 +136,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     add_form_template = 'admin/data_base_layer/add_form.html'
     change_form_template = 'admin/data_base_layer/change_form.html'
 
+    autocomplete_fields = ['category']
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('slug', 'name', 'table')
     list_display_links = list_display
@@ -148,7 +156,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Style'), ('tab-style',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('References'), ('tab-references',)),
-
+        (_('Design'), ('tab-design',)),
     )
 
     edit_fieldsets = [
@@ -180,6 +188,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'anonymous_delete'
             ],
             'classes': ('tab-permissions',),
+        }),
+        (None, {
+            'fields': [
+                'list_fields', 'form_fields', 'popup'
+            ],
+            'classes': ('tab-design',),
         }),
     ]
 
