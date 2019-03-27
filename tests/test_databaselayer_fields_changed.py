@@ -6,7 +6,7 @@ from giscube.models import DBConnection
 from layerserver.models import DataBaseLayer
 
 
-class DataBaseLayerAPITestCase(BaseTest):
+class DataBaseLayerFieldsChangedAPITestCase(BaseTest):
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()
