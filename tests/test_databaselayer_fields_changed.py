@@ -48,6 +48,17 @@ class DataBaseLayerFieldsChangedAPITestCase(BaseTest):
         self.assertEqual(1, self.layer.fields.filter(name='status').count())
 
         # Restore column name to avoid problems with other tests
+        cursor = conn.cursor()
         cursor.execute('ALTER TABLE tests_location RENAME COLUMN new_address'
                        ' TO address;')
+        cursor.execute('ALTER TABLE tests_location DROP COLUMN status;')
         conn.commit()
+
+        self.layer.save()
+        self.layer.refresh_from_db()
+
+        self.assertEqual(
+            0, self.layer.fields.filter(name='new_address').count())
+        self.assertEqual(
+            1, self.layer.fields.filter(name='address').count())
+        self.assertEqual(0, self.layer.fields.filter(name='status').count())
