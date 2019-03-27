@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm, HiddenInput
 
 from .models import DataBaseLayer
+from .model_legacy import get_fields
 from giscube.db.utils import get_table_parts
 
 
@@ -55,6 +56,21 @@ class DataBaseLayerAddForm(ModelForm):
 
 
 class DataBaseLayerChangeForm(ModelForm):
+    def clean(self):
+        table_parts = get_table_parts(self.instance.table)
+        table_schema = table_parts['table_schema']
+        table = table_parts['fixed']
+
+        fields = get_fields(self.cleaned_data['db_connection'].get_connection(schema=table_schema), table)
+        pk_field_exists = False
+        for f in fields:
+            if f == self.cleaned_data['pk_field']:
+                pk_field_exists = True
+                break
+        if not pk_field_exists:
+            raise ValidationError('The Pk field [%s] doesn\'t exist' % self.cleaned_data['pk_field'])
+        return self.cleaned_data
+
     class Meta:
         model = DataBaseLayer
         exclude = ()
