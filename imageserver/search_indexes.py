@@ -1,11 +1,12 @@
 import datetime
 import json
+from celery_haystack.indexes import CelerySearchIndex
 from haystack import indexes
 from django.conf import settings
 from imageserver.models import Service
 
 
-class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
+class ServiceIndex(CelerySearchIndex, indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)

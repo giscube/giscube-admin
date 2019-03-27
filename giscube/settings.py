@@ -71,10 +71,12 @@ if not GISCUBE_GIS_SERVER_DISABLED:
     INSTALLED_APPS += ['qgisserver']
 
 if not GISCUBE_GEOPORTAL_DISABLED:
-    INSTALLED_APPS += ['geoportal', 'haystack']
+    INSTALLED_APPS += ['geoportal', 'haystack', 'celery_haystack']
 
 if not GISCUBE_LAYERSERVER_DISABLED:
     INSTALLED_APPS += ['colorfield', 'layerserver']
+    HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
+    CELERY_HAYSTACK_QUEUE = 'default'
 
 
 INSTALLED_APPS += [

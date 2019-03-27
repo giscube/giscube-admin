@@ -1,11 +1,12 @@
 import json
+from celery_haystack.indexes import CelerySearchIndex
 from haystack import indexes
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from layerserver.models import GeoJsonLayer, DataBaseLayer
 
 
-class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
+class GeoJSONLayerIndex(CelerySearchIndex, indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
@@ -46,7 +47,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
         return self.get_model().objects.filter(active=True, visible_on_geoportal=True)
 
 
-class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
+class DataBaseLayerIndex(CelerySearchIndex, indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
