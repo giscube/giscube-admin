@@ -12,6 +12,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 class ServiceAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
     exclude = ('service_path', 'active')
     search_fields = ('name', 'title', 'keywords')

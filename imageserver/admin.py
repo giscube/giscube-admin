@@ -12,6 +12,7 @@ class ServiceLayerInline(admin.TabularInline):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
     search_fields = ('title',)
     exclude = ('service_path',)
