@@ -39,11 +39,11 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
         return json.dumps(children)
 
     def prepare_private(self, obj):
-        return obj.anonymous_view
+        return obj.visibility == 'private'
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.filter(active=True, visible_on_geoportal=True, anonymous_view=True)
+        return self.get_model().objects.filter(active=True, visible_on_geoportal=True)
 
 
 class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
@@ -95,4 +95,4 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return self.get_model().objects.filter(active=True, visible_on_geoportal=True, anonymous_view=True)
+        return self.get_model().objects.filter(active=True, visible_on_geoportal=True)
