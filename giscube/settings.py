@@ -269,7 +269,7 @@ else:
 index = MIDDLEWARE.index('django.contrib.auth.middleware.'
                          'AuthenticationMiddleware')
 MIDDLEWARE.insert(index + 1,
-                  'oauth2_provider.middleware.OAuth2TokenMiddleware')
+                  'giscube.middleware.AccesTokenOAuth2TokenMiddleware')
 
 OAUTH2_PROVIDER = {
     'RESOURCE_SERVER_INTROSPECTION_URL': os.environ.get(
