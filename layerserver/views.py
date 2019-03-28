@@ -260,6 +260,7 @@ class DBLayerContentBulkViewSet(views.APIView):
     def apply_widgets(self, items):
         image_fields = self._image_fields
         for item in items:
+            item = self.get_properties(item)
             for field in image_fields:
                 if field in item:
                     item[field] = self.to_image(field, item[field])
@@ -315,9 +316,25 @@ class DBLayerContentBulkViewSet(views.APIView):
 
     def get_lookup_field_value(self, data):
         if 'properties' in data and isinstance(data['properties'], dict):
-            if self.lookup_field not in data['properties'] and 'id' in data:
+            if 'id' in data:
                 return data['id']
-        return data[self.lookup_field]
+            # Case: ADD - code is used as primary key in geojson
+            elif self.lookup_field in data['properties']:
+                return data['properties'][self.lookup_field]
+        # Case using normal pk, pk key doesn't exist in ADD
+        if self.lookup_field in data:
+            return data[self.lookup_field]
+
+    def get_properties(self, data):
+        if 'properties' in data and isinstance(data['properties'], dict):
+            new_data = data['properties']
+            if self.lookup_field not in new_data:
+                pk = self.get_lookup_field_value(data)
+                # Case ADD using normal as pk, pk key doesn't exist
+                if pk:
+                    new_data[self.lookup_field] = pk
+            return new_data
+        return data
 
     def update(self, items):
         self.apply_widgets(items)
