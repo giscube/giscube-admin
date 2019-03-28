@@ -200,7 +200,10 @@ def to_image_field(field, original_field):
 def apply_widgets(layer, fields):
     from .models import DataBaseLayerField
     for field in layer.fields.filter(widget=DataBaseLayerField.WIDGET_CHOICES.image):
-        fields[field.name] = to_image_field(field, fields[field.name])
+        try:
+            fields[field.name] = to_image_field(field, fields[field.name])
+        except Exception:
+            raise Exception('Invalid configuration for field [%s]' % field.name)
 
 
 def create_dblayer_model(layer):
