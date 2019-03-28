@@ -384,6 +384,7 @@ class DBLayerContentBulkViewSet(views.APIView):
         errors = {}
 
         # TODO: schema
+        self.layer.db_connection.get_connection()
         conn = self.layer.db_connection.connection_name()
         autocommit = transaction.get_autocommit(using=conn)
         transaction.set_autocommit(False, using=conn)
