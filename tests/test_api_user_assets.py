@@ -4,6 +4,7 @@ import shutil
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
+from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -18,10 +19,6 @@ UserModel = get_user_model()
 
 @override_settings(DEBUG=True)
 class ApiUserAssetsTests(BaseTest):
-    def setUp(self):
-        super().setUp()
-        self.admin_user = UserModel.objects.get(username='superuser')
-        self.other = UserModel.objects.create_user('other', '', 'other')
 
     def tearDown(self):
         UserModel.objects.all().delete()
@@ -36,7 +33,7 @@ class ApiUserAssetsTests(BaseTest):
             path = 'tests/files/%s' % file
             f = open(path, 'rb')
             asset = UserAsset()
-            asset.user = self.admin_user
+            asset.user = self.superuser
             asset.file.save(name=file, content=File(f))
             asset.save()
             assets[str(asset.uuid)] = asset
@@ -64,7 +61,7 @@ class ApiUserAssetsTests(BaseTest):
         self.assertTrue(parts[-2] in list(assets.keys()))
         response = self.client.get(file['url'])
         file_name = file['url'].split('/')[-1]
-        self.assertTrue(file['file'].startswith('media://user/assets/%s/' % self.admin_user.pk))
+        self.assertTrue(file['file'].startswith('media://user/assets/%s/' % self.superuser.pk))
         self.assertTrue(file['file'].endswith(file_name))
 
     def test_post_image(self):
@@ -80,7 +77,7 @@ class ApiUserAssetsTests(BaseTest):
         response = self.client.get(file['url'])
         file_name = file['url'].split('/')[-1]
         folder = UserAsset.objects.first().uuid
-        self.assertEqual(file['file'], 'media://user/assets/%s/%s/%s' % (self.admin_user.pk, folder, file_name))
+        self.assertEqual(file['file'], 'media://user/assets/%s/%s/%s' % (self.superuser.pk, folder, file_name))
 
     def test_delete(self):
         self.login_superuser()
@@ -88,7 +85,7 @@ class ApiUserAssetsTests(BaseTest):
         path = 'tests/files/%s' % name
         f = open(path, 'rb')
         asset = UserAsset()
-        asset.user = self.admin_user
+        asset.user = self.superuser
         asset.file.save(name=name, content=File(f))
         asset.save()
         f.close()
@@ -105,12 +102,12 @@ class ApiUserAssetsTests(BaseTest):
         path = 'tests/files/%s' % name
         f = open(path, 'rb')
         asset = UserAsset()
-        asset.user = self.other
+        asset.user = self.test_user
         asset.file.save(name=name, content=File(f))
         asset.save()
         f.close()
 
-        self.client.login(username='other', password='other')
+        self.login_test_user()
         self.assertTrue(os.path.exists(asset.file.path))
         url_detail = reverse('user_assets-detail', args=[str(asset.uuid)])
         response = self.client.get(url_detail)
@@ -118,10 +115,16 @@ class ApiUserAssetsTests(BaseTest):
         url_file = response.data['url']
         response = self.client.get(url_file)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        c = Client()
+        response = c.get(url_file)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response = c.get('%s?access_token=%s' % (url_file, self.token))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         self.client.logout()
 
-        self.login_test_user()
-        response = self.client.get(url_detail)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.login_dev_user()
         response = self.client.get(url_file)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
