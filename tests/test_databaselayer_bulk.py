@@ -234,7 +234,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
         result = response.json()
-        self.assertTrue('geometry' in result['UPDATE'])
+        self.assertTrue('geometry' in result['UPDATE']['0'])
 
     def test_bulk_update_without_geometry(self):
         old_geom = list(self.locations[5].geometry.coords)
