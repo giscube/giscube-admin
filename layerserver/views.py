@@ -207,6 +207,9 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
 
 
 class DBLayerContentBulkViewSet(views.APIView):
+    ERROR_NOT_EXIST = 'ERROR_NOT_EXIST'
+    ERROR_ON_SAVE = 'ERROR_ON_SAVE'
+
     csrf_exempt = True
     permission_classes = (BulkDBLayerIsValidUser,)
     queryset = []
@@ -300,19 +303,20 @@ class DBLayerContentBulkViewSet(views.APIView):
         Serializer = create_dblayer_serializer(
             self.model, list(self._fields.keys()), self.lookup_field)
         add_serializers = []
-        for item in items:
+        for i, item in enumerate(items):
             serializer = Serializer(data=item)
             if serializer.is_valid():
                 add_serializers.append(serializer)
             else:
-                return serializer.errors
+                return {i: serializer.errors}
 
-        for serializer in add_serializers:
+        for i, serializer in enumerate(add_serializers):
             try:
                 self.created_objects.append(serializer.save())
             except Exception:
                 self.created_objects.append(serializer.instance)
-                raise
+                print(serializer.errors)
+                return {i: self.ERROR_ON_SAVE}
 
     def get_lookup_field_value(self, data):
         if 'properties' in data and isinstance(data['properties'], dict):
@@ -341,23 +345,26 @@ class DBLayerContentBulkViewSet(views.APIView):
         Serializer = create_dblayer_serializer(
             self.model, list(self._fields.keys()), self.lookup_field)
         update_serializers = []
-        for item in items:
+        for i, item in enumerate(items):
             filter = {}
             filter[self.lookup_field] = self.get_lookup_field_value(item)
-            obj = self.model.objects.get(**filter)
+            obj = self.model.objects.filter(**filter).first()
+            if obj is None:
+                return {i: self.ERROR_NOT_EXIST}
+
             self.original_updated_objects[list(filter.values())[0]] = model_to_dict(obj, exclude=['pk'])
             serializer = Serializer(instance=obj, data=item, partial=True)
             if serializer.is_valid():
                 update_serializers.append(serializer)
             else:
-                return serializer.errors
+                return {i: serializer.errors}
 
-        for serializer in update_serializers:
+        for i, serializer in enumerate(update_serializers):
             try:
                 self.updated_objects.append(serializer.save())
             except Exception:
                 self.updated_objects.append(serializer.instance)
-                raise
+                return {i: self.ERROR_ON_SAVE}
 
     def delete(self, items):
         filter = {}
