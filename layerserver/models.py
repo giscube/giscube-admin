@@ -154,7 +154,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
 
     def get_default_popup(self):
         fields = {}
-        for field in self.fields.filter(enabled=True):
+        for field in self.fields.filter(enabled=True).exclude(name=self.geom_field):
             fields[field.name] = field.label or field.name
         return self.get_default_popup_content(fields)
 
@@ -205,11 +205,19 @@ def add_fields(sender, instance, created, **kwargs):
     if instance.list_fields is None or instance.list_fields.strip(' \t\n\r') == '':
         list_fields = list(fields.keys())
         list_fields.sort()
+        try:
+            list_fields.remove(instance.geom_field)
+        except Exception:
+            pass
         instance.list_fields = ','.join(list_fields)
         changes += 1
     if instance.form_fields is None or instance.form_fields.strip(' \t\n\r') == '':
         form_fields = list(fields.keys())
         form_fields.sort()
+        try:
+            form_fields.remove(instance.geom_field)
+        except Exception:
+            pass
         instance.form_fields = ','.join(form_fields)
         changes += 1
     if instance.popup is None or instance.popup.strip(' \t\n\r') == '':
