@@ -235,3 +235,44 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         self.assertEqual(response.status_code, 400)
         result = response.json()
         self.assertTrue('geometry' in result['UPDATE'])
+
+    def test_bulk_update_without_geometry(self):
+        old_geom = list(self.locations[5].geometry.coords)
+        data = {
+            'ADD': [],
+            'UPDATE': [
+                {
+                    'code': self.locations[5].code,
+                    'address': 'C/ Martí 5, Girona'
+                }
+            ],
+            'DELETE': []
+        }
+        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 204)
+        obj = self.Location.objects.get(code=self.locations[5].code)
+        self.assertEqual(old_geom, list(obj.geometry.coords))
+        self.assertEqual(obj.address, 'C/ Martí 5, Girona')
+
+    def test_bulk_update_without_geometry_geojson(self):
+        old_geom = list(self.locations[5].geometry.coords)
+        data = {
+            'ADD': [],
+            'UPDATE': [
+                {
+                    'type': 'Feature',
+                    'id': self.locations[5].code,
+                    'properties': {
+                        'address': 'C/ Manel 5, Girona'
+                    }
+                }
+            ],
+            'DELETE': []
+        }
+        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 204)
+        obj = self.Location.objects.get(code=self.locations[5].code)
+        self.assertEqual(old_geom, list(obj.geometry.coords))
+        self.assertEqual(obj.address, 'C/ Manel 5, Girona')
