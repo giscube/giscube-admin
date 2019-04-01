@@ -108,6 +108,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.OrderingFilter,)
     lookup_url_kwarg = 'pk'
     _fields = {}
+    readonly_fields = []
 
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
@@ -116,6 +117,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self.pagination_class = self.get_pagination_class(self.layer)
         self.filter_fields = []
         self._fields = {}
+        self.readonly_fields = []
         only_fields = self.request.GET.get('fields', None)
         if only_fields is not None:
             only_fields = only_fields.split(',') + [self.layer.pk_field, self.layer.geom_field]
@@ -127,6 +129,8 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
             self._fields[field.name] = {
                 'fullsearch': field.fullsearch
             }
+            if field.readonly is True:
+                self.readonly_fields.append(field.name)
         lookup_field_value = kwargs.get(self.lookup_url_kwarg)
         defaults = {}
         defaults[self.lookup_field] = lookup_field_value
@@ -195,7 +199,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self, *args, **kwargs):
         return create_dblayer_serializer(
-            self.model, list(self._fields.keys()), self.lookup_field)
+            self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
 
     # def delete_multiple(self, request, *args, **kwargs):
     #     queryset = self.filter_queryset(self.get_queryset())
@@ -223,6 +227,7 @@ class DBLayerContentBulkViewSet(views.APIView):
         self.original_updated_objects = {}
         self.updated_objects = []
         self.user_assets = []
+        self.readonly_fields = []
 
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
@@ -232,6 +237,8 @@ class DBLayerContentBulkViewSet(views.APIView):
         self._fields = {}
         for field in self.layer.fields.filter(enabled=True):
             self._fields[field.name] = {}
+            if field.readonly is True:
+                self.readonly_fields.append(field.name)
         return super(DBLayerContentBulkViewSet,
                      self).dispatch(
                          request, *args, **kwargs)
@@ -301,7 +308,7 @@ class DBLayerContentBulkViewSet(views.APIView):
     def add(self, items):
         self.apply_widgets(items)
         Serializer = create_dblayer_serializer(
-            self.model, list(self._fields.keys()), self.lookup_field)
+            self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
         add_serializers = []
         for i, item in enumerate(items):
             serializer = Serializer(data=item)
@@ -343,7 +350,7 @@ class DBLayerContentBulkViewSet(views.APIView):
     def update(self, items):
         self.apply_widgets(items)
         Serializer = create_dblayer_serializer(
-            self.model, list(self._fields.keys()), self.lookup_field)
+            self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
         update_serializers = []
         for i, item in enumerate(items):
             filter = {}
