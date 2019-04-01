@@ -265,6 +265,7 @@ class DataBaseLayerField(models.Model):
     search = models.BooleanField(default=True)
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
+    readonly = models.BooleanField(default=False)
     widget = models.CharField(max_length=25, blank=False,
                               choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
     widget_options = models.TextField(null=True, blank=True)

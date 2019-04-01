@@ -123,7 +123,7 @@ def apply_widgets(attrs, model, fields):
             attrs[field] = to_image_field(field, f)
 
 
-def create_dblayer_serializer(model, fields, id_field):
+def create_dblayer_serializer(model, fields, id_field, read_only_fields):
     if id_field is None or id_field == '':
         id_field = id
 
@@ -156,11 +156,14 @@ def create_dblayer_serializer(model, fields, id_field):
 
     if len(fields) > 0:
         setattr(attrs['Meta'], 'fields', fields_to_serialize)
+    if len(read_only_fields) > 0:
+        setattr(attrs['Meta'], 'read_only_fields', read_only_fields)
 
     apply_widgets(attrs, model, fields)
     serializer = type(str('%s_serializer') % str(model._meta.db_table),
                       (UndoSerializerMixin, Geom4326Serializer,), attrs)
 
+    print(serializer.Meta)
     return serializer
 
 
