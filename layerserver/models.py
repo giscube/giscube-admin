@@ -127,7 +127,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
 
     table = models.CharField(max_length=255)
     pk_field = models.CharField(max_length=255, blank=False, null=False)
-    geom_field = models.CharField(max_length=255, blank=True, null=False)
+    geom_field = models.CharField(max_length=255, blank=False, null=False)
     srid = models.IntegerField(default=4326, blank=False)
     page_size = models.IntegerField(blank=True, null=True,
                                     help_text=_('Default value is %(page_size)s. Value 0 disables pagination.')
