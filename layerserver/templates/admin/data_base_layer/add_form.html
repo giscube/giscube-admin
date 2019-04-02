@@ -6,3 +6,62 @@
 <input type="submit" value="{% trans 'Save and continue editing' %}" name="_continue" />
 </div>
 {% endblock %}
+{% block admin_change_form_document_ready %}{{ block.super }}
+<script type="text/javascript">
+(function ($){
+	$(document).ready(function(){
+		var table_name = function(data){
+			var name = '';
+			if (data['f_table_schema'] != ""){
+				name += '"'+ data['f_table_schema'] +'".';
+			}
+			name += '"'+ data['f_table_name'] + '"';
+			return name;
+		}
+		var geometry_columns_data = function(callback){
+	        var url = '{% url 'admin:giscube_dbconnection_changelist' %}' + $("#id_db_connection").val() + '/geometry_columns';
+			var options = $("#id_geometry_columns");
+			$.getJSON(url, function(data){
+				options.data('geometry_columns', data);
+				if(typeof callback !== "undefined"){
+					callback();
+				}
+			});
+		}
+		var id_db_connection_changed = function(){
+			geometry_columns_data(function(){
+				var options = $("#id_geometry_columns");
+				options.html('');
+				options.append($("<option />").val('').text('--'));
+				$.each(options.data('geometry_columns'), function(i, item) {
+					options.append($("<option />").val(i).text(item['label']));
+				});
+			});
+		}
+		geometry_columns_data();
+		$('#id_db_connection').change(id_db_connection_changed);
+		$('#id_geometry_columns').change(function(){
+			var slug = '';
+			var name = '';
+			var table = '';
+			var srid = '';
+			var geom_field = '';
+			var idx = $(this).val();
+			if (idx != ''){
+				var data = $("#id_geometry_columns").data('geometry_columns')[$(this).val()];
+				name = data['f_table_name'];
+				table = table_name(data);
+				geom_field = data['f_geometry_column'];
+				srid = data['srid'];
+			}
+			$("#id_slug").val(name);
+			$("#id_name").val(name);
+			$("#id_table").val(table);
+			$("#id_geom_field").val(geom_field);
+			$("#id_srid").val(srid);
+
+		});
+	});
+})(django.jQuery);
+</script>
+{% endblock %}

@@ -6,6 +6,7 @@ import uuid
 from django.db import connections, models
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
 
 
@@ -103,6 +104,22 @@ class DBConnection(models.Model):
         if engine == 'django.contrib.gis.db.backends.postgis':
             engine = 'giscube.db.backends.postgis'
         return engine
+
+    def geometry_columns(self):
+        rows = []
+        conn = self.get_connection()
+        GeometryColumns = conn.ops.geometry_columns()
+        qs = GeometryColumns.objects.using(self.connection_name()).all()
+        for column in qs:
+            row = model_to_dict(column)
+            label = ''
+            if row['f_table_schema'] != '':
+                label = '"%s".' % row['f_table_schema']
+            label = '%s"%s"."%s" (%s, %s)' % (
+                label, row['f_table_name'], row['f_geometry_column'], row['type'], row['srid'])
+            row['label'] = label
+            rows.append(row)
+        return rows
 
     def fetchall(self, sql):
         rows = []

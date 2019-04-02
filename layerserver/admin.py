@@ -144,8 +144,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'slug', 'name', 'table', 'geom_field',
-                       'srid')
+            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid')
         }),
     )
     tabs = None
@@ -237,3 +236,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         defaults.update(kwargs)
         return super(
             DataBaseLayerAdmin, self).get_form(request, obj, **defaults)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        pass
+        from django.contrib.admin.options import IS_POPUP_VAR
+
+        if '_addanother' not in request.POST and IS_POPUP_VAR not in request.POST:
+            request.POST = request.POST.copy()
+            request.POST['_continue'] = 1
+        return super().response_add(request, obj, post_url_continue)
