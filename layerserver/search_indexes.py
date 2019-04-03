@@ -1,6 +1,7 @@
 import json
 from haystack import indexes
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 from layerserver.models import GeoJsonLayer, DataBaseLayer
 
@@ -25,9 +26,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_children(self, obj):
         children = []
-        url = '%s/layerserver/geojsonlayers/%s/' % (
-            settings.GISCUBE_URL, obj.name)
-
+        url = '%s%s' % (settings.GISCUBE_URL, reverse('geojsonlayer', kwargs={'layer_name': obj.name}))
         children.append({
             'title': _('GeoJSON Layer'),
             'group': False,
