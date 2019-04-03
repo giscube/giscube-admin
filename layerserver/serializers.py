@@ -163,7 +163,6 @@ def create_dblayer_serializer(model, fields, id_field, read_only_fields):
     serializer = type(str('%s_serializer') % str(model._meta.db_table),
                       (UndoSerializerMixin, Geom4326Serializer,), attrs)
 
-    print(serializer.Meta)
     return serializer
 
 
