@@ -60,7 +60,7 @@ class ApiUserAssetsTests(BaseTest):
         self.assertTrue(parts[-1] in files)
         self.assertTrue(parts[-2] in list(assets.keys()))
         response = self.client.get(file['url'])
-        file_name = file['url'].split('/')[-1]
+        file_name = file['url'].split('/')[-1].split('?')[0]
         self.assertTrue(file['file'].startswith('media://user/assets/%s/' % self.superuser.pk))
         self.assertTrue(file['file'].endswith(file_name))
 
@@ -75,7 +75,7 @@ class ApiUserAssetsTests(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         file = response.data
         response = self.client.get(file['url'])
-        file_name = file['url'].split('/')[-1]
+        file_name = file['url'].split('/')[-1].split('?')[0]
         folder = UserAsset.objects.first().uuid
         self.assertEqual(file['file'], 'media://user/assets/%s/%s/%s' % (self.superuser.pk, folder, file_name))
 
@@ -117,10 +117,10 @@ class ApiUserAssetsTests(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         c = Client()
-        response = c.get(url_file)
+        response = c.get(url_file.split('?')[0])
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        response = c.get('%s?access_token=%s' % (url_file, self.token))
+        response = c.get(url_file)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.client.logout()
