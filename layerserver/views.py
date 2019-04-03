@@ -15,6 +15,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.core.files.uploadedfile import UploadedFile
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
@@ -138,8 +140,6 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
                          request, *args, **kwargs)
 
     def bbox2wkt(self, bbox, srid):
-        from django.contrib.gis.geos import GEOSGeometry
-        from django.contrib.gis.gdal import SpatialReference, CoordTransform
         bbox = bbox.split(',')
         minx, miny, maxx, maxy = tuple(bbox)
         wkt = ('SRID=4326;'
@@ -154,13 +154,25 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
             geom.transform(trans)
         return geom
 
+    def transform_wkt(self, wkt, srid):
+        geom = GEOSGeometry(wkt, srid=4326)
+        if srid != 4326:
+            srs_to = SpatialReference(srid)
+            srs_4326 = SpatialReference(4326)
+            trans = CoordTransform(srs_4326, srs_to)
+            geom.transform(trans)
+        return geom
+
     def _geom_filters(self, qs):
-        if self.layer.geom_field and 'in_bbox' in self.request.GET:
-            in_bbox = self.request.query_params.get('in_bbox', None)
-            if in_bbox:
-                poly__bboverlaps = '%s__bboverlaps' % self.layer.geom_field
-                qs = qs.filter(**{poly__bboverlaps: self.bbox2wkt(
-                    in_bbox, self.layer.srid)})
+        in_bbox = self.request.query_params.get('in_bbox', None)
+        if in_bbox:
+            poly__bboverlaps = '%s__bboverlaps' % self.layer.geom_field
+            qs = qs.filter(**{poly__bboverlaps: self.bbox2wkt(
+                in_bbox, self.layer.srid)})
+        intersects = self.request.query_params.get('intersects', None)
+        if intersects:
+            poly__intersects = '%s__intersects' % self.layer.geom_field
+            qs = qs.filter(**{poly__intersects: self.transform_wkt(intersects, self.layer.srid)})
         return qs
 
     def _fullsearch_filters(self, qs):
