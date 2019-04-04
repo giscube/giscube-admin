@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
-from collections import OrderedDict
-
 from django.db import transaction
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.files.uploadedfile import UploadedFile
-
+from django.urls import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
@@ -75,6 +70,17 @@ class UndoSerializerMixin(object):
         return super(UndoSerializerMixin, self).save(**kwargs)
 
 
+class AccessTokenMixin(object):
+    def append_token(self, url):
+        token = None
+        auth = getattr(self.context['request'], 'auth', None)
+        if hasattr(auth, 'token'):
+            token = self.context['request'].auth.token
+        if token:
+            url = '%s?access_token=%s' % (url, token)
+        return url
+
+
 SERIALIZER_ID_FIELD_MAPPING = {
     models.AutoField: serializers.IntegerField,
     models.BigIntegerField: serializers.IntegerField,
@@ -96,13 +102,38 @@ SERIALIZER_ID_FIELD_MAPPING = {
 class ImageWithThumbnailFieldSerializer(serializers.FileField):
     def to_representation(self, value):
         if value:
-            res = {
-                'src': value.storage.url(value.name)
-            }
-            thumbnail = value.storage.get_thumbnail(value.name)
-            if thumbnail:
-                res['thumbail'] = thumbnail['url']
-            return res
+            attribute = self.field_name
+            instance = self.parent.instance
+            image_options = getattr(instance, attribute).field.widget_options
+
+            if 'base_url' in image_options and image_options['base_url'] is not None:
+                if value:
+                    res = {
+                        'src': value.storage.url(value.name)
+                    }
+                    thumbnail = value.storage.get_thumbnail(value.name)
+                    if thumbnail:
+                        res['thumbnail'] = thumbnail['url']
+                    return res
+            else:
+                layer = instance.get_layer()
+                slug = layer.slug
+                pk = getattr(instance, layer.pk_field)
+                kwargs = {'layer_slug': slug, 'pk': pk, 'attribute': attribute,
+                          'path': value.storage.url(value.name)}
+                url = reverse('content-detail-file-value', kwargs=kwargs)
+                url = self.parent.append_token(self.context['request'].build_absolute_uri(url))
+                res = {
+                    'src': url
+                }
+                thumbnail = value.storage.get_thumbnail(value.name)
+                if thumbnail:
+                    kwargs = {'layer_slug': slug, 'pk': pk, 'attribute': attribute,
+                              'path': thumbnail['path']}
+                    url = reverse('content-detail-thumbnail-value', kwargs=kwargs)
+                    url = self.context['request'].build_absolute_uri(url)
+                    res['thumbnail'] = self.parent.append_token(url)
+                return res
 
 
 def to_image_field(field_name, field):
@@ -161,7 +192,7 @@ def create_dblayer_serializer(model, fields, id_field, read_only_fields):
 
     apply_widgets(attrs, model, fields)
     serializer = type(str('%s_serializer') % str(model._meta.db_table),
-                      (UndoSerializerMixin, Geom4326Serializer,), attrs)
+                      (UndoSerializerMixin, AccessTokenMixin, Geom4326Serializer,), attrs)
 
     return serializer
 

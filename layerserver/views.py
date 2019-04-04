@@ -9,7 +9,7 @@ import os
 from operator import __or__ as OR
 
 from django.http import (
-    HttpResponseForbidden, HttpResponseServerError, FileResponse
+    HttpResponseForbidden, HttpResponseServerError, FileResponse, Http404
 )
 from django.db import transaction
 from django.db.models import Q
@@ -20,9 +20,11 @@ from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.core.files.uploadedfile import UploadedFile
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
+from django.utils.cache import patch_response_headers
 from django.utils.functional import cached_property
 
 from rest_framework import filters, parsers, status, views, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from giscube.models import UserAsset
@@ -215,6 +217,41 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     #     queryset = self.filter_queryset(self.get_queryset())
     #     queryset.delete()
     #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['get'])
+    def file_value(self, request, layer_slug, *args, **kwargs):
+        attribute = kwargs['attribute']
+        if attribute not in list(self._fields.keys()):
+            raise Http404
+        filter = {
+            self.layer.pk_field: kwargs[self.layer.pk_field],
+        }
+        obj = get_object_or_404(self.model, **filter)
+        file = getattr(obj, attribute)
+        full_path = file.path
+        fd = open(full_path, 'rb')
+        file_mime = mimetypes.guess_type(file.name.split('/')[-1])
+        response = FileResponse(fd, content_type=file_mime)
+        patch_response_headers(response, cache_timeout=60 * 60 * 24 * 7)
+        return response
+
+    @action(detail=True, methods=['get'])
+    def thumbnail_value(self, request, layer_slug, *args, **kwargs):
+        attribute = kwargs['attribute']
+        if attribute not in list(self._fields.keys()):
+            raise Http404
+        filter = {
+            self.pk_field: kwargs[self.pk_field],
+        }
+        obj = get_object_or_404(self.model, **filter)
+        file = getattr(obj, attribute)
+        thumbnail = file.storage.get_thumbnail(file.name)
+        full_path = thumbnail['path']
+        fd = open(full_path, 'rb')
+        file_mime = mimetypes.guess_type(file.name.split('/')[-1])
+        response = FileResponse(fd, content_type=file_mime)
+        patch_response_headers(response, cache_timeout=60 * 60 * 24 * 7)
+        return response
 
     class Meta:
         filter_overrides = ['geom']
