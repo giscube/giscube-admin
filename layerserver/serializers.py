@@ -254,6 +254,10 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             'form_fields': obj.form_fields,
             'popup': obj.popup
             }
+        data['pagination'] = {
+            'page_size': obj.get_page_size(),
+            'max_page_size': obj.get_max_page_size()
+            }
         Layer = create_dblayer_model(obj)
         data['geom_type'] = None
         if obj.geom_field is not None:
