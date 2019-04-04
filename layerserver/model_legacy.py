@@ -165,12 +165,25 @@ def get_fields(connection, table_name):
 
 
 class ImageWithThumbnailField(models.FileField):
-    pass
+    widget_options = None
+
+    def __init__(self, *args, **kwargs):
+        self.widget_options = kwargs.pop('widget_options')
+        StorageKlass = get_thumbnail_storage_klass()
+        storage = StorageKlass(
+            location=self.widget_options['upload_root'],
+            base_url=self.widget_options.get('base_url', None),
+            thumbnail_location=self.widget_options.get('thumbnail_root', None),
+            thumbnail_base_url=self.widget_options.get('thumbnail_base_url', None),
+            thumbnail_width=self.widget_options.get('thumbnail_width', settings.LAYERSERVER_THUMBNAIL_WIDTH),
+            thumbnail_height=self.widget_options.get('thumbnail_height', settings.LAYERSERVER_THUMBNAIL_HEIGHT)
+        )
+        kwargs['storage'] = storage
+        super().__init__(*args, **kwargs)
+        self.validators = []
 
 
 def to_image_field(field, original_field):
-    widget_options = json.loads(field.widget_options)
-    StorageKlass = get_thumbnail_storage_klass()
     options = {
         'validators': [],
         'blank': original_field.blank,
@@ -183,18 +196,9 @@ def to_image_field(field, original_field):
         'default': original_field.default,
         'editable': original_field.editable,
         'max_length': original_field.max_length,
-        'storage': StorageKlass(
-            location=widget_options['upload_root'],
-            base_url=widget_options['base_url'],
-            thumbnail_location=widget_options.get('thumbnail_root', None),
-            thumbnail_base_url=widget_options.get('thumbnail_base_url', None),
-            thumbnail_width=widget_options.get('thumbnail_width', settings.LAYERSERVER_THUMBNAIL_WIDTH),
-            thumbnail_height=widget_options.get('thumbnail_height', settings.LAYERSERVER_THUMBNAIL_HEIGHT)
-            )
+        'widget_options': json.loads(field.widget_options)
     }
-    a = ImageWithThumbnailField(**options)
-    a.validators = []
-    return a
+    return ImageWithThumbnailField(**options)
 
 
 def apply_widgets(layer, fields):
@@ -217,9 +221,14 @@ def create_dblayer_model(layer):
         verbose_name = layer.name
         ordering = [layer.pk_field]
 
+    @staticmethod
+    def get_layer():
+        return layer
+
     attrs = {
         '__module__': 'layerserver_databaselayer',
         'Meta': Meta,
+        'get_layer': get_layer,
         'databaselayer_db_connection': layer.db_connection.connection_name(
             schema=table_schema)
     }
