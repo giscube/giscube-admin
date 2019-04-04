@@ -265,7 +265,6 @@ class DBLayerContentBulkViewSet(views.APIView):
     permission_classes = (BulkDBLayerIsValidUser,)
     queryset = []
     model = None
-    lookup_url_kwarg = 'pk'
 
     def __init__(self, *args, **kwargs):
         self._fields = {}
