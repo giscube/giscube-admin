@@ -42,7 +42,6 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
         self.layer = layer
 
         self.layer.fields.filter(name='address').update(readonly=True)
-        print(self.layer.fields.filter(name='address').first().__dict__)
 
         self.locations = []
         Location = create_dblayer_model(layer)
