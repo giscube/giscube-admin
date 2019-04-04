@@ -61,7 +61,7 @@ class ThumbnailFileSystemStorageMixin(object):
 
     def save_thumbnail(self, file_name):
         """
-        Save the thumbail into storage
+        Save the thumbnail into storage
         """
         storage_thumbnail = self.get_thumbnail_storage()
         result = self._save_thumbnail(file_name)
