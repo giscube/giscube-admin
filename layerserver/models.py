@@ -129,6 +129,7 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
     pk_field = models.CharField(max_length=255, blank=False, null=False)
     geom_field = models.CharField(max_length=255, blank=False, null=False)
     srid = models.IntegerField(default=4326, blank=False)
+    allow_page_size_0 = models.BooleanField(_('Allow page_size=0 (Disables pagination)'), default=False)
     page_size = models.IntegerField(blank=True, null=True,
                                     help_text=_('Default value is %(page_size)s. Value 0 disables pagination.')
                                     % {'page_size': settings.LAYERSERVER_PAGE_SIZE})
@@ -157,6 +158,12 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
         for field in self.fields.filter(enabled=True).exclude(name=self.geom_field):
             fields[field.name] = field.label or field.name
         return self.get_default_popup_content(fields)
+
+    def get_page_size(self):
+            return self.page_size if self.page_size else settings.LAYERSERVER_PAGE_SIZE
+
+    def get_max_page_size(self):
+            return self.max_page_size if self.max_page_size else settings.LAYERSERVER_MAX_PAGE_SIZE
 
     def __str__(self):
         return self.name
