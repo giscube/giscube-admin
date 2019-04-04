@@ -51,7 +51,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         layer.name = 'tests_testimagefield'
         layer.table = 'tests_testimagefield'
         layer.pk_field = 'code'
-        layer.geometry_field = 'geometry'
+        layer.geom_field = 'geometry'
         layer.anonymous_view = True
         layer.anonymous_add = True
         layer.anonymous_update = True

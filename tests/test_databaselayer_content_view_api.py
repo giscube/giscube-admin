@@ -32,7 +32,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         layer.name = 'tests_location'
         layer.table = 'tests_location'
         layer.pk_field = 'id'
-        layer.geometry_field = 'geometry'
+        layer.geom_field = 'geometry'
         layer.save()
         self.layer = layer
 
