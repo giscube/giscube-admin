@@ -117,7 +117,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertEqual(
             result['properties']['image']['src'], '%s%s' % (self.base_url, 'giscube_01.png'))
         self.assertEqual(
-            result['properties']['image']['thumbail'], '%s%s.thumbnail.png' % (
+            result['properties']['image']['thumbnail'], '%s%s.thumbnail.png' % (
                 self.thumbnail_base_url, 'giscube_01.png'))
 
     def test_update_image(self):
