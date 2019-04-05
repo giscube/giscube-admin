@@ -99,6 +99,19 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             i += 1
         return test_files
 
+    def test_empty_imge_url(self):
+        Model = create_dblayer_model(self.layer)
+        test_model = Model()
+        test_model.code = 'B%s' % 1
+        test_model.geometry = 'POINT (%s 10)' % 1
+        test_model.save()
+
+        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        response = self.client.get(url)
+        result = response.json()
+        item = result['features'][0]
+        self.assertEqual(item['properties']['image'], None)
+
     def test_urls(self):
         self.login_test_user()
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
