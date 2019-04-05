@@ -89,6 +89,9 @@ class ImageWithThumbnailSerializer(object):
     def fix_image_value(self, obj, attribute):
         image_options = getattr(obj, attribute).field.widget_options
         value = getattr(obj, attribute)
+        if value is None or value.name is None or value.name.strip() == '':
+            return None
+
         if 'base_url' in image_options and image_options['base_url'] is not None:
             if value:
                 res = {
