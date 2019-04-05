@@ -183,8 +183,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         ('Anonymous user', {
             'fields': [
-                'anonymous_view', 'anonymous_add', 'anonymous_update',
-                'anonymous_delete'
+                ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
             ],
             'classes': ('tab-permissions',),
         }),
