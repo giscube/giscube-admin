@@ -121,3 +121,16 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         c = Client()
         response = c.get(result['properties']['image']['thumbnail'])
         self.assertEqual(response.status_code, 200)
+
+        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        response = self.client.get(url)
+        result = response.json()
+        self.assertEqual(response.status_code, 200)
+        for item in result['features']:
+            c = Client()
+            response = c.get(item['properties']['image']['src'])
+            self.assertEqual(response.status_code, 200)
+
+            c = Client()
+            response = c.get(item['properties']['image']['thumbnail'])
+            self.assertEqual(response.status_code, 200)
