@@ -39,7 +39,7 @@ class DBConnection(models.Model):
     alias = models.CharField(max_length=255, null=True, blank=True)
     engine = models.CharField(max_length=255,
                               choices=DB_CONNECTION_ENGINE_CHOICES)
-    name = models.CharField(max_length=100, null=False, blank=False)
+    name = models.CharField(_('Database name'), max_length=100, null=False, blank=False)
     user = models.CharField(max_length=100, null=True, blank=True)
     password = models.CharField(max_length=255, null=True, blank=True)
     host = models.CharField(max_length=100, null=True, blank=True)
