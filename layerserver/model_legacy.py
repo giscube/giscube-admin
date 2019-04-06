@@ -220,6 +220,7 @@ def create_dblayer_model(layer):
         db_table = layer.table
         verbose_name = layer.name
         ordering = [layer.pk_field]
+        managed = False
 
     @staticmethod
     def get_layer():
@@ -232,8 +233,17 @@ def create_dblayer_model(layer):
         'databaselayer_db_connection': layer.db_connection.connection_name(
             schema=table_schema)
     }
-
     fields = get_fields(layer.db_connection.get_connection(schema=table_schema), table)
+
+    # Add primary_key if needed
+    primary_key = None
+    for fied_name, field in list(fields.items()):
+        if getattr(field, 'primary_key'):
+            primary_key = fied_name
+            break
+    if primary_key is None:
+        setattr(fields[layer.pk_field], 'primary_key', True)
+
     apply_widgets(layer, fields)
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid

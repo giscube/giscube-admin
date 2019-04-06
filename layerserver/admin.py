@@ -144,7 +144,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid')
+            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid', 'pk_field')
         }),
     )
     tabs = None
