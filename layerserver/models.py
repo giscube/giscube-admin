@@ -125,8 +125,8 @@ class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
                             unique=True)
     name = models.CharField(max_length=255, blank=False, null=False)
 
-    table = models.CharField(max_length=255)
-    pk_field = models.CharField(max_length=255, blank=False, null=False)
+    table = models.CharField(max_length=255, blank=False, null=False)
+    pk_field = models.CharField(max_length=255, blank=True, null=False)
     geom_field = models.CharField(max_length=255, blank=False, null=False)
     srid = models.IntegerField(default=4326, blank=False)
     allow_page_size_0 = models.BooleanField(_('Allow page_size=0 (Disables pagination)'), default=False)
