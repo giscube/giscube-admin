@@ -140,6 +140,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('slug', 'name', 'table')
     list_display_links = list_display
+    list_display = ('slug', 'name', 'table', 'db_connection')
+    list_display_links = ('slug', 'name', 'table')
+    list_filter = ('db_connection',)
     inlines = []
 
     add_fieldsets = (
