@@ -1,3 +1,5 @@
+from django.db.models.functions import Concat
+
 from rest_framework import viewsets, parsers, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
@@ -11,8 +13,13 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        queryset = Category.objects.all().order_by('name')
-        return queryset
+        qs = Category.objects.all()
+
+        # Sort categories setting parents first
+        qs = qs.annotate(custom_order=Concat('parent__name', 'name'))
+        qs = qs.order_by('custom_order')
+
+        return qs
 
 
 class UserAssetViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
