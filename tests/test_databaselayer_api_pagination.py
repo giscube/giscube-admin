@@ -124,7 +124,7 @@ class DataBaseLayerAPIPaginationTestCase(BaseTest):
         url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
         url = '%s?page_size=0' % url
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
 
         self.layer.allow_page_size_0 = True
         self.layer.save()

@@ -147,7 +147,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid')
+            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid', 'pk_field')
         }),
     )
     tabs = None
@@ -186,8 +186,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         ('Anonymous user', {
             'fields': [
-                'anonymous_view', 'anonymous_add', 'anonymous_update',
-                'anonymous_delete'
+                ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
             ],
             'classes': ('tab-permissions',),
         }),

@@ -9,7 +9,7 @@ import os
 from operator import __or__ as OR
 
 from django.http import (
-    HttpResponseForbidden, HttpResponseServerError, FileResponse, Http404
+    Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseServerError, FileResponse
 )
 from django.db import transaction
 from django.db.models import Q
@@ -96,6 +96,10 @@ class DBLayerDetailViewSet(DBLayerViewSet):
     serializer_class = DBLayerDetailSerializer
 
 
+class PageSize0NotAllowedException(Exception):
+    pass
+
+
 class DBLayerContentViewSet(viewsets.ModelViewSet):
     parser_classes = (parsers.MultiPartParser, parsers.JSONParser)
     permission_classes = (DBLayerIsValidUser,)
@@ -116,7 +120,10 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
-        self.pagination_class = self.get_pagination_class(self.layer)
+        try:
+            self.pagination_class = self.get_pagination_class(self.layer)
+        except PageSize0NotAllowedException:
+            return HttpResponseBadRequest()
         self.filter_fields = []
         self._fields = {}
         self.readonly_fields = []
@@ -203,7 +210,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         page_size = layer.get_page_size()
         max_page_size = layer.get_max_page_size()
         if not layer.allow_page_size_0 and self.request.GET.get('page_size', page_size) == '0':
-            raise Http404()
+            raise PageSize0NotAllowedException()
         if self.request.GET.get('page_size', page_size) != '0':
             return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
 
