@@ -1,3 +1,5 @@
+from django.db.models import F
+
 from rest_framework import viewsets, parsers, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
@@ -11,7 +13,9 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        queryset = Category.objects.all().order_by('name')
+        queryset = Category.objects.all()
+        # Sort categories setting parents first
+        queryset = queryset.order_by(F('parent__name').desc(nulls_last=False), 'name')
         return queryset
 
 
