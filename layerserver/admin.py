@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import transaction
 from django.contrib import admin, messages
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from django_vue_tabs.admin import TabsMixin
@@ -138,13 +140,14 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     autocomplete_fields = ['category']
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('slug', 'name', 'table')
-    list_display_links = list_display
+    list_display = ('slug', 'name', 'table', 'db_connection', 'api_metadata', 'api_data')
+    list_display_links = ('slug', 'name', 'table')
+    list_filter = ('db_connection',)
     inlines = []
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid')
+            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid', 'pk_field')
         }),
     )
     tabs = None
@@ -195,9 +198,19 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
+    def api_data(self, obj):
+        url = reverse('content-list', kwargs={'layer_slug': obj.slug})
+        return format_html('<a href="{url}" targe="_blank">API DATA</a>', url=url)
+    api_data.short_description = 'API DATA'
+
+    def api_metadata(self, obj):
+        url = reverse('layer-detail', kwargs={'slug': obj.slug})
+        return format_html('<a href="{url}" targe="_blank">API METADATA</a>', url=url)
+    api_data.short_description = 'API METADATA'
+
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return self.readonly_fields + ('table', 'geom_field', 'srid')
+            return self.readonly_fields + ('table', 'geom_field', 'srid', 'api_metadata', 'api_data')
         return self.readonly_fields
 
     def add_view(self, request, form_url='', extra_context=None):
