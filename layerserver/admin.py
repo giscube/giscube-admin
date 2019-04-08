@@ -20,10 +20,11 @@ from layerserver.tasks import async_geojsonlayer_refresh
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
+    change_form_template = 'admin/geojson_layer/change_form.html'
     autocomplete_fields = ('category',)
-    list_display = ('name', 'title',)
+    list_display = ('name', 'title', 'url_data')
     search_fields = ('name', 'title', 'keywords')
-    readonly_fields = ('last_fetch_on', 'generated_on',)
+    readonly_fields = ('last_fetch_on', 'generated_on', 'url_data')
     save_as = True
 
     tabs = (
@@ -61,6 +62,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-design',),
         }),
     ]
+
+    def url_data(self, obj):
+        url = reverse('geojsonlayer', kwargs={'layer_name': obj.name})
+        return format_html('<a href="{url}" targe="_blank">URL</a>', url=url)
+    url_data.short_description = 'URL'
 
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
