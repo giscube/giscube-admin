@@ -1,7 +1,5 @@
-from rest_framework import viewsets, parsers, mixins, status
-from rest_framework.authentication import SessionAuthentication
+from rest_framework import viewsets, parsers, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
 
 from .models import Category, UserAsset
 from .serializers import CategorySerializer, UserAssetSerializer
