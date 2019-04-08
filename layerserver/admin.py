@@ -95,8 +95,8 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     ordering = ('name',)
 
     can_delete = False
-    fields = ('enabled', 'readonly', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search', 'fullsearch',
-              'widget', 'widget_options',)
+    fields = ('enabled', 'readonly', 'name', 'label', 'get_type', 'get_size', 'get_decimals', 'get_null', 'search',
+              'fullsearch', 'widget', 'widget_options',)
     readonly_fields = ('name', 'get_type', 'get_size', 'get_decimals', 'get_null')
     classes = ('tab-fields',)
 
@@ -183,8 +183,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         ('Anonymous user', {
             'fields': [
-                'anonymous_view', 'anonymous_add', 'anonymous_update',
-                'anonymous_delete'
+                ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
             ],
             'classes': ('tab-permissions',),
         }),
