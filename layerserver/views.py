@@ -229,7 +229,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         if attribute not in list(self._fields.keys()):
             raise Http404
         filter = {
-            self.layer.pk_field: kwargs[self.layer.pk_field],
+            self.lookup_field: kwargs['pk'],
         }
         obj = get_object_or_404(self.model, **filter)
         file = getattr(obj, attribute)
@@ -246,7 +246,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         if attribute not in list(self._fields.keys()):
             raise Http404
         filter = {
-            self.pk_field: kwargs[self.pk_field],
+            self.lookup_field: kwargs['pk'],
         }
         obj = get_object_or_404(self.model, **filter)
         file = getattr(obj, attribute)
