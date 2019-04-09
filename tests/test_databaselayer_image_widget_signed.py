@@ -47,9 +47,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         os.makedirs(thumbnail_root)
         self.thumbnail_root = thumbnail_root
 
-        self.base_url = 'http://localhost/giscube_media/images/'
-        self.thumbnail_base_url = 'http://localhost/giscube_media/thumbnails/'
-
         layer = DataBaseLayer()
         layer.db_connection = conn
         layer.slug = 'imagefield'
@@ -65,7 +62,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         layer.refresh_from_db()
         field = layer.fields.filter(name='image').first()
         field.widget = DataBaseLayerField.WIDGET_CHOICES.image
-        self.thumbnail_base_url
         options = {
             'upload_root': self.upload_root,
             'thumbnail_root': self.thumbnail_root,
