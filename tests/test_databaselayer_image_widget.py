@@ -60,7 +60,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         layer.refresh_from_db()
         field = layer.fields.filter(name='image').first()
         field.widget = DataBaseLayerField.WIDGET_CHOICES.image
-        self.thumbnail_base_url
         options = {
             'base_url': self.base_url,
             'upload_root': self.upload_root,
