@@ -3,6 +3,9 @@ import os
 import shutil
 import tempfile
 
+from PIL import Image
+from io import BytesIO
+
 from django.core.files import File
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -147,3 +150,17 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             c = Client()
             response = c.get(item['properties']['image']['thumbnail'])
             self.assertEqual(response.status_code, 200)
+
+    def test_thumbnail_size(self):
+        test_files = self.add_test_files(['giscube_01.png'])
+        self.login_test_user()
+        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': test_files[0].code})
+        response = self.client.get(url)
+        result = response.json()
+        url = result['properties']['image']['thumbnail']
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        im = Image.open(BytesIO(b''.join(response.streaming_content)))
+        width, height = im.size
+        self.assertTrue(width <= settings.LAYERSERVER_THUMBNAIL_WIDTH)
+        self.assertTrue(height <= settings.LAYERSERVER_THUMBNAIL_HEIGHT)
