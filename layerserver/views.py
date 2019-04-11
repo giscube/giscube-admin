@@ -37,7 +37,7 @@ from .permissions import DBLayerIsValidUser, BulkDBLayerIsValidUser
 
 from .serializers import (
     DBLayerSerializer, DBLayerDetailSerializer,
-    create_dblayer_serializer
+    create_dblayer_serializer, GeoJSONLayerSerializer
 )
 from .utils import geojsonlayer_check_cache
 from functools import reduce
@@ -46,21 +46,33 @@ from functools import reduce
 logger = logging.getLogger(__name__)
 
 
-def GeoJSONLayerView(request, layer_name):
-    layer = get_object_or_404(GeoJsonLayer, name=layer_name, active=True)
-    if layer.visibility == 'private' and not request.user.is_authenticated:
-        return HttpResponseForbidden()
-    if layer.visibility == 'private' and not request.user.is_authenticated:
-        return HttpResponseForbidden()
+class GeoJSONLayerViewSet(viewsets.ReadOnlyModelViewSet):
+    lookup_field = 'name'
+    permission_classes = ()
+    queryset = []
+    model = GeoJsonLayer
+    serializer_class = GeoJSONLayerSerializer
 
-    if layer and layer.data_file:
-        path = layer.get_data_file_path()
-        if os.path.isfile(path):
-            geojsonlayer_check_cache(layer)
-            return FileResponse(open(path, 'rb'))
+    def get_queryset(self, *args, **kwargs):
+        qs = self.model.objects.filter(active=True)
 
-    error = {'error': 'DATA_FILE_NOT_FOUND'}
-    return HttpResponseServerError(json.dumps(error))
+        if type(self.request.user) is AnonymousUser:
+            qs = qs.exclude(visibility='private')
+        return qs
+
+    def retrieve(self, request, name):
+        layer = self.get_queryset().filter(name=name).first()
+        if layer is None:
+            raise Http404
+
+        if layer and layer.data_file:
+            path = layer.get_data_file_path()
+            if os.path.isfile(path):
+                geojsonlayer_check_cache(layer)
+                return FileResponse(open(path, 'rb'))
+
+        error = {'error': 'DATA_FILE_NOT_FOUND'}
+        return HttpResponseServerError(json.dumps(error))
 
 
 class DBLayerViewSet(viewsets.ModelViewSet):

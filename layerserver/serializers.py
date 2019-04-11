@@ -6,9 +6,15 @@ from django.urls import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
-from layerserver.models import DataBaseLayer, DataBaseLayerReference
+from layerserver.models import DataBaseLayer, DataBaseLayerReference, GeoJsonLayer
 from layerserver.model_legacy import create_dblayer_model
 from .serializers_dblayer_field import DBLayerFieldSerializer
+
+
+class GeoJSONLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GeoJsonLayer
+        fields = ['name', 'title']
 
 
 class Geom4326Serializer(GeoFeatureModelSerializer):
