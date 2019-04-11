@@ -24,12 +24,13 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        queryset = queryset.prefetch_related('parent')
         queryset = queryset.annotate(custom_order=Concat('parent__name', 'name'))
         queryset = queryset.order_by('custom_order')
         return queryset, use_distinct
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
+        queryset = super().get_queryset(request).prefetch_related('parent')
         queryset = queryset.annotate(custom_order=Concat('parent__name', 'name'))
         queryset = queryset.order_by('custom_order')
         return queryset

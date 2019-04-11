@@ -241,6 +241,21 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
         fields = ['title', 'url']
 
 
+def style_representation(obj):
+    res = {'shapetype': obj.shapetype}
+    fields = {
+        'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
+        'line': ['stroke_color', 'stroke_width', 'stroke_dash_array'],
+        'polygon': ['stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
+        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+                   'fill_opacity'],
+    }
+    if obj.shapetype in fields:
+        for attr in fields[obj.shapetype]:
+            res[attr] = getattr(obj, attr)
+    return res
+
+
 class DBLayerDetailSerializer(serializers.ModelSerializer):
     # TODO: serialize category
     fields = DBLayerFieldSerializer(many=True, read_only=True)
@@ -249,15 +264,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super(
             DBLayerDetailSerializer, self).to_representation(obj)
-        data['style'] = {
-                    'shapetype': obj.shapetype,
-                    'shape_radius': obj.shape_radius,
-                    'stroke_color': obj.stroke_color,
-                    'stroke_width': obj.stroke_width,
-                    'stroke_dash_array': obj.stroke_dash_array,
-                    'fill_color': obj.fill_color,
-                    'fill_opacity': obj.fill_opacity
-            }
+        data['style'] = style_representation(obj)
         data['design'] = {
             'list_fields': obj.list_fields,
             'form_fields': obj.form_fields,

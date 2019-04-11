@@ -66,3 +66,18 @@ class GeoportalSearchView(ResultsMixin, View):
     def get(self, request):
         sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q', '')))
         return self.format_results(sqs)
+
+
+class GeoportalCategoryView(View):
+    def get(self, request):
+        sqs = SearchQuerySet().filter(django_ct='giscube.category')
+        sqs = sqs.order_by('name')
+
+        results = []
+        for r in sqs.all():
+            results.append({
+                'id': int(r.pk),
+                'name': r.name,
+                'parent': r.parent,
+            })
+        return HttpResponse(json.dumps(results), content_type='application/json')
