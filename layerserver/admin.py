@@ -20,7 +20,7 @@ from layerserver.tasks import async_geojsonlayer_refresh
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
-    change_form_template = 'admin/geojson_layer/change_form.html'
+    change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category',)
     list_display = ('name', 'title', 'url_data')
     search_fields = ('name', 'title', 'keywords')
@@ -52,8 +52,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'shape_radius', 'stroke_color', 'stroke_width',
-                'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('fieldset-style',),
         }),
@@ -141,8 +141,8 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
 
 @admin.register(DataBaseLayer)
 class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
-    add_form_template = 'admin/data_base_layer/add_form.html'
-    change_form_template = 'admin/data_base_layer/change_form.html'
+    add_form_template = 'admin/layerserver/database_layer/add_form.html'
+    change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
     autocomplete_fields = ['category']
     prepopulated_fields = {'slug': ('name',)}
@@ -185,8 +185,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'shape_radius', 'stroke_color', 'stroke_width',
-                'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
@@ -206,12 +206,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     def api_data(self, obj):
         url = reverse('content-list', kwargs={'layer_slug': obj.slug})
-        return format_html('<a href="{url}" targe="_blank">API DATA</a>', url=url)
+        return format_html('<a href="{url}" target="_blank">API DATA</a>', url=url)
     api_data.short_description = 'API DATA'
 
     def api_metadata(self, obj):
         url = reverse('layer-detail', kwargs={'slug': obj.slug})
-        return format_html('<a href="{url}" targe="_blank">API METADATA</a>', url=url)
+        return format_html('<a href="{url}" target="_blank">API METADATA</a>', url=url)
     api_data.short_description = 'API METADATA'
 
     def get_readonly_fields(self, request, obj=None):
