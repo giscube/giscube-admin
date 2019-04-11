@@ -14,7 +14,7 @@ SHAPE_TYPES_CHOICES = [
     ('marker', _('Marker')),
     ('line', _('Line')),
     ('polygon', _('Polygon')),
-    ('Circle', _('Circle'))
+    ('circle', _('Circle'))
 ]
 
 
