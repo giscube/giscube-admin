@@ -206,12 +206,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     def api_data(self, obj):
         url = reverse('content-list', kwargs={'layer_slug': obj.slug})
-        return format_html('<a href="{url}" targe="_blank">API DATA</a>', url=url)
+        return format_html('<a href="{url}" target="_blank">API DATA</a>', url=url)
     api_data.short_description = 'API DATA'
 
     def api_metadata(self, obj):
         url = reverse('layer-detail', kwargs={'slug': obj.slug})
-        return format_html('<a href="{url}" targe="_blank">API METADATA</a>', url=url)
+        return format_html('<a href="{url}" target="_blank">API METADATA</a>', url=url)
     api_data.short_description = 'API METADATA'
 
     def get_readonly_fields(self, request, obj=None):
