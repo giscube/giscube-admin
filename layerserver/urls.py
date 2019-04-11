@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from .views import (
+from .api import (
     DBLayerDetailViewSet, DBLayerContentViewSet, DBLayerContentBulkViewSet, DBLayerViewSet, GeoJSONLayerViewSet)
 
 
