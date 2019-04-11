@@ -55,8 +55,11 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
     'loginas',
-    'django_celery_monitor',
+    'django_celery_results',
 ]
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
 
 if not GISCUBE_IMAGE_SERVER_DISABLED:
     INSTALLED_APPS += ['imageserver']
