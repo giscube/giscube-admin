@@ -7,6 +7,7 @@ from django.urls import re_path
 
 from django_vue_tabs.admin import TabsMixin
 
+from .admin_forms import DBConnectionForm
 from .models import Category, DBConnection, Server
 
 
@@ -38,6 +39,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(DBConnection)
 class DBConnectionAdmin(TabsMixin, admin.ModelAdmin):
+    form = DBConnectionForm
 
     def get_urls(self):
         urls = super().get_urls()
