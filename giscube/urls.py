@@ -59,7 +59,8 @@ if not settings.GISCUBE_GEOPORTAL_DISABLED:
 
 if not settings.GISCUBE_LAYERSERVER_DISABLED:
     urlpatterns += [
-        path('layerserver/', include('layerserver.urls'))
+        path('layerserver/', include('layerserver.urls')),
+        path('admin/api/v1/layerserver/', include('layerserver.admin_api_urls'))
     ]
 
 # try:

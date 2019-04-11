@@ -64,8 +64,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     ]
 
     def url_data(self, obj):
-        url = reverse('geojsonlayer', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" targe="_blank">URL</a>', url=url)
+        url = reverse('admin-api-geojsonlayer-detail', kwargs={'name': obj.name})
+        return format_html('<a href="{url}" target="_blank">URL</a>', url=url)
     url_data.short_description = 'URL'
 
     def save_model(self, request, obj, form, change):
@@ -205,12 +205,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     ]
 
     def api_data(self, obj):
-        url = reverse('content-list', kwargs={'layer_slug': obj.slug})
+        url = reverse('admin-api-layer-content-list', kwargs={'layer_slug': obj.slug})
         return format_html('<a href="{url}" target="_blank">API DATA</a>', url=url)
     api_data.short_description = 'API DATA'
 
     def api_metadata(self, obj):
-        url = reverse('layer-detail', kwargs={'slug': obj.slug})
+        url = reverse('admin-api-layer-detail', kwargs={'slug': obj.slug})
         return format_html('<a href="{url}" target="_blank">API METADATA</a>', url=url)
     api_data.short_description = 'API METADATA'
 
