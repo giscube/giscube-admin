@@ -146,6 +146,8 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertFalse(os.path.exists(image_path))
 
     def test_bulk_images(self):
+        self.login_test_user()
+
         Model = create_dblayer_model(self.layer)
         test_files = self.add_test_files(['giscube_01.png', 'bad name.jpg', 'giscube_02.png', 'giscube_03.png'])
 
@@ -154,8 +156,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertTrue(os.path.exists(thumbnail['path']))
         self.assertEqual('%s%s' % (self.thumbnail_base_url, 'bad_name.jpg.thumbnail.png'), thumbnail['url'])
 
-        UserModel.objects.create_user('user', '', 'user')
-        self.client.login(username='user', password='user')
         url = reverse('user_assets-list')
         files = ['2210571.jpg', 'giscube_01.png']
         assets = {}
@@ -229,10 +229,10 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertEqual(UserAsset.objects.all().count(), 0)
 
     def test_bulk_undo_create(self):
+        self.login_test_user()
+
         Model = create_dblayer_model(self.layer)
 
-        UserModel.objects.create_user('user', '', 'user')
-        self.client.login(username='user', password='user')
         url = reverse('user_assets-list')
         files = ['2210571.jpg', 'giscube_01.png']
         assets = {}
@@ -277,6 +277,8 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertEqual(UserAsset.objects.all().count(), len(list(assets.keys())))
 
     def test_bulk_undo_update(self):
+        self.login_test_user()
+
         Model = create_dblayer_model(self.layer)
         files = ['giscube_01.png', 'bad name.jpg']
         test_files = []
@@ -292,8 +294,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             test_files.append(test_model)
             i += 1
 
-        UserModel.objects.create_user('user', '', 'user')
-        self.client.login(username='user', password='user')
         url = reverse('user_assets-list')
         files = ['2210571.jpg', 'giscube_01.png']
         assets = {}
