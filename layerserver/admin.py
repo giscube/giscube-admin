@@ -64,7 +64,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     ]
 
     def url_data(self, obj):
-        url = reverse('geojsonlayer', kwargs={'layer_name': obj.name})
+        url = reverse('geojsonlayer', kwargs={'name': obj.name})
         return format_html('<a href="{url}" targe="_blank">URL</a>', url=url)
     url_data.short_description = 'URL'
 
