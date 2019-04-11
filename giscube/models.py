@@ -23,11 +23,15 @@ class Category(models.Model):
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
 
-    def __str__(self):
+    @property
+    def title(self):
         if self.parent:
             return '%s > %s' % (self.parent.name, self.name)
         else:
             return '%s' % self.name
+
+    def __str__(self):
+        return self.title
 
 
 DB_CONNECTION_ENGINE_CHOICES = [
