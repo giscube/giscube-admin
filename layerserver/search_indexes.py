@@ -26,7 +26,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_children(self, obj):
         children = []
-        url = '%s%s' % (settings.GISCUBE_URL, reverse('geojsonlayer', kwargs={'layer_name': obj.name}))
+        url = '%s%s' % (settings.GISCUBE_URL, reverse('geojsonlayer', kwargs={'name': obj.name}))
         children.append({
             'title': _('GeoJSON Layer'),
             'group': False,
