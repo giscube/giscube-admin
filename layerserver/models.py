@@ -65,6 +65,7 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
 
     @property
     def metadata(self):
+        from .serializers import style_representation
         return {
             'description': {
                 'title': self.title or '',
@@ -72,15 +73,7 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
                 'keywords': self.keywords or '',
                 'generated_on': self.generated_on or ''
             },
-            'style': {
-                'shapetype': self.shapetype,
-                'shape_radius': str(self.shape_radius),
-                'stroke_color': self.stroke_color,
-                'stroke_width': str(self.stroke_width),
-                'stroke_dash_array': self.stroke_dash_array,
-                'fill_color': self.fill_color,
-                'fill_opacity': str(self.fill_opacity)
-            },
+            'style': style_representation(self),
             'design': {
                 'popup': self.popup
             }

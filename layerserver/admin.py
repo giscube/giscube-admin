@@ -20,7 +20,7 @@ from layerserver.tasks import async_geojsonlayer_refresh
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
-    change_form_template = 'admin/geojson_layer/change_form.html'
+    change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category',)
     list_display = ('name', 'title', 'url_data')
     search_fields = ('name', 'title', 'keywords')
@@ -52,8 +52,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'shape_radius', 'stroke_color', 'stroke_width',
-                'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('fieldset-style',),
         }),
@@ -141,8 +141,8 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
 
 @admin.register(DataBaseLayer)
 class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
-    add_form_template = 'admin/data_base_layer/add_form.html'
-    change_form_template = 'admin/data_base_layer/change_form.html'
+    add_form_template = 'admin/layerserver/database_layer/add_form.html'
+    change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
     autocomplete_fields = ['category']
     prepopulated_fields = {'slug': ('name',)}
@@ -185,8 +185,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'shape_radius', 'stroke_color', 'stroke_width',
-                'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
