@@ -1,5 +1,6 @@
 from functools import update_wrapper
 
+from django.conf import settings
 from django.contrib import admin
 from django.db.models.functions import Concat
 from django.http import JsonResponse
@@ -11,8 +12,9 @@ from .admin_forms import DBConnectionForm
 from .models import Category, DBConnection, Server
 
 
-admin.site.site_title = 'GISCube Admin'
-admin.site.site_header = 'GISCube'
+admin.site.site_title = settings.ADMIN_SITE_TITLE
+admin.site.site_header = settings.ADMIN_SITE_HEADER
+admin.site.index_title = settings.ADMIN_INDEX_TITLE
 
 
 @admin.register(Category)
