@@ -3,13 +3,13 @@ from rest_framework import permissions
 from rest_framework import viewsets
 
 from .api import GeoJSONLayerViewSet, DBLayerViewSet, DBLayerContentViewSet
-
+from .permissions import DataBaseLayerDjangoPermission
 from .serializers import DBLayerDetailSerializer
 
 
 class AdminGeoJSONLayerViewSet(GeoJSONLayerViewSet):
     authentication_classes = (authentication.SessionAuthentication,)
-    permissions_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (permissions.DjangoModelPermissions,)
 
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.all()
@@ -18,7 +18,7 @@ class AdminGeoJSONLayerViewSet(GeoJSONLayerViewSet):
 
 class AdminDBLayerViewSet(viewsets.ReadOnlyModelViewSet, DBLayerViewSet):
     authentication_classes = (authentication.SessionAuthentication,)
-    permissions_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (permissions.DjangoModelPermissions,)
 
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.all()
@@ -30,4 +30,5 @@ class AdminDBLayerDetailViewSet(AdminDBLayerViewSet):
 
 
 class AdminDBLayerContentViewSet(viewsets.ReadOnlyModelViewSet, DBLayerContentViewSet):
-    permissions_classes = (permissions.DjangoModelPermissions,)
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (DataBaseLayerDjangoPermission,)

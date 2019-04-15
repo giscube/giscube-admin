@@ -4,7 +4,7 @@
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import permissions
 
-from .models import DBLayerGroup
+from .models import DataBaseLayer, DBLayerGroup
 
 
 class DBLayerPermissions():
@@ -83,3 +83,35 @@ class BulkDBLayerIsValidUser(permissions.BasePermission, DBLayerPermissions):
     def has_permission(self, request, view):
         permission = self.get_permissions(view.layer, request.user)
         return permission['add'] and permission['update'] and permission['delete']
+
+
+class DataBaseLayerDjangoPermission(permissions.DjangoModelPermissions):
+    """
+    Check if user has permission on DataBaseLayer Model
+    """
+    perms_map = {
+        'GET': ['%(app_label)s.view_%(model_name)s'],
+        'OPTIONS': [],
+        'HEAD': [],
+        'POST': ['%(app_label)s.add_%(model_name)s'],
+        'PUT': ['%(app_label)s.change_%(model_name)s'],
+        'PATCH': ['%(app_label)s.change_%(model_name)s'],
+        'DELETE': ['%(app_label)s.delete_%(model_name)s'],
+    }
+
+    def get_required_permissions(self, method, model_cls):
+        model_cls = DataBaseLayer
+        return super().get_required_permissions(method, model_cls)
+
+    def has_permission(self, request, view):
+        # Workaround to ensure DjangoModelPermissions are not applied
+        # to the root view when using DefaultRouter.
+        if getattr(view, '_ignore_model_permissions', False):
+            return True
+
+        if not request.user or (
+           not request.user.is_authenticated and self.authenticated_users_only):
+            return False
+
+        perms = self.get_required_permissions(request.method, DataBaseLayer)
+        return request.user.has_perms(perms)
