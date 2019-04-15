@@ -22,9 +22,9 @@ from layerserver.tasks import async_geojsonlayer_refresh
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category',)
-    list_display = ('name', 'title', 'url_data')
+    list_display = ('name', 'title', 'view_layer')
     search_fields = ('name', 'title', 'keywords')
-    readonly_fields = ('last_fetch_on', 'generated_on', 'url_data')
+    readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer')
     save_as = True
 
     tabs = (
@@ -63,10 +63,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
-    def url_data(self, obj):
+    def view_layer(self, obj):
         url = reverse('admin-api-geojsonlayer-detail', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" target="_blank">URL</a>', url=url)
-    url_data.short_description = 'URL'
+        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
+    view_layer.short_description = 'Layer'
 
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
@@ -146,7 +146,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     autocomplete_fields = ['category']
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('slug', 'name', 'table', 'db_connection', 'api_metadata', 'api_data')
+    list_display = ('slug', 'name', 'table', 'db_connection', 'view_metadata', 'view_layer')
     list_display_links = ('slug', 'name', 'table')
     list_filter = ('db_connection',)
     inlines = []
@@ -204,19 +204,19 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
-    def api_data(self, obj):
+    def view_layer(self, obj):
         url = reverse('admin-api-layer-content-list', kwargs={'layer_slug': obj.slug})
-        return format_html('<a href="{url}" target="_blank">API DATA</a>', url=url)
-    api_data.short_description = 'API DATA'
+        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
+    view_layer.short_description = 'LAYER'
 
-    def api_metadata(self, obj):
+    def view_metadata(self, obj):
         url = reverse('admin-api-layer-detail', kwargs={'slug': obj.slug})
-        return format_html('<a href="{url}" target="_blank">API METADATA</a>', url=url)
-    api_data.short_description = 'API METADATA'
+        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Metadata'))
+    view_metadata.short_description = 'METADATA'
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return self.readonly_fields + ('table', 'geom_field', 'srid', 'api_metadata', 'api_data')
+            return self.readonly_fields + ('table', 'geom_field', 'srid', 'view_metadata', 'view_layer')
         return self.readonly_fields
 
     def add_view(self, request, form_url='', extra_context=None):
