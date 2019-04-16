@@ -57,6 +57,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     visibility = models.CharField(max_length=10, default='private',
                                   help_text='visibility=\'Private\' restricts usage to authenticated users',
                                   choices=SERVICE_VISIBILITY_CHOICES)
+    fields = models.TextField(blank=True, null=True)
 
     def get_data_file_path(self):
         if self.service_path:
@@ -80,8 +81,17 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
             }
         }
 
+    def get_default_popup(self):
+        fields = {}
+        if self.fields is not None:
+            for field in self.fields.split(','):
+                fields[field] = field
+        return self.get_default_popup_content(fields)
+
     def save(self, *args, **kwargs):
         self.name = slugify(self.name)
+        if (self.popup is None or self.popup == ''):
+            self.popup = self.get_default_popup()
         super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
