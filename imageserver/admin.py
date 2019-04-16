@@ -14,6 +14,7 @@ class ServiceLayerInline(admin.TabularInline):
 class ServiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
+    list_filter = ('visibility', 'visible_on_geoportal')
     search_fields = ('title',)
     exclude = ('service_path',)
     readonly_fields = ('extent',)
