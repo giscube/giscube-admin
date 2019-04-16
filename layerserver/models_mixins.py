@@ -68,9 +68,11 @@ class PopupMixin(models.Model):
 
     def get_default_popup_content(self, fields):
         content = []
+        content.append('<table>')
         for name, label in list(fields.items()):
-            content.append('<b>%s:</b>{%s}' % (label, name))
-        return '<br />\n'.join(content)
+            content.append('<tr><th>%s</th><td>{%s}</td></tr>' % (label, name))
+        content.append('</table>')
+        return '\n'.join(content)
 
     class Meta:
         abstract = True
