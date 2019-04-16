@@ -7,11 +7,10 @@ import requests
 
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 
 from django_celery_monitor.models import TaskState
-
-from giscube.json_utils import DateTimeJSONEncoder
 
 from .models import GeoJsonLayer
 
@@ -57,8 +56,8 @@ def geojsonlayer_refresh_layer(layer):
                 headers[k] = v
         try:
             r = requests.get(layer.url, headers=headers)
-        except Exception as e:
-            print('Error getting file %s' % e)
+        except Exception:
+            raise
         else:
             if r.status_code >= 200 and r.status_code < 300:
                 content = ContentFile(r.text)
@@ -76,6 +75,6 @@ def geojsonlayer_refresh_layer(layer):
         data['metadata'] = layer.metadata
         outfile_path = layer.get_data_file_path()
         with open(outfile_path, 'w') as fixed_file:
-            fixed_file.write(json.dumps(data, cls=DateTimeJSONEncoder))
+            fixed_file.write(json.dumps(data, cls=DjangoJSONEncoder))
         layer.generated_on = timezone.localtime()
         layer.save()
