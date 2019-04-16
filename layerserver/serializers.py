@@ -256,6 +256,28 @@ def style_representation(obj):
     return res
 
 
+def style_rules_representation(obj):
+    style_rules = []
+    fields = {
+        'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
+        'line': ['stroke_color', 'stroke_width', 'stroke_dash_array'],
+        'polygon': ['stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
+        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+                   'fill_opacity'],
+    }
+    for rule in obj.rules.all():
+        style_rule = {
+            'field': rule.field,
+            'comparator': rule.comparator,
+            'value': rule.value,
+        }
+        if obj.shapetype in fields:
+            for attr in fields[obj.shapetype]:
+                style_rule[attr] = getattr(obj, attr)
+        style_rules.append(style_rule)
+    return style_rules
+
+
 class DBLayerDetailSerializer(serializers.ModelSerializer):
     # TODO: serialize category
     fields = DBLayerFieldSerializer(many=True, read_only=True)
@@ -265,6 +287,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
         data = super(
             DBLayerDetailSerializer, self).to_representation(obj)
         data['style'] = style_representation(obj)
+        data['style_rules'] = style_rules_representation(obj)
         data['design'] = {
             'list_fields': obj.list_fields,
             'form_fields': obj.form_fields,

@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 from model_utils import Choices
 
 from .model_legacy import ImageWithThumbnailField
-from .models_mixins import BaseLayerMixin, PopupMixin, StyleMixin
+from .models_mixins import BaseLayerMixin, PopupMixin, ShapeStyleMixin, StyleMixin
 import layerserver.model_legacy as model_legacy
 from giscube.db.utils import get_table_parts
 from giscube.utils import unique_service_directory
@@ -45,7 +45,7 @@ SERVICE_VISIBILITY_CHOICES = [
 ]
 
 
-class GeoJsonLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
+class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     url = models.CharField(max_length=255, null=True, blank=True)
     headers = models.TextField(null=True, blank=True)
     data_file = models.FileField(upload_to=geojsonlayer_upload_path,
@@ -65,7 +65,7 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
 
     @property
     def metadata(self):
-        from .serializers import style_representation
+        from .serializers import style_representation, style_rules_representation
         return {
             'description': {
                 'title': self.title or '',
@@ -74,6 +74,7 @@ class GeoJsonLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
                 'generated_on': self.generated_on or ''
             },
             'style': style_representation(self),
+            'style_rules': style_rules_representation(self),
             'design': {
                 'popup': self.popup
             }
@@ -110,7 +111,33 @@ def geojsonlayer_delete(sender, instance, **kwargs):
             shutil.rmtree(path)
 
 
-class DataBaseLayer(BaseLayerMixin, StyleMixin, PopupMixin, models.Model):
+COMPARATOR_CHOICES = (
+    ('=', '=',),
+    ('!=', '!=',),
+    ('>', '>',),
+    ('>=', '>=',),
+    ('<', '<',),
+    ('<=', '<=',)
+)
+
+
+class GeoJsonLayerStyleRule(StyleMixin, models.Model):
+    layer = models.ForeignKey(GeoJsonLayer, related_name='rules', on_delete=models.CASCADE)
+    field = models.CharField(max_length=50, blank=False, null=False)
+    comparator = models.CharField(max_length=3, blank=False, null=False, choices=COMPARATOR_CHOICES)
+    value = models.CharField(max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return '%s %s %s' % (self.field, self.comparator, self.value or '')
+
+    class Meta:
+        ordering = ('layer', 'order',)
+        verbose_name = _('Style rule')
+        verbose_name_plural = _('Style rules')
+
+
+class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='db_connections', verbose_name='Database connection')
@@ -333,6 +360,22 @@ class DataBaseLayerField(models.Model):
         verbose_name = _('Field')
         verbose_name_plural = _('Fields')
         ordering = ['layer', 'name']
+
+
+class DataBaseLayerStyleRule(StyleMixin, models.Model):
+    layer = models.ForeignKey(DataBaseLayer, related_name='rules', on_delete=models.CASCADE)
+    field = models.CharField(max_length=50, blank=False, null=False)
+    comparator = models.CharField(max_length=3, blank=False, null=False, choices=COMPARATOR_CHOICES)
+    value = models.CharField(max_length=255, blank=False, null=False,)
+    order = models.PositiveIntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return '%s %s %s' % (self.field, self.comparator, self.value or '')
+
+    class Meta:
+        ordering = ('layer', 'order',)
+        verbose_name = _('Style rule')
+        verbose_name_plural = _('Style rules')
 
 
 class DataBaseLayerReference(models.Model):

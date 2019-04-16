@@ -12,10 +12,24 @@ from layerserver.admin_forms import (
     DataBaseLayerAddForm, DataBaseLayerChangeForm
 )
 from layerserver.models import (
-    GeoJsonLayer, DataBaseLayer, DataBaseLayerField,
-    DBLayerGroup, DBLayerUser, DataBaseLayerReference
+    GeoJsonLayer, GeoJsonLayerStyleRule, DataBaseLayer, DataBaseLayerField,
+    DBLayerGroup, DBLayerUser, DataBaseLayerReference, DataBaseLayerStyleRule
 )
 from layerserver.tasks import async_geojsonlayer_refresh
+
+
+class StyleRuleInlineMixin(admin.StackedInline):
+    model = GeoJsonLayerStyleRule
+    extra = 1
+    classes = ('tab-style',)
+    fields = ('order', 'field', 'comparator', 'value', 'marker_color', 'icon_type', 'icon', 'icon_color',
+              'shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity')
+    verbose_name = _('Rule')
+    verbose_name_plural = _('Rules')
+
+
+class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
+    model = GeoJsonLayerStyleRule
 
 
 @admin.register(GeoJsonLayer)
@@ -26,13 +40,14 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     list_filter = ('visibility', 'visible_on_geoportal')
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
+    inlines = [GeoJsonLayerStyleRuleInline]
     save_as = True
 
     tabs = (
-        (_('Information'), ('fieldset-information',)),
-        (_('GEOJson'), ('fieldset-geojson',)),
+        (_('Information'), ('tab-information',)),
+        (_('GEOJson'), ('tab-geojson',)),
         (_('Permissions'), ('tab-permissions',)),
-        (_('Style'), ('fieldset-style',)),
+        (_('Style'), ('tab-style',)),
         (_('Design'), ('tab-design',)),
     )
 
@@ -42,21 +57,21 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'category', 'name', 'title',
                 'description', 'keywords', 'active', 'visibility', 'visible_on_geoportal',
             ],
-            'classes': ('fieldset-information',),
+            'classes': ('tab-information',),
         }),
         (None, {
             'fields': [
                 'url', 'headers', 'data_file', 'cache_time', 'last_fetch_on',
                 'generated_on',
             ],
-            'classes': ('fieldset-geojson',),
+            'classes': ('tab-geojson',),
         }),
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
                 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
-            'classes': ('fieldset-style',),
+            'classes': ('tab-style',),
         }),
         (None, {
             'fields': ['popup'],
@@ -143,6 +158,10 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
 
     fields = ('service',)
     classes = ('tab-references',)
+
+
+class DataBaseLayerStyleRuleInline(StyleRuleInlineMixin):
+    model = DataBaseLayerStyleRule
 
 
 @admin.register(DataBaseLayer)
@@ -240,8 +259,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         self.tabs = self.edit_tabs
         self.fieldsets = self.edit_fieldsets
 
-        self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline,
-                        DBLayerGroupInline, DataBaseLayerReferencesInline]
+        self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline, DBLayerGroupInline,
+                        DataBaseLayerReferencesInline, DataBaseLayerStyleRuleInline]
         conn = self.model.objects.get(pk=object_id)
         conn_status = self.model.objects.get(pk=object_id).db_connection.check_connection()
         if not conn_status:

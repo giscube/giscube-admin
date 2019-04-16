@@ -1,18 +1,26 @@
 {% extends "django_vue_tabs/change_form.html" %}
+{% block extrahead %}{{ block.super }}
+<style>
+.tab-style input[type=text]{
+    width: 10em;
+}
+</style>
+{% endblock %}
 {% block admin_change_form_document_ready %}{{ block.super }}
 <script type="text/javascript">
 (function ($){
-    var all_fields = ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+    var all_fields = ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width',
+    'stroke_dash_array', 'fill_color',
     'fill_opacity', 'marker_name', 'marker_color', 'icon_type', 'icon', 'icon_color'];
 
 	function apply_shapetype() {
 		var element = $('#id_shapetype');
         var fields = {
             '': [],
-            'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
-            'line': ['stroke_color', 'stroke_width', 'stroke_dash_array'],
-            'polygon': ['stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
-            'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+            'marker': ['order', 'field', 'comparator', 'value', 'marker_color', 'icon_type', 'icon', 'icon_color'],
+            'line': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_dash_array'],
+            'polygon': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
+            'circle': ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
             'fill_opacity'],
         }
         for (var i in all_fields){
