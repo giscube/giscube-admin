@@ -72,7 +72,17 @@ def geojsonlayer_refresh_layer(layer):
     if layer.data_file:
         path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
         data = json.load(open(path))
+        fields = []
+        try:
+            if 'Features' in data and len(data['Features']) > 0:
+                fields = list(data['Features'][0]['Properties'].keys())
+            if 'features' in data and len(data['features']) > 0:
+                fields = list(data['features'][0]['properties'].keys())
+        except Exception:
+            pass
         data['metadata'] = layer.metadata
+        layer.fields = ','.join(fields)
+
         outfile_path = layer.get_data_file_path()
         with open(outfile_path, 'w') as fixed_file:
             fixed_file.write(json.dumps(data, cls=DjangoJSONEncoder))
