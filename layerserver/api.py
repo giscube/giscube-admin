@@ -99,7 +99,7 @@ class DBLayerViewSet(viewsets.ModelViewSet):
             filter_user = Q(layer_users__user=self.request.user) & Q(
                 Q(layer_users__can_view=True) | Q(layer_users__can_add=True) |
                 Q(layer_users__can_update=True) | Q(layer_users__can_delete=True))
-            qs = qs.filter(Q(filter_anonymous) | Q(filter_user) | Q(filter_group))
+            qs = qs.filter(Q(filter_anonymous) | Q(filter_user) | Q(filter_group)).distinct()
 
         return qs
 
