@@ -385,7 +385,6 @@ class DBLayerContentBulkViewSet(views.APIView):
                 self.created_objects.append(serializer.save())
             except Exception:
                 self.created_objects.append(serializer.instance)
-                print(serializer.errors)
                 return {i: self.ERROR_ON_SAVE}
 
     def get_lookup_field_value(self, data):
