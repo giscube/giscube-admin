@@ -10,7 +10,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 
-from django_celery_monitor.models import TaskState
+from django_celery_results.models import TaskResult
 
 from .models import GeoJsonLayer
 
@@ -29,10 +29,10 @@ def geojsonlayer_check_cache(layer):
         if now < layer_time:
             return
 
-        qs = TaskState.objects.filter(
-            name='layerserver.tasks.async_geojsonlayer_refresh',
-            state__in=['PENDING', 'RECEIVED', 'STARTED'],
-            args='(%s,)' % layer.pk
+        qs = TaskResult.objects.filter(
+            task_name='layerserver.tasks.async_geojsonlayer_refresh',
+            status__in=['PENDING', 'RECEIVED', 'STARTED'],
+            task_args='(%s,)' % layer.pk
         )
         if qs.count() > 0:
             return

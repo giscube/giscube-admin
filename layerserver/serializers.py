@@ -177,6 +177,10 @@ def create_dblayer_serializer(model, fields, id_field, read_only_fields):
 
     map_id_field = id_field in fields
 
+    extra_kwargs = {}
+    for f in model._meta.fields:
+        extra_kwargs[f.name] = {'required': not model._meta.get_field(f.name).blank}
+
     geo_field = None
     for f in model._meta.fields:
         if isinstance(f, models.GeometryField):
@@ -198,7 +202,8 @@ def create_dblayer_serializer(model, fields, id_field, read_only_fields):
         'Meta': type(str('Meta'), (object,),
                      {
                          'model': model, 'geo_field': geo_field, 'id_field': id_field,
-                         'map_id_field': map_id_field
+                         'map_id_field': map_id_field,
+                         'extra_kwargs': extra_kwargs
                          })
         }
 

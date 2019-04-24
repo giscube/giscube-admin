@@ -230,6 +230,7 @@ def add_fields(sender, instance, created, **kwargs):
             db_field = DataBaseLayerField()
             db_field.layer = instance
             db_field.name = field
+            db_field.blank = fields[field].null
             db_field.save()
         else:
             if field in old_fields:
@@ -303,6 +304,7 @@ class DataBaseLayerField(models.Model):
     fullsearch = models.BooleanField(default=True)
     enabled = models.BooleanField(default=True)
     readonly = models.BooleanField(default=False)
+    blank = models.BooleanField(default=True)
     widget = models.CharField(max_length=25, blank=False,
                               choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
     widget_options = models.TextField(null=True, blank=True)
