@@ -9,6 +9,7 @@ class ResourceInline(admin.StackedInline):
 
 
 class DatasetAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('category',)
     list_display = ('title',)
     inlines = (ResourceInline,)
 
