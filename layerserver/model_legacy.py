@@ -201,13 +201,20 @@ def to_image_field(field, original_field):
     return ImageWithThumbnailField(**options)
 
 
+def apply_blank(layer, fields):
+    for field in layer.fields.all():
+        if getattr(fields[field.name], 'blank') != field.blank:
+            setattr(fields[field.name], 'blank', field.blank)
+
+
 def apply_widgets(layer, fields):
     from .models import DataBaseLayerField
-    for field in layer.fields.filter(widget=DataBaseLayerField.WIDGET_CHOICES.image):
-        try:
-            fields[field.name] = to_image_field(field, fields[field.name])
-        except Exception:
-            raise Exception('Invalid configuration for field [%s]' % field.name)
+    for field in layer.fields.all():
+        if field.widget == DataBaseLayerField.WIDGET_CHOICES.image:
+            try:
+                fields[field.name] = to_image_field(field, fields[field.name])
+            except Exception:
+                raise Exception('Invalid configuration for field [%s]' % field.name)
 
 
 def create_dblayer_model(layer):
@@ -244,6 +251,7 @@ def create_dblayer_model(layer):
     if primary_key is None:
         setattr(fields[layer.pk_field], 'primary_key', True)
 
+    apply_blank(layer, fields)
     apply_widgets(layer, fields)
     if layer.geom_field:
         fields[layer.geom_field].srid = layer.srid

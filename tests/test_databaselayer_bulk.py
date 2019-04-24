@@ -105,6 +105,35 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         self.assertEqual(
             0, self.Location.objects.filter(code__in=data['DELETE']).count())
 
+    def test_bulk_blank_nok(self):
+        field = self.layer.fields.filter(name='address').first()
+        field.blank = False
+        field.save()
+
+        data = {
+            'ADD': [
+                {
+                    'code': 'A101',
+                    'geometry': 'POINT (0 10)'
+                }
+            ],
+            'UPDATE': [
+                {
+                    'code': self.locations[1].code,
+                    'address': None
+                }
+            ],
+            'DELETE': []
+        }
+
+        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)
+        result = response.json()
+        self.assertTrue('ADD' in result)
+        self.assertEqual(len(result['ADD']), 1)
+        self.assertEqual(result['ADD']['0']['address'][0], 'This field is required.')
+
     def test_bulk_ok_geojson(self):
         data = {
             'ADD': [
