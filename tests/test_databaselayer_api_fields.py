@@ -58,12 +58,20 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
         self.assertEqual(fields['id']['null'], False)
         self.assertEqual(fields['code']['null'], False)
         self.assertEqual(fields['name']['null'], True)
-
         self.assertEqual(fields['enabled']['null'], False)
         self.assertEqual(fields['accepted']['null'], True)
         self.assertEqual(fields['price']['null'], True)
         self.assertEqual(fields['x']['null'], True)
         self.assertEqual(fields['geometry']['null'], False)
+
+        self.assertEqual(fields['id']['blank'], False)
+        self.assertEqual(fields['code']['blank'], False)
+        self.assertEqual(fields['name']['blank'], True)
+        self.assertEqual(fields['enabled']['blank'], False)
+        self.assertEqual(fields['accepted']['blank'], True)
+        self.assertEqual(fields['price']['blank'], True)
+        self.assertEqual(fields['x']['blank'], True)
+        self.assertEqual(fields['geometry']['blank'], False)
 
         self.assertEqual(fields['id']['size'], None)
         self.assertEqual(fields['code']['size'], 10)

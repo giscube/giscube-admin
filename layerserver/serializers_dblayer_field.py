@@ -52,6 +52,7 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
             DBLayerFieldSerializer, self).to_representation(obj)
 
         data['null'] = obj.null
+        data['blank'] = obj.blank
         data['size'] = obj.size
         data['decimals'] = obj.decimals
         data['widget'] = obj.widget
