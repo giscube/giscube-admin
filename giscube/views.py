@@ -1,9 +1,11 @@
 import mimetypes
 
 from django.contrib.auth import get_user_model
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseForbidden
+
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
+from django.views.static import serve
 
 from .models import UserAsset
 
@@ -22,3 +24,9 @@ def media_user_asset(request, user_id, filename):
             return response
 
     raise Http404
+
+
+def private_serve(request, path, document_root=None, show_indexes=False):
+    if request.user and request.user.is_superuser:
+        return serve(request, path, document_root, show_indexes)
+    return HttpResponseForbidden()
