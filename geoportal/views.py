@@ -1,12 +1,12 @@
 import json
 
 from django.conf import settings
-from django.views.generic import View, TemplateView
 from django.http import HttpResponse
+from django.views.generic import View, TemplateView
 
-from haystack.query import SearchQuerySet
-from haystack.views import SearchView
+
 from haystack.inputs import AutoQuery
+from haystack.query import SearchQuerySet
 
 
 DEFAULT_SEARCH = [
@@ -16,6 +16,9 @@ DEFAULT_SEARCH = [
         'url': 'search/',
     },
 ]
+
+CATALOG_MODELS = ['geoportal.dataset', 'imageserver.service', 'qgisserver.service',
+                          'layerserver.geojsonlayer', 'layerserver.databaselayer']
 
 
 class GeoportalHomeView(TemplateView):
@@ -57,14 +60,14 @@ class ResultsMixin():
 class GeoportalCatalogView(ResultsMixin, View):
     def get(self, request):
         category_id = request.GET.get('category_id', '')
-        sqs = SearchQuerySet().filter(category_id__exact=category_id)
+        sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
         sqs = sqs.order_by('title')
         return self.format_results(sqs)
 
 
 class GeoportalSearchView(ResultsMixin, View):
     def get(self, request):
-        sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q', '')))
+        sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(request.GET.get('q', '')))
         return self.format_results(sqs)
 
 
