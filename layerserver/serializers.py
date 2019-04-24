@@ -278,7 +278,7 @@ def style_rules_representation(obj):
         }
         if obj.shapetype in fields:
             for attr in fields[obj.shapetype]:
-                style_rule[attr] = getattr(obj, attr)
+                style_rule[attr] = getattr(rule, attr)
         style_rules.append(style_rule)
     return style_rules
 
