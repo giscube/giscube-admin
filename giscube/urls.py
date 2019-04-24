@@ -36,6 +36,7 @@ urlpatterns = [
     path('admin/giscube/rebuild_index/', admin.site.admin_view(RebuildIndexView.as_view()), name='rebuild_index'),
     path('admin/', admin.site.urls),
     path('admin/', include('loginas.urls')),
+    re_path(r'^media/(?P<path>.*)$',  views.private_serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 # Additional modules
