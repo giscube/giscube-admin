@@ -146,7 +146,7 @@ class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
     class Meta:
         model = DataBaseLayer
         exclude = ()
-        fields = ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid', 'pk_field')
+        fields = ('db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field')
 
 
 class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):

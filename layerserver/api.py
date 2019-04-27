@@ -76,7 +76,7 @@ class GeoJSONLayerViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class DBLayerViewSet(viewsets.ModelViewSet):
-    lookup_field = 'slug'
+    lookup_field = 'name'
     permission_classes = ()
     queryset = []
     model = DataBaseLayer
@@ -129,7 +129,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     readonly_fields = []
 
     def dispatch(self, request, *args, **kwargs):
-        self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
+        self.layer = DataBaseLayer.objects.get(name=kwargs['name'])
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
         try:
@@ -236,7 +236,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['get'])
-    def file_value(self, request, layer_slug, *args, **kwargs):
+    def file_value(self, request, *args, **kwargs):
         attribute = kwargs['attribute']
         if attribute not in list(self._fields.keys()):
             raise Http404
@@ -253,7 +253,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         return response
 
     @action(detail=True, methods=['get'])
-    def thumbnail_value(self, request, layer_slug, *args, **kwargs):
+    def thumbnail_value(self, request, *args, **kwargs):
         attribute = kwargs['attribute']
         if attribute not in list(self._fields.keys()):
             raise Http404
@@ -293,7 +293,7 @@ class DBLayerContentBulkViewSet(views.APIView):
         self.readonly_fields = []
 
     def dispatch(self, request, *args, **kwargs):
-        self.layer = DataBaseLayer.objects.get(slug=kwargs['layer_slug'])
+        self.layer = DataBaseLayer.objects.get(name=kwargs['name'])
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
         self.geom_field = self.layer.geom_field
@@ -455,7 +455,7 @@ class DBLayerContentBulkViewSet(views.APIView):
             for asset in user_assets:
                 asset.delete()
 
-    def post(self, request, layer_slug):
+    def post(self, request, name):
         data = request.data
         errors = {}
 

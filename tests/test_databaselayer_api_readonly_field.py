@@ -29,8 +29,7 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location'
-        layer.name = 'tests_location'
+        layer.name = 'tests-location'
         layer.table = 'tests_location'
         layer.pk_field = 'id'
         layer.geom_field = 'geometry'
@@ -55,7 +54,7 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
             self.locations.append(location)
 
     def test_content_readonly(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         data = {
             'code': 'A001',
             'address': 'Test',
@@ -71,7 +70,7 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
         location.refresh_from_db()
         self.assertEqual(location.address, 'Test')
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': res['id']})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': res['id']})
         data = {
             'address': 'Test Update'
         }
@@ -102,7 +101,7 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
             ],
             'DELETE': []
         }
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
         obj = self.Location.objects.get(code=data['ADD'][0]['code'])

@@ -31,7 +31,6 @@ class DataBaseLayerAPIPaginationTestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location_25831'
         layer.name = 'tests_location_25831'
         layer.table = 'tests_location_25831'
         layer.srid = 25831
@@ -90,7 +89,7 @@ class DataBaseLayerAPIPaginationTestCase(BaseTest):
             self.locations.append(location)
 
     def test_metadata(self):
-        url = reverse('layer-detail', kwargs={'slug': self.layer.slug})
+        url = reverse('layer-detail', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(response.json()['pagination']['page_size'], settings.LAYERSERVER_PAGE_SIZE)
         self.assertEqual(response.json()['pagination']['max_page_size'], settings.LAYERSERVER_MAX_PAGE_SIZE)
@@ -104,24 +103,24 @@ class DataBaseLayerAPIPaginationTestCase(BaseTest):
         self.assertEqual(response.json()['pagination']['max_page_size'], 1000)
 
     def test_default_page_size(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(len(response.json()['features']), 5)
 
     def test_default_max_size(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         url = '%s?page_size=50' % url
         response = self.client.get(url)
         self.assertEqual(len(response.json()['features']), 10)
 
     def test_url_page_size(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         url = '%s?page_size=8' % url
         response = self.client.get(url)
         self.assertEqual(len(response.json()['features']), 8)
 
     def test_allow_page_size_0(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         url = '%s?page_size=0' % url
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)

@@ -19,6 +19,6 @@ content_list = AdminDBLayerContentViewSet.as_view({
 urlpatterns = [
     re_path(r'^geojsonlayers/(?P<name>[-\w]{1,255})?(\.json|\.geojson)?$',
             geojsonlayer_detail, name='admin-api-geojsonlayer-detail'),
-    path('databaselayers/<slug:layer_slug>/data/', content_list, name='admin-api-layer-content-list'),
-    path('databaselayers/<slug:slug>/', layer_detail, name='admin-api-layer-detail'),
+    path('databaselayers/<slug:name>/data/', content_list, name='admin-api-layer-content-list'),
+    path('databaselayers/<slug:name>/', layer_detail, name='admin-api-layer-detail'),
 ]

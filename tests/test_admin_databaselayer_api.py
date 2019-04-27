@@ -25,8 +25,7 @@ class AdminDataBaseLayerAPITestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.name = 'tests_location'
-        layer.slug = 'tests-location'
+        layer.name = 'tests-location'
         layer.table = 'tests_location'
         layer.pk_field = 'id'
         layer.geom_field = 'geometry'
@@ -35,29 +34,29 @@ class AdminDataBaseLayerAPITestCase(BaseTest):
 
     def test_layer_content_unauthenticated(self):
         client = APIClient()
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.get(url)
         self.assertEqual(response.status_code, 403)
 
     def test_layer_content_authenticated_normal_user(self):
         client = APIClient()
         client.login(username='dev_user', password='123456')
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.get(url)
         self.assertEqual(response.status_code, 403)
 
     def test_layer_content_authenticated_staff_no_permission(self):
         client = APIClient()
         client.login(username='test_user', password='123456')
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.options(url)
         self.assertEqual(response.status_code, 403)
 
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.head(url)
         self.assertEqual(response.status_code, 403)
 
@@ -67,29 +66,29 @@ class AdminDataBaseLayerAPITestCase(BaseTest):
         content_type = ContentType.objects.get_for_model(DataBaseLayer)
         permission = Permission.objects.get(content_type=content_type, codename='view_databaselayer')
         self.test_user.user_permissions.add(permission)
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.options(url)
         self.assertEqual(response.status_code, 200)
 
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.head(url)
         self.assertEqual(response.status_code, 200)
 
     def test_layer_content_authenticated_superuser(self):
         client = APIClient()
         client.login(username='superuser', password='123456')
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.options(url)
         self.assertEqual(response.status_code, 200)
 
-        url = reverse('admin-api-layer-content-list', args=(self.layer.slug,))
+        url = reverse('admin-api-layer-content-list', args=(self.layer.name,))
         response = client.head(url)
         self.assertEqual(response.status_code, 200)

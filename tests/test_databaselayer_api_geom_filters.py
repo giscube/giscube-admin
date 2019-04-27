@@ -28,7 +28,6 @@ class DataBaseLayerAPIGeomFiltersTestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location_25831'
         layer.name = 'tests_location_25831'
         layer.table = 'tests_location_25831'
         layer.srid = 25831
@@ -87,7 +86,7 @@ class DataBaseLayerAPIGeomFiltersTestCase(BaseTest):
             self.locations.append(location)
 
     def test_layer_intersects(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         url = '%s?intersects=%s' % (url, 'POLYGON ((2.83090277982049 41.9721696144475,2.8308896918335 '
                                     '41.9722379628241,2.83100457527492 41.9723121280837,2.83113254670334 '
                                     '41.9723892017849,2.83116890222278 41.9723470293824,2.83090277982049 '
@@ -96,7 +95,7 @@ class DataBaseLayerAPIGeomFiltersTestCase(BaseTest):
         self.assertEqual(len(response.json()['features']), 4)
 
     def test_layer_bbox(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         url = '%s?in_bbox=%s' % (url, '2.8309,41.9722,2.831,41.9733')
         response = self.client.get(url)
         self.assertEqual(len(response.json()['features']), 2)

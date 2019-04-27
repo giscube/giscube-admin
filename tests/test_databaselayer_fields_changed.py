@@ -21,7 +21,7 @@ class DataBaseLayerFieldsChangedAPITestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.name = 'tests_location'
+        layer.name = 'tests-location'
         layer.table = 'tests_location'
         layer.pk_field = 'id'
         layer.geom_field = 'geometry'

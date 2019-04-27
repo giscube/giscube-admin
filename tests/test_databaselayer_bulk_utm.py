@@ -26,7 +26,6 @@ class DataBaseLayerBulkUTMAPITestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location_25831'
         layer.name = 'tests_location_25831'
         layer.table = 'tests_location_25831'
         layer.srid = 25831
@@ -68,7 +67,7 @@ class DataBaseLayerBulkUTMAPITestCase(BaseTest):
             'DELETE': []
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 
@@ -98,7 +97,7 @@ class DataBaseLayerBulkUTMAPITestCase(BaseTest):
             'DELETE': []
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 

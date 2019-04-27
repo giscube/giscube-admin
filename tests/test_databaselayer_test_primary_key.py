@@ -40,7 +40,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         cursor = self.conn.get_connection().cursor()
         cursor.execute(sql)
         data = {
-            'db_connection': self.conn.pk, 'slug': 'address_no_primary_key', 'name': 'address_no_primary_key',
+            'db_connection': self.conn.pk, 'name': 'address_no_primary_key',
             'table': 'public.address_no_primary_key', 'geom_field': 'geometry', 'srid': 4326, 'pk_field': None
             }
         form = DataBaseLayerAddForm(data=data)
@@ -58,14 +58,14 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         cursor = self.conn.get_connection().cursor()
         cursor.execute(sql)
         data = {
-            'db_connection': self.conn.pk, 'slug': 'address_no_primary_key', 'name': 'address_no_primary_key',
+            'db_connection': self.conn.pk, 'name': 'address_no_primary_key',
             'table': 'public.address_no_primary_key', 'geom_field': 'geometry', 'srid': 4326, 'pk_field': None
             }
         form = DataBaseLayerAddForm(data=data)
         self.assertFalse(form.is_valid())
 
         data = {
-            'db_connection': self.conn.pk, 'slug': 'address_no_primary_key', 'name': 'address_no_primary_key',
+            'db_connection': self.conn.pk, 'name': 'address_no_primary_key',
             'table': 'public.address_no_primary_key', 'geom_field': 'geometry', 'srid': 4326, 'pk_field': 'code'
             }
         form = DataBaseLayerAddForm(data=data)
@@ -89,7 +89,6 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
 
         layer = DataBaseLayer()
         layer.db_connection = self.conn
-        layer.slug = 'address_no_primary_key'
         layer.name = 'address_no_primary_key'
         layer.table = 'address_no_primary_key'
         layer.pk_field = 'id'
@@ -126,7 +125,6 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
 
         layer = DataBaseLayer()
         layer.db_connection = self.conn
-        layer.slug = 'address_no_primary_key'
         layer.name = 'address_no_primary_key'
         layer.table = 'address_no_primary_key'
         layer.pk_field = 'code'

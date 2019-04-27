@@ -47,7 +47,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'imagefield'
         layer.name = 'tests_testimagefield'
         layer.table = 'tests_testimagefield'
         layer.pk_field = 'code'
@@ -100,7 +99,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
     def test_add_image(self):
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         path = 'tests/files/giscube_01.png'
         f = open(path, 'rb')
         data = {
@@ -125,7 +124,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertTrue(os.path.exists(image_path))
         path = 'tests/files/giscube_02.png'
         f = open(path, 'rb')
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': test_files[0].code})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': test_files[0].code})
         data = {
             'image': f
         }
@@ -137,7 +136,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         test_files = self.add_test_files(['giscube_01.png'])
         image_path = test_files[0].image.path
         self.assertTrue(os.path.exists(image_path))
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': test_files[0].code})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': test_files[0].code})
         data = {
             'image': None
         }
@@ -195,7 +194,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             ]
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 
@@ -262,7 +261,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             'DELETE': []
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
 
@@ -328,7 +327,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             'DELETE': []
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
 

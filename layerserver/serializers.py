@@ -109,9 +109,8 @@ class ImageWithThumbnailSerializer(object):
                 return res
         else:
             layer = obj.get_layer()
-            slug = layer.slug
             pk = getattr(obj, layer.pk_field)
-            kwargs = {'layer_slug': slug, 'pk': pk, 'attribute': attribute,
+            kwargs = {'name': layer.name, 'pk': pk, 'attribute': attribute,
                       'path': value.storage.url(value.name)}
             url = reverse('content-detail-file-value', kwargs=kwargs)
             url = self.append_token(self.context['request'].build_absolute_uri(url))
@@ -120,7 +119,7 @@ class ImageWithThumbnailSerializer(object):
             }
             thumbnail = value.storage.get_thumbnail(value.name)
             if thumbnail:
-                kwargs = {'layer_slug': slug, 'pk': pk, 'attribute': attribute,
+                kwargs = {'name': layer.name, 'pk': pk, 'attribute': attribute,
                           'path': thumbnail['path']}
                 url = reverse('content-detail-thumbnail-value', kwargs=kwargs)
                 url = self.context['request'].build_absolute_uri(url)
@@ -222,7 +221,7 @@ def create_dblayer_serializer(model, fields, id_field, read_only_fields):
 class DBLayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataBaseLayer
-        fields = ['slug', 'name', 'pk_field', 'geom_field']
+        fields = ['name', 'pk_field', 'geom_field']
 
 
 class DBLayerReferenceSerializer(serializers.ModelSerializer):
@@ -312,5 +311,5 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DataBaseLayer
-        fields = ['slug', 'name', 'title', 'description', 'keywords',
+        fields = ['name', 'title', 'description', 'keywords',
                   'pk_field', 'geom_field', 'fields', 'references']

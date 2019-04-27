@@ -28,7 +28,6 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location'
         layer.name = 'tests_location'
         layer.table = 'tests_location'
         layer.pk_field = 'id'
@@ -46,7 +45,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.LocationModel = Location
 
     def test_content_list_unathenticated(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
@@ -54,7 +53,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.layer.anonymous_view = True
         self.layer.save()
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -69,7 +68,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
@@ -84,7 +83,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -104,12 +103,12 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_content_add_unathenticated(self):
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         data = {
             'address': 'Test',
             'geometry': 'POINT(0,0)'
@@ -121,7 +120,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.layer.anonymous_add = True
         self.layer.save()
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         data = {
             'code': '01',
             'address': 'Test',
@@ -140,7 +139,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.can_delete = True
         permission.save()
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         data = {
             'code': '01',
             'address': 'Test',
@@ -161,7 +160,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         data = {
             'code': '01',
             'address': 'Test',
@@ -187,7 +186,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         data = {
             'code': '01',
             'address': 'Test',
@@ -198,7 +197,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.assertEqual(response.status_code, 201)
 
     def test_content_detail_unathenticated(self):
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
@@ -206,7 +205,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.layer.anonymous_view = True
         self.layer.save()
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -220,7 +219,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.can_delete = True
         permission.save()
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
@@ -235,7 +234,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -255,12 +254,12 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_content_update_unathenticated(self):
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         data = {
             'address': 'Test',
             'geometry': 'POINT(0 0)'
@@ -273,7 +272,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.layer.anonymous_update = True
         self.layer.save()
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         data = {
             'code': '01',
             'address': 'Test',
@@ -292,7 +291,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.can_delete = True
         permission.save()
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         data = {
             'code': '01',
             'address': 'Test',
@@ -313,7 +312,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         data = {
             'code': '01',
             'address': 'Test',
@@ -339,7 +338,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         data = {
             'code': '01',
             'address': 'Test',
@@ -350,7 +349,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.assertEqual(response.status_code, 200)
 
     def test_content_delete_unathenticated(self):
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 401)
 
@@ -358,7 +357,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         self.layer.anonymous_delete = True
         self.layer.save()
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
 
@@ -372,7 +371,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.can_delete = True
         permission.save()
 
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 401)
 
@@ -387,7 +386,7 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
 
@@ -407,6 +406,6 @@ class DataBaseLayerContentViewAPITestCase(BaseTest):
         permission.save()
 
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': self.location.pk})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': self.location.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)

@@ -26,7 +26,6 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location'
         layer.name = 'tests_location'
         layer.table = 'tests_location'
         layer.pk_field = 'code'
@@ -81,7 +80,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             'DELETE': [self.locations[9].code, self.locations[10].code]
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 
@@ -126,7 +125,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             'DELETE': []
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
         result = response.json()
@@ -196,7 +195,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             'DELETE': [self.locations[9].code, self.locations[10].code]
         }
 
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 
@@ -242,7 +241,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             ],
             'DELETE': []
         }
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, 400)
@@ -259,7 +258,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             ],
             'DELETE': []
         }
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
         result = response.json()
@@ -277,7 +276,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             ],
             'DELETE': []
         }
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
         obj = self.Location.objects.get(code=self.locations[5].code)
@@ -299,7 +298,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
             ],
             'DELETE': []
         }
-        url = reverse('content-bulk', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
         obj = self.Location.objects.get(code=self.locations[5].code)

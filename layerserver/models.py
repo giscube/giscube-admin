@@ -1,6 +1,5 @@
 import logging
 import os
-from slugify import slugify
 import shutil
 
 from django.conf import settings
@@ -10,6 +9,7 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 from model_utils import Choices
@@ -151,10 +151,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='db_connections', verbose_name='Database connection')
-    slug = models.SlugField(max_length=255, blank=False, null=False,
-                            unique=True)
-    name = models.CharField(max_length=255, blank=False, null=False)
-
+    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
     table = models.CharField(max_length=255, blank=False, null=False)
     pk_field = models.CharField(max_length=255, blank=True, null=False)
     geom_field = models.CharField(max_length=255, blank=False, null=False)
@@ -194,6 +191,10 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
 
     def get_max_page_size(self):
             return self.max_page_size if self.max_page_size else settings.LAYERSERVER_MAX_PAGE_SIZE
+
+    def save(self, *args, **kwargs):
+        self.name = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
