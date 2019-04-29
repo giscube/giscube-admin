@@ -1,5 +1,8 @@
 from django.db import models
+from django.utils.translation import gettext as _
+
 from giscube.models import Category
+from giscube.validators import validate_options_json_format
 
 
 class Dataset(models.Model):
@@ -10,6 +13,8 @@ class Dataset(models.Model):
     description = models.TextField(null=True, blank=True)
     keywords = models.CharField(max_length=200, null=True, blank=True)
     active = models.BooleanField(default=True, help_text='Enable/disable usage')
+    options = models.TextField(_('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
+                               validators=[validate_options_json_format])
 
     def __str__(self):
         return '%s' % self.title or self.name

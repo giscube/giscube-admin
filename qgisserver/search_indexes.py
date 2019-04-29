@@ -17,6 +17,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     keywords = indexes.CharField(model_attr='keywords', null=True)
     has_children = indexes.BooleanField()
     children = indexes.CharField()
+    options = indexes.CharField()
 
     def get_model(self):
         return Service
@@ -41,6 +42,9 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
         })
 
         return json.dumps(children)
+
+    def prepare_options(self, obj):
+        return obj.options or '{}'
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
