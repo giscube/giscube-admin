@@ -25,8 +25,7 @@ class DataBaseLayerAPIIDFieldTestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_location'
-        layer.name = 'tests_location'
+        layer.name = 'tests-location'
         layer.table = 'tests_location'
         layer.pk_field = 'code'
         layer.geom_field = 'geometry'
@@ -52,7 +51,7 @@ class DataBaseLayerAPIIDFieldTestCase(BaseTest):
         field = self.layer.fields.filter(name='code').first()
         field.enabled = True
         field.save()
-        url = reverse('layer-detail', kwargs={'slug': self.layer.slug})
+        url = reverse('layer-detail', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         result = response.json()
         fields = {}
@@ -60,7 +59,7 @@ class DataBaseLayerAPIIDFieldTestCase(BaseTest):
             fields[field['name']] = field
         self.assertTrue('code' in fields)
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         data = response.json()['features'][0]
         self.assertTrue('code' in data['properties'])
@@ -69,7 +68,7 @@ class DataBaseLayerAPIIDFieldTestCase(BaseTest):
         field = self.layer.fields.filter(name='code').first()
         field.enabled = False
         field.save()
-        url = reverse('layer-detail', kwargs={'slug': self.layer.slug})
+        url = reverse('layer-detail', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         result = response.json()
         fields = {}
@@ -77,7 +76,7 @@ class DataBaseLayerAPIIDFieldTestCase(BaseTest):
             fields[field['name']] = field
         self.assertFalse('code' in fields)
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         data = response.json()['features'][0]
         self.assertFalse('code' in data['properties'])

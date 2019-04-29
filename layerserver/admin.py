@@ -170,15 +170,14 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
     autocomplete_fields = ['category']
-    prepopulated_fields = {'slug': ('name',)}
-    list_display = ('slug', 'name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
-    list_display_links = ('slug', 'name', 'table')
+    list_display = ('name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
+    list_display_links = ('name', 'table')
     list_filter = ('db_connection', 'visible_on_geoportal')
     inlines = []
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'geometry_columns', 'slug', 'name', 'table', 'geom_field', 'srid', 'pk_field')
+            'fields': ('db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field')
         }),
     )
     tabs = None
@@ -195,7 +194,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     edit_fieldsets = [
         (None, {
             'fields': [
-                'category', 'slug', 'name', 'title',
+                'category', 'name', 'title',
                 'description', 'keywords', 'active',
                 'visible_on_geoportal',
                 ('allow_page_size_0', 'page_size', 'max_page_size',),
@@ -230,17 +229,17 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     ]
 
     def public_url(self, obj):
-        url = reverse('content-list', kwargs={'layer_slug': obj.slug})
+        url = reverse('content-list', kwargs={'name': obj.name})
         return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
     public_url.short_description = 'PUBLIC URL'
 
     def view_layer(self, obj):
-        url = reverse('admin-api-layer-content-list', kwargs={'layer_slug': obj.slug})
+        url = reverse('admin-api-layer-content-list', kwargs={'name': obj.name})
         return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
     view_layer.short_description = 'LAYER'
 
     def view_metadata(self, obj):
-        url = reverse('admin-api-layer-detail', kwargs={'slug': obj.slug})
+        url = reverse('admin-api-layer-detail', kwargs={'name': obj.name})
         return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Metadata'))
     view_metadata.short_description = 'METADATA'
 

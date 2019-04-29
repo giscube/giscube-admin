@@ -26,8 +26,7 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'tests_testfield'
-        layer.name = 'tests_testfield'
+        layer.name = 'tests-testfield'
         layer.table = 'tests_testfield'
         layer.pk_field = 'id'
         layer.geom_field = 'geometry'
@@ -39,7 +38,7 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
         self.layer = layer
 
     def test_layer_fields(self):
-        url = reverse('layer-detail', kwargs={'slug': self.layer.slug})
+        url = reverse('layer-detail', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         result = response.json()
         fields = {}
@@ -88,7 +87,7 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
         self.assertEqual(fields['geometry']['decimals'], None)
 
     def test_geom_field_type(self):
-        url = reverse('layer-detail', kwargs={'slug': self.layer.slug})
+        url = reverse('layer-detail', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         result = response.json()
         self.assertEqual(result['geom_type'], 'POINT')

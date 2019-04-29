@@ -41,7 +41,6 @@
 		geometry_columns_data();
 		$('#id_db_connection').change(id_db_connection_changed);
 		$('#id_geometry_columns').change(function(){
-			var slug = '';
 			var name = '';
 			var table = '';
 			var srid = '';
@@ -54,7 +53,6 @@
 				geom_field = data['f_geometry_column'];
 				srid = data['srid'];
 			}
-			$("#id_slug").val(name);
 			$("#id_name").val(name);
 			$("#id_table").val(table);
 			$("#id_geom_field").val(geom_field);

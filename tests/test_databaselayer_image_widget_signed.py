@@ -49,7 +49,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.slug = 'imagefield'
         layer.name = 'tests_testimagefield'
         layer.table = 'tests_testimagefield'
         layer.pk_field = 'code'
@@ -105,7 +104,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         test_model.geometry = 'POINT (%s 10)' % 1
         test_model.save()
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         result = response.json()
         item = result['features'][0]
@@ -113,7 +112,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
     def test_urls(self):
         self.login_test_user()
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         path = 'tests/files/giscube_01.png'
         f = open(path, 'rb')
         data = {
@@ -134,7 +133,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         response = c.get(result['properties']['image']['thumbnail'])
         self.assertEqual(response.status_code, 200)
 
-        url = reverse('content-list', kwargs={'layer_slug': self.layer.slug})
+        url = reverse('content-list', kwargs={'name': self.layer.name})
         response = self.client.get(url)
         result = response.json()
         self.assertEqual(response.status_code, 200)
@@ -150,7 +149,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
     def test_thumbnail_size(self):
         test_files = self.add_test_files(['giscube_01.png'])
         self.login_test_user()
-        url = reverse('content-detail', kwargs={'layer_slug': self.layer.slug, 'pk': test_files[0].code})
+        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': test_files[0].code})
         response = self.client.get(url)
         result = response.json()
         url = result['properties']['image']['thumbnail']
