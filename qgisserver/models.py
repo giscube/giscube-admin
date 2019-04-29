@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
 from giscube.models import Category, Server
+from giscube.validators import validate_options_json_format
 from qgisserver.utils import (
     unique_service_directory,
     patch_qgis_project, update_external_service, deactivate_services,
@@ -71,6 +72,8 @@ class Service(models.Model):
         validators=[validate_integer_pair_list]
     )
     servers = models.ManyToManyField(Server, blank=True)
+    options = models.TextField(_('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
+                               validators=[validate_options_json_format])
 
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)

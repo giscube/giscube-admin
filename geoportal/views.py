@@ -18,7 +18,7 @@ DEFAULT_SEARCH = [
 ]
 
 CATALOG_MODELS = ['geoportal.dataset', 'imageserver.service', 'qgisserver.service',
-                          'layerserver.geojsonlayer', 'layerserver.databaselayer']
+                  'layerserver.geojsonlayer', 'layerserver.databaselayer']
 
 
 class GeoportalHomeView(TemplateView):
@@ -52,6 +52,7 @@ class ResultsMixin():
                 'keywords': r.keywords,
                 'group': getattr(r, 'has_children', False),
                 'children': children,
+                'options': json.loads(getattr(r, 'options', '{}') or '{}'),
             })
         return HttpResponse(json.dumps({'results': results}),
                             content_type='application/json')

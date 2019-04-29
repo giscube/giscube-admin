@@ -1,21 +1,20 @@
-import glob
 import os
-import shutil
-import zipfile
 
-from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.core.validators import validate_comma_separated_integer_list
+from django.utils.translation import gettext as _
 
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import NamedMaskStorage, LayerStorage
 from imageserver.utils import unique_service_directory, unique_layer_directory, extract_zipfile, find_shapefile
 
+from giscube.models import Category
+from giscube.validators import validate_options_json_format
+
 from .gdal_utils import get_image_file_info, get_image_dir_info
 
-from giscube.models import Category
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', 'Private'),
@@ -46,6 +45,8 @@ class Service(models.Model):
                                   help_text='visibility=\'Private\' restricts usage to authenticated users',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(default=False)
+    options = models.TextField(_('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
+                               validators=[validate_options_json_format])
 
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':
