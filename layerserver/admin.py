@@ -22,8 +22,8 @@ class StyleRuleInlineMixin(admin.StackedInline):
     model = GeoJsonLayerStyleRule
     extra = 0
     classes = ('tab-style',)
-    fields = ('order', 'field', 'comparator', 'value', 'marker_color', 'icon_type', 'icon', 'icon_color',
-              'shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity')
+    fields = ('order', ('field', 'comparator', 'value'), 'marker_color', ('icon_type', 'icon', 'icon_color'),
+              'shape_radius', ('stroke_color', 'stroke_width', 'stroke_dash_array'), ('fill_color', 'fill_opacity'))
     verbose_name = _('Rule')
     verbose_name_plural = _('Rules')
 
