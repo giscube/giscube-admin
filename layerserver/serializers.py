@@ -253,6 +253,7 @@ def style_representation(obj):
         'polygon': ['stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
         'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
                    'fill_opacity'],
+        'image': ['icon'],
     }
     if obj.shapetype in fields:
         for attr in fields[obj.shapetype]:
