@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Giscube site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Giscube administration') }}</a></h1>
+{% endblock %}
+
+{% block extrahead %}
+{{block.super}}
+<link rel="stylesheet" href="{% static 'admin.css' %}">
+{% endblock extrahead %}
+
+
+{% block nav-global %}{% endblock %}
