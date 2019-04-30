@@ -173,6 +173,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     list_display = ('name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
     list_display_links = ('name', 'table')
     list_filter = ('db_connection', 'visible_on_geoportal')
+    search_fields = ('name', 'title', 'keywords')
     inlines = []
 
     add_fieldsets = (
