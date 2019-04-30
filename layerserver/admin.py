@@ -20,7 +20,7 @@ from layerserver.tasks import async_geojsonlayer_refresh
 
 class StyleRuleInlineMixin(admin.StackedInline):
     model = GeoJsonLayerStyleRule
-    extra = 1
+    extra = 0
     classes = ('tab-style',)
     fields = ('order', 'field', 'comparator', 'value', 'marker_color', 'icon_type', 'icon', 'icon_color',
               'shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity')
@@ -104,7 +104,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
 
 class DBLayerGroupInline(admin.TabularInline):
     model = DBLayerGroup
-    extra = 1
+    extra = 0
     classes = ('tab-permissions',)
     verbose_name = _('Group')
     verbose_name_plural = _('Groups')
@@ -112,7 +112,7 @@ class DBLayerGroupInline(admin.TabularInline):
 
 class DBLayerUserInline(admin.TabularInline):
     model = DBLayerUser
-    extra = 1
+    extra = 0
     classes = ('tab-permissions',)
     verbose_name = _('User')
     verbose_name_plural = _('Users')
