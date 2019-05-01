@@ -1,5 +1,5 @@
 celery==4.2.2
-Django==2.1.7
+Django==2.2.1
 django-cas-ng==3.6.0
 django-celery-results==1.0.4
 django-colorfield==0.1.15
