@@ -33,7 +33,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
         filename, file_extension = os.path.splitext(project_file)
 
         children.append({
-            'title': _('View on map'),
+            'title': obj.title,
             'group': False,
             'type': 'WMS',
             'url': url,
