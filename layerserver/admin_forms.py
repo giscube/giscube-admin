@@ -6,8 +6,9 @@ from django import forms
 from giscube.models import DBConnection
 from giscube.db.utils import get_table_parts
 
-from .models import DataBaseLayer
+from .models import DataBaseLayer, DataBaseLayerField
 from .model_legacy import get_fields
+from .widgets import widgets_types
 
 
 class DataBaseLayerFormMixin(object):
@@ -158,3 +159,15 @@ class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):
     class Meta:
         model = DataBaseLayer
         exclude = ()
+
+
+class DataBaseLayerFieldsInlineForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data['widget_options'])
+        if err is not None:
+            self.add_error('widget_options', err)
+
+    class Meta:
+        model = DataBaseLayerField
+        fields = '__all__'

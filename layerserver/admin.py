@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+import json
+
 from django.db import transaction
 from django.contrib import admin, messages
 from django.urls import reverse
@@ -8,14 +9,16 @@ from django.utils.translation import gettext as _
 from django_vue_tabs.admin import TabsMixin
 
 from giscube.utils import unique_service_directory
-from layerserver.admin_forms import (
-    DataBaseLayerAddForm, DataBaseLayerChangeForm
+
+from .admin_forms import (
+    DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm
 )
-from layerserver.models import (
+from .models import (
     GeoJsonLayer, GeoJsonLayerStyleRule, DataBaseLayer, DataBaseLayerField,
     DBLayerGroup, DBLayerUser, DataBaseLayerReference, DataBaseLayerStyleRule
 )
-from layerserver.tasks import async_geojsonlayer_refresh
+from .tasks import async_geojsonlayer_refresh
+from .widgets import widgets_types, BaseJSONWidget
 
 
 class StyleRuleInlineMixin(admin.StackedInline):
@@ -120,6 +123,7 @@ class DBLayerUserInline(admin.TabularInline):
 
 class DataBaseLayerFieldsInline(admin.TabularInline):
     model = DataBaseLayerField
+    form = DataBaseLayerFieldsInlineForm
     extra = 0
     ordering = ('name',)
 
@@ -266,6 +270,17 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         if not conn_status:
             msg = 'ERROR: There was an error when connecting to: %s' % conn.db_connection
             messages.add_message(request, messages.ERROR, msg)
+        extra_context = extra_context or {}
+        widgets_templates = {}
+        from django.utils.html import escape, mark_safe
+
+        for k, v in list(widgets_types.items()):
+            # if issubclass(v, BaseJSONWidget):
+            #     temp_text = json.loads(v.TEMPLATE)
+            #     widgets_templates[k] = mark_safe(json.dumps(temp_text).replace('"', r'\"'))
+            # else:
+            widgets_templates[k] = mark_safe(v.TEMPLATE.replace('\n', '\\n').replace('"', r'\"'))
+        extra_context['widgets_templates'] = widgets_templates
 
         return super(DataBaseLayerAdmin,
                      self).change_view(
