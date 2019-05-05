@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import json
 import logging
 import mimetypes
@@ -8,9 +5,6 @@ import os
 
 from operator import __or__ as OR
 
-from django.http import (
-    Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseServerError, FileResponse
-)
 from django.db import transaction
 from django.db.models import Q
 from django.conf import settings
@@ -19,14 +13,19 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.core.files.uploadedfile import UploadedFile
 from django.forms.models import model_to_dict
+from django.http import (
+    Http404, HttpResponseBadRequest, HttpResponseServerError, FileResponse
+)
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from django.utils.functional import cached_property
+from django.views.decorators.debug import sensitive_variables
 
 from rest_framework import filters, parsers, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from giscube.api_mixins import APIHideAccessTokenMixin
 from giscube.models import UserAsset
 
 from .filters import filterset_factory
@@ -46,7 +45,7 @@ from functools import reduce
 logger = logging.getLogger(__name__)
 
 
-class GeoJSONLayerViewSet(viewsets.ReadOnlyModelViewSet):
+class GeoJSONLayerViewSet(APIHideAccessTokenMixin, viewsets.ReadOnlyModelViewSet):
     lookup_field = 'name'
     permission_classes = ()
     queryset = []
@@ -75,7 +74,7 @@ class GeoJSONLayerViewSet(viewsets.ReadOnlyModelViewSet):
         return HttpResponseServerError(json.dumps(error))
 
 
-class DBLayerViewSet(viewsets.ModelViewSet):
+class DBLayerViewSet(APIHideAccessTokenMixin, viewsets.ModelViewSet):
     lookup_field = 'name'
     permission_classes = ()
     queryset = []
@@ -112,7 +111,7 @@ class PageSize0NotAllowedException(Exception):
     pass
 
 
-class DBLayerContentViewSet(viewsets.ModelViewSet):
+class DBLayerContentViewSet(APIHideAccessTokenMixin, viewsets.ModelViewSet):
     parser_classes = (parsers.MultiPartParser, parsers.JSONParser)
     permission_classes = (DBLayerIsValidUser,)
     queryset = []
@@ -274,7 +273,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         filter_overrides = ['geom']
 
 
-class DBLayerContentBulkViewSet(views.APIView):
+class DBLayerContentBulkViewSet(APIHideAccessTokenMixin, views.APIView):
     ERROR_NOT_EXIST = 'ERROR_NOT_EXIST'
     ERROR_ON_SAVE = 'ERROR_ON_SAVE'
 

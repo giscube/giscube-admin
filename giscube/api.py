@@ -3,6 +3,7 @@ from django.db.models.functions import Concat
 from rest_framework import viewsets, parsers, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from .api_mixins import APIHideAccessTokenMixin
 from .models import Category, UserAsset
 from .serializers import CategorySerializer, UserAssetSerializer
 
@@ -22,8 +23,8 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
-class UserAssetViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
-                       mixins.ListModelMixin, viewsets.GenericViewSet):
+class UserAssetViewSet(APIHideAccessTokenMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                       mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     lookup_field = 'uuid'
     queryset = []
     parser_classes = (parsers.MultiPartParser,)
