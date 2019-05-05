@@ -291,6 +291,7 @@ class DataBaseLayerField(models.Model):
     WIDGET_CHOICES = Choices(
         ('auto', 'Auto'),
         ('choices', 'Choices, one line per value'),
+        ('date', 'Date'),
         ('image', 'Image'),
         ('linkedfield', 'Linked Field'),
         ('sqlchoices', 'SQL choices'),

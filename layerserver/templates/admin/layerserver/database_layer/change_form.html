@@ -8,7 +8,11 @@
   height: 0;
   padding-bottom: 0;
   overflow-y: hidden;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
 }
+
 </style>
 {% endblock %}
 {% block admin_change_form_document_ready %}{{ block.super }}
@@ -19,10 +23,40 @@
 		e.height(0);
 		e.height(this.scrollHeight);
 	}
+
+	function resize_all() {
+        $('.tab-fields .vLargeTextField').each(resize);
+    }
+
+    var widgets_templates = {};
+    {% for k,v in widgets_templates.items %}
+        widgets_templates["{{ k }}"] = "{{ v }}";
+    {% endfor %}
+
+    function field_widget_change(e){
+        var is_init = typeof e === 'undefined' ? true : false;
+        var item = $(this);
+        var to = $('#' + item.attr('id').replace(/-widget/, '-widget_options'));
+        if ((is_init === true && to.val() === '') || is_init === false){
+            var template_html = widgets_templates[item.val()];
+            var fixed = ""
+            to.val(template_html);
+            to.trigger('input');
+        }
+    }
+
+    function field_widget_init(){
+        field_widget_change.call(this);
+    }
+
 	$(document).ready(function(){
-		$('.tab-fields .vLargeTextField').each(resize);
+        $('.field-widget select').each(field_widget_init);
+        $('.field-widget select').on('change', field_widget_change);
+
+        resize_all();
 		$('.tab-fields .vLargeTextField').on('input', resize);
 	});
+    window.addEventListener('hashchange', resize_all, false);
 })(django.jQuery);
 </script>
 {% endblock %}
