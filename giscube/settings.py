@@ -35,7 +35,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 GISCUBE_URL = os.environ.get('GISCUBE_URL',
-                             'http://localhost:8080/apps/giscube')
+                             'http://localhost:8080/apps/giscube-admin')
 
 GISCUBE_IMAGE_SERVER_DISABLED = os.environ.get('GISCUBE_IMAGE_SERVER_DISABLED',
                                                'False').lower() == 'true'
