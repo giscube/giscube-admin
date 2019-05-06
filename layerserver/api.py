@@ -129,7 +129,9 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
     readonly_fields = []
 
     def dispatch(self, request, *args, **kwargs):
-        self.layer = DataBaseLayer.objects.get(name=kwargs['name'])
+        self.layer = DataBaseLayer.objects.filter(name=kwargs['name']).first()
+        if self.layer is None:
+            raise Http404
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
         try:
