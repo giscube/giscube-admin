@@ -1,5 +1,5 @@
 from .base import BaseWidget
 
 
-class AutoWidget():
+class AutoWidget(BaseWidget):
     TEMPLATE = ""
