@@ -13,8 +13,8 @@ from qgisserver.utils import (
 )
 
 SERVICE_VISIBILITY_CHOICES = [
-    ('private', 'Private'),
-    ('public', 'Public'),
+    ('private', _('Private')),
+    ('public', _('Public')),
 ]
 
 
@@ -27,15 +27,10 @@ def validate_integer_pair(value):
 
     if len(values) == 2:
         if not value == ('%s,%s' % tuple(values)):
-            raise ValidationError(
-                _('Enter only digits separated by commas.'),
-            )
+            raise ValidationError(_('Enter only digits separated by commas.'))
 
     else:
-        raise ValidationError(
-            _('%(value)s must be a pair of integer, e.g. 12,12'),
-            params={'value': value},
-        )
+        raise ValidationError(_('%s must be a pair of integer, e.g. 12,12') % value)
 
 
 def validate_integer_pair_list(value):
@@ -47,17 +42,17 @@ class Service(models.Model):
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='qgisserver_services')
-    name = models.CharField(max_length=50, unique=True)
-    title = models.CharField(max_length=100, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    keywords = models.CharField(max_length=200, null=True, blank=True)
-    project_file = models.FileField(upload_to=unique_service_directory)
-    service_path = models.CharField(max_length=255)
-    active = models.BooleanField(default=True, help_text='Enable/disable usage')
-    visibility = models.CharField(max_length=10, default='private',
+    name = models.CharField(_('name'), max_length=50, unique=True)
+    title = models.CharField(_('title'), max_length=100, null=True, blank=True)
+    description = models.TextField(_('description'), null=True, blank=True)
+    keywords = models.CharField(_('keywords'), max_length=200, null=True, blank=True)
+    project_file = models.FileField(_('project file'), upload_to=unique_service_directory)
+    service_path = models.CharField(_('service path'), max_length=255)
+    active = models.BooleanField(_('active'), default=True, help_text='Enable/disable usage')
+    visibility = models.CharField(_('visibility'), max_length=10, default='private',
                                   help_text='visibility=\'Private\' restricts usage to authenticated users',
                                   choices=SERVICE_VISIBILITY_CHOICES)
-    visible_on_geoportal = models.BooleanField(default=False)
+    visible_on_geoportal = models.BooleanField(_('visible on geoportal'), default=False)
     wms_buffer_enabled = models.BooleanField(
         _('buffer enabled'), default=False
     )
@@ -82,6 +77,10 @@ class Service(models.Model):
 
     def __str__(self):
         return str(self.title or self.name)
+
+    class Meta:
+        verbose_name = _('Service')
+        verbose_name_plural = _('Services')
 
 
 @receiver(models.signals.post_delete, sender=Service)
@@ -140,7 +139,14 @@ def auto_dectivate_external_services(sender, **kwargs):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=50)
-    data = models.TextField(null=True, blank=True)
+    name = models.CharField(_('name'), max_length=50)
+    data = models.TextField(_('data'), null=True, blank=True)
     service = models.ForeignKey(Service, null=True, blank=True,
                                 on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Project')
+        verbose_name_plural = _('Projects')
