@@ -3,6 +3,7 @@ import logging
 import pdf2image
 from PIL import Image
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 
 from giscube.utils import get_cls
@@ -21,9 +22,12 @@ class ThumbnailFileSystemStorageMixin(object):
     def __init__(self, *args, **kwargs):
         self.thumbnail_location = kwargs.pop('thumbnail_location', None)
         self.thumbnail_base_url = kwargs.pop('thumbnail_base_url', None)
-        self.thumbnail_width = kwargs.pop('thumbnail_width')
-        self.thumbnail_height = kwargs.pop('thumbnail_height')
-        super(ThumbnailFileSystemStorageMixin, self).__init__(*args, **kwargs)
+        self.thumbnail_width = settings.LAYERSERVER_THUMBNAIL_WIDTH
+        self.thumbnail_height = settings.LAYERSERVER_THUMBNAIL_HEIGHT
+        if self.thumbnail_location is not None:
+            self.thumbnail_width = kwargs.pop('thumbnail_width', None) or self.thumbnail_width
+            self.thumbnail_height = kwargs.pop('thumbnail_height', None) or self.thumbnail_height
+        super().__init__(*args, **kwargs)
 
     def delete(self, name, *args, **kwargs):
         super(ThumbnailFileSystemStorageMixin, self).delete(name, *args, **kwargs)
@@ -112,6 +116,6 @@ class ThumbnailFileSystemStorageMixin(object):
             return bytes, 'png'
 
 
-def get_thumbnail_storage_klass():
+def get_image_with_thumbnail_storage_class():
     klass = get_cls('LAYERSERVER_FILE_STORAGE_CLASS')
     return type('ThumbnailFileSystemStorage', (ThumbnailFileSystemStorageMixin, klass), {})
