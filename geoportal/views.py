@@ -1,8 +1,7 @@
 import json
 
-from django.conf import settings
 from django.http import HttpResponse
-from django.views.generic import View, TemplateView
+from django.views.generic import View
 
 
 from haystack.inputs import AutoQuery
@@ -19,20 +18,6 @@ DEFAULT_SEARCH = [
 
 CATALOG_MODELS = ['geoportal.dataset', 'imageserver.service', 'qgisserver.service',
                   'layerserver.geojsonlayer', 'layerserver.databaselayer']
-
-
-class GeoportalHomeView(TemplateView):
-    template_name = "geoportal/home.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(GeoportalHomeView, self).get_context_data(**kwargs)
-        context['searches'] = DEFAULT_SEARCH
-
-        if hasattr(settings, 'GISCUBE_GEOPORTAL'):
-            custom_search = settings.GISCUBE_GEOPORTAL.get('SEARCHES', None)
-            if custom_search:
-                context['searches'] = custom_search
-        return context
 
 
 class ResultsMixin():
