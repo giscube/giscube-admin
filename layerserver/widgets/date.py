@@ -13,11 +13,14 @@ class DateWidget(BaseJSONWidget):
     }
     """)
 
+    ERROR_FORMAT_REQUIRED = _('\'format\' attribute is required')
+
+    @staticmethod
     def is_valid(value):
         try:
             data = json.loads(value)
         except Exception:
-            return _('Invalid JSON format')
+            return DateWidget.ERROR_INVALID_JSON
 
         if 'format' not in data:
-            return _('\'format\' attribute is required')
+            return DateWidget.ERROR_FORMAT_REQUIRED

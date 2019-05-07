@@ -1,3 +1,6 @@
+from django.utils.translation import gettext as _
+
+
 class BaseWidget(object):
     TEMPLATE = ""
 
@@ -8,5 +11,8 @@ class BaseWidget(object):
 class BaseJSONWidget(object):
     TEMPLATE = "{}"
 
+    ERROR_INVALID_JSON = _('Invalid JSON format')
+
+    @staticmethod
     def is_valid(value):
         pass

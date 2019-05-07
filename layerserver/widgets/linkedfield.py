@@ -14,14 +14,18 @@ class LinkedfieldWidget(BaseJSONWidget):
     }
     """)
 
+    ERROR_SOURCE_REQUIRED = _('\'source\' attribute is required')
+    ERROR_COLUMN_REQUIRED = _('\'column\' attribute is required')
+
+    @staticmethod
     def is_valid(value):
         try:
             data = json.loads(value)
         except Exception:
-            return _('Invalid JSON format')
+            return LinkedfieldWidget.ERROR_INVALID_JSON
 
         if 'source' not in data:
-            return _('\'source\' attribute is required')
+            return LinkedfieldWidget.ERROR_SOURCE_REQUIRED
 
         if 'column' not in data:
-            return _('\'column\' attribute is required')
+            return LinkedfieldWidget.ERROR_COLUMN_REQUIRED

@@ -7,7 +7,7 @@ from django.contrib.gis.db import models
 from django.core.management.commands.inspectdb import Command
 
 from giscube.db.utils import get_table_parts
-from .storage import get_thumbnail_storage_klass
+from .storage import get_image_with_thumbnail_storage_class
 
 
 def get_field_type(connection, table_name, row):
@@ -169,14 +169,14 @@ class ImageWithThumbnailField(models.FileField):
 
     def __init__(self, *args, **kwargs):
         self.widget_options = kwargs.pop('widget_options')
-        StorageKlass = get_thumbnail_storage_klass()
-        storage = StorageKlass(
+        StorageClass = get_image_with_thumbnail_storage_class()
+        storage = StorageClass(
             location=self.widget_options['upload_root'],
             base_url=self.widget_options.get('base_url', None),
             thumbnail_location=self.widget_options.get('thumbnail_root', None),
             thumbnail_base_url=self.widget_options.get('thumbnail_base_url', None),
-            thumbnail_width=self.widget_options.get('thumbnail_width', settings.LAYERSERVER_THUMBNAIL_WIDTH),
-            thumbnail_height=self.widget_options.get('thumbnail_height', settings.LAYERSERVER_THUMBNAIL_HEIGHT)
+            thumbnail_width=self.widget_options.get('thumbnail_width', None),
+            thumbnail_height=self.widget_options.get('thumbnail_height', None)
         )
         kwargs['storage'] = storage
         super().__init__(*args, **kwargs)
