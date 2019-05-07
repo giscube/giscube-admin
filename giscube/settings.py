@@ -158,6 +158,8 @@ ADMINS = list(zip(*([iter(os.getenv('ADMINS', '').split(','))]*2)))
 LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', LANGUAGE_CODE)
 
+LOCALE_PATHS = ['locale'] + os.getenv('LOCALE_PATHS', '').split(',')
+
 TIME_ZONE = 'UTC'
 TIME_ZONE = os.getenv('TIME_ZONE', TIME_ZONE)
 

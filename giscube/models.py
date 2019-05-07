@@ -16,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
-    parent = models.ForeignKey('Category', null=True, blank=True, on_delete=models.CASCADE)
+    name = models.CharField(_('name'), max_length=50)
+    parent = models.ForeignKey(
+        'Category', verbose_name=_('parent category'), null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Category')
@@ -40,14 +41,14 @@ DB_CONNECTION_ENGINE_CHOICES = [
 
 
 class DBConnection(models.Model):
-    alias = models.CharField(max_length=255, null=True, blank=True)
-    engine = models.CharField(max_length=255,
+    alias = models.CharField(_('alias'), max_length=255, null=True, blank=True)
+    engine = models.CharField(_('engine'), max_length=255,
                               choices=DB_CONNECTION_ENGINE_CHOICES)
     name = models.CharField(_('Database name'), max_length=100, null=False, blank=False)
-    user = models.CharField(max_length=100, null=True, blank=True)
-    password = models.CharField(max_length=255, null=True, blank=True)
-    host = models.CharField(max_length=100, null=True, blank=True)
-    port = models.CharField(max_length=20, null=True, blank=True)
+    user = models.CharField(_('user'), max_length=100, null=True, blank=True)
+    password = models.CharField(_('password'), max_length=255, null=True, blank=True)
+    host = models.CharField(_('host'), max_length=100, null=True, blank=True)
+    port = models.CharField(_('port'), max_length=20, null=True, blank=True)
 
     def db_conf(self, schema=None):
         db = {}
@@ -140,27 +141,27 @@ class DBConnection(models.Model):
     def full_clean(self, *args, **kwargs):
         from django.core.validators import ValidationError
         if not self.check_connection():
-            raise ValidationError('DATABASE CONNECTION ERROR')
+            raise ValidationError(_('Database connection error'))
 
     def __str__(self):
         return '%s' % self.alias or self.name
 
     class Meta:
         """Meta information."""
-        verbose_name = 'Database connection'
-        verbose_name_plural = 'Database connections'
+        verbose_name = _('Database connection')
+        verbose_name_plural = _('Database connections')
 
 
 class Server(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    url = models.URLField(null=True, blank=True)
-    token = models.CharField(max_length=255, null=True, blank=True)
-    this_server = models.BooleanField(default=False)
+    name = models.CharField(_('name'), max_length=50, unique=True)
+    url = models.URLField(_('url'), null=True, blank=True)
+    token = models.CharField(_('token'), max_length=255, null=True, blank=True)
+    this_server = models.BooleanField(_('this server'), default=False)
 
     class Meta:
         """Meta information."""
-        verbose_name = 'Server connection'
-        verbose_name_plural = 'Server connections'
+        verbose_name = _('Server connection')
+        verbose_name_plural = _('Server connections')
 
     def __str__(self):
         return '%s' % self.name
@@ -187,8 +188,8 @@ def user_asset_upload_to(instance, filename, uuid_folder=None):
 
 class UserAsset(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    file = models.FileField(max_length=255, upload_to=user_asset_upload_to)
-    created = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(_('file'), max_length=255, upload_to=user_asset_upload_to)
+    created = models.DateTimeField(_('created'), auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assets', on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):
@@ -203,3 +204,7 @@ class UserAsset(models.Model):
                     delete_parent = os.path.join(self.file.storage.location, folder)
             if delete_parent is not None:
                 os.rmdir(delete_parent)
+
+    class Meta:
+        verbose_name = _('User Asset')
+        verbose_name_plural = _('User Assets')
