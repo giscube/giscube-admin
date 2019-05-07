@@ -21,5 +21,5 @@ class SqlchoicesWidget(BaseJSONWidget):
         except Exception:
             return _('Invalid JSON format')
 
-        if 'source' not in data:
+        if 'query' not in data:
             return _('\'query\' attribute is required')
