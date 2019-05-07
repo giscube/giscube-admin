@@ -40,22 +40,22 @@ def geojsonlayer_upload_path(instance, filename):
 
 
 SERVICE_VISIBILITY_CHOICES = [
-    ('private', 'Private'),
-    ('public', 'Public'),
+    ('private', _('Private')),
+    ('public', _('Public')),
 ]
 
 
 class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
-    url = models.CharField(max_length=255, null=True, blank=True)
-    headers = models.TextField(null=True, blank=True)
-    data_file = models.FileField(upload_to=geojsonlayer_upload_path,
+    url = models.CharField(_('url'), max_length=255, null=True, blank=True)
+    headers = models.TextField(_('headers'), null=True, blank=True)
+    data_file = models.FileField(_('data file'), upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
-    service_path = models.CharField(max_length=255)
-    cache_time = models.IntegerField(blank=True, null=True, help_text='In seconds')
-    last_fetch_on = models.DateTimeField(null=True, blank=True)
-    generated_on = models.DateTimeField(null=True, blank=True)
-    visibility = models.CharField(max_length=10, default='private',
-                                  help_text='visibility=\'Private\' restricts usage to authenticated users',
+    service_path = models.CharField(_('service path'), max_length=255)
+    cache_time = models.IntegerField(_('cache time'), blank=True, null=True, help_text='In seconds')
+    last_fetch_on = models.DateTimeField(_('last fetch on'), null=True, blank=True)
+    generated_on = models.DateTimeField(_('generated on'), null=True, blank=True)
+    visibility = models.CharField(_('visibility'), max_length=10, default='private',
+                                  help_text=_('visibility=\'Private\' restricts usage to authenticated users'),
                                   choices=SERVICE_VISIBILITY_CHOICES)
     fields = models.TextField(blank=True, null=True)
 
@@ -133,10 +133,10 @@ COMPARATOR_CHOICES = (
 
 class GeoJsonLayerStyleRule(StyleMixin, models.Model):
     layer = models.ForeignKey(GeoJsonLayer, related_name='rules', on_delete=models.CASCADE)
-    field = models.CharField(max_length=50, blank=False, null=False)
-    comparator = models.CharField(max_length=3, blank=False, null=False, choices=COMPARATOR_CHOICES)
-    value = models.CharField(max_length=255, blank=True, null=True)
-    order = models.PositiveIntegerField(blank=True, null=True)
+    field = models.CharField(_('field'), max_length=50, blank=False, null=False)
+    comparator = models.CharField(_('comparator'), max_length=3, blank=False, null=False, choices=COMPARATOR_CHOICES)
+    value = models.CharField(_('value'), max_length=255, blank=True, null=True)
+    order = models.PositiveIntegerField(_('order'), blank=True, null=True)
 
     def __str__(self):
         return '%s %s %s' % (self.field, self.comparator, self.value or '')
@@ -151,21 +151,21 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='db_connections', verbose_name='Database connection')
-    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
-    table = models.CharField(max_length=255, blank=False, null=False)
-    pk_field = models.CharField(max_length=255, blank=True, null=False)
-    geom_field = models.CharField(max_length=255, blank=False, null=False)
-    srid = models.IntegerField(default=4326, blank=False)
-    allow_page_size_0 = models.BooleanField(_('Allow page_size=0 (Disables pagination)'), default=False)
-    page_size = models.IntegerField(blank=True, null=True,
-                                    help_text=_('Default value is %(page_size)s. Value 0 disables pagination.')
-                                    % {'page_size': settings.LAYERSERVER_PAGE_SIZE})
-    max_page_size = models.IntegerField(blank=True, null=True,
-                                        help_text=_('Default value is %(max_page_size)s')
-                                        % {'max_page_size': settings.LAYERSERVER_MAX_PAGE_SIZE})
+    name = models.CharField(_('name'), max_length=255, blank=False, null=False, unique=True)
+    table = models.CharField(_('table'), max_length=255, blank=False, null=False)
+    pk_field = models.CharField(_('pk field'), max_length=255, blank=True, null=False)
+    geom_field = models.CharField(_('geom field'), max_length=255, blank=False, null=False)
+    srid = models.IntegerField(_('srid'), default=4326, blank=False)
+    allow_page_size_0 = models.BooleanField(_('Allow page size=0 (Disables pagination)'), default=False)
+    page_size = models.IntegerField(
+        _('page size'), blank=True, null=True, help_text=_('Default value is %s. Value 0 disables pagination.') %
+        settings.LAYERSERVER_PAGE_SIZE)
+    max_page_size = models.IntegerField(
+        _('maximum page size'), blank=True, null=True, help_text=_('Default value is %s') %
+        settings.LAYERSERVER_MAX_PAGE_SIZE)
 
-    list_fields = models.TextField(blank=True, null=True)
-    form_fields = models.TextField(blank=True, null=True)
+    list_fields = models.TextField(_('list fields'), blank=True, null=True)
+    form_fields = models.TextField(_('form fields'), blank=True, null=True)
 
     anonymous_view = models.BooleanField(_('Can view'), default=False)
     anonymous_add = models.BooleanField(_('Can add'), default=False)
@@ -289,27 +289,27 @@ DATA_TYPES = {
 class DataBaseLayerField(models.Model):
 
     WIDGET_CHOICES = Choices(
-        ('auto', 'Auto'),
-        ('choices', 'Choices, one line per value'),
-        ('date', 'Date'),
-        ('image', 'Image'),
-        ('linkedfield', 'Linked Field'),
-        ('sqlchoices', 'SQL choices'),
+        ('auto', _('Auto')),
+        ('choices', _('Choices, one line per value')),
+        ('date', _('Date')),
+        ('image', _('Image')),
+        ('linkedfield', _('Linked Field')),
+        ('sqlchoices', _('SQL choices')),
     )
 
     layer = models.ForeignKey(
         DataBaseLayer, null=False, blank=False,
         related_name='fields', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, blank=False, null=False)
-    label = models.CharField(max_length=255, blank=True, null=True)
-    search = models.BooleanField(default=True)
-    fullsearch = models.BooleanField(default=True)
-    enabled = models.BooleanField(default=True)
-    readonly = models.BooleanField(default=False)
-    blank = models.BooleanField(default=True)
-    widget = models.CharField(max_length=25, blank=False,
-                              choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
-    widget_options = models.TextField(null=True, blank=True)
+    name = models.CharField(_('name'), max_length=255, blank=False, null=False)
+    label = models.CharField(_('label'), max_length=255, blank=True, null=True)
+    search = models.BooleanField(_('search'), default=True)
+    fullsearch = models.BooleanField(_('full search'), default=True)
+    enabled = models.BooleanField(_('enabled'), default=True)
+    readonly = models.BooleanField(_('readonly'), default=False)
+    blank = models.BooleanField(_('blank'), default=True)
+    widget = models.CharField(
+        _('srid'), max_length=25, blank=False, choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
+    widget_options = models.TextField(_('srid'), null=True, blank=True)
 
     @cached_property
     def field_type(self):
@@ -378,10 +378,10 @@ class DataBaseLayerField(models.Model):
 
 class DataBaseLayerStyleRule(StyleMixin, models.Model):
     layer = models.ForeignKey(DataBaseLayer, related_name='rules', on_delete=models.CASCADE)
-    field = models.CharField(max_length=50, blank=False, null=False)
-    comparator = models.CharField(max_length=3, blank=False, null=False, choices=COMPARATOR_CHOICES)
-    value = models.CharField(max_length=255, blank=False, null=False,)
-    order = models.PositiveIntegerField(blank=True, null=True)
+    field = models.CharField(_('field'), max_length=50, blank=False, null=False)
+    comparator = models.CharField(_('comparator'), max_length=3, blank=False, null=False, choices=COMPARATOR_CHOICES)
+    value = models.CharField(_('value'), max_length=255, blank=False, null=False,)
+    order = models.PositiveIntegerField(_('order'), blank=True, null=True)
 
     def __str__(self):
         return '%s %s %s' % (self.field, self.comparator, self.value or '')

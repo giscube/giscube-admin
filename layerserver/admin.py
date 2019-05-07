@@ -48,7 +48,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     tabs = (
         (_('Information'), ('tab-information',)),
-        (_('GEOJson'), ('tab-geojson',)),
+        (_('GeoJSON'), ('tab-geojson',)),
         (_('Style'), ('tab-style',)),
         (_('Design'), ('tab-design',)),
     )
