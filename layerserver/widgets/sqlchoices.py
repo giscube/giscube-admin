@@ -56,4 +56,4 @@ class SqlchoicesWidget(BaseJSONWidget):
         if 'label' in options:
             data['label'] = options['label']
 
-        return data
+        return {'widget_options': data}

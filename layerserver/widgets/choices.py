@@ -6,8 +6,8 @@ class ChoicesWidget(BaseWidget):
 
     @staticmethod
     def serialize_widget_options(obj):
+        data = {}
         try:
-            data = {}
             rows = []
             if obj.widget_options is not None:
                 for line in obj.widget_options.splitlines():
@@ -19,6 +19,7 @@ class ChoicesWidget(BaseWidget):
                     else:
                         return {'error': 'ERROR WITH WIDGET OPTIONS'}
             data['values_list'] = rows
-            return data
         except Exception:
             return {'error': 'ERROR WITH WIDGET OPTIONS'}
+
+        return {'widget_options': data}
