@@ -154,7 +154,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='databaselayerfield',
             name='widget',
-            field=models.CharField(choices=[('auto', 'Automàtic'), ('choices', 'Escollir, un valor per línia'), ('date', 'Data'), ('image', 'Imatge'), ('linkedfield', 'Camp enllaçat'), ('sqlchoices', 'Escollit mitjançant consulta SQL')], default='auto', max_length=25, verbose_name='srid'),
+            field=models.CharField(choices=[('auto', 'Automàtic'), ('choices', 'Escollir, un valor per línia'), ('date', 'Data'), ('image', 'Imatge'), ('linkedfield', 'Camp enllaçat'), ('sqlchoices', 'Escollit mitjançant consulta SQL')], default='auto', max_length=25, verbose_name='widget'),
         ),
         migrations.AlterField(
             model_name='databaselayerfield',

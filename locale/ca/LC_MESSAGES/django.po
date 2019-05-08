@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-07 09:32+0000\n"
-"PO-Revision-Date: 2019-05-07 11:32+0200\n"
+"POT-Creation-Date: 2019-05-08 06:29+0000\n"
+"PO-Revision-Date: 2019-05-08 08:37+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -318,7 +318,7 @@ msgstr "Usuaris"
 
 #: layerserver/admin.py:190
 msgid "Data base"
-msgstr "Bade de dades"
+msgstr "Base de dades"
 
 #: layerserver/admin.py:191 layerserver/models.py:375
 msgid "Fields"
@@ -408,8 +408,7 @@ msgstr "clau primària"
 msgid "geom field"
 msgstr "camp amb geometria"
 
-#: layerserver/models.py:158 layerserver/models.py:311
-#: layerserver/models.py:312
+#: layerserver/models.py:158 layerserver/models.py:312
 msgid "srid"
 msgstr "srid"
 
@@ -469,7 +468,7 @@ msgstr "Automàtic"
 
 #: layerserver/models.py:293
 msgid "Choices, one line per value"
-msgstr "Escollir, un valor per línia"
+msgstr "Escollir: un valor per línia"
 
 #: layerserver/models.py:294
 msgid "Date"
@@ -485,7 +484,7 @@ msgstr "Camp enllaçat"
 
 #: layerserver/models.py:297
 msgid "SQL choices"
-msgstr "Escollit mitjançant consulta SQL"
+msgstr "Escollir: mitjançant consulta SQL"
 
 #: layerserver/models.py:304
 msgid "label"
@@ -510,6 +509,10 @@ msgstr "mode lectura"
 #: layerserver/models.py:309
 msgid "blank"
 msgstr "blanc"
+
+#: layerserver/models.py:311
+msgid "widget"
+msgstr "Giny"
 
 #: layerserver/models.py:374
 msgid "Field"
