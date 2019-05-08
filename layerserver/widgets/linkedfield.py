@@ -29,3 +29,13 @@ class LinkedfieldWidget(BaseJSONWidget):
 
         if 'column' not in data:
             return LinkedfieldWidget.ERROR_COLUMN_REQUIRED
+
+    @staticmethod
+    def serialize_widget_options(obj):
+        try:
+            options = json.loads(obj.widget_options)
+        except Exception:
+            return {'error': 'ERROR PARSING WIDGET OPTIONS'}
+
+        data = {'widget_options': options}
+        return data
