@@ -24,3 +24,13 @@ class DateWidget(BaseJSONWidget):
 
         if 'format' not in data:
             return DateWidget.ERROR_FORMAT_REQUIRED
+
+    @staticmethod
+    def serialize_widget_options(obj):
+        try:
+            options = json.loads(obj.widget_options)
+        except Exception:
+            return {'error': 'ERROR PARSING WIDGET OPTIONS'}
+
+        data = {'widget_options': options}
+        return data
