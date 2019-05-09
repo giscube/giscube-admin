@@ -1,7 +1,7 @@
 from rest_framework import authentication
-from rest_framework import permissions
 from rest_framework import viewsets
 
+from giscube.permissions import FixedDjangoModelPermissions
 from .api import GeoJSONLayerViewSet, DBLayerViewSet, DBLayerContentViewSet
 from .permissions import DataBaseLayerDjangoPermission
 from .serializers import DBLayerDetailSerializer
@@ -9,7 +9,7 @@ from .serializers import DBLayerDetailSerializer
 
 class AdminGeoJSONLayerViewSet(GeoJSONLayerViewSet):
     authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (FixedDjangoModelPermissions,)
 
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.all()
@@ -18,7 +18,7 @@ class AdminGeoJSONLayerViewSet(GeoJSONLayerViewSet):
 
 class AdminDBLayerViewSet(viewsets.ReadOnlyModelViewSet, DBLayerViewSet):
     authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (FixedDjangoModelPermissions,)
 
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.all()
