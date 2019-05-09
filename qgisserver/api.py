@@ -3,13 +3,13 @@ import time
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.shortcuts import get_object_or_404
 
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import (MultiPartParser, FormParser,)
 from rest_framework.response import Response
 
-
+from giscube.permissions import FixedDjangoModelPermissions
 from .models import Project, Service
 from .serializers import ProjectSerializer, ServiceSerializer
 
@@ -24,7 +24,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all().order_by('pk')
     serializer_class = ProjectSerializer
     pagination_class = StandardResultsSetPagination
-    permission_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (FixedDjangoModelPermissions,)
 
     @action(methods=['post'], detail=True)
     def publish(self, request, id=None):
@@ -62,4 +62,4 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
     pagination_class = StandardResultsSetPagination
     parser_classes = (MultiPartParser, FormParser,)
-    permission_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (FixedDjangoModelPermissions,)
