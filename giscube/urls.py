@@ -32,6 +32,7 @@ urlpatterns = [
     # Examples:
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
+    path('api/v2/giscube/', include('giscube.api_urls_v2')),
     re_path(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
     path('admin/giscube/rebuild_index/', admin.site.admin_view(RebuildIndexView.as_view()), name='rebuild_index'),
     path('admin/', admin.site.urls),

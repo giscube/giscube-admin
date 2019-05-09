@@ -1,15 +1,14 @@
-
-
 import os
 import requests
 import tempfile
-from celery import shared_task
 import xml.etree.ElementTree as ET
 
-from rest_framework import status
+from celery import shared_task
 
 from django.conf import settings
 from django.urls import reverse
+
+from rest_framework import status
 
 
 def patch_qgis_project(service):
@@ -39,8 +38,10 @@ def unique_service_directory(instance, filename):
 
 @shared_task
 def update_external_service(service_pk):
+    from giscube.utils import get_or_create_category
     from .models import Service
     from .serializers import ServiceSerializer
+
     service = Service.objects.get(pk=service_pk)
     # Generic configuration
     api_put_url = reverse('qgisserver_service-detail', args=[service.name])
@@ -64,6 +65,10 @@ def update_external_service(service_pk):
         # Server configuration
         headers['Authorization'] = 'Bearer %s' % server.token
 
+        # Category
+        data['category'] = get_or_create_category(server.url, headers, service.category)
+
+        # Service
         project_file = open(file_path, 'rb')
         files = {'project_file': (file_name, project_file, "text/xml")}
         # Update or create server
