@@ -41,12 +41,12 @@ def geojsonlayer_check_cache(layer):
         async_geojsonlayer_refresh.delay(layer.pk)
 
 
-def geojsonlayer_refresh(pk):
+def geojsonlayer_refresh(pk, force_refresh_data_file):
     layer = GeoJsonLayer.objects.get(pk=pk)
-    geojsonlayer_refresh_layer(layer)
+    geojsonlayer_refresh_layer(layer, force_refresh_data_file)
 
 
-def geojsonlayer_refresh_layer(layer):
+def geojsonlayer_refresh_layer(layer, force_refresh_data_file):
     if layer.url:
         headers = {}
         if layer.headers:
@@ -54,20 +54,20 @@ def geojsonlayer_refresh_layer(layer):
             matches = re.findall(r'^([^=#\n\r][^=]*)=(.*)$', layer.headers, flags=re.M)
             for k, v in matches:
                 headers[k] = v
-        try:
-            r = requests.get(layer.url, headers=headers)
-        except Exception:
-            raise
-        else:
-            if r.status_code >= 200 and r.status_code < 300:
-                content = ContentFile(r.text)
-                if content:
-                    remote_file = os.path.join(
-                        settings.MEDIA_ROOT, layer.service_path, 'remote.json')
-                    if os.path.exists(remote_file):
-                        os.remove(remote_file)
-                    layer.data_file.save('remote.json', content, save=True)
-                    layer.last_fetch_on = timezone.localtime()
+        remote_file = os.path.join(settings.MEDIA_ROOT, layer.service_path, 'remote.json')
+        if force_refresh_data_file or not os.path.isfile(remote_file):
+            try:
+                r = requests.get(layer.url, headers=headers)
+            except Exception:
+                raise
+            else:
+                if r.status_code >= 200 and r.status_code < 300:
+                    content = ContentFile(r.text)
+                    if content:
+                        if os.path.exists(remote_file):
+                            os.remove(remote_file)
+                        layer.data_file.save('remote.json', content, save=True)
+                        layer.last_fetch_on = timezone.localtime()
 
     if layer.data_file:
         path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)

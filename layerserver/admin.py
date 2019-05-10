@@ -1,5 +1,3 @@
-import json
-
 from django.db import transaction
 from django.contrib import admin, messages
 from django.urls import reverse
@@ -11,14 +9,15 @@ from django_vue_tabs.admin import TabsMixin
 from giscube.utils import unique_service_directory
 
 from .admin_forms import (
-    DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm
+    DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm, GeoJsonLayerAddForm,
+    GeoJsonLayerChangeForm
 )
 from .models import (
     GeoJsonLayer, GeoJsonLayerStyleRule, DataBaseLayer, DataBaseLayerField,
     DBLayerGroup, DBLayerUser, DataBaseLayerReference, DataBaseLayerStyleRule
 )
 from .tasks import async_geojsonlayer_refresh
-from .widgets import widgets_types, BaseJSONWidget
+from .widgets import widgets_types
 
 
 class StyleRuleInlineMixin(admin.StackedInline):
@@ -53,7 +52,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Design'), ('tab-design',)),
     )
 
-    fieldsets = [
+    add_fieldsets = [
         (None, {
             'fields': [
                 'category', 'name', 'title',
@@ -81,6 +80,26 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
+    edit_fieldsets = add_fieldsets.copy()
+    edit_fieldsets[1][1]['fields'].insert(3, 'force_refresh_data_file')
+
+    def add_view(self, request, form_url='', extra_context=None):
+        self.fieldsets = self.add_fieldsets
+        return super().add_view(request, form_url, extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.fieldsets = self.edit_fieldsets
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
+    def get_form(self, request, obj=None, **kwargs):
+        defaults = {}
+        if obj is None:
+            defaults['form'] = GeoJsonLayerAddForm
+        else:
+            defaults['form'] = GeoJsonLayerChangeForm
+        defaults.update(kwargs)
+        return super().get_form(request, obj, **defaults)
+
     def public_url(self, obj):
         url = reverse('geojsonlayer', kwargs={'name': obj.name})
         return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
@@ -99,8 +118,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             messages.info(request, '[%s] will be requested in background.' % obj.url)
         elif obj.data_file:
             messages.info(request, 'GeoJsonLayer will be generated/updated in background.')
+        force_refresh_data_file = False
+        if 'force_refresh_data_file' in form.cleaned_data:
+            force_refresh_data_file = form.cleaned_data['force_refresh_data_file']
         transaction.on_commit(
-            lambda: async_geojsonlayer_refresh.delay(obj.pk)
+            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file)
         )
 
 

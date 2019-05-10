@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+from django import forms
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
-from django import forms
+from django.utils.translation import gettext as _
 
 from giscube.models import DBConnection
 from giscube.db.utils import get_table_parts
 
-from .models import DataBaseLayer, DataBaseLayerField
+from .models import DataBaseLayer, DataBaseLayerField, GeoJsonLayer
 from .model_legacy import get_fields
 from .widgets import widgets_types
 
@@ -171,3 +171,18 @@ class DataBaseLayerFieldsInlineForm(forms.ModelForm):
     class Meta:
         model = DataBaseLayerField
         fields = '__all__'
+
+
+class GeoJsonLayerAddForm(forms.ModelForm):
+    class Meta:
+        model = GeoJsonLayer
+        exclude = ()
+
+
+class GeoJsonLayerChangeForm(forms.ModelForm):
+    force_refresh_data_file = forms.BooleanField(
+        label=_('Force refresh Data file'), widget=forms.CheckboxInput, required=False, initial=False)
+
+    class Meta:
+        model = GeoJsonLayer
+        exclude = ()
