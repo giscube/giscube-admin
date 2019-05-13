@@ -3,7 +3,6 @@ import shutil
 import tempfile
 
 from layerserver import widgets
-
 from tests.common import BaseTest
 
 

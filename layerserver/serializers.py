@@ -1,13 +1,15 @@
-from django.db import transaction
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.files.uploadedfile import UploadedFile
+from django.db import transaction
 from django.urls import reverse
+
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
-from layerserver.models import DataBaseLayer, DataBaseLayerReference, GeoJsonLayer
 from layerserver.model_legacy import create_dblayer_model
+from layerserver.models import DataBaseLayer, DataBaseLayerReference, GeoJsonLayer
+
 from .serializers_dblayer_field import DBLayerFieldSerializer
 
 
@@ -195,15 +197,15 @@ def create_dblayer_serializer(model, fields, id_field, read_only_fields):
     if id_field not in fields_to_serialize:
         fields_to_serialize.append(id_field)
 
+    meta_attrs = {
+        'model': model, 'geo_field': geo_field, 'id_field': id_field,
+        'map_id_field': map_id_field,
+        'extra_kwargs': extra_kwargs
+    }
     attrs = {
         '__module__': 'layerserver',
-        'Meta': type(str('Meta'), (object,),
-                     {
-                         'model': model, 'geo_field': geo_field, 'id_field': id_field,
-                         'map_id_field': map_id_field,
-                         'extra_kwargs': extra_kwargs
-                         })
-        }
+        'Meta': type(str('Meta'), (object,), meta_attrs)
+    }
 
     if len(fields) > 0:
         setattr(attrs['Meta'], 'fields', fields_to_serialize)
@@ -296,11 +298,11 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             'list_fields': obj.list_fields,
             'form_fields': obj.form_fields,
             'popup': obj.popup
-            }
+        }
         data['pagination'] = {
             'page_size': obj.get_page_size(),
             'max_page_size': obj.get_max_page_size()
-            }
+        }
         Layer = create_dblayer_model(obj)
         data['geom_type'] = None
         if obj.geom_field is not None:

@@ -1,4 +1,3 @@
-
 def get_table_parts(table):
     table_name = table
     table_schema = None

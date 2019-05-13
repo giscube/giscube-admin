@@ -3,16 +3,17 @@ import os
 import shutil
 import tempfile
 
-from django.core.files import File
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files import File
 from django.test import TransactionTestCase
 from django.urls import reverse
 
 from giscube.models import DBConnection, UserAsset
-from layerserver.models import DataBaseLayer, DataBaseLayerField
 from layerserver.model_legacy import create_dblayer_model
+from layerserver.models import DataBaseLayer, DataBaseLayerField
 from tests.common import BaseTest
+
 
 UserModel = get_user_model()
 

@@ -2,22 +2,21 @@ import json
 import os
 import shutil
 import tempfile
-
-from PIL import Image
 from io import BytesIO
 
-from django.core.files import File
+from PIL import Image
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import Client
-from django.test import TransactionTestCase
-
+from django.core.files import File
+from django.test import Client, TransactionTestCase
 from django.urls import reverse
 
 from giscube.models import DBConnection
-from layerserver.models import DataBaseLayer, DataBaseLayerField
 from layerserver.model_legacy import create_dblayer_model
+from layerserver.models import DataBaseLayer, DataBaseLayerField
 from tests.common import BaseTest
+
 
 UserModel = get_user_model()
 

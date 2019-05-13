@@ -8,10 +8,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import logging
 import re
+
 from kombu import Exchange, Queue
 
 
@@ -153,7 +154,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # e.g.: My name,admin@example.com,Other admin,admin2@example.com
 # ADMINS will be an empty array is it is not defined in the environment
-ADMINS = list(zip(*([iter(os.getenv('ADMINS', '').split(','))]*2)))
+ADMINS = list(zip(*([iter(os.getenv('ADMINS', '').split(','))] * 2)))
 
 LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', LANGUAGE_CODE)
@@ -211,15 +212,13 @@ CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL',
 CORS_ORIGIN_WHITELIST = tuple(
     whitelisted
     for whitelisted
-    in re.sub('\s', '', os.getenv('CORS_ORIGIN_WHITELIST', '')).split(',')
+    in re.sub(r'\s', '', os.getenv('CORS_ORIGIN_WHITELIST', '')).split(',')
     if whitelisted
 )
 # CORS_ALLOW_CREDENTIALS = True
 
 GISCUBE_IMAGESERVER = {
-    'DATA_ROOT': os.environ.get(
-                    'GISCUBE_IMAGESERVER_DATA_ROOT',
-                    os.path.join(APP_ROOT, 'imageserver')).split(',')
+    'DATA_ROOT': os.environ.get('GISCUBE_IMAGESERVER_DATA_ROOT', os.path.join(APP_ROOT, 'imageserver')).split(',')
 }
 
 HAYSTACK_CONNECTIONS = {
@@ -300,9 +299,9 @@ REST_FRAMEWORK = {
         'giscube.permissions.PermissionNone',
     ],
     'DEFAULT_RENDERER_CLASSES': (
-       # 'rest_framework.renderers.JSONRenderer',
-       # 'rest_framework.renderers.BrowsableAPIRenderer',
-       'drf_ujson.renderers.UJSONRenderer',
+        # 'rest_framework.renderers.JSONRenderer',
+        # 'rest_framework.renderers.BrowsableAPIRenderer',
+        'drf_ujson.renderers.UJSONRenderer',
     ),
     'DEFAULT_PARSER_CLASSES': (
         # 'rest_framework.parsers.JSONParser',
@@ -327,9 +326,9 @@ CELERY_QUEUES = (
 )
 CELERY_ROUTES = {
     'giscube.tasks.async_haystack_rebuild_index': {
-        'queue': 'sequential_queue'},
+        'queue': 'sequential_queue'
     }
-
+}
 
 USER_ASSETS_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
 
@@ -350,7 +349,7 @@ if not GISCUBE_LAYERSERVER_DISABLED:
 
     INSTALLED_APPS += [
         'rest_framework_gis',
-     ]
+    ]
 
 LOGGING = {
     'version': 1,
@@ -378,7 +377,4 @@ if os.path.exists(extra_settings_path):
     # Python 2 only:
     # execfile(extra_settings_path, globals())
     # Python 2 and 3:
-    exec(compile(
-        open(
-            extra_settings_path, "rb"
-            ).read(), extra_settings_path, 'exec'), globals())
+    exec(compile(open(extra_settings_path, 'rb').read(), extra_settings_path, 'exec'), globals())

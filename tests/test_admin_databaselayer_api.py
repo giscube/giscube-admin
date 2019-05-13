@@ -4,10 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from rest_framework.test import APIClient
-from tests.common import BaseTest
 
 from giscube.models import DBConnection
 from layerserver.models import DataBaseLayer
+from tests.common import BaseTest
 
 
 class AdminDataBaseLayerAPITestCase(BaseTest):

@@ -3,10 +3,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
-from tests.common import BaseTest
-
 from giscube.models import DBConnection
-from layerserver.models import DataBaseLayer, DBLayerUser, DBLayerGroup
+from layerserver.models import DataBaseLayer, DBLayerGroup, DBLayerUser
+from tests.common import BaseTest
 
 
 UserModel = get_user_model()

@@ -1,4 +1,4 @@
-from .utils import get_version
+from .utils import get_version  # noqa isort:skip
 
 # 'alpha', 'beta', 'rc', 'final'
 VERSION = (0, 103, 1, 'final', 0)

@@ -8,8 +8,9 @@ from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from giscube.models import UserAsset
 from rest_framework import status
+
+from giscube.models import UserAsset
 
 from .common import BaseTest
 

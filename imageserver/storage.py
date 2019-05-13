@@ -1,9 +1,10 @@
+import logging
+import os
+
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import abspathu
 
-import logging
-import os
 
 logger = logging.getLogger(__name__)
 

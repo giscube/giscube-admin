@@ -1,13 +1,12 @@
 import time
 
-from django.views.generic import View
-from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
-from django.conf import settings
-
-
 import requests
 from requests.exceptions import ConnectionError
+
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.views.generic import View
 
 from imageserver.models import Service
 

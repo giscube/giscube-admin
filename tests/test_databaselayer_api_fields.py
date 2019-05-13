@@ -2,10 +2,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from tests.common import BaseTest
-
 from giscube.models import DBConnection
 from layerserver.models import DataBaseLayer
+from tests.common import BaseTest
 
 
 UserModel = get_user_model()

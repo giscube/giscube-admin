@@ -1,13 +1,14 @@
 import logging
 
-from django.views.generic import View
-from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
-from django.conf import settings
-
 import requests
 
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.views.generic import View
+
 from qgisserver.models import Service
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class QGISProxy(View):
                 try:
                     bbox = list(map(float, bbox.split(',')))
                     print('BBOX', bbox)
-                except:
+                except Exception:
                     bbox = []
             width = param_get(request.GET, 'width', '')
             height = param_get(request.GET, 'height', '')

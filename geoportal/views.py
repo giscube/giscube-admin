@@ -3,7 +3,6 @@ import json
 from django.http import HttpResponse
 from django.views.generic import View
 
-
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 

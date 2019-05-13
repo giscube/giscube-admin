@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from collections import OrderedDict
 
 from rest_framework import pagination

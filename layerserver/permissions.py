@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
-
 from django.contrib.auth.models import AnonymousUser
+
 from rest_framework import permissions
 
 from .models import DataBaseLayer, DBLayerGroup
@@ -40,10 +38,7 @@ class DBLayerPermissions():
             if p.can_delete:
                 permission['delete'] = p.can_delete
         else:
-            ps = DBLayerGroup.objects.filter(
-                layer=layer,
-                group__in=user.groups.all(),
-                )
+            ps = DBLayerGroup.objects.filter(layer=layer, group__in=user.groups.all())
             for p in ps:
                 if p.can_view:
                     permission['view'] = p.can_view

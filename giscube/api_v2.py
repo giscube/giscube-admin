@@ -1,9 +1,11 @@
+from url_filter.filtersets import ModelFilterSet
+
 from django.db.models.functions import Concat
 
 from rest_framework import viewsets
-from url_filter.filtersets import ModelFilterSet
 
 from giscube.permissions import FixedDjangoModelPermissions
+
 from .models import Category
 from .serializers import CategorySerializer
 

@@ -1,5 +1,6 @@
 import io
 import logging
+
 import pdf2image
 from PIL import Image
 

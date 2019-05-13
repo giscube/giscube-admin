@@ -1,8 +1,8 @@
 import os
-import requests
 import tempfile
-
 from urllib.parse import urlencode
+
+import requests
 
 from django.conf import settings
 from django.urls import reverse

@@ -1,14 +1,12 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.urls import reverse
 
+from giscube.models import DBConnection
+from layerserver.model_legacy import create_dblayer_model
+from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
-from giscube.models import DBConnection
-from layerserver.models import DataBaseLayer, DBLayerUser, DBLayerGroup
-
-from layerserver.model_legacy import create_dblayer_model
 
 UserModel = get_user_model()
 

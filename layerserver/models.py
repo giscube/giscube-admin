@@ -2,24 +2,25 @@ import logging
 import os
 import shutil
 
+from model_utils import Choices
+
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
-from django.db.models.signals import pre_save, post_save, post_delete
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
-from model_utils import Choices
+from giscube.db.utils import get_table_parts
+from giscube.models import DBConnection
+from giscube.utils import unique_service_directory
+from layerserver import model_legacy
 
 from .model_legacy import ImageWithThumbnailField
 from .models_mixins import BaseLayerMixin, PopupMixin, ShapeStyleMixin, StyleMixin
-import layerserver.model_legacy as model_legacy
-from giscube.db.utils import get_table_parts
-from giscube.utils import unique_service_directory
-from giscube.models import DBConnection
 
 
 logger = logging.getLogger(__name__)
@@ -187,10 +188,10 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
         return self.get_default_popup_content(fields)
 
     def get_page_size(self):
-            return self.page_size if self.page_size else settings.LAYERSERVER_PAGE_SIZE
+        return self.page_size if self.page_size else settings.LAYERSERVER_PAGE_SIZE
 
     def get_max_page_size(self):
-            return self.max_page_size if self.max_page_size else settings.LAYERSERVER_MAX_PAGE_SIZE
+        return self.max_page_size if self.max_page_size else settings.LAYERSERVER_MAX_PAGE_SIZE
 
     def save(self, *args, **kwargs):
         self.name = slugify(self.name)
