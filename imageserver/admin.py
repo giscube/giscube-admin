@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
 
-from imageserver.models import Service, Layer, ServiceLayer, NamedMask
+from imageserver.models import Layer, NamedMask, Service, ServiceLayer
 
 
 class ServiceLayerInline(admin.TabularInline):

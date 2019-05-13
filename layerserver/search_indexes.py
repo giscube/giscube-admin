@@ -1,9 +1,12 @@
 import json
-from haystack import indexes
+
 from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-from layerserver.models import GeoJsonLayer, DataBaseLayer
+
+from haystack import indexes
+
+from layerserver.models import DataBaseLayer, GeoJsonLayer
 
 
 class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):

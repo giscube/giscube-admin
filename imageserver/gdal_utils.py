@@ -1,7 +1,9 @@
 import os
 import subprocess
-from osgeo import osr, gdal, ogr
-from django.contrib.gis.geos import Polygon, MultiPolygon
+
+from osgeo import gdal, ogr, osr
+
+from django.contrib.gis.geos import MultiPolygon, Polygon
 
 
 def get_image_file_info(path):
@@ -45,7 +47,7 @@ def get_image_dir_info(path, projection=4326):
     args = ['gdalbuildvrt', '-addalpha', vrtfile]
     for info in valid_files:
         args.append(info['path'])
-    result = subprocess.call(args)
+    subprocess.call(args)
 
     return get_image_file_info(os.path.join(path, vrtfile))
 
@@ -104,7 +106,6 @@ def _create_tileindex_layer(path, projection):
 
 def gdal_build_overviews(path):
     dataset = gdal.Open(path)
-    driver = dataset.GetDriver()
     if path.endswith('.tif'):
         gdal.SetConfigOption('COMPRESS_OVERVIEW', 'JPEG')
         gdal.SetConfigOption('PHOTOMETRIC_OVERVIEW', 'YCBCR')
@@ -126,7 +127,7 @@ def gdal_build_overviews(path):
 
 
 # from http://gis.stackexchange.com/questions/57834/how-to-get-raster-corner-coordinates-using-python-gdal-bindings
-def GetExtent(gt,cols,rows):
+def GetExtent(gt, cols, rows):
     ''' Return list of corner coordinates from a geotransform
 
         @type gt:   C{tuple/list}
@@ -138,19 +139,20 @@ def GetExtent(gt,cols,rows):
         @rtype:    C{[float,...,float]}
         @return:   coordinates of each corner
     '''
-    ext=[]
-    xarr=[0,cols]
-    yarr=[0,rows]
+    ext = []
+    xarr = [0, cols]
+    yarr = [0, rows]
 
     for px in xarr:
         for py in yarr:
-            x=gt[0]+(px*gt[1])+(py*gt[2])
-            y=gt[3]+(px*gt[4])+(py*gt[5])
-            ext.append([x,y])
+            x = gt[0] + (px * gt[1]) + (py * gt[2])
+            y = gt[3] + (px * gt[4]) + (py * gt[5])
+            ext.append([x, y])
         yarr.reverse()
     return ext
 
-def ReprojectCoords(coords,src_srs,tgt_srs):
+
+def ReprojectCoords(coords, src_srs, tgt_srs):
     ''' Reproject a list of x,y coordinates.
 
         @type geom:     C{tuple/list}
@@ -162,9 +164,9 @@ def ReprojectCoords(coords,src_srs,tgt_srs):
         @rtype:         C{tuple/list}
         @return:        List of transformed [[x,y],...[x,y]] coordinates
     '''
-    trans_coords=[]
-    transform = osr.CoordinateTransformation( src_srs, tgt_srs)
-    for x,y in coords:
-        x,y,z = transform.TransformPoint(x,y)
-        trans_coords.append([x,y])
+    trans_coords = []
+    transform = osr.CoordinateTransformation(src_srs, tgt_srs)
+    for x, y in coords:
+        x, y, z = transform.TransformPoint(x, y)
+        trans_coords.append([x, y])
     return trans_coords

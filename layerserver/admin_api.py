@@ -1,8 +1,8 @@
-from rest_framework import authentication
-from rest_framework import viewsets
+from rest_framework import authentication, viewsets
 
 from giscube.permissions import FixedDjangoModelPermissions
-from .api import GeoJSONLayerViewSet, DBLayerViewSet, DBLayerContentViewSet
+
+from .api import DBLayerContentViewSet, DBLayerViewSet, GeoJSONLayerViewSet
 from .permissions import DataBaseLayerDjangoPermission
 from .serializers import DBLayerDetailSerializer
 

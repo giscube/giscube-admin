@@ -1,19 +1,18 @@
 import os
 
 from django.contrib.gis.db import models
-from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
+from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.core.validators import validate_comma_separated_integer_list
 from django.utils.translation import gettext as _
 
-from imageserver.mapserver import MapserverMapWriter
-from imageserver.storage import NamedMaskStorage, LayerStorage
-from imageserver.utils import unique_service_directory, unique_layer_directory, extract_zipfile, find_shapefile
-
 from giscube.models import Category
 from giscube.validators import validate_options_json_format
+from imageserver.mapserver import MapserverMapWriter
+from imageserver.storage import LayerStorage, NamedMaskStorage
+from imageserver.utils import extract_zipfile, find_shapefile, unique_layer_directory, unique_service_directory
 
-from .gdal_utils import get_image_file_info, get_image_dir_info
+from .gdal_utils import get_image_dir_info, get_image_file_info
 
 
 SERVICE_VISIBILITY_CHOICES = [

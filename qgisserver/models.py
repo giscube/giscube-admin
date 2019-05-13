@@ -7,10 +7,8 @@ from django.utils.translation import gettext as _
 
 from giscube.models import Category, Server
 from giscube.validators import validate_options_json_format
-from qgisserver.utils import (
-    unique_service_directory,
-    patch_qgis_project, update_external_service, deactivate_services,
-)
+from qgisserver.utils import deactivate_services, patch_qgis_project, unique_service_directory, update_external_service
+
 
 SERVICE_VISIBILITY_CHOICES = [
     ('private', _('Private')),

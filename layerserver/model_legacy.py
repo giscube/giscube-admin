@@ -2,11 +2,11 @@ import json
 import re
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.management.commands.inspectdb import Command
 
 from giscube.db.utils import get_table_parts
+
 from .storage import get_image_with_thumbnail_storage_class
 
 
@@ -123,7 +123,7 @@ def get_fields(connection, table_name):
         # that's assumed if it doesn't exist.
         if att_name == 'id' and extra_params == {'primary_key': True}:
             if field_type == 'AutoField(':
-                #continue
+                # continue
                 pass
             elif field_type == 'IntegerField(' and not connection.features.can_introspect_autofield:
                 comment_notes.append('AutoField?')
@@ -137,7 +137,7 @@ def get_fields(connection, table_name):
                 extra_params['blank'] = True
                 extra_params['null'] = True
 
-        #field_desc = '%s = %s%s' % (
+        # field_desc = '%s = %s%s' % (
         #    att_name,
         field_desc = '%s%s' % (
             # Custom fields will have a dotted path

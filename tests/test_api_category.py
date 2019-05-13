@@ -3,7 +3,6 @@ from django.test import LiveServerTestCase
 
 from giscube.models import Category
 from giscube.utils import get_or_create_category
-
 from tests.common import BaseTest
 
 

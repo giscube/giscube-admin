@@ -1,10 +1,10 @@
-from django.db.backends.base.base import NO_DB_ALIAS
-
+from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper as OriginalDatabaseWrapper
 from django.contrib.gis.db.backends.postgis.features import DatabaseFeatures
-from .introspection import PostGISIntrospection
 from django.contrib.gis.db.backends.postgis.operations import PostGISOperations
 from django.contrib.gis.db.backends.postgis.schema import PostGISSchemaEditor
-from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper as OriginalDatabaseWrapper
+from django.db.backends.base.base import NO_DB_ALIAS
+
+from .introspection import PostGISIntrospection
 
 
 class DatabaseWrapper(OriginalDatabaseWrapper):

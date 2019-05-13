@@ -55,7 +55,7 @@ class RasterOptimizerView(TemplateView):
 
             try:
                 e.size = self.storage.size(e.path)
-            except:
+            except Exception:
                 e.size = 0
 
             for format in ('.tif', '.jpg'):
@@ -78,5 +78,5 @@ class RasterOptimizerView(TemplateView):
                 gdal_build_overviews(self.storage.path(path))
                 return HttpResponse('Overviews completed for %s' % path)
         else:
-            return HttpResponse(form.errors)
+            return HttpResponse(f.errors)
         return HttpResponse('OK')

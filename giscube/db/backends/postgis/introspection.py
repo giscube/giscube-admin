@@ -1,9 +1,8 @@
+from django.contrib.gis.db.backends.postgis.introspection import GeoIntrospectionError
+from django.contrib.gis.db.backends.postgis.introspection import PostGISIntrospection as OriginalPostGISIntrospection
 from django.contrib.gis.gdal import OGRGeomType
 from django.db.backends.postgresql.introspection import DatabaseIntrospection as OriginalDatabaseIntrospection
 from django.db.backends.postgresql.introspection import FieldInfo
-
-from django.contrib.gis.db.backends.postgis.introspection import GeoIntrospectionError
-from django.contrib.gis.db.backends.postgis.introspection import PostGISIntrospection as OriginalPostGISIntrospection
 
 from giscube.db.utils import get_table_parts
 
@@ -13,7 +12,6 @@ class DatabaseIntrospection(OriginalDatabaseIntrospection):
 
 
 class PostGISIntrospection(OriginalPostGISIntrospection):
-
     def get_geometry_type(self, table_name, geo_col):
         """
         The geometry type OID used by PostGIS does not indicate the particular
@@ -82,7 +80,6 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         Return a description of the table with the DB-API cursor.description
         interface.
         """
-        old_table_name = table_name
         table_parts = get_table_parts(table_name)
         table_name = table_parts['table_name']
         table_schema = table_parts['table_schema']
@@ -100,6 +97,6 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
             sql = "SELECT * FROM %s LIMIT 1" % self.connection.ops.quote_name(table_name)
         cursor.execute(sql)
         return [
-            FieldInfo(*line[0:6], field_map[line.name][0] == 'YES', field_map[line.name][1])
+            FieldInfo(*(list(line[0:6]) + [field_map[line.name][0] == 'YES', field_map[line.name][1]]))
             for line in cursor.description
         ]

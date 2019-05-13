@@ -2,7 +2,6 @@ import mimetypes
 
 from django.contrib.auth import get_user_model
 from django.http import FileResponse, Http404, HttpResponseForbidden
-
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from django.views.static import serve

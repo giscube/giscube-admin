@@ -7,6 +7,7 @@ from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
+
 UserModel = get_user_model()
 
 

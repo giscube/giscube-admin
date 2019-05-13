@@ -1,24 +1,19 @@
-# -*- coding: utf-8 -*-
-
-
 import json
 import logging
 import mimetypes
 import os
-
+from functools import reduce
 from operator import __or__ as OR
 
-from django.http import (
-    Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseServerError, FileResponse
-)
-from django.db import transaction
-from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.core.files.uploadedfile import UploadedFile
+from django.db import transaction
+from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.http import FileResponse, Http404, HttpResponseBadRequest, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from django.utils.functional import cached_property
@@ -31,16 +26,11 @@ from giscube.models import UserAsset
 
 from .filters import filterset_factory
 from .model_legacy import create_dblayer_model
-from .models import GeoJsonLayer, DataBaseLayer
+from .models import DataBaseLayer, GeoJsonLayer
 from .pagination import create_geojson_pagination_class
-from .permissions import DBLayerIsValidUser, BulkDBLayerIsValidUser
-
-from .serializers import (
-    DBLayerSerializer, DBLayerDetailSerializer,
-    create_dblayer_serializer, GeoJSONLayerSerializer
-)
+from .permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
+from .serializers import DBLayerDetailSerializer, DBLayerSerializer, GeoJSONLayerSerializer, create_dblayer_serializer
 from .utils import geojsonlayer_check_cache
-from functools import reduce
 
 
 logger = logging.getLogger(__name__)
@@ -93,12 +83,11 @@ class DBLayerViewSet(viewsets.ModelViewSet):
         else:
             self.user_groups = self.request.user.groups.values_list('name', flat=True)
             filter_group = Q(layer_groups__group__name__in=self.user_groups) & Q(
-                Q(layer_groups__can_view=True) | Q(layer_groups__can_add=True) | Q(layer_groups__can_update=True) |
-                Q(layer_groups__can_delete=True))
-
+                Q(layer_groups__can_view=True) | Q(layer_groups__can_add=True) | Q(layer_groups__can_update=True) | Q(
+                    layer_groups__can_delete=True))
             filter_user = Q(layer_users__user=self.request.user) & Q(
-                Q(layer_users__can_view=True) | Q(layer_users__can_add=True) |
-                Q(layer_users__can_update=True) | Q(layer_users__can_delete=True))
+                Q(layer_users__can_view=True) | Q(layer_users__can_add=True) | Q(
+                    layer_users__can_update=True) | Q(layer_users__can_delete=True))
             qs = qs.filter(Q(filter_anonymous) | Q(filter_user) | Q(filter_group)).distinct()
 
         return qs
@@ -208,7 +197,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
                         contains = '%s__icontains' % name
                         lst.append(Q(**{contains: q}))
             if len(lst) > 0:
-                qs = qs.filter(reduce(OR, lst)) # NOQA: E0602
+                qs = qs.filter(reduce(OR, lst))  # noqa: E0602
         return qs
 
     def get_queryset(self):
@@ -494,7 +483,7 @@ class DBLayerContentBulkViewSet(views.APIView):
                 self.delete_user_assets()
                 return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-        except Exception as e:
+        except Exception:
             self.undo()
             transaction.rollback(using=conn)
             transaction.set_autocommit(autocommit, using=conn)

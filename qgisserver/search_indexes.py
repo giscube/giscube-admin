@@ -1,9 +1,10 @@
-import datetime
 import json
 import os
-from haystack import indexes
+
 from django.conf import settings
-from django.utils.translation import ugettext as _
+
+from haystack import indexes
+
 from qgisserver.models import Service
 
 

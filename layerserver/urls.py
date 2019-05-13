@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 
-from .api import (
-    DBLayerDetailViewSet, DBLayerContentViewSet, DBLayerContentBulkViewSet, DBLayerViewSet, GeoJSONLayerViewSet)
+from .api import (DBLayerContentBulkViewSet, DBLayerContentViewSet, DBLayerDetailViewSet, DBLayerViewSet,
+                  GeoJSONLayerViewSet)
 
 
 geojsonlayer_list = GeoJSONLayerViewSet.as_view({

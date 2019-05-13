@@ -6,10 +6,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import (MultiPartParser, FormParser,)
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from giscube.permissions import FixedDjangoModelPermissions
+
 from .models import Project, Service
 from .serializers import ProjectSerializer, ServiceSerializer
 

@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-
-
 from django.conf import settings
 from django.urls import reverse
 
 from giscube.models import DBConnection
+from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
-
-from layerserver.model_legacy import create_dblayer_model
 
 
 class DataBaseLayerBulkAPITestCase(BaseTest):

@@ -1,11 +1,10 @@
 from django.conf import settings
 
 from giscube.models import DBConnection
-from layerserver.models import DataBaseLayer
-from tests.common import BaseTest
-
 from layerserver.model_legacy import create_dblayer_model
+from layerserver.models import DataBaseLayer
 from layerserver.serializers import create_dblayer_serializer
+from tests.common import BaseTest
 
 
 class DataBaseLayerBlankFieldTestCase(BaseTest):

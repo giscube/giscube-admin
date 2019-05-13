@@ -1,5 +1,7 @@
 import json
+
 from haystack import indexes
+
 from geoportal.models import Dataset
 
 

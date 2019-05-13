@@ -1,9 +1,8 @@
 from django.conf import settings
 
-from tests.common import BaseTest
-
 from giscube.models import DBConnection
 from layerserver.models import DataBaseLayer
+from tests.common import BaseTest
 
 
 class DataBaseLayerFieldsChangedAPITestCase(BaseTest):

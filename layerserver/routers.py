@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-
 class DataBaseLayersRouter:
     """
     A router to control all database operations for databaslayers

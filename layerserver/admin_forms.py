@@ -3,11 +3,11 @@ from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
-from giscube.models import DBConnection
 from giscube.db.utils import get_table_parts
+from giscube.models import DBConnection
 
-from .models import DataBaseLayer, DataBaseLayerField, GeoJsonLayer
 from .model_legacy import get_fields
+from .models import DataBaseLayer, DataBaseLayerField, GeoJsonLayer
 from .widgets import widgets_types
 
 

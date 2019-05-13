@@ -1,4 +1,5 @@
 import os
+
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 
@@ -67,7 +68,7 @@ class MapserverMaskWriter(object):
 
     def write(self, name, path, projection):
         a = []
-        mask_name = MapserverMaskWriter.get_mask_name(name) 
+        mask_name = MapserverMaskWriter.get_mask_name(name)
         # LAYER item for mask
         a.append('LAYER')
         a.append('  TYPE POLYGON')
@@ -125,8 +126,7 @@ class MapserverMapWriter(object):
         a.append('      "wms_title" "%s"' % service.title)
         a.append('      "wms_srs" "%s"' % srss)
         a.append('      "wms_enable_request" "GetCapabilities GetMap"')
-        a.append('      "wms_onlineresource" "%s/imageserver/services/%s/?"'
-                                                    % (server, service.name))
+        a.append('      "wms_onlineresource" "%s/imageserver/services/%s/?"' % (server, service.name))
         a.append('      "wms_bbox_extended" "true"')
         a.append('    END')
         a.append('  END')

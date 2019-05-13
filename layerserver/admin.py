@@ -1,21 +1,17 @@
-from django.db import transaction
 from django.contrib import admin, messages
+from django.db import transaction
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext as _
 
 from django_vue_tabs.admin import TabsMixin
 
 from giscube.utils import unique_service_directory
 
-from .admin_forms import (
-    DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm, GeoJsonLayerAddForm,
-    GeoJsonLayerChangeForm
-)
-from .models import (
-    GeoJsonLayer, GeoJsonLayerStyleRule, DataBaseLayer, DataBaseLayerField,
-    DBLayerGroup, DBLayerUser, DataBaseLayerReference, DataBaseLayerStyleRule
-)
+from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
+                          GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
+from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule, DBLayerGroup,
+                     DBLayerUser, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -293,13 +289,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, msg)
         extra_context = extra_context or {}
         widgets_templates = {}
-        from django.utils.html import escape, mark_safe
-
         for k, v in list(widgets_types.items()):
-            # if issubclass(v, BaseJSONWidget):
-            #     temp_text = json.loads(v.TEMPLATE)
-            #     widgets_templates[k] = mark_safe(json.dumps(temp_text).replace('"', r'\"'))
-            # else:
             widgets_templates[k] = mark_safe(v.TEMPLATE.replace('\n', '\\n').replace('"', r'\"'))
         extra_context['widgets_templates'] = widgets_templates
 
@@ -322,10 +312,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             DataBaseLayerAdmin, self).get_form(request, obj, **defaults)
 
     def response_add(self, request, obj, post_url_continue=None):
-        pass
-        from django.contrib.admin.options import IS_POPUP_VAR
-
-        if '_addanother' not in request.POST and IS_POPUP_VAR not in request.POST:
+        if '_addanother' not in request.POST and admin.options.IS_POPUP_VAR not in request.POST:
             request.POST = request.POST.copy()
             request.POST['_continue'] = 1
         return super().response_add(request, obj, post_url_continue)

@@ -1,6 +1,5 @@
-from tests.common import BaseTest
-
 from giscube.db.utils import get_table_parts
+from tests.common import BaseTest
 
 
 class DataBaseLayerTableNameAPITestCase(BaseTest):

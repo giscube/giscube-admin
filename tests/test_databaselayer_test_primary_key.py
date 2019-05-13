@@ -3,8 +3,8 @@ from django.test import TransactionTestCase
 
 from giscube.models import DBConnection
 from layerserver.admin_forms import DataBaseLayerAddForm
-from layerserver.models import DataBaseLayer
 from layerserver.model_legacy import create_dblayer_model
+from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
 
@@ -42,7 +42,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         data = {
             'db_connection': self.conn.pk, 'name': 'address_no_primary_key',
             'table': 'public.address_no_primary_key', 'geom_field': 'geometry', 'srid': 4326, 'pk_field': None
-            }
+        }
         form = DataBaseLayerAddForm(data=data)
         self.assertTrue(form.is_valid())
 
@@ -60,14 +60,14 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         data = {
             'db_connection': self.conn.pk, 'name': 'address_no_primary_key',
             'table': 'public.address_no_primary_key', 'geom_field': 'geometry', 'srid': 4326, 'pk_field': None
-            }
+        }
         form = DataBaseLayerAddForm(data=data)
         self.assertFalse(form.is_valid())
 
         data = {
             'db_connection': self.conn.pk, 'name': 'address_no_primary_key',
             'table': 'public.address_no_primary_key', 'geom_field': 'geometry', 'srid': 4326, 'pk_field': 'code'
-            }
+        }
         form = DataBaseLayerAddForm(data=data)
         valid = form.is_valid()
         self.assertTrue(valid)

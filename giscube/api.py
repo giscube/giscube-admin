@@ -1,6 +1,6 @@
 from django.db.models.functions import Concat
 
-from rest_framework import viewsets, parsers, mixins
+from rest_framework import mixins, parsers, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from giscube.notifications import notify_deprecated

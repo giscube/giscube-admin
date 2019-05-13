@@ -1,13 +1,12 @@
-import os
-
 import inspect
 import json
+import os
 
 from django.conf import settings
-from django.utils.translation import gettext as _
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import URLValidator
+from django.utils.translation import gettext as _
 
 from layerserver.storage import get_image_with_thumbnail_storage_class
 
@@ -37,7 +36,7 @@ class ImageWidget(BaseJSONWidget):
     ERROR_THUMBNAIL_ROOT_NOT_WRITABLE = ('\'thumbnail_root\' folder is not writable')
     ERROR_THUMBNAIL_BASE_URL = ('\'thumbnail_base_url\' is not valid')
 
-    @staticmethod
+    @staticmethod  # noqa: C901
     def is_valid(value):
         try:
             data = json.loads(value)
@@ -64,7 +63,7 @@ class ImageWidget(BaseJSONWidget):
 
         if issubclass(StorageClass, FileSystemStorage):
             path = storage.path('.')
-            if not os.access(path,  os.W_OK):
+            if not os.access(path, os.W_OK):
                 return ImageWidget.ERROR_UPLOAD_ROOT_NOT_WRITABLE
 
         if base_url is not None:
@@ -83,7 +82,7 @@ class ImageWidget(BaseJSONWidget):
 
             if issubclass(thumbnail_storage.__class__, FileSystemStorage):
                 path = thumbnail_storage.path('.')
-                if not os.access(path,  os.W_OK):
+                if not os.access(path, os.W_OK):
                     return ImageWidget.ERROR_THUMBNAIL_ROOT_NOT_WRITABLE
 
         if thumbnail_base_url is not None:

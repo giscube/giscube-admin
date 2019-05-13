@@ -1,5 +1,5 @@
-from .base import BaseWidget, BaseJSONWidget
 from .auto import AutoWidget
+from .base import BaseJSONWidget, BaseWidget
 from .choices import ChoicesWidget
 from .date import DateWidget
 from .image import ImageWidget

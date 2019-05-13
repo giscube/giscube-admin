@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 
-from .admin_api import (
-    AdminDBLayerContentViewSet, AdminDBLayerDetailViewSet, AdminGeoJSONLayerViewSet)
+from .admin_api import AdminDBLayerContentViewSet, AdminDBLayerDetailViewSet, AdminGeoJSONLayerViewSet
+
 
 geojsonlayer_detail = AdminGeoJSONLayerViewSet.as_view({
     'get': 'retrieve',

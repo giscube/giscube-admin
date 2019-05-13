@@ -1,7 +1,9 @@
-import datetime
 import json
-from haystack import indexes
+
 from django.conf import settings
+
+from haystack import indexes
+
 from imageserver.models import Service
 
 

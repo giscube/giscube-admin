@@ -1,8 +1,8 @@
 import os
-import requests
 import tempfile
 import xml.etree.ElementTree as ET
 
+import requests
 from celery import shared_task
 
 from django.conf import settings
@@ -111,6 +111,6 @@ def deactivate_services(service_name, server_pks):
         headers = {
             'Authorization': 'Bearer %s' % server.token
         }
-        requests.patch(server.url+api_url, data=data, headers=headers)
+        requests.patch(server.url + api_url, data=data, headers=headers)
 
         # TODO: handle errors
