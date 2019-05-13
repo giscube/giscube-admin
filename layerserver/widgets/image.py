@@ -91,3 +91,16 @@ class ImageWidget(BaseJSONWidget):
                 val(thumbnail_base_url)
             except ValidationError:
                 return ImageWidget.ERROR_THUMBNAIL_BASE_URL
+
+    @staticmethod
+    def serialize_widget_options(obj):
+        try:
+            options = json.loads(obj.widget_options)
+        except Exception:
+            return {'error': 'ERROR PARSING WIDGET OPTIONS'}
+
+        widget_options = {}
+        if 'upload_size' in options:
+            widget_options['upload_size'] = options['upload_size']
+        data = {'widget_options': widget_options}
+        return data
