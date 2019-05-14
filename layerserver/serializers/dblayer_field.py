@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from .models import DataBaseLayerField
-from .widgets import widgets_types
+from layerserver.models import DataBaseLayerField
+from layerserver.widgets import widgets_types
 
 
 class DBLayerFieldListSerializer(serializers.ListSerializer):
