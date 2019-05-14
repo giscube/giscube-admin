@@ -3,7 +3,6 @@
 import django.contrib.gis.db.models.fields
 import django.core.validators
 from django.db import migrations, models
-import giscube.validators
 import imageserver.models
 import imageserver.storage
 import re
@@ -18,68 +17,68 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='layer',
-            options={'verbose_name': 'Capa', 'verbose_name_plural': 'Capes'},
+            options={'verbose_name': 'Layer', 'verbose_name_plural': 'Layers'},
         ),
         migrations.AlterModelOptions(
             name='layerpreview',
-            options={'verbose_name': 'Vista prèvia de capa', 'verbose_name_plural': 'Vistes prèvies de capa'},
+            options={'verbose_name': 'Layer Preview', 'verbose_name_plural': 'Layer Previews'},
         ),
         migrations.AlterModelOptions(
             name='namedmask',
-            options={'verbose_name': 'Màcara', 'verbose_name_plural': 'Màscares'},
+            options={'verbose_name': 'Mask', 'verbose_name_plural': 'Masks'},
         ),
         migrations.AlterModelOptions(
             name='service',
-            options={'verbose_name': 'Servei', 'verbose_name_plural': 'Serveis'},
+            options={'verbose_name': 'Service', 'verbose_name_plural': 'Services'},
         ),
         migrations.AlterModelOptions(
             name='servicelayer',
-            options={'verbose_name': 'Servei de capa', 'verbose_name_plural': 'Serveis de capa'},
+            options={'verbose_name': 'Service Layer', 'verbose_name_plural': 'Services Layers'},
         ),
         migrations.AlterField(
             model_name='layer',
             name='extent',
-            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, null=True, srid=4326, verbose_name='extensió'),
+            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, null=True, srid=4326, verbose_name='extent'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='group',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='grup'),
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='group'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='image',
-            field=models.CharField(help_text='Fitxer amb la imatge o directori amb els tiles', max_length=255, verbose_name='imatge'),
+            field=models.CharField(help_text='Image file or folder with tiled images', max_length=255, verbose_name='image'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='layer_path',
-            field=models.CharField(max_length=255, verbose_name='camí a la capa'),
+            field=models.CharField(max_length=255, verbose_name='layer path'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='mask',
-            field=models.FileField(blank=True, null=True, storage=imageserver.storage.LayerStorage(), upload_to=imageserver.models.get_mask_upload_path, verbose_name='fitxer de màscara'),
+            field=models.FileField(blank=True, null=True, storage=imageserver.storage.LayerStorage(), upload_to=imageserver.models.get_mask_upload_path, verbose_name='file mask'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='mask_path',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='nom'),
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='name'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='name',
-            field=models.CharField(max_length=50, unique=True, verbose_name='nom'),
+            field=models.CharField(max_length=50, unique=True, verbose_name='name'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='projection',
-            field=models.IntegerField(help_text='EPSG code', verbose_name='projecció'),
+            field=models.IntegerField(help_text='EPSG code', verbose_name='projection'),
         ),
         migrations.AlterField(
             model_name='layer',
             name='title',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='títol'),
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='title'),
         ),
         migrations.AlterField(
             model_name='layerpreview',
@@ -94,81 +93,76 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='namedmask',
             name='mask',
-            field=models.FileField(storage=imageserver.storage.NamedMaskStorage(), upload_to=imageserver.models.get_named_mask_upload_path, verbose_name='màscara'),
+            field=models.FileField(storage=imageserver.storage.NamedMaskStorage(), upload_to=imageserver.models.get_named_mask_upload_path, verbose_name='mask'),
         ),
         migrations.AlterField(
             model_name='namedmask',
             name='mask_path',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='camí de la màscara'),
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='mask path'),
         ),
         migrations.AlterField(
             model_name='namedmask',
             name='name',
-            field=models.CharField(max_length=100, verbose_name='nom'),
+            field=models.CharField(max_length=100, verbose_name='name'),
         ),
         migrations.AlterField(
             model_name='namedmask',
             name='projection',
-            field=models.IntegerField(help_text='codi EPSG', verbose_name='projecció'),
+            field=models.IntegerField(help_text='EPSG code', verbose_name='projection'),
         ),
         migrations.AlterField(
             model_name='service',
             name='active',
-            field=models.BooleanField(default=True, help_text='Enable/disable usage', verbose_name='actiu'),
+            field=models.BooleanField(default=True, help_text='Enable/disable usage', verbose_name='active'),
         ),
         migrations.AlterField(
             model_name='service',
             name='description',
-            field=models.TextField(blank=True, null=True, verbose_name='descripció'),
+            field=models.TextField(blank=True, null=True, verbose_name='description'),
         ),
         migrations.AlterField(
             model_name='service',
             name='extent',
-            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, null=True, srid=4326, verbose_name='nom'),
+            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, null=True, srid=4326, verbose_name='name'),
         ),
         migrations.AlterField(
             model_name='service',
             name='keywords',
-            field=models.CharField(blank=True, max_length=200, null=True, verbose_name='paraules clau'),
+            field=models.CharField(blank=True, max_length=200, null=True, verbose_name='keywords'),
         ),
         migrations.AlterField(
             model_name='service',
             name='name',
-            field=models.CharField(max_length=50, unique=True, verbose_name='nom'),
-        ),
-        migrations.AlterField(
-            model_name='service',
-            name='options',
-            field=models.TextField(blank=True, help_text='format json. Ex: {"maxZoom": 20}', null=True, validators=[giscube.validators.validate_options_json_format], verbose_name='opcions'),
+            field=models.CharField(max_length=50, unique=True, verbose_name='name'),
         ),
         migrations.AlterField(
             model_name='service',
             name='projection',
-            field=models.IntegerField(help_text='codi EPSG', verbose_name='projecció'),
+            field=models.IntegerField(help_text='EPSG code', verbose_name='projection'),
         ),
         migrations.AlterField(
             model_name='service',
             name='service_path',
-            field=models.CharField(max_length=255, verbose_name='extensió'),
+            field=models.CharField(max_length=255, verbose_name='extent'),
         ),
         migrations.AlterField(
             model_name='service',
             name='supported_srs',
-            field=models.CharField(help_text='Llistat de codis EPSG separats per comes', max_length=400, validators=[django.core.validators.RegexValidator(re.compile('^\\d+(?:\\,\\d+)*\\Z'), code='invalid', message='Enter only digits separated by commas.')], verbose_name='supported srs'),
+            field=models.CharField(help_text='Comma separated list of supported EPSG codes', max_length=400, validators=[django.core.validators.RegexValidator(re.compile('^\\d+(?:\\,\\d+)*\\Z'), code='invalid', message='Enter only digits separated by commas.')], verbose_name='supported srs'),
         ),
         migrations.AlterField(
             model_name='service',
             name='title',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='títol'),
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='title'),
         ),
         migrations.AlterField(
             model_name='service',
             name='visibility',
-            field=models.CharField(choices=[('private', 'Privat'), ('public', 'Públic')], default='private', help_text="visibilitat='Privat' restringeix l'ús només als usuaris autenticats", max_length=10, verbose_name='visibilitat'),
+            field=models.CharField(choices=[('private', 'Private'), ('public', 'Public')], default='private', help_text="visibility='Private' restricts usage to authenticated users", max_length=10, verbose_name='visibility'),
         ),
         migrations.AlterField(
             model_name='service',
             name='visible_on_geoportal',
-            field=models.BooleanField(default=False, verbose_name='visible al geoportal'),
+            field=models.BooleanField(default=False, verbose_name='visible on geoportal'),
         ),
     ]
