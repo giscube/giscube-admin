@@ -27,9 +27,10 @@ from giscube.models import UserAsset
 from .filters import filterset_factory
 from .model_legacy import create_dblayer_model
 from .models import DataBaseLayer, GeoJsonLayer
-from .pagination import create_geojson_pagination_class
+from .pagination import create_geojson_pagination_class, create_json_pagination_class
 from .permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
-from .serializers import DBLayerDetailSerializer, DBLayerSerializer, GeoJSONLayerSerializer, create_dblayer_serializer
+from .serializers import (DBLayerDetailSerializer, DBLayerSerializer, GeoJSONLayerSerializer,
+                          create_dblayer_geom_serializer, create_dblayer_serializer)
 from .utils import geojsonlayer_check_cache
 
 
@@ -215,11 +216,18 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         if not layer.allow_page_size_0 and self.request.GET.get('page_size', page_size) == '0':
             raise PageSize0NotAllowedException()
         if self.request.GET.get('page_size', page_size) != '0':
-            return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
+            if self.layer.geom_field is None:
+                return create_json_pagination_class(page_size=page_size, max_page_size=max_page_size)
+            else:
+                return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
 
     def get_serializer_class(self, *args, **kwargs):
-        return create_dblayer_serializer(
-            self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
+        if self.layer.geom_field is None:
+            return create_dblayer_serializer(
+                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
+        else:
+            return create_dblayer_geom_serializer(
+                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
 
     # def delete_multiple(self, request, *args, **kwargs):
     #     queryset = self.filter_queryset(self.get_queryset())
@@ -297,6 +305,14 @@ class DBLayerContentBulkViewSet(views.APIView):
                      self).dispatch(
                          request, *args, **kwargs)
 
+    def get_model_serializer_class(self):
+        if self.layer.geom_field is None:
+            return create_dblayer_serializer(
+                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
+        else:
+            return create_dblayer_geom_serializer(
+                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
+
     def get_queryset(self):
         qs = self.model.objects.all()
         return qs
@@ -361,8 +377,7 @@ class DBLayerContentBulkViewSet(views.APIView):
 
     def add(self, items):
         self.apply_widgets(items)
-        Serializer = create_dblayer_serializer(
-            self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
+        Serializer = self.get_model_serializer_class()
         add_serializers = []
         for i, item in enumerate(items):
             serializer = Serializer(data=item)
@@ -402,8 +417,7 @@ class DBLayerContentBulkViewSet(views.APIView):
 
     def update(self, items):
         self.apply_widgets(items)
-        Serializer = create_dblayer_serializer(
-            self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
+        Serializer = self.get_model_serializer_class()
         update_serializers = []
         for i, item in enumerate(items):
             filter = {}

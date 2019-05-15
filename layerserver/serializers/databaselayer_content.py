@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.gis.db import models
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
@@ -33,10 +35,28 @@ class Geom4326Serializer(GeoFeatureModelSerializer):
         return internal_value
 
 
-class UndoSerializerMixin(object):
+class JSONModelListSerializer(serializers.ListSerializer):
+    @property
+    def data(self):
+        return super(serializers.ListSerializer, self).data
+
+    def to_representation(self, data):
+        return OrderedDict((
+            ('data', super().to_representation(data)),
+        ))
+
+
+class JSONSerializer(serializers.ModelSerializer):
+    @classmethod
+    def many_init(cls, *args, **kwargs):
+        kwargs['child'] = cls()
+        return JSONModelListSerializer(*args, **kwargs)
+
+
+class UndoSerializerMixin(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         self.instance = None
-        return super(Geom4326Serializer, self).__init__(*args, **kwargs)
+        return super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
         """
@@ -47,7 +67,7 @@ class UndoSerializerMixin(object):
         self.instance = instance
         for key, value in validated_data.items():
             setattr(instance, key, value)
-        return super(Geom4326Serializer, self).create(validated_data)
+        return super().create(validated_data)
 
     def save(self, **kwargs):
         """
@@ -63,7 +83,7 @@ class UndoSerializerMixin(object):
                         transaction.on_commit(
                             lambda: old_value.delete(save=False)
                         )
-        return super(UndoSerializerMixin, self).save(**kwargs)
+        return super().save(**kwargs)
 
 
 class AccessTokenMixin(object):
@@ -160,6 +180,45 @@ def apply_widgets(attrs, model, fields):
 
 
 def create_dblayer_serializer(model, fields, id_field, read_only_fields):
+    if id_field is None or id_field == '':
+        id_field = id
+
+    map_id_field = id_field in fields
+
+    extra_kwargs = {}
+    for f in model._meta.fields:
+        extra_kwargs[f.name] = {'required': not model._meta.get_field(f.name).blank}
+
+    fields_to_serialize = fields[:]
+
+    # pk field is always needed
+    if id_field not in fields_to_serialize:
+        fields_to_serialize.append(id_field)
+
+    meta_attrs = {
+        'model': model, 'id_field': id_field,
+        'map_id_field': map_id_field,
+        'extra_kwargs': extra_kwargs,
+        'list_serializer_class': JSONModelListSerializer
+    }
+    attrs = {
+        '__module__': 'layerserver',
+        'Meta': type(str('Meta'), (object,), meta_attrs)
+    }
+
+    if len(fields) > 0:
+        setattr(attrs['Meta'], 'fields', fields_to_serialize)
+    if len(read_only_fields) > 0:
+        setattr(attrs['Meta'], 'read_only_fields', read_only_fields)
+
+    apply_widgets(attrs, model, fields)
+    serializer = type(str('%s_serializer') % str(model._meta.db_table), (
+        UndoSerializerMixin, AccessTokenMixin, ImageWithThumbnailSerializer, JSONSerializer,), attrs)
+
+    return serializer
+
+
+def create_dblayer_geom_serializer(model, fields, id_field, read_only_fields):
     if id_field is None or id_field == '':
         id_field = id
 

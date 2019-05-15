@@ -8,6 +8,7 @@ from django_vue_tabs.admin import TabsMixin
 
 from giscube.utils import unique_service_directory
 
+from .admin_filters import DataBaseLayerGeomNullFilter
 from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
                           GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule, DBLayerGroup,
@@ -191,9 +192,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
     autocomplete_fields = ['category']
-    list_display = ('name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
+    list_display = ('has_geometry', 'name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
     list_display_links = ('name', 'table')
-    list_filter = ('db_connection', 'visible_on_geoportal')
+    list_filter = ('db_connection', 'visible_on_geoportal', DataBaseLayerGeomNullFilter)
     search_fields = ('name', 'title', 'keywords')
     inlines = []
 
@@ -207,6 +208,14 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Information'), ('tab-information',)),
         (_('Data base'), ('tab-data-base',)),
         (_('Fields'), ('tab-fields',)),
+        (_('Permissions'), ('tab-permissions',)),
+        (_('Design'), ('tab-design',)),
+    )
+
+    edit_geom_tabs = (
+        (_('Information'), ('tab-information',)),
+        (_('Data base'), ('tab-data-base',)),
+        (_('Fields'), ('tab-fields',)),
         (_('Style'), ('tab-style',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('References'), ('tab-references',)),
@@ -214,6 +223,36 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     )
 
     edit_fieldsets = [
+        (None, {
+            'fields': [
+                'category', 'name', 'title',
+                'description', 'keywords', 'active',
+                'visible_on_geoportal',
+                ('allow_page_size_0', 'page_size', 'max_page_size',),
+            ],
+            'classes': ('tab-information',),
+        }),
+        (None, {
+            'fields': [
+                'db_connection', 'table', 'pk_field'
+            ],
+            'classes': ('tab-data-base',),
+        }),
+        ('Anonymous user', {
+            'fields': [
+                ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
+            ],
+            'classes': ('tab-permissions',),
+        }),
+        (None, {
+            'fields': [
+                'list_fields', 'form_fields',
+            ],
+            'classes': ('tab-design',),
+        }),
+    ]
+
+    edit_geom_fieldsets = [
         (None, {
             'fields': [
                 'category', 'name', 'title',
@@ -250,6 +289,11 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
+    def has_geometry(self, obj):
+        return obj.geom_field is not None
+    has_geometry.boolean = True
+    has_geometry.short_description = _('Has geometry')
+
     def public_url(self, obj):
         url = reverse('content-list', kwargs={'name': obj.name})
         return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
@@ -277,15 +321,19 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             request, form_url, extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.tabs = self.edit_tabs
-        self.fieldsets = self.edit_fieldsets
-
-        self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline, DBLayerGroupInline,
-                        DataBaseLayerReferencesInline, DataBaseLayerStyleRuleInline]
-        conn = self.model.objects.get(pk=object_id)
-        conn_status = self.model.objects.get(pk=object_id).db_connection.check_connection()
+        obj = self.model.objects.get(pk=object_id)
+        if obj.geom_field is not None:
+            self.tabs = self.edit_geom_tabs
+            self.fieldsets = self.edit_geom_fieldsets
+            self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline, DBLayerGroupInline,
+                            DataBaseLayerReferencesInline, DataBaseLayerStyleRuleInline]
+        else:
+            self.tabs = self.edit_tabs
+            self.fieldsets = self.edit_fieldsets
+            self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline, DBLayerGroupInline]
+        conn_status = obj.db_connection.check_connection()
         if not conn_status:
-            msg = 'ERROR: There was an error when connecting to: %s' % conn.db_connection
+            msg = 'ERROR: There was an error when connecting to: %s' % obj.db_connection
             messages.add_message(request, messages.ERROR, msg)
         extra_context = extra_context or {}
         widgets_templates = {}

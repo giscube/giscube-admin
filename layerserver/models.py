@@ -155,8 +155,8 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     name = models.CharField(_('name'), max_length=255, blank=False, null=False, unique=True)
     table = models.CharField(_('table'), max_length=255, blank=False, null=False)
     pk_field = models.CharField(_('pk field'), max_length=255, blank=True, null=False)
-    geom_field = models.CharField(_('geom field'), max_length=255, blank=False, null=False)
-    srid = models.IntegerField(_('srid'), default=4326, blank=False)
+    geom_field = models.CharField(_('geom field'), max_length=255, blank=True, null=True)
+    srid = models.IntegerField(_('srid'), blank=True, null=True)
     allow_page_size_0 = models.BooleanField(_('Allow page size=0 (Disables pagination)'), default=False)
     page_size = models.IntegerField(
         _('page size'), blank=True, null=True, help_text=_('Default value is %s. Value 0 disables pagination.') %
@@ -195,6 +195,8 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
 
     def save(self, *args, **kwargs):
         self.name = slugify(self.name)
+        if self.geom_field is not None and self.srid is None:
+            self.srid = 4326
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -260,7 +262,7 @@ def add_fields(sender, instance, created, **kwargs):
             pass
         instance.form_fields = ','.join(form_fields)
         changes += 1
-    if instance.popup is None or instance.popup.strip(' \t\n\r') == '':
+    if instance.geom_field is not None and (instance.popup is None or instance.popup.strip(' \t\n\r') == ''):
         instance.popup = instance.get_default_popup()
         changes += 1
     if changes > 0:
