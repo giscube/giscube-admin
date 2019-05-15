@@ -9,7 +9,7 @@ from .base import BaseJSONWidget
 class DateWidget(BaseJSONWidget):
     TEMPLATE = inspect.cleandoc("""
     {
-        "format": "yyyy/mm/dd"
+        "format": "YYYY-MM-DD"
     }
     """)
 
