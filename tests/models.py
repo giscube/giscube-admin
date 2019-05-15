@@ -29,3 +29,8 @@ class TestImageField(models.Model):
     code = models.CharField(max_length=10, blank=False, null=False, unique=True)
     image = models.CharField(max_length=255, blank=True, null=True)
     geometry = models.PointField()
+
+
+class Specie(models.Model):
+    code = models.CharField(max_length=25, blank=False, null=False, unique=True)
+    name = models.CharField(max_length=255, blank=True, null=True)

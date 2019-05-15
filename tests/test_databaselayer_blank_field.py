@@ -3,7 +3,7 @@ from django.conf import settings
 from giscube.models import DBConnection
 from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer
-from layerserver.serializers import create_dblayer_serializer
+from layerserver.serializers import create_dblayer_geom_serializer
 from tests.common import BaseTest
 
 
@@ -68,7 +68,7 @@ class DataBaseLayerBlankFieldTestCase(BaseTest):
             if field.readonly is True:
                 readonly_fields.append(field.name)
 
-        Serializer = create_dblayer_serializer(Location, fields, self.layer.pk_field, readonly_fields)
+        Serializer = create_dblayer_geom_serializer(Location, fields, self.layer.pk_field, readonly_fields)
         extra_kwargs = Serializer.Meta.extra_kwargs
 
         self.assertTrue(extra_kwargs['code']['required'])

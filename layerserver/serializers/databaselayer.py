@@ -78,29 +78,43 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     fields = DBLayerFieldSerializer(many=True, read_only=True)
     references = DBLayerReferenceSerializer(many=True, read_only=True)
 
+    def format_options_json(self, obj, data):
+        return data.update({
+            'objects_path': 'data',
+            'attributes_path': None,
+            'geom_path': None
+        })
+
+    def format_options_geojson(self, obj, data):
+        return data.update({
+            'objects_path': 'features',
+            'attributes_path': 'properties',
+            'geom_path': 'geometry'
+        })
+
     def to_representation(self, obj):
-        data = super(
-            DBLayerDetailSerializer, self).to_representation(obj)
-        data['style'] = style_representation(obj)
-        data['style_rules'] = style_rules_representation(obj)
-        data['design'] = {
-            'list_fields': obj.list_fields,
-            'form_fields': obj.form_fields,
-            'popup': obj.popup
-        }
+        data = super().to_representation(obj)
         data['pagination'] = {
             'page_size': obj.get_page_size(),
             'max_page_size': obj.get_max_page_size()
         }
-        Layer = create_dblayer_model(obj)
-        data['geom_type'] = None
+        data['design'] = {
+            'list_fields': obj.list_fields,
+            'form_fields': obj.form_fields
+        }
         if obj.geom_field is not None:
+            Layer = create_dblayer_model(obj)
             field = Layer._meta.get_field(obj.geom_field)
             data['geom_type'] = field.geom_type
+            data['design']['popup'] = obj.popup
+            self.format_options_geojson(obj, data)
+        else:
+            data['geom_type'] = None
+            data['design']['popup'] = None
+            self.format_options_json(obj, data)
 
         return data
 
     class Meta:
         model = DataBaseLayer
-        fields = ['name', 'title', 'description', 'keywords',
-                  'pk_field', 'geom_field', 'fields', 'references']
+        fields = ['name', 'title', 'description', 'keywords', 'pk_field', 'geom_field', 'fields', 'references']

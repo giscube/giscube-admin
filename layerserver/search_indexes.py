@@ -70,26 +70,34 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
         children = []
         url = '%s/layerserver/databaselayers/%s/' % (
             settings.GISCUBE_URL, obj.name)
-        references = []
-        for reference in obj.references.all():
-            service = reference.service
-            service_url = '%s/qgisserver/services/%s/' % (
-                settings.GISCUBE_URL, service.name)
-            references.append({
-                'title': service.title or service.name,
-                'url': service_url,
-                'projection': '3857'
+        if obj.geom_field is not None:
+            references = []
+            for reference in obj.references.all():
+                service = reference.service
+                service_url = '%s/qgisserver/services/%s/' % (
+                    settings.GISCUBE_URL, service.name)
+                references.append({
+                    'title': service.title or service.name,
+                    'url': service_url,
+                    'projection': '3857'
+                })
+            children.append({
+                'title': _('DataBase Layer'),
+                'group': False,
+                'type': 'DataBaseLayer',
+                'format': 'GeoJSON',
+                'url': url,
+                'projection': '4326',
+                'references': references
             })
-
-        children.append({
-            'title': _('DataBase Layer'),
-            'group': False,
-            'type': 'DataBaseLayer',
-            'url': url,
-            'projection': '4326',
-            'references': references
-        })
-
+        else:
+            children.append({
+                'title': _('DataBase Layer'),
+                'group': False,
+                'type': 'DataBaseLayer',
+                'format': 'JSON',
+                'url': url
+            })
         return json.dumps(children)
 
     def prepare_private(self, obj):
