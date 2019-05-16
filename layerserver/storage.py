@@ -45,6 +45,7 @@ class ThumbnailFileSystemStorageMixin(object):
         storage_thumbnail = self.get_thumbnail_storage()
         if storage_thumbnail.exists(thumbnail_name):
             return {
+                'name': thumbnail_name,
                 'path': storage_thumbnail.path(thumbnail_name),
                 'url': storage_thumbnail.url(thumbnail_name)
             }
