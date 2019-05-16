@@ -56,7 +56,7 @@ class ShapeStyleMixin(StyleMixin):
     """
     Style mixin.
     """
-    shapetype = models.CharField(blank=True, null=True, max_length=20, choices=SHAPE_TYPES_CHOICES)
+    shapetype = models.CharField(_('Shape Type'), blank=True, null=True, max_length=20, choices=SHAPE_TYPES_CHOICES)
 
     class Meta:
         abstract = True

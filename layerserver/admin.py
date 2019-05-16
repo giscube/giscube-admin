@@ -36,7 +36,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category',)
     list_display = ('name', 'title', 'view_layer', 'public_url')
-    list_filter = ('visibility', 'visible_on_geoportal')
+    list_filter = ('visibility', 'visible_on_geoportal', 'shapetype')
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [GeoJsonLayerStyleRuleInline]
@@ -204,7 +204,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ['category']
     list_display = ('has_geometry', 'name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
     list_display_links = ('name', 'table')
-    list_filter = ('db_connection', 'visible_on_geoportal', DataBaseLayerGeomNullFilter)
+    list_filter = ('db_connection', 'visible_on_geoportal', DataBaseLayerGeomNullFilter, 'shapetype')
     search_fields = ('name', 'title', 'keywords')
     inlines = []
 

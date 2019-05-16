@@ -196,4 +196,14 @@ class Migration(migrations.Migration):
             name='value',
             field=models.CharField(blank=True, max_length=255, null=True, verbose_name='value'),
         ),
+        migrations.AlterField(
+            model_name='databaselayer',
+            name='shapetype',
+            field=models.CharField(blank=True, choices=[('marker', 'Marker'), ('line', 'Line'), ('polygon', 'Polygon'), ('circle', 'Circle'), ('image', 'Image')], max_length=20, null=True, verbose_name='Shape Type'),
+        ),
+        migrations.AlterField(
+            model_name='geojsonlayer',
+            name='shapetype',
+            field=models.CharField(blank=True, choices=[('marker', 'Marker'), ('line', 'Line'), ('polygon', 'Polygon'), ('circle', 'Circle'), ('image', 'Image')], max_length=20, null=True, verbose_name='Shape Type'),
+        ),
     ]
