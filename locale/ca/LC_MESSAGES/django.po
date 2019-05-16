@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-15 13:57+0000\n"
-"PO-Revision-Date: 2019-05-15 16:01+0200\n"
+"POT-Creation-Date: 2019-05-16 06:35+0000\n"
+"PO-Revision-Date: 2019-05-16 10:09+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -342,7 +342,7 @@ msgstr "Referències"
 
 #: layerserver/admin.py:295 layerserver/admin_filters.py:7
 msgid "Has geometry"
-msgstr ""
+msgstr "Té geometria"
 
 #: layerserver/admin.py:309
 msgid "View Metadata"
@@ -452,7 +452,7 @@ msgstr "clau primària"
 msgid "geom field"
 msgstr "camp amb geometria"
 
-#: layerserver/models.py:159 layerserver/models.py:315
+#: layerserver/models.py:159
 msgid "srid"
 msgstr "srid"
 
@@ -558,6 +558,12 @@ msgstr "blanc"
 msgid "widget"
 msgstr "Giny"
 
+#: layerserver/models.py:315
+#, fuzzy
+#| msgid "options"
+msgid "widget options"
+msgstr "opcions"
+
 #: layerserver/models.py:377
 msgid "Field"
 msgstr "Camp"
@@ -662,6 +668,11 @@ msgstr "Projecte"
 #: qgisserver/models.py:150
 msgid "Projects"
 msgstr "Projectes"
+
+#, fuzzy
+#~| msgid "cache time"
+#~ msgid "Date time"
+#~ msgstr "temps de 'cache'"
 
 #~ msgid "Dataset"
 #~ msgstr "Conjunt de dades"
