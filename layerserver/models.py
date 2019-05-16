@@ -380,6 +380,29 @@ class DataBaseLayerField(models.Model):
         ordering = ['layer', 'name']
 
 
+class DataBaseLayerVirtualField(models.Model):
+    WIDGET_CHOICES = Choices(
+        ('relation1n', _('1:N Relation')),
+        ('linkedfield', _('Linked Field')),
+    )
+
+    layer = models.ForeignKey(
+        DataBaseLayer, null=False, blank=False, related_name='virtual_fields', on_delete=models.CASCADE)
+    name = models.CharField(_('name'), max_length=255, blank=False, null=False)
+    label = models.CharField(_('label'), max_length=255, blank=True, null=True)
+    enabled = models.BooleanField(_('enabled'), default=True)
+    widget = models.CharField(_('widget'), max_length=25, blank=False, choices=WIDGET_CHOICES)
+    widget_options = models.TextField(_('widget options'), null=True, blank=True)
+
+    def __str__(self):
+        return self.label or self.name
+
+    class Meta:
+        verbose_name = _('Virtual Field')
+        verbose_name_plural = _('Virtual Fields')
+        ordering = ['layer', 'name']
+
+
 class DataBaseLayerStyleRule(StyleMixin, models.Model):
     layer = models.ForeignKey(DataBaseLayer, related_name='rules', on_delete=models.CASCADE)
     field = models.CharField(_('field'), max_length=50, blank=False, null=False)

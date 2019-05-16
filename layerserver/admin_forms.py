@@ -7,7 +7,7 @@ from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
 
 from .model_legacy import get_fields
-from .models import DataBaseLayer, DataBaseLayerField, GeoJsonLayer
+from .models import DataBaseLayer, DataBaseLayerField, DataBaseLayerVirtualField, GeoJsonLayer
 from .widgets import widgets_types
 
 
@@ -152,6 +152,18 @@ class DataBaseLayerFieldsInlineForm(forms.ModelForm):
 
     class Meta:
         model = DataBaseLayerField
+        fields = '__all__'
+
+
+class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data['widget_options'])
+        if err is not None:
+            self.add_error('widget_options', err)
+
+    class Meta:
+        model = DataBaseLayerVirtualField
         fields = '__all__'
 
 

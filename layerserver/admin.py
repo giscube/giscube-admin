@@ -10,9 +10,9 @@ from giscube.utils import unique_service_directory
 
 from .admin_filters import DataBaseLayerGeomNullFilter
 from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
-                          GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
-from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule, DBLayerGroup,
-                     DBLayerUser, GeoJsonLayer, GeoJsonLayerStyleRule)
+                          DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
+from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
+                     DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -174,6 +174,16 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     get_null.short_description = "Null"
 
 
+class DataBaseLayerVirtualFieldsInline(admin.TabularInline):
+    model = DataBaseLayerVirtualField
+    form = DataBaseLayerVirtualFieldsInlineForm
+    extra = 0
+    ordering = ('name',)
+    can_delete = False
+    fields = ('enabled', 'name', 'label', 'widget', 'widget_options',)
+    classes = ('tab-virtual-fields',)
+
+
 class DataBaseLayerReferencesInline(admin.TabularInline):
     model = DataBaseLayerReference
     extra = 0
@@ -216,6 +226,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Information'), ('tab-information',)),
         (_('Data base'), ('tab-data-base',)),
         (_('Fields'), ('tab-fields',)),
+        (_('Virtual Fields'), ('tab-virtual-fields',)),
         (_('Style'), ('tab-style',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('References'), ('tab-references',)),
@@ -325,8 +336,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         if obj.geom_field is not None:
             self.tabs = self.edit_geom_tabs
             self.fieldsets = self.edit_geom_fieldsets
-            self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline, DBLayerGroupInline,
-                            DataBaseLayerReferencesInline, DataBaseLayerStyleRuleInline]
+            self.inlines = [DataBaseLayerFieldsInline, DataBaseLayerVirtualFieldsInline,
+                            DBLayerUserInline, DBLayerGroupInline, DataBaseLayerReferencesInline,
+                            DataBaseLayerStyleRuleInline]
         else:
             self.tabs = self.edit_tabs
             self.fieldsets = self.edit_fieldsets
