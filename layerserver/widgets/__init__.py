@@ -5,11 +5,12 @@ from .date import DateWidget
 from .datetime import DatetimeWidget
 from .image import ImageWidget
 from .linkedfield import LinkedfieldWidget
+from .relation1n import Relation1NWidget
 from .sqlchoices import SqlchoicesWidget
 
 
 __all__ = ['BaseWidget', 'BaseJSONWidget', 'AutoWidget', 'ChoicesWidget', 'DateWidget', 'DatetimeWidget',
-           'ImageWidget', 'LinkedfieldWidget', 'SqlchoicesWidget']
+           'ImageWidget', 'LinkedfieldWidget', 'Relation1NWidget', 'SqlchoicesWidget']
 
 
 widgets_types = {
@@ -19,5 +20,6 @@ widgets_types = {
     'datetime': DatetimeWidget,
     'image': ImageWidget,
     'linkedfield': LinkedfieldWidget,
+    'relation1n': Relation1NWidget,
     'sqlchoices': SqlchoicesWidget,
 }

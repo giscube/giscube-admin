@@ -6,6 +6,7 @@ from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer, DataBaseLayerReference
 
 from .dblayer_field import DBLayerFieldSerializer
+from .dblayer_virtualfield import DBLayerVirtualFieldSerializer
 
 
 class DBLayerSerializer(serializers.ModelSerializer):
@@ -76,6 +77,7 @@ def style_rules_representation(obj):
 class DBLayerDetailSerializer(serializers.ModelSerializer):
     # TODO: serialize category
     fields = DBLayerFieldSerializer(many=True, read_only=True)
+    virtual_fields = DBLayerVirtualFieldSerializer(many=True, read_only=True)
     references = DBLayerReferenceSerializer(many=True, read_only=True)
 
     def format_options_json(self, obj, data):
@@ -119,4 +121,5 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DataBaseLayer
-        fields = ['name', 'title', 'description', 'keywords', 'pk_field', 'geom_field', 'fields', 'references']
+        fields = ['name', 'title', 'description', 'keywords', 'pk_field', 'geom_field', 'fields', 'virtual_fields',
+                  'references']
