@@ -108,6 +108,8 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             data['geom_type'] = field.geom_type
             data['design']['popup'] = obj.popup
             self.format_options_geojson(obj, data)
+            data['style'] = style_representation(obj)
+            data['style_rules'] = style_rules_representation(obj)
         else:
             data['geom_type'] = None
             data['design']['popup'] = None
