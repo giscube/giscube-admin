@@ -313,7 +313,7 @@ class DataBaseLayerField(models.Model):
     blank = models.BooleanField(_('blank'), default=True)
     widget = models.CharField(
         _('widget'), max_length=25, blank=False, choices=WIDGET_CHOICES, default=WIDGET_CHOICES.auto)
-    widget_options = models.TextField(_('srid'), null=True, blank=True)
+    widget_options = models.TextField(_('widget options'), null=True, blank=True)
 
     @cached_property
     def field_type(self):

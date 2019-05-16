@@ -109,7 +109,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='databaselayerfield',
             name='widget_options',
-            field=models.TextField(blank=True, null=True, verbose_name='srid'),
+            field=models.TextField(blank=True, null=True, verbose_name='widget options'),
         ),
         migrations.AlterField(
             model_name='databaselayerstylerule',
