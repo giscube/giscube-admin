@@ -8,6 +8,7 @@ from django_vue_tabs.admin import TabsMixin
 
 from giscube.utils import unique_service_directory
 
+from .admin_actions import geojsonlayer_force_refresh_data
 from .admin_filters import DataBaseLayerGeomNullFilter
 from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
@@ -40,6 +41,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [GeoJsonLayerStyleRuleInline]
+    actions = [geojsonlayer_force_refresh_data]
     save_as = True
 
     tabs = (
