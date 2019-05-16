@@ -6,10 +6,10 @@ from django.utils.translation import gettext as _
 from .base import BaseJSONWidget
 
 
-class DateWidget(BaseJSONWidget):
+class DatetimeWidget(BaseJSONWidget):
     TEMPLATE = inspect.cleandoc("""
     {
-        "format": "YYYY-MM-DD"
+        "format": "YYYY-MM-DD HH:mm:ss"
     }
     """)
 
@@ -20,10 +20,10 @@ class DateWidget(BaseJSONWidget):
         try:
             data = json.loads(value)
         except Exception:
-            return DateWidget.ERROR_INVALID_JSON
+            return DatetimeWidget.ERROR_INVALID_JSON
 
         if 'format' not in data:
-            return DateWidget.ERROR_FORMAT_REQUIRED
+            return DatetimeWidget.ERROR_FORMAT_REQUIRED
 
     @staticmethod
     def serialize_widget_options(obj):
