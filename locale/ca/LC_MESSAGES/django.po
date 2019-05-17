@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-16 12:57+0000\n"
-"PO-Revision-Date: 2019-05-16 14:57+0200\n"
+"POT-Creation-Date: 2019-05-16 13:42+0000\n"
+"PO-Revision-Date: 2019-05-16 15:43+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -277,81 +277,92 @@ msgstr "Vista prèvia de capa"
 msgid "Layer Previews"
 msgstr "Vistes prèvies de capa"
 
-#: layerserver/admin.py:26
+#: layerserver/admin.py:27
 msgid "Rule"
 msgstr "Regla"
 
-#: layerserver/admin.py:27
+#: layerserver/admin.py:28
 msgid "Rules"
 msgstr "Regles"
 
-#: layerserver/admin.py:46 layerserver/admin.py:218 layerserver/admin.py:226
+#: layerserver/admin.py:48 layerserver/admin.py:220 layerserver/admin.py:228
 msgid "Information"
 msgstr "Informació"
 
-#: layerserver/admin.py:47
+#: layerserver/admin.py:49
 msgid "GeoJSON"
 msgstr "Capa GeoJSON"
 
-#: layerserver/admin.py:48 layerserver/admin.py:230
+#: layerserver/admin.py:50 layerserver/admin.py:232
 msgid "Style"
 msgstr "Estil"
 
-#: layerserver/admin.py:49 layerserver/admin.py:222 layerserver/admin.py:233
+#: layerserver/admin.py:51 layerserver/admin.py:224 layerserver/admin.py:235
 msgid "Design"
 msgstr "Disseny"
 
-#: layerserver/admin.py:102 layerserver/admin.py:310
+#: layerserver/admin.py:104 layerserver/admin.py:312
 msgid "Url"
 msgstr "Url"
 
-#: layerserver/admin.py:107 layerserver/admin.py:315
+#: layerserver/admin.py:109 layerserver/admin.py:317
 msgid "View Layer"
 msgstr "Veure capa"
 
-#: layerserver/admin.py:130 layerserver/models.py:438 layerserver/models.py:448
+#: layerserver/admin.py:132 layerserver/models.py:438 layerserver/models.py:448
 msgid "Group"
 msgstr "Grup"
 
-#: layerserver/admin.py:131 layerserver/models.py:449
+#: layerserver/admin.py:133 layerserver/models.py:449
 msgid "Groups"
 msgstr "Grups"
 
-#: layerserver/admin.py:138 layerserver/models.py:454 layerserver/models.py:464
+#: layerserver/admin.py:140 layerserver/models.py:454 layerserver/models.py:464
 msgid "User"
 msgstr "Usuari"
 
-#: layerserver/admin.py:139 layerserver/models.py:465
+#: layerserver/admin.py:141 layerserver/models.py:465
 msgid "Users"
 msgstr "Usuaris"
 
-#: layerserver/admin.py:219 layerserver/admin.py:227
+#: layerserver/admin.py:221 layerserver/admin.py:229
 msgid "Data base"
 msgstr "Base de dades"
 
-#: layerserver/admin.py:220 layerserver/admin.py:228 layerserver/models.py:379
+#: layerserver/admin.py:222 layerserver/admin.py:230 layerserver/models.py:379
 msgid "Fields"
 msgstr "Camps"
 
-#: layerserver/admin.py:221 layerserver/admin.py:231
+#: layerserver/admin.py:223 layerserver/admin.py:233
 msgid "Permissions"
 msgstr "Permisos"
 
-#: layerserver/admin.py:229 layerserver/models.py:402
+#: layerserver/admin.py:231 layerserver/models.py:402
 msgid "Virtual Fields"
 msgstr "Camps virtuals"
 
-#: layerserver/admin.py:232 layerserver/models.py:432
+#: layerserver/admin.py:234 layerserver/models.py:432
 msgid "References"
 msgstr "Referències"
 
-#: layerserver/admin.py:306 layerserver/admin_filters.py:7
+#: layerserver/admin.py:308 layerserver/admin_filters.py:7
 msgid "Has geometry"
 msgstr "Té geometria"
 
-#: layerserver/admin.py:320
+#: layerserver/admin.py:322
 msgid "View Metadata"
 msgstr "Veure metadades"
+
+#: layerserver/admin_actions.py:15
+#, python-format
+msgid "Forcing refresh of %s geojsonlayers"
+msgstr "Forçant el refresc de %s capes geojson"
+
+#: layerserver/admin_actions.py:18
+#, fuzzy
+#| msgid "Force refresh Data file"
+msgid "Force refresh data files"
+msgstr "Forçar el refresc del fitxer de dades"
 
 #: layerserver/admin_filters.py:12
 msgid "Yes"
