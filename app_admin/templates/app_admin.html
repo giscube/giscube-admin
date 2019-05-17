@@ -1,0 +1,22 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+&rsaquo; {% trans "Applications administrator and tester" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans "Options list" %}</h1>
+<ul>
+  <li><h3><a href="?action=crash">{% trans "Crash" %}</a></h3></li>
+</ul>
+<h1>{% trans "Configuration" %}</h1>
+<table>
+  <tr><th>setting</th><th>value</th></tr>
+  {% for k, v in settings.items %}
+  <tr><td>{{k}}</td><td>{{v}}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
