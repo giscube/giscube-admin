@@ -5,7 +5,10 @@ from urllib.parse import urlencode
 import requests
 
 from django.conf import settings
+from django.core import mail
+from django.core.mail import get_connection
 from django.urls import reverse
+from django.utils import log
 from django.utils.module_loading import import_string
 from django.utils.version import get_version as django_get_version
 
@@ -96,3 +99,12 @@ def get_cls(key, default=None):
         return import_string(value)
     else:
         return default
+
+
+class AdminEmailHandler(log.AdminEmailHandler):
+    def send_mail(self, subject, message, *args, **kwargs):
+        kwargs['fail_silently'] = False
+        mail.mail_admins(subject, message, *args, connection=self.connection(), **kwargs)
+
+    def connection(self):
+        return get_connection(backend=self.email_backend, fail_silently=False)

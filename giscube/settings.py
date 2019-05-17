@@ -50,6 +50,7 @@ GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
 
 # Application definition
 INSTALLED_APPS = [
+    'app_admin',
     # app
     'giscube',
     'corsheaders',
@@ -202,10 +203,6 @@ VAR_ROOT = os.environ.get('VAR_ROOT', VAR_ROOT)
 SESSION_COOKIE_NAME = 'sessionid_%s' % APP_URL.replace('/', '_')
 SESSION_COOKIE_PATH = '%s/' % APP_URL
 
-EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
-# From address for error messages
-SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
-
 # corsheaders
 CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL',
                                   'False').lower() == 'true'
@@ -354,17 +351,59 @@ if not GISCUBE_LAYERSERVER_DISABLED:
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'giscube.utils.AdminEmailHandler'
+        },
     },
-    'root': {
-        'handlers': ['console', ],
-        'level': 'INFO'
+    'loggers': {
+        # django request
+        # 'django.request': {
+        #     'handlers': ['console'],
+        #     'level': 'INFO',  # change debug level as appropiate
+        #     'propagate': False,
+        # },
+        'django.request': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
     },
 }
+
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
+# From address for error messages
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
+
+# sentry
+
+SENTRY_DSN = os.getenv('SENTRY_DSN', None)
+if SENTRY_DSN is not None:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()]
+    )
 
 # Overwrite settings
 # -------------------------------------
