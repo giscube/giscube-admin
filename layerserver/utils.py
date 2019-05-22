@@ -16,19 +16,34 @@ from django_celery_results.models import TaskResult
 from .models import GeoJsonLayer
 
 
+GENERATE_GEOJSON_LAYER = 'GENERATE_GEOJSON_LAYER'
+GET_DATA_FROM_CACHE = 'GET_DATA_FROM_CACHE'
+QUEUE_GENERATE_GEOJSON_LAYER = 'QUEUE_GENERATE_GEOJSON_LAYER'
+GENERATE_GEOJSON_LAYER_PENDING = 'GENERATE_GEOJSON_LAYER_PENDING'
+
+
 def geojsonlayer_check_cache(layer):
     """
     Check if the layer has url and has been ever generated.
     Check layer cache_time.
     Check if there is an async_geojsonlayer_refresh pending or in process.
     """
-    if layer.url and layer.generated_on:
+    if layer.url is not None and layer.generated_on is not None:
         cache_time = layer.cache_time or 0
-        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        layer_time = layer.generated_on.utcnow().replace(tzinfo=pytz.utc) + datetime.timedelta(seconds=cache_time)
+
+        now = datetime.datetime.utcnow().replace(tzinfo=None)
+        layer_time = (layer.generated_on.astimezone(pytz.utc) + datetime.timedelta(seconds=cache_time)).replace(
+            tzinfo=None)
 
         if now < layer_time:
-            return
+            return GET_DATA_FROM_CACHE
+        else:
+            if layer.max_outdated_time is not None:
+                layer_time = (layer.generated_on.astimezone(pytz.utc) + datetime.timedelta(
+                    seconds=cache_time + layer.max_outdated_time)).replace(tzinfo=None)
+                if now > layer_time:
+                    geojsonlayer_refresh_layer(layer, True)
+                    return GENERATE_GEOJSON_LAYER
 
         qs = TaskResult.objects.filter(
             task_name='layerserver.tasks.async_geojsonlayer_refresh',
@@ -36,10 +51,11 @@ def geojsonlayer_check_cache(layer):
             task_args='(%s,)' % layer.pk
         )
         if qs.count() > 0:
-            return
+            return GENERATE_GEOJSON_LAYER_PENDING
 
         from .tasks import async_geojsonlayer_refresh
         async_geojsonlayer_refresh.delay(layer.pk)
+        return QUEUE_GENERATE_GEOJSON_LAYER
 
 
 def geojsonlayer_refresh(pk, force_refresh_data_file):
