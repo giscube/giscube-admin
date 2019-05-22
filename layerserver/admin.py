@@ -61,7 +61,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'url', 'headers', 'data_file', 'cache_time', 'last_fetch_on',
+                'url', 'headers', 'data_file', ('cache_time', 'max_outdated_time',), 'last_fetch_on',
                 'generated_on',
             ],
             'classes': ('tab-geojson',),

@@ -52,7 +52,11 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
     data_file = models.FileField(_('data file'), upload_to=geojsonlayer_upload_path,
                                  null=True, blank=True)
     service_path = models.CharField(_('service path'), max_length=255)
-    cache_time = models.IntegerField(_('cache time'), blank=True, null=True, help_text='In seconds')
+    help_text = _('Time in seconds where the file is served from cache')
+    cache_time = models.PositiveIntegerField(_('cache time'), blank=True, null=True, help_text=help_text)
+    help_text = _('Maximum outdated time in seconds for the cache file')
+    max_outdated_time = models.PositiveIntegerField(
+        _('maximum outdated time'), blank=True, null=True, help_text=help_text)
     last_fetch_on = models.DateTimeField(_('last fetch on'), null=True, blank=True)
     generated_on = models.DateTimeField(_('generated on'), null=True, blank=True)
     visibility = models.CharField(_('visibility'), max_length=10, default='private',
