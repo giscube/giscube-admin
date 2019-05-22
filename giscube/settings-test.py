@@ -1,5 +1,7 @@
 DEBUG = True
 
+CELERY_ALWAYS_EAGER = True
+
 DATABASES['default'] = {
     'ENGINE': 'django.contrib.gis.db.backends.postgis',
     'NAME': 'test',
