@@ -1,4 +1,5 @@
 import json
+import threading
 
 from django.http import HttpResponse
 from django.views.generic import View
@@ -17,6 +18,8 @@ DEFAULT_SEARCH = [
 
 CATALOG_MODELS = ['geoportal.dataset', 'imageserver.service', 'qgisserver.service',
                   'layerserver.geojsonlayer', 'layerserver.databaselayer']
+
+lock = threading.Lock()
 
 
 class ResultsMixin():
@@ -45,27 +48,44 @@ class ResultsMixin():
 class GeoportalCatalogView(ResultsMixin, View):
     def get(self, request):
         category_id = request.GET.get('category_id', '')
-        sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
-        sqs = sqs.order_by('title')
-        return self.format_results(sqs)
+        lock.acquire()
+        try:
+            sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
+            sqs = sqs.order_by('title')
+            results = self.format_results(sqs)
+        finally:
+            lock.release()
+
+        return results
 
 
 class GeoportalSearchView(ResultsMixin, View):
     def get(self, request):
-        sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(request.GET.get('q', '')))
-        return self.format_results(sqs)
+        lock.acquire()
+        try:
+            sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(request.GET.get('q', '')))
+            results = self.format_results(sqs)
+        finally:
+            lock.release()
+
+        return results
 
 
 class GeoportalCategoryView(View):
     def get(self, request):
-        sqs = SearchQuerySet().filter(django_ct='giscube.category')
-        sqs = sqs.order_by('name')
+        lock.acquire()
+        try:
+            sqs = SearchQuerySet().filter(django_ct='giscube.category')
+            sqs = sqs.order_by('name')
 
-        results = []
-        for r in sqs.all():
-            results.append({
-                'id': int(r.pk),
-                'name': r.name,
-                'parent': r.parent,
-            })
+            results = []
+            for r in sqs.all():
+                results.append({
+                    'id': int(r.pk),
+                    'name': r.name,
+                    'parent': r.parent,
+                })
+        finally:
+            lock.release()
+
         return HttpResponse(json.dumps(results), content_type='application/json')
