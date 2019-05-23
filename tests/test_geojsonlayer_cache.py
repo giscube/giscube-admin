@@ -10,7 +10,7 @@ from layerserver.utils import (GENERATE_GEOJSON_LAYER, GET_DATA_FROM_CACHE, QUEU
                                geojsonlayer_check_cache)
 
 
-def fake_async_geojsonlayer_refresh(pk):
+def fake_async_geojsonlayer_refresh(*args, **kwargs):
     pass
 
 
