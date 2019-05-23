@@ -34,3 +34,91 @@ Giscube admin Applications:
 **layerserver.DataBaseLayer.active:** enable/disables usage
 
 **layerserver.DataBaseLayer.visible_on_geoportal**: enable/disable geoportal indexation
+
+
+
+## Run with docker-compose
+
+Copy app.env-example to app.env and adjust values as necessary
+
+
+### (optional) Build the images
+
+Optional because the next step does it by default (default values only)
+By default it installs the development requirements (requirements-devel.txt)
+
+docker-compose build
+
+It's also possible to define to not install development requirements:
+
+docker-compose build --build-arg EXTRA_REQUIREMENTS=''
+
+Or another extra requirement like deploy (requirements-deploy.txt):
+
+docker-compose build --build-arg EXTRA_REQUIREMENTS=deploy
+
+
+### (Re)Build containers and run Django runserver:
+
+docker-compose up
+
+In background:
+
+docker-compose up -d
+
+
+### Rebuild one service
+
+docker-compose up django
+
+
+### Start / Stop during development
+
+docker-compose start
+docker-compose stop
+
+
+## Delete images and containers when done
+
+docker-compose down
+
+
+### Restart and view logs
+
+docker-compose restart && docker-compose logs -f
+
+docker-compose restart django && docker-compose logs -f
+
+
+### Interactive bash
+
+docker-compose exec django /docker/bash.sh
+
+
+## Django
+
+### Run migrations
+
+docker-compose exec django /docker/bash.sh python3 manage.py migrate
+
+### Run createsuperuser
+
+docker-compose exec django /docker/bash.sh python3 manage.py createsuperuser
+
+### Run collectstatic
+
+docker-compose exec django /docker/bash.sh python3 manage.py collectstatic
+
+### Run tests
+
+docker-compose exec django /docker/bash.sh /bin/bash.sh scripts/run_test.sh
+
+## Database
+
+Automatic script:
+
+docker-compose exec db bash docker/db/db_init.sh
+
+or
+
+docker-compose exec db bash docker/db/db_init.sh giscube.sql

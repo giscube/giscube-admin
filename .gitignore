@@ -8,3 +8,6 @@
 test.db
 docker-test/requirements.txt
 tests/media/*
+app.env
+docker_data/*
+!docker_data/.gitkeep
