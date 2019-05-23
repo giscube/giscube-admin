@@ -2,7 +2,7 @@ LOCAL_USER_ID=$(shell id -u)
 
 build:
 	cp requirements.txt docker-test/requirements.txt
-	cat requirements-dev.txt >> docker-test/requirements.txt
+	cat requirements-devel.txt >> docker-test/requirements.txt
 	docker build -t microdisseny/giscube-admin-test docker-test
 	rm docker-test/requirements.txt
 

@@ -2,13 +2,15 @@ DEBUG = True
 
 CELERY_ALWAYS_EAGER = True
 
-DATABASES['default'] = {
-    'ENGINE': 'django.contrib.gis.db.backends.postgis',
-    'NAME': 'test',
-    'USER': 'admin',
-    'PASSWORD':  'admin',
-    'HOST': '127.0.0.1',
-    'PORT': '5432',
+DATABASES = {
+    'default': {
+        'ENGINE': 'giscube.db.backends.postgis',
+        'NAME': os.environ.get('TEST_DB_NAME', 'test'),
+        'USER': os.environ.get('TEST_DB_USER', 'admin'),
+        'PASSWORD': os.environ.get('TEST_DB_PASSWORD', 'admin'),
+        'HOST': os.environ.get('TEST_DB_HOST', 'localhost'),
+        'PORT': os.environ.get('TEST_DB_PORT', '5432'),
+    },
 }
 
 MEDIA_ROOT = os.path.join('/tmp/', 'tests', 'media')

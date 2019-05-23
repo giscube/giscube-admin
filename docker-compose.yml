@@ -1,0 +1,107 @@
+version: "3.3"
+services:
+  requirements:
+    container_name: giscube_admin_requirements
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    image: giscube_admin_requirements
+    entrypoint:
+      - /bin/bash
+    command: []
+
+  db:
+    container_name: giscube_admin_db
+    build:
+      context: docker/db/
+      dockerfile: Dockerfile
+    image: giscube_admin_db
+    env_file:
+     - app.env
+    command: ["/bin/bash", "/app/docker/db/postgresql10.sh"]
+    volumes:
+      - .:/app
+      - ./docker_data/postgresql/:/var/lib/postgresql/
+    stdin_open: true
+    tty: true
+
+  django:
+    container_name: giscube_admin_django
+    depends_on:
+      - db
+    image: giscube_admin_requirements
+    env_file:
+     - app.env
+    command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/runserver.sh"]
+    volumes:
+      - .:/app
+      - ./docker_data/django:/docker_data
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+
+  celery:
+    container_name: giscube_admin_celery
+    hostname: celery
+    depends_on:
+      - redis
+      - db
+    image: giscube_admin_requirements
+    env_file:
+      - app.env
+    command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/celery.sh"]
+    volumes:
+      - .:/app
+      - ./docker_data/django:/docker_data
+    stdin_open: true
+    tty: true
+
+  redis:
+    container_name: giscube_admin_redis
+    hostname: giscube_admin_redis
+    image: redis:latest
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./docker_data/redis:/data
+
+  nginx:
+    container_name: giscube_admin_nginx
+    build:
+      context: docker/nginx/
+      dockerfile: Dockerfile
+    image: giscube_admin_nginx
+    ports:
+      - "8080:8080"
+    stdin_open: true
+    tty: true
+
+  qgisserver:
+    container_name: giscube_admin_qgisserver
+    build:
+      context: docker/qgisserver/
+      dockerfile: Dockerfile
+    image: giscube_admin_qgisserver
+    volumes:
+      # - .:/app
+      - ./docker_data/django:/docker_data
+    # command: ["tail", "-f", "/dev/null"]
+    stdin_open: true
+    tty: true
+
+  imageserver:
+    container_name: giscube_admin_imageserver
+    build:
+      context: docker/imageserver/
+      dockerfile: Dockerfile
+    image: giscube_admin_imageserver
+    volumes:
+      # - .:/app
+      - ./docker_data/django:/docker_data
+    # command: ["tail", "-f", "/dev/null"]
+    stdin_open: true
+    tty: true
+
+# volumes:
+#   docker_data:
