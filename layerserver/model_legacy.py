@@ -178,6 +178,7 @@ class ImageWithThumbnailField(models.FileField):
             thumbnail_width=self.widget_options.get('thumbnail_width', None),
             thumbnail_height=self.widget_options.get('thumbnail_height', None)
         )
+        storage.save_thumbnail_enabled = storage.thumbnail_base_url is not None
         kwargs['storage'] = storage
         super().__init__(*args, **kwargs)
         self.validators = []
