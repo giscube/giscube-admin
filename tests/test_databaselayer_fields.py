@@ -24,8 +24,6 @@ class DataBaseLayerFieldsValidatorTestCase(BaseTest):
     def test_linkedfield(self):
         self.assertEqual(widgets.LinkedfieldWidget.is_valid(''), widgets.LinkedfieldWidget.ERROR_INVALID_JSON)
         self.assertEqual(widgets.LinkedfieldWidget.is_valid('{}'), widgets.LinkedfieldWidget.ERROR_SOURCE_REQUIRED)
-        self.assertEqual(widgets.LinkedfieldWidget.is_valid('{"source": "type_id"}'),
-                         widgets.LinkedfieldWidget.ERROR_COLUMN_REQUIRED)
         self.assertEqual(widgets.LinkedfieldWidget.is_valid('{"source": "type_id", "column": "type_name"}'), None)
 
     def test_image(self):
