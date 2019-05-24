@@ -9,13 +9,11 @@ from .base import BaseJSONWidget
 class LinkedfieldWidget(BaseJSONWidget):
     TEMPLATE = inspect.cleandoc("""
     {
-        "source": "type_id",
-        "column": "type_name"
+        "source": "type_id"
     }
     """)
 
     ERROR_SOURCE_REQUIRED = _('\'source\' attribute is required')
-    ERROR_COLUMN_REQUIRED = _('\'column\' attribute is required')
 
     @staticmethod
     def is_valid(value):
@@ -26,9 +24,6 @@ class LinkedfieldWidget(BaseJSONWidget):
 
         if 'source' not in data:
             return LinkedfieldWidget.ERROR_SOURCE_REQUIRED
-
-        if 'column' not in data:
-            return LinkedfieldWidget.ERROR_COLUMN_REQUIRED
 
     @staticmethod
     def serialize_widget_options(obj):
