@@ -261,7 +261,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         }
         obj = get_object_or_404(self.model, **filter)
         file = getattr(obj, attribute)
-        thumbnail = file.storage.get_thumbnail(file.name)
+        thumbnail = file.storage.get_thumbnail(file.name, create=True)
         full_path = thumbnail['path']
         fd = open(full_path, 'rb')
         file_mime = mimetypes.guess_type(file.name.split('/')[-1])

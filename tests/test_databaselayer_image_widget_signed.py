@@ -128,8 +128,13 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         response = c.get(result['properties']['image']['src'])
         self.assertEqual(response.status_code, 200)
 
+        image = result['properties']['image']['thumbnail'].split('/')[-1].split('?')[0]
+        image_path = os.path.join(self.thumbnail_root, image)
+        self.assertFalse(os.path.exists(image_path))
+
         c = Client()
         response = c.get(result['properties']['image']['thumbnail'])
+        self.assertTrue(os.path.exists(image_path))
         self.assertEqual(response.status_code, 200)
 
         url = reverse('content-list', kwargs={'name': self.layer.name})

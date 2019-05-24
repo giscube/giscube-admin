@@ -21,6 +21,7 @@ class ThumbnailFileSystemStorageMixin(object):
     PNG_SUPPORTED_MODES = ('1', 'L', 'RGB', 'RGBA')
 
     def __init__(self, *args, **kwargs):
+        self.save_thumbnail_enabled = kwargs.pop('save_thumbnail_enabled', True)
         self.thumbnail_location = kwargs.pop('thumbnail_location', None)
         self.thumbnail_base_url = kwargs.pop('thumbnail_base_url', None)
         self.thumbnail_width = settings.LAYERSERVER_THUMBNAIL_WIDTH
@@ -40,15 +41,16 @@ class ThumbnailFileSystemStorageMixin(object):
         if storage_thumbnail.exists(thumbnail_name):
             storage_thumbnail.delete(thumbnail_name)
 
-    def get_thumbnail(self, name):
+    def get_thumbnail(self, name, create=False):
         thumbnail_name = self.get_thumbnail_name(name)
         storage_thumbnail = self.get_thumbnail_storage()
-        if storage_thumbnail.exists(thumbnail_name):
-            return {
-                'name': thumbnail_name,
-                'path': storage_thumbnail.path(thumbnail_name),
-                'url': storage_thumbnail.url(thumbnail_name)
-            }
+        if create and not storage_thumbnail.exists(thumbnail_name):
+            self.save_thumbnail(name)
+        return {
+            'name': thumbnail_name,
+            'path': storage_thumbnail.path(thumbnail_name),
+            'url': storage_thumbnail.url(thumbnail_name)
+        }
 
     def get_thumbnail_name(self, file_name):
         # Only png extension is suported
@@ -61,7 +63,7 @@ class ThumbnailFileSystemStorageMixin(object):
 
     def save(self, *args, **kwargs):
         file_name = super(ThumbnailFileSystemStorageMixin, self).save(*args, **kwargs)
-        if self.thumbnail_location:
+        if self.thumbnail_location and self.save_thumbnail_enabled:
             self.save_thumbnail(file_name)
         return file_name
 
