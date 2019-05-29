@@ -79,8 +79,33 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
     ]
 
-    edit_fieldsets = add_fieldsets.copy()
-    edit_fieldsets[1][1]['fields'].insert(3, 'force_refresh_data_file')
+    edit_fieldsets = [
+        (None, {
+            'fields': [
+                'category', 'name', 'title',
+                'description', 'keywords', 'active', 'visibility', 'visible_on_geoportal',
+            ],
+            'classes': ('tab-information',),
+        }),
+        (None, {
+            'fields': [
+                'url', 'headers', 'data_file', ('cache_time', 'max_outdated_time',), 'last_fetch_on',
+                'generated_on', 'force_refresh_data_file',
+            ],
+            'classes': ('tab-geojson',),
+        }),
+        (None, {
+            'fields': [
+                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+            ],
+            'classes': ('tab-style',),
+        }),
+        (None, {
+            'fields': ['popup'],
+            'classes': ('tab-design',),
+        }),
+    ]
 
     def add_view(self, request, form_url='', extra_context=None):
         self.fieldsets = self.add_fieldsets
