@@ -168,14 +168,16 @@ class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
 
 
 class GeoJsonLayerAddForm(forms.ModelForm):
+    # Fake save_as_new
+    force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=True)
+
     class Meta:
         model = GeoJsonLayer
         exclude = ()
 
 
 class GeoJsonLayerChangeForm(forms.ModelForm):
-    force_refresh_data_file = forms.BooleanField(
-        label=_('Force refresh Data file'), widget=forms.CheckboxInput, required=False, initial=False)
+    force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=False)
 
     class Meta:
         model = GeoJsonLayer
