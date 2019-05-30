@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'loginas',
     'django_celery_results',
+    'django_admin_listfilter_dropdown',
 ]
 
 CELERY_RESULT_BACKEND = 'django-db'

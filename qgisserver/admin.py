@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
 
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+
 from qgisserver.models import Project, Service
 
 
@@ -14,7 +16,8 @@ class ProjectAdmin(admin.ModelAdmin):
 class ServiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
-    list_filter = ('visibility', 'visible_on_geoportal')
+    list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visibility',
+                   'visible_on_geoportal')
     exclude = ('service_path', 'active')
     search_fields = ('name', 'title', 'keywords')
     filter_horizontal = ('servers',)

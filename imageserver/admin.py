@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
 
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+
 from imageserver.models import Layer, NamedMask, Service, ServiceLayer
 
 
@@ -14,7 +16,7 @@ class ServiceLayerInline(admin.TabularInline):
 class ServiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
-    list_filter = ('visibility', 'visible_on_geoportal')
+    list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal')
     search_fields = ('title',)
     exclude = ('service_path',)
     readonly_fields = ('extent',)
