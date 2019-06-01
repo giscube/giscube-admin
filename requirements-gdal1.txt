@@ -25,4 +25,4 @@ Pillow==5.4.1
 Whoosh==2.7.4
 redis==3.2.1
 pdf2image==1.4.2
-sentry-sdk==0.7.14
+sentry-sdk==0.8.1
