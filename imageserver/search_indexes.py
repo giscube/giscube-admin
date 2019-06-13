@@ -4,7 +4,7 @@ from django.conf import settings
 
 from haystack import indexes
 
-from imageserver.models import Service
+from .models import Service
 
 
 class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
@@ -18,6 +18,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     has_children = indexes.BooleanField()
     children = indexes.CharField()
     options = indexes.CharField()
+    private = indexes.BooleanField()
 
     def get_model(self):
         return Service
@@ -43,6 +44,9 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_options(self, obj):
         return obj.options or '{}'
+
+    def prepare_private(self, obj):
+        return obj.visibility == 'private'
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
