@@ -2,7 +2,7 @@ import json
 
 from haystack import indexes
 
-from geoportal.models import Dataset
+from .models import Dataset
 
 
 class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
@@ -16,6 +16,7 @@ class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
     has_children = indexes.BooleanField()
     children = indexes.CharField()
     options = indexes.CharField()
+    private = indexes.BooleanField()
 
     def get_model(self):
         return Dataset
@@ -38,6 +39,9 @@ class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_options(self, obj):
         return obj.options or '{}'
+
+    def prepare_private(self, obj):
+        return False
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""

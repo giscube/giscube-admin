@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from haystack import indexes
 
-from layerserver.models import DataBaseLayer, GeoJsonLayer
+from .models import DataBaseLayer, GeoJsonLayer
 
 
 class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
@@ -101,7 +101,7 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
         return json.dumps(children)
 
     def prepare_private(self, obj):
-        return obj.anonymous_view
+        return not obj.anonymous_view
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
