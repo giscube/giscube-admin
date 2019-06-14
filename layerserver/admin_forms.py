@@ -12,13 +12,12 @@ from .widgets import widgets_types
 
 
 class DataBaseLayerFormMixin(object):
-    def validate_pk_field(self, db_connection, table):
-        table_parts = get_table_parts(table)
+    def validate_pk_field(self, db_connection, table_name):
+        table_parts = get_table_parts(table_name)
         table_schema = table_parts['table_schema']
-        table = table_parts['fixed']
 
         # Check pk_field
-        fields = get_fields(db_connection.get_connection(schema=table_schema), table)
+        fields = get_fields(db_connection.get_connection(schema=table_schema), table_name)
         if self.cleaned_data['pk_field'] not in (None, '') and \
                 self.cleaned_data['pk_field'] not in list(fields.keys()):
             return 'The field [%s] doesn\'t exist' % self.cleaned_data['pk_field']
@@ -94,14 +93,15 @@ class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
                             break
             return has_geometry
 
-    def is_valid_table(self):
+    def is_valid_table(self, table):
         db_connection = self.cleaned_data['db_connection']
-        return db_connection.table_exists(self.cleaned_data['table'])
+        return db_connection.table_exists(table)
 
     def clean(self):
         super().clean()
-        if not self.is_valid_table():
-            self.add_error('table', _('Table [%s] doesn\'t exist') % self.cleaned_data['table'])
+        table = self.cleaned_data['table']
+        if not self.is_valid_table(table):
+            self.add_error('table', _('Table [%s] doesn\'t exist') % table)
 
         if self.cleaned_data['geom_field'] is not None and self.cleaned_data['geom_field'] != '':
             if not self.is_valid_geom_field():
@@ -109,7 +109,6 @@ class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
                 self.add_error('geom_field', msg)
 
         db_connection = self.cleaned_data.get('db_connection')
-        table = self.cleaned_data.get('table')
         err = self.validate_pk_field(db_connection, table)
         if err is not None:
             self.add_error('pk_field', err)
