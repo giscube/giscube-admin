@@ -94,7 +94,6 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
         return self.get_default_popup_content(fields)
 
     def save(self, *args, **kwargs):
-        self.name = slugify(self.name)
         if (self.popup is None or self.popup == ''):
             self.popup = self.get_default_popup()
         super(self.__class__, self).save(*args, **kwargs)
@@ -198,7 +197,6 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, models.Model):
         return self.max_page_size if self.max_page_size else settings.LAYERSERVER_MAX_PAGE_SIZE
 
     def save(self, *args, **kwargs):
-        self.name = slugify(self.name)
         if self.geom_field is not None and self.srid is None:
             self.srid = 4326
         super().save(*args, **kwargs)

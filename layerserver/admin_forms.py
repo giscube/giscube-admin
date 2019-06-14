@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 from giscube.db.utils import get_table_parts
@@ -42,6 +43,9 @@ class DataBaseLayerFormMixin(object):
 
             if primary_key is None and auto_field is None:
                 return 'A primary key or AutoField is needed for pk_field'
+
+    def clean_name(self):
+        return slugify(self.cleaned_data['name'])
 
 
 class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
