@@ -1,8 +1,8 @@
-import json
+import ujson as json
 import threading
 
-from django.http import HttpResponse
-from django.views.generic import View
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
@@ -33,6 +33,7 @@ class ResultsMixin():
                 children = []
 
             results.append({
+                'private': r.private,
                 'category_id': r.category_id,
                 'title': r.title,
                 'description': r.description,
@@ -41,16 +42,19 @@ class ResultsMixin():
                 'children': children,
                 'options': json.loads(getattr(r, 'options', '{}') or '{}'),
             })
-        return HttpResponse(json.dumps({'results': results}),
-                            content_type='application/json')
+        return Response({'results': results})
 
 
-class GeoportalCatalogView(ResultsMixin, View):
+class GeoportalCatalogView(ResultsMixin, APIView):
+    permission_classes = ()
+
     def get(self, request):
         category_id = request.GET.get('category_id', '')
         lock.acquire()
         try:
             sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
+            if not request.user.is_authenticated:
+                sqs = sqs.exclude(private=True)
             sqs = sqs.order_by('title')
             results = self.format_results(sqs)
         finally:
@@ -59,11 +63,15 @@ class GeoportalCatalogView(ResultsMixin, View):
         return results
 
 
-class GeoportalSearchView(ResultsMixin, View):
+class GeoportalSearchView(ResultsMixin, APIView):
+    permission_classes = ()
+
     def get(self, request):
         lock.acquire()
         try:
             sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(request.GET.get('q', '')))
+            if not request.user.is_authenticated:
+                sqs = sqs.exclude(private=True)
             results = self.format_results(sqs)
         finally:
             lock.release()
@@ -71,7 +79,9 @@ class GeoportalSearchView(ResultsMixin, View):
         return results
 
 
-class GeoportalCategoryView(View):
+class GeoportalCategoryView(APIView):
+    permission_classes = ()
+
     def get(self, request):
         lock.acquire()
         try:
@@ -88,4 +98,4 @@ class GeoportalCategoryView(View):
         finally:
             lock.release()
 
-        return HttpResponse(json.dumps(results), content_type='application/json')
+        return Response(results)
