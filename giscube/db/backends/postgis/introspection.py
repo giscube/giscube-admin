@@ -83,25 +83,10 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         table_parts = get_table_parts(table_name)
         table_name = table_parts['table_name']
         table_schema = table_parts['table_schema']
-
-        # Query the pg_catalog tables as cursor.description does not reliably
-        # return the nullable property and information_schema.columns does not
-        # contain details of materialized views.
         cursor.execute("""
-            SELECT
-                a.attname AS column_name,
-                NOT (a.attnotnull OR (t.typtype = 'd' AND t.typnotnull)) AS is_nullable,
-                pg_get_expr(ad.adbin, ad.adrelid) AS column_default
-            FROM pg_attribute a
-            LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
-            JOIN pg_type t ON a.atttypid = t.oid
-            JOIN pg_class c ON a.attrelid = c.oid
-            JOIN pg_namespace n ON c.relnamespace = n.oid
-            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
-                AND c.relname = %s
-                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
-                AND pg_catalog.pg_table_is_visible(c.oid)
-        """, [table_name])
+            SELECT column_name, is_nullable, column_default
+            FROM information_schema.columns
+            WHERE table_name = %s""", [table_name])
         field_map = {line[0]: line[1:] for line in cursor.fetchall()}
         if table_schema:
             sql = "SELECT * FROM %s.%s LIMIT 1" % (
