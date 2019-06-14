@@ -247,6 +247,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Information'), ('tab-information',)),
         (_('Data base'), ('tab-data-base',)),
         (_('Fields'), ('tab-fields',)),
+        (_('Virtual Fields'), ('tab-virtual-fields',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('Design'), ('tab-design',)),
     )
@@ -371,7 +372,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         else:
             self.tabs = self.edit_tabs
             self.fieldsets = self.edit_fieldsets
-            self.inlines = [DataBaseLayerFieldsInline, DBLayerUserInline, DBLayerGroupInline]
+            self.inlines = [DataBaseLayerFieldsInline, DataBaseLayerVirtualFieldsInline, DBLayerUserInline,
+                            DBLayerGroupInline]
         conn_status = obj.db_connection.check_connection()
         if not conn_status:
             msg = 'ERROR: There was an error when connecting to: %s' % obj.db_connection
