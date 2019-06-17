@@ -5,7 +5,7 @@ django-cas-ng==3.6.0
 django-celery-results==1.1.2
 django-colorfield==0.1.15
 django-cors-headers==3.0.2
-psycopg2-binary==2.7.7
+psycopg2-binary==2.7.7 --no-binary psycopg2
 django-groupadmin-users==0.3.3
 django-haystack==2.8.1
 django-loginas==0.3.6
