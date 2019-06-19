@@ -238,7 +238,8 @@ def create_dblayer_geom_serializer(model, fields, id_field, read_only_fields):
         raise Exception('NO GEOM FIELD DEFINED')
 
     fields_to_serialize = fields[:]
-    fields_to_serialize.remove(geo_field)
+    if geo_field in fields_to_serialize:
+        fields_to_serialize.remove(geo_field)
 
     # pk field is always needed by Geom4326Serializer
     if id_field not in fields_to_serialize:
