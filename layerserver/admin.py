@@ -126,13 +126,23 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         return super().get_form(request, obj, **defaults)
 
     def public_url(self, obj):
-        url = reverse('geojsonlayer', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
+        text = '-'
+        try:
+            url = reverse('geojsonlayer', kwargs={'name': obj.name})
+            text = format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
+        except Exception:
+            pass
+        return text
     public_url.short_description = 'PUBLIC URL'
 
     def view_layer(self, obj):
-        url = reverse('admin-api-geojsonlayer-detail', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
+        text = '-'
+        try:
+            url = reverse('admin-api-geojsonlayer-detail', kwargs={'name': obj.name})
+            text = format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
+        except Exception:
+            pass
+        return text
     view_layer.short_description = 'Layer'
 
     def save_model(self, request, obj, form, change):
@@ -336,18 +346,33 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     has_geometry.short_description = _('Has geometry')
 
     def public_url(self, obj):
-        url = reverse('content-list', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
+        text = '-'
+        try:
+            url = reverse('content-list', kwargs={'name': obj.name})
+            text = format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('Url'))
+        except Exception:
+            pass
+        return text
     public_url.short_description = 'PUBLIC URL'
 
     def view_layer(self, obj):
-        url = reverse('admin-api-layer-content-list', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
+        text = '-'
+        try:
+            url = reverse('admin-api-layer-content-list', kwargs={'name': obj.name})
+            text = format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Layer'))
+        except Exception:
+            pass
+        return text
     view_layer.short_description = 'LAYER'
 
     def view_metadata(self, obj):
-        url = reverse('admin-api-layer-detail', kwargs={'name': obj.name})
-        return format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Metadata'))
+        text = '-'
+        try:
+            url = reverse('admin-api-layer-detail', kwargs={'name': obj.name})
+            text = format_html('<a href="{url}" target="_blank">{text}</a>', url=url, text=_('View Metadata'))
+        except Exception:
+            pass
+        return text
     view_metadata.short_description = 'METADATA'
 
     def get_readonly_fields(self, request, obj=None):
