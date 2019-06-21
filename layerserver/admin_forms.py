@@ -174,6 +174,9 @@ class GeoJsonLayerAddForm(forms.ModelForm):
     # Fake save_as_new
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=True)
 
+    def clean_name(self):
+        return slugify(self.cleaned_data['name'])
+
     class Meta:
         model = GeoJsonLayer
         exclude = ()
@@ -181,6 +184,9 @@ class GeoJsonLayerAddForm(forms.ModelForm):
 
 class GeoJsonLayerChangeForm(forms.ModelForm):
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=False)
+
+    def clean_name(self):
+        return slugify(self.cleaned_data['name'])
 
     class Meta:
         model = GeoJsonLayer
