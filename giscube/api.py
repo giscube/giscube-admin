@@ -15,7 +15,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
 
     def dispatch(self, request, *args, **kwargs):
-        notify_deprecated('giscube.api.CategoryViewSet')
+        notify_deprecated('giscube.api.CategoryViewSet', request)
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
