@@ -1,6 +1,7 @@
 import os
 import tempfile
-from urllib.parse import urlencode
+from functools import reduce
+from urllib.parse import urlencode, urljoin
 
 import requests
 
@@ -108,3 +109,7 @@ class AdminEmailHandler(log.AdminEmailHandler):
 
     def connection(self):
         return get_connection(backend=self.email_backend, fail_silently=False)
+
+
+def url_slash_join(*args):
+    return reduce(urljoin, args)
