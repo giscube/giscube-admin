@@ -8,6 +8,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.validators import URLValidator
 from django.utils.translation import gettext as _
 
+from giscube.utils import url_slash_join
 from layerserver.storage import get_image_with_thumbnail_storage_class
 
 from .base import BaseJSONWidget
@@ -16,16 +17,16 @@ from .base import BaseJSONWidget
 class ImageWidget(BaseJSONWidget):
     TEMPLATE = inspect.cleandoc("""
     {
-        "upload_root": "%simages/",
-        "base_url": "%simages/",
-        "thumbnail_root": "%sthumbnails/",
-        "thumbnail_base_url": "%sthumbnails/"
+        "upload_root": "%s",
+        "base_url": "%s",
+        "thumbnail_root": "%s",
+        "thumbnail_base_url": "%s"
     }
     """ % (
-        settings.MEDIA_ROOT,
-        '%s%s' % (settings.GISCUBE_URL, settings.MEDIA_URL.replace(settings.APP_URL, '')),
-        settings.MEDIA_ROOT,
-        '%s%s' % (settings.GISCUBE_URL, settings.MEDIA_URL.replace(settings.APP_URL, '')),
+        os.path.join(settings.MEDIA_ROOT, 'images'),
+        url_slash_join(settings.GISCUBE_URL, settings.MEDIA_URL.replace(settings.APP_URL, ''), 'images'),
+        os.path.join(settings.MEDIA_ROOT, 'thumbnails'),
+        url_slash_join(settings.GISCUBE_URL, settings.MEDIA_URL.replace(settings.APP_URL, ''), 'thumbnails'),
     ))
 
     ERROR_UPLOAD_ROOT_REQUIRED = _('\'upload_root\' attribute is required')
