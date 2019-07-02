@@ -103,7 +103,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['popup'],
+            'fields': ['tooltip', 'popup'],
             'classes': ('tab-design',),
         }),
     ]
@@ -334,7 +334,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'list_fields', 'form_fields', 'popup'
+                'list_fields', 'form_fields', 'tooltip', 'popup'
             ],
             'classes': ('tab-design',),
         }),
