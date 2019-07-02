@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: docker/django/Dockerfile
+      args:
+        - EXTRA_REQUIREMENTS=devel
     image: giscube_admin_requirements
     entrypoint:
       - /bin/bash

@@ -13,7 +13,7 @@ ADD docker/django/bash.sh /docker/
 RUN chmod +x /docker/*.sh
 
 RUN pip3 install -r /docker/requirements.txt
-RUN if [ -n "$EXTRA_REQUIREMENTS" -a -f "requirements-$EXTRA_REQUIREMENTS.txt" ]; then pip3 install -r "/docker/requirements-$EXTRA_REQUIREMENTS.txt"; fi
+RUN if [ -n "$EXTRA_REQUIREMENTS" -a -f "/docker/requirements-$EXTRA_REQUIREMENTS.txt" ]; then pip3 install -r "/docker/requirements-$EXTRA_REQUIREMENTS.txt"; fi
 
 WORKDIR /app
 
