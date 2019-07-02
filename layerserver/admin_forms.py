@@ -106,11 +106,13 @@ class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
         table = self.cleaned_data['table']
         if not self.is_valid_table(table):
             self.add_error('table', _('Table [%s] doesn\'t exist') % table)
+            return
 
         if self.cleaned_data['geom_field'] is not None and self.cleaned_data['geom_field'] != '':
             if not self.is_valid_geom_field():
                 msg = _('[%s] is not geometry type or not exists') % self.cleaned_data['geom_field']
                 self.add_error('geom_field', msg)
+                return
 
         db_connection = self.cleaned_data.get('db_connection')
         err = self.validate_pk_field(db_connection, table)
