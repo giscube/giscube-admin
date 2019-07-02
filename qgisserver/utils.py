@@ -19,6 +19,7 @@ def patch_qgis_project(service):
     wms_url = properties.find('WMSUrl')
     if wms_url is None:
         wms_url = ET.SubElement(properties, 'WMSUrl')
+        wms_url.set('type', 'QString')
     giscube_url = getattr(settings, 'GISCUBE_URL', 'http://localhost:8080')
     wms_url.text = '%s/qgisserver/services/%s/' % (giscube_url, service.name)
     tree.write(filename)
