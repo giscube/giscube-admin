@@ -80,3 +80,13 @@ class PopupMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class TooltipMixin(models.Model):
+    """
+    Tooltip mixin.
+    """
+    tooltip = models.TextField(_('tooltip'), blank=True, null=True)
+
+    class Meta:
+        abstract = True

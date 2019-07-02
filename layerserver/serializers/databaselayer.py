@@ -116,6 +116,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             data['geom_type'] = None
             data['design']['popup'] = None
             self.format_options_json(obj, data)
+        data['design']['tooltip'] = obj.tooltip
 
         return data
 
