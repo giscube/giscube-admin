@@ -12,7 +12,8 @@ from giscube.utils import unique_service_directory
 from .admin_actions import geojsonlayer_force_refresh_data
 from .admin_filters import DataBaseLayerGeomNullFilter
 from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
-                          DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
+                          DataBaseLayerStyleRuleInlineForm, DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm,
+                          GeoJsonLayerChangeForm, GeoJsonLayerStyleRuleInlineForm)
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
                      DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .tasks import async_geojsonlayer_refresh
@@ -31,6 +32,7 @@ class StyleRuleInlineMixin(admin.StackedInline):
 
 class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
     model = GeoJsonLayerStyleRule
+    form = GeoJsonLayerStyleRuleInlineForm
 
 
 @admin.register(GeoJsonLayer)
@@ -232,6 +234,7 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
 
 class DataBaseLayerStyleRuleInline(StyleRuleInlineMixin):
     model = DataBaseLayerStyleRule
+    form = DataBaseLayerStyleRuleInlineForm
 
 
 @admin.register(DataBaseLayer)

@@ -6,9 +6,11 @@ from django.utils.translation import gettext as _
 
 from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
+from giscube.widgets import ColorWidget
 
 from .model_legacy import get_fields
-from .models import DataBaseLayer, DataBaseLayerField, DataBaseLayerVirtualField, GeoJsonLayer
+from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerStyleRule, DataBaseLayerVirtualField,
+                     GeoJsonLayer, GeoJsonLayerStyleRule)
 from .widgets import widgets_types
 
 
@@ -146,6 +148,12 @@ class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):
     class Meta:
         model = DataBaseLayer
         exclude = ()
+        widgets = {
+            'stroke_color': ColorWidget,
+            'fill_color': ColorWidget,
+            'marker_color': ColorWidget,
+            'icon_color': ColorWidget,
+        }
 
 
 class DataBaseLayerFieldsInlineForm(forms.ModelForm):
@@ -158,6 +166,18 @@ class DataBaseLayerFieldsInlineForm(forms.ModelForm):
     class Meta:
         model = DataBaseLayerField
         fields = '__all__'
+
+
+class DataBaseLayerStyleRuleInlineForm(forms.ModelForm):
+    class Meta:
+        model = DataBaseLayerStyleRule
+        fields = '__all__'
+        widgets = {
+            'stroke_color': ColorWidget,
+            'fill_color': ColorWidget,
+            'marker_color': ColorWidget,
+            'icon_color': ColorWidget,
+        }
 
 
 class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
@@ -182,6 +202,12 @@ class GeoJsonLayerAddForm(forms.ModelForm):
     class Meta:
         model = GeoJsonLayer
         exclude = ()
+        widgets = {
+            'stroke_color': ColorWidget,
+            'fill_color': ColorWidget,
+            'marker_color': ColorWidget,
+            'icon_color': ColorWidget,
+        }
 
 
 class GeoJsonLayerChangeForm(forms.ModelForm):
@@ -193,3 +219,21 @@ class GeoJsonLayerChangeForm(forms.ModelForm):
     class Meta:
         model = GeoJsonLayer
         exclude = ()
+        widgets = {
+            'stroke_color': ColorWidget,
+            'fill_color': ColorWidget,
+            'marker_color': ColorWidget,
+            'icon_color': ColorWidget,
+        }
+
+
+class GeoJsonLayerStyleRuleInlineForm(forms.ModelForm):
+    class Meta:
+        model = GeoJsonLayerStyleRule
+        fields = '__all__'
+        widgets = {
+            'stroke_color': ColorWidget,
+            'fill_color': ColorWidget,
+            'marker_color': ColorWidget,
+            'icon_color': ColorWidget,
+        }
