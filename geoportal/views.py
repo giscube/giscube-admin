@@ -1,11 +1,11 @@
-import ujson as json
 import threading
 
-from rest_framework.response import Response
-from rest_framework.views import APIView
+import ujson as json
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 DEFAULT_SEARCH = [
