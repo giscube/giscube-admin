@@ -10,6 +10,7 @@
 </style>
 {% endblock %}
 {% block admin_change_form_document_ready %}{{ block.super }}
+{% if original.geom_field %}
 <script type="text/javascript">
 (function ($){
     var all_fields = ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width',
@@ -45,4 +46,5 @@
 	});
 })(django.jQuery);
 </script>
+{% endif %}
 {% endblock %}
