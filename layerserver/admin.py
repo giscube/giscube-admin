@@ -152,9 +152,9 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             unique_service_directory(obj)
         super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
         if obj.url:
-            messages.info(request, '[%s] will be requested in background.' % obj.url)
+            messages.info(request, _('[%s] will be requested in background.') % obj.url)
         elif obj.data_file:
-            messages.info(request, 'GeoJsonLayer will be generated/updated in background.')
+            messages.info(request, _('GeoJsonLayer will be generated/updated in background.'))
         force_refresh_data_file = False
         if 'force_refresh_data_file' in form.cleaned_data:
             force_refresh_data_file = form.cleaned_data['force_refresh_data_file']
