@@ -82,7 +82,8 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, mo
             'style': style_representation(self),
             'style_rules': style_rules_representation(self),
             'design': {
-                'popup': self.popup
+                'popup': self.popup,
+                'tooltip': self.tooltip
             }
         }
 
