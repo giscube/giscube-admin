@@ -17,3 +17,19 @@ class ColorWidget(widgets.TextInput):
         css = {
             'all': ('vendors/bgrins-spectrum/spectrum%s.css' % extra,)
         }
+
+
+class TagsWidget(widgets.Textarea):
+    def __init__(self, attrs={}):
+        attrs.update({'class': 'tags-widget'})
+        super().__init__(attrs)
+
+    class Media:
+        extra = '' if settings.DEBUG else '.min'
+        js = [
+            'vendors/tagify/tagify%s.js' % extra,
+            'vendors/sortable/Sortable%s.js' % extra,
+            'giscube/js/widgets/tags.js']
+        css = {
+            'all': ('vendors/tagify/tagify.css',)
+        }

@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 
 from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
-from giscube.widgets import ColorWidget
+from giscube.widgets import ColorWidget, TagsWidget
 
 from .model_legacy import get_fields
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerStyleRule, DataBaseLayerVirtualField,
@@ -153,12 +153,15 @@ class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
             'icon_color': ColorWidget,
+            'form_fields': TagsWidget,
+            'list_fields': TagsWidget
         }
 
 
 class DataBaseLayerFieldsInlineForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
+        print(self.instance.layer.__dict__)
         err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data['widget_options'])
         if err is not None:
             self.add_error('widget_options', err)
@@ -207,7 +210,7 @@ class GeoJsonLayerAddForm(forms.ModelForm):
             'stroke_color': ColorWidget,
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
-            'icon_color': ColorWidget,
+            'icon_color': ColorWidget
         }
 
 
