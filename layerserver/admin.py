@@ -127,8 +127,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         self.fieldsets = self.add_fieldsets
         return super().add_view(request, form_url, extra_context)
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+    def change_view(self, request, object_id, form_url='', extra_context={}):
         self.fieldsets = self.edit_fieldsets
+        obj = self.model.objects.get(pk=object_id)
+        extra_context['view_layer'] = self.view_layer(obj)
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_form(self, request, obj=None, **kwargs):
@@ -437,6 +439,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         for k, v in list(widgets_types.items()):
             widgets_templates[k] = mark_safe(v.TEMPLATE.replace('\n', '\\n').replace('"', r'\"'))
         extra_context['widgets_templates'] = widgets_templates
+        extra_context['view_metadata'] = self.view_metadata(obj)
+        extra_context['view_layer'] = self.view_layer(obj)
 
         return super(DataBaseLayerAdmin,
                      self).change_view(
