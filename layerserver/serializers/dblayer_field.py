@@ -20,7 +20,7 @@ class DBLayerFieldSerializer(serializers.ModelSerializer):
         data['blank'] = obj.blank
         data['size'] = obj.size
         data['decimals'] = obj.decimals
-        data['widget'] = obj.widget
+        data['widget'] = widgets_types[obj.widget].base_type
         data.update(widgets_types[obj.widget].serialize_widget_options(obj))
         return data
 

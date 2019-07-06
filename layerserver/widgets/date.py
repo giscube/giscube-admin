@@ -12,8 +12,8 @@ class DateWidget(BaseJSONWidget):
         "format": "YYYY-MM-DD"
     }
     """)
-
     ERROR_FORMAT_REQUIRED = _('\'format\' attribute is required')
+    base_type = 'date'
 
     @staticmethod
     def is_valid(value):

@@ -14,6 +14,7 @@ class SqlchoicesWidget(BaseJSONWidget):
         "table_headers": [{"code":"Code"}, {"name": "Name"}]
     }
     """)
+    base_type = 'sqlchoices'
 
     @staticmethod
     def is_valid(value):

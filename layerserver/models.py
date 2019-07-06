@@ -299,6 +299,7 @@ class DataBaseLayerField(models.Model):
         ('choices', _('Choices, one line per value')),
         ('date', _('Date')),
         ('datetime', _('Date time')),
+        ('distinctvalues', _('Distinct values')),
         ('image', _('Image')),
         ('linkedfield', _('Linked Field')),
         ('sqlchoices', _('SQL choices')),
