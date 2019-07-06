@@ -60,3 +60,17 @@
 })(django.jQuery);
 </script>
 {% endblock %}
+
+{% block object-tools-items %}
+  {% if view_metadata %}
+  <li>
+      {{ view_metadata|safe }}
+  </li>
+  {% endif %}
+  {% if view_layer %}
+  <li>
+      {{ view_layer|safe }}
+  </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
