@@ -28,7 +28,6 @@ class ImageWidget(BaseJSONWidget):
         os.path.join(settings.MEDIA_ROOT, 'thumbnails'),
         url_slash_join(settings.GISCUBE_URL, settings.MEDIA_URL.replace(settings.APP_URL, ''), 'thumbnails'),
     ))
-
     ERROR_UPLOAD_ROOT_REQUIRED = _('\'upload_root\' attribute is required')
     ERROR_UPLOAD_ROOT_NOT_EXISTS = _('\'upload_root\' folder doesn\'t exist')
     ERROR_UPLOAD_ROOT_NOT_WRITABLE = ('\'upload_root\' folder is not writable')
@@ -36,6 +35,7 @@ class ImageWidget(BaseJSONWidget):
     ERROR_THUMBNAIL_ROOT_NOT_EXISTS = _('\'thumbnail_root\' folder doesn\'t exist')
     ERROR_THUMBNAIL_ROOT_NOT_WRITABLE = ('\'thumbnail_root\' folder is not writable')
     ERROR_THUMBNAIL_BASE_URL = ('\'thumbnail_base_url\' is not valid')
+    base_type = 'image'
 
     @staticmethod  # noqa: C901
     def is_valid(value):

@@ -14,10 +14,10 @@ class Relation1NWidget(BaseJSONWidget):
         "dblayer_fk": "parent_id"
     }
     """)
-
     ERROR_DBLAYER_REQUIRED = _('\'dblayer\' attribute is required')
     ERROR_TO_FIELD_REQUIRED = _('\'to_field\' attribute is required')
     ERROR_DBLAYER_FK_REQUIRED = _('\'dblayer_fk\' attribute is required')
+    base_type = 'relation1n'
 
     @staticmethod
     def is_valid(value):
