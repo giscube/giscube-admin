@@ -1,7 +1,6 @@
 import os
 import tempfile
-from functools import reduce
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urlencode
 
 import requests
 
@@ -112,4 +111,4 @@ class AdminEmailHandler(log.AdminEmailHandler):
 
 
 def url_slash_join(*args):
-    return reduce(urljoin, args)
+    return '/'.join([(u.strip('/') if index + 1 < len(args) else u.lstrip('/')) for index, u in enumerate(args)])
