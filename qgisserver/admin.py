@@ -4,6 +4,8 @@ from django.utils.html import format_html
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
+from giscube.utils import url_slash_join
+
 from qgisserver.models import Project, Service
 
 
@@ -23,8 +25,8 @@ class ServiceAdmin(admin.ModelAdmin):
     filter_horizontal = ('servers',)
 
     def url_wms(self, obj):
-        return format_html('<a target="_blank" href="{0}/qgisserver/services/{1}">WMS URL {1}</a>',
-                           settings.GISCUBE_URL, obj.name)
+        url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
+        return format_html('<a target="_blank" href="{0}">WMS URL {1}</a>', url, obj.name)
     url_wms.short_description = 'WMS URL'
 
 
