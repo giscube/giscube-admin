@@ -5,6 +5,8 @@ from django.conf import settings
 
 from haystack import indexes
 
+from giscube.utils import url_slash_join
+
 from .models import Service
 
 
@@ -29,7 +31,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_children(self, obj):
         children = []
-        url = '%s/qgisserver/services/%s/' % (settings.GISCUBE_URL, obj.name)
+        url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
 
         project_file = os.path.basename(obj.project_file.url)
         filename, file_extension = os.path.splitext(project_file)
