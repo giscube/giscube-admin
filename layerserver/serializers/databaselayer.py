@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer, DataBaseLayerReference
+from giscube.utils import url_slash_join
 
 from .dblayer_field import DBLayerFieldSerializer
 from .dblayer_virtualfield import DBLayerVirtualFieldSerializer
@@ -27,9 +28,7 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         if obj.service is None:
             return serializers.empty
-        url = ('%s/qgisserver/services/%s/' % (
-            settings.GISCUBE_URL, obj.service.name)).replace('//', '')
-        return url
+        return url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s/' % obj.service.name)
 
     class Meta:
         model = DataBaseLayerReference
