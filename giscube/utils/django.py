@@ -32,7 +32,7 @@ def get_cls(key, default=None):
 
 def get_version(version=None):
     if version is None:
-        from . import VERSION as version
+        from giscube import VERSION as version
 
     return django_get_version(version)
 
