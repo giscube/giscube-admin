@@ -39,7 +39,7 @@ def get_version(version=None):
 
 def unique_service_directory(instance, filename=None):
     if not instance.service_path:
-        path = os.path.join(settings.MEDIA_ROOT, instance._meta.app_label)
+        path = os.path.join(settings.MEDIA_ROOT, instance._meta.app_label, instance._meta.object_name.lower())
         path = os.path.abspath(path)
         if not os.path.exists(path):
             os.makedirs(path)
