@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StyledLayerDescriptor version="1.1.0" xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:se="http://www.opengis.net/se" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <NamedLayer>
+        <Name>{{ name }}</Name>
+        <UserStyle>
+            <FeatureTypeStyle>
+              {% for rule in rules %}
+              <Rule>
+                <Title>{{ rule.title }}</Title>
+                <PolygonSymbolizer>
+                    {% if rule.style.fill_color %}
+                    <Fill>
+                        <CssParameter name="fill">{{ rule.style.fill_color }}</CssParameter>
+                        <CssParameter name="fill-opacity">{{ rule.style.fill_opacity|default:"1" }}</CssParameter>
+                    </Fill>
+                    {% endif %}
+                    {% if rule.style.stroke_color %}
+                    <Stroke>
+                        <CssParameter name="stroke">{{ rule.style.stroke_color }}</CssParameter>
+                        <CssParameter name="stroke-width">{{ rule.style.stroke_width|default:"1" }}</CssParameter>
+                        <CssParameter name="stroke-opacity">{{ rule.style.stroke_opacity|default:"1" }}</CssParameter>
+                        {% if rule.style.stroke_dash_array %}
+                        <CssParameter name="stroke-dasharray">{{ rule.style.stroke_dash_array }}</CssParameter>
+                        {% endif %}
+                    </Stroke>
+                    {% endif %}
+                </PolygonSymbolizer>
+                {% if rule.filter %}
+                <Filter>
+                    <{{ rule.filter.comparator }}>
+                        <PropertyName>{{ rule.filter.field }}</PropertyName>
+                        <Literal>{{ rule.filter.value }}</Literal>
+                    </{{ rule.filter.comparator }}>
+                </Filter>
+                {% endif %}
+              </Rule>
+              {% endfor %}
+            </FeatureTypeStyle>
+        </UserStyle>
+    </NamedLayer>
+</StyledLayerDescriptor>

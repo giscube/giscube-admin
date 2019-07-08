@@ -37,6 +37,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 GISCUBE_URL = os.environ.get('GISCUBE_URL',
                              'http://localhost:8080/apps/giscube-admin')
+GISCUBE_INTERNAL_URL = os.environ.get('GISCUBE_INTERNAL_URL', GISCUBE_URL)
 
 GISCUBE_IMAGE_SERVER_DISABLED = os.environ.get('GISCUBE_IMAGE_SERVER_DISABLED',
                                                'False').lower() == 'true'
@@ -348,6 +349,19 @@ if not GISCUBE_LAYERSERVER_DISABLED:
     INSTALLED_APPS += [
         'rest_framework_gis',
     ]
+
+CACHES = {
+   'default': {
+       'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+       'LOCATION': 'default-%s' % os.environ.get('DB_NAME')
+   },
+   'mapserver': {
+       'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+       'LOCATION': 'mapserver-%s' % os.environ.get('DB_NAME'),
+       'TIMEOUT': 25,
+       'OPTIONS': {'MAX_ENTRIES': 1000}
+   }
+}
 
 LOGGING = {
     'version': 1,

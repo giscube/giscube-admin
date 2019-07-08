@@ -18,6 +18,7 @@ from django.utils.translation import gettext as _
 from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
 from giscube.utils import unique_service_directory
+from giscube.storage import OverwriteStorage
 from layerserver import model_legacy
 
 from .model_legacy import ImageWithThumbnailField
@@ -154,6 +155,10 @@ class GeoJsonLayerStyleRule(StyleMixin, models.Model):
         verbose_name_plural = _('Style rules')
 
 
+def databaselayer_mapfile_upload_path(instance, filename):
+    return unique_service_directory(instance, 'wms.map')
+
+
 class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
@@ -178,6 +183,10 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     anonymous_add = models.BooleanField(_('Can add'), default=False)
     anonymous_update = models.BooleanField(_('Can update'), default=False)
     anonymous_delete = models.BooleanField(_('Can delete'), default=False)
+
+    service_path = models.CharField(max_length=255, null=True, blank=True)
+    mapfile = models.FileField(
+        null=True, blank=True, storage=OverwriteStorage(), upload_to=databaselayer_mapfile_upload_path)
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
