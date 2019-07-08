@@ -14,6 +14,7 @@ class LinkedfieldWidget(BaseJSONWidget):
     """)
 
     ERROR_SOURCE_REQUIRED = _('\'source\' attribute is required')
+    base_type = 'linkedfield'
 
     @staticmethod
     def is_valid(value):

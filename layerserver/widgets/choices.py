@@ -3,6 +3,7 @@ from .base import BaseWidget
 
 class ChoicesWidget(BaseWidget):
     TEMPLATE = "key1,value1\nkey2,value2"
+    base_type = 'choices'
 
     @staticmethod
     def serialize_widget_options(obj):
