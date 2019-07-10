@@ -39,6 +39,7 @@ class StyleMixin(models.Model):
     stroke_color = models.CharField(_('stroke color'), max_length=50, blank=True, null=True,
                                     default=settings.LAYERSERVER_STYLE_STROKE_COLOR)
     stroke_width = models.CharField(_('stroke width'), max_length=50, blank=True, null=True, default='1')
+    stroke_opacity = models.CharField(_('stroke opacity'), max_length=50, blank=True, null=True, default='1')
     stroke_dash_array = models.CharField(_('stroke dash array'), max_length=50, blank=True, null=True, default='')
     fill_color = models.CharField(_('fill color'), max_length=50, blank=True, null=True,
                                   default=settings.LAYERSERVER_STYLE_FILL_COLOR)

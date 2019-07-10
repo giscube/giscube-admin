@@ -39,9 +39,11 @@ def style_representation(obj):
     res = {'shapetype': obj.shapetype}
     fields = {
         'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
-        'line': ['stroke_color', 'stroke_width', 'stroke_dash_array'],
-        'polygon': ['stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
-        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+        'line': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
+        'polygon': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
+                    'fill_opacity'],
+        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array',
+                   'fill_color',
                    'fill_opacity'],
         'image': ['icon'],
     }
@@ -55,9 +57,10 @@ def style_rules_representation(obj):
     style_rules = []
     fields = {
         'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
-        'line': ['stroke_color', 'stroke_width', 'stroke_dash_array'],
-        'polygon': ['stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
-        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+        'line': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
+        'polygon': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
+                    'fill_opacity'],
+        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
                    'fill_opacity'],
     }
     for rule in obj.rules.all():
