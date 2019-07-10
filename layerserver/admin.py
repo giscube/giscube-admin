@@ -25,7 +25,8 @@ class StyleRuleInlineMixin(admin.StackedInline):
     extra = 0
     classes = ('tab-style',)
     fields = ('order', ('field', 'comparator', 'value'), 'marker_color', ('icon_type', 'icon', 'icon_color'),
-              'shape_radius', ('stroke_color', 'stroke_width', 'stroke_dash_array'), ('fill_color', 'fill_opacity'))
+              'shape_radius', ('stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'),
+              ('fill_color', 'fill_opacity'))
     verbose_name = _('Rule')
     verbose_name_plural = _('Rules')
 
@@ -72,7 +73,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
-                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
@@ -100,7 +101,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
-                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
@@ -325,7 +326,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
-                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),

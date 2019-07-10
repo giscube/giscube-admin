@@ -14,7 +14,7 @@
 <script type="text/javascript">
 (function ($){
     var all_fields = ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width',
-    'stroke_dash_array', 'fill_color',
+    'stroke_opacity', 'stroke_dash_array', 'fill_color',
     'fill_opacity', 'marker_name', 'marker_color', 'icon_type', 'icon', 'icon_color'];
 
 	function apply_shapetype() {
@@ -22,9 +22,9 @@
         var fields = {
             '': [],
             'marker': ['order', 'field', 'comparator', 'value', 'marker_color', 'icon_type', 'icon', 'icon_color'],
-            'line': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_dash_array'],
-            'polygon': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
-            'circle': ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width', 'stroke_dash_array', 'fill_color',
+            'line': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
+            'polygon': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
+            'circle': ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
             'fill_opacity'],
             'image': ['order', 'field', 'comparator', 'value', 'icon']
         }
