@@ -139,11 +139,54 @@ class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
 
 
 class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):
+    def clean_form_fields(self):
+        values = [x.strip() for x in self.cleaned_data['form_fields'].split(',')]
+        return ','.join(values)
+
+    def clean_list_fields(self):
+        values = [x.strip() for x in self.cleaned_data['list_fields'].split(',')]
+        return ','.join(values)
+
     def clean(self):
-        super().clean()
+        cleaned_data = super().clean()
         err = self.validate_pk_field(self.instance.db_connection, self.instance.table)
         if err is not None:
             self.add_error('pk_field', err)
+            return
+
+        form_fields = cleaned_data.get('form_fields', '').split(',')
+        list_fields = cleaned_data.get('list_fields', '').split(',')
+
+        fields_count = int(self.data.get('fields-TOTAL_FORMS', 0))
+        fields_enabled = []
+        virtual_enabled = []
+        for i in range(0, fields_count):
+            if self.data.get('fields-{0}-enabled'.format(i), '') == 'on':
+                fields_enabled.append(i)
+            if self.data.get('virtual_fields-{0}-enabled'.format(i), '') == 'on':
+                virtual_enabled.append(self.data.get('virtual_fields-{0}-name'.format(i)))
+        enabled_names = [] + virtual_enabled
+        for i, x in enumerate(self.instance.fields.all()):
+            if i in fields_enabled:
+                enabled_names.append(x.name)
+
+        list_fields_errors = []
+        for x in list_fields:
+            if x not in enabled_names:
+                list_fields_errors.append(x)
+        if len(list_fields_errors) > 0:
+            self.add_error('list_fields', _('[%s] doesn\'t exist or aren\'t enabled.') %
+                           ', '.join(list_fields_errors))
+            return
+
+        form_fields_errors = []
+        for x in form_fields:
+            if x not in enabled_names:
+                form_fields_errors.append(x)
+        if len(form_fields_errors) > 0:
+            self.add_error('form_fields', _('[%s] doesn\'t exist or aren\'t enabled.') %
+                           ', '.join(form_fields_errors))
+            return
 
     class Meta:
         model = DataBaseLayer
@@ -161,7 +204,6 @@ class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):
 class DataBaseLayerFieldsInlineForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
-        print(self.instance.layer.__dict__)
         err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data['widget_options'])
         if err is not None:
             self.add_error('widget_options', err)
