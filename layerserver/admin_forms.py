@@ -1,3 +1,4 @@
+import json
 from django import forms
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
@@ -14,7 +15,17 @@ from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerStyleRule, 
 from .widgets import widgets_types
 
 
-class DataBaseLayerFormMixin(object):
+class ClusterFormMixin(forms.ModelForm):
+    def clean_cluster_options(self):
+        if self.cleaned_data['cluster_options'] is not None:
+            try:
+                data = json.loads(self.cleaned_data['cluster_options'])
+            except Exception:
+                raise forms.ValidationError(_('Invalid JSON format'))
+            return json.dumps(data, indent=4)
+
+
+class DataBaseLayerFormMixin(ClusterFormMixin, forms.ModelForm):
     def validate_pk_field(self, db_connection, table_name):
         table_parts = get_table_parts(table_name)
         table_schema = table_parts['table_schema']
@@ -50,7 +61,7 @@ class DataBaseLayerFormMixin(object):
         return slugify(self.cleaned_data['name'])
 
 
-class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
+class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
     geometry_columns = forms.ChoiceField(choices=(), widget=forms.Select(), required=False)
 
     def __init__(self, *args, **kwargs):
@@ -138,7 +149,8 @@ class DataBaseLayerAddForm(forms.ModelForm, DataBaseLayerFormMixin):
         fields = ('db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field')
 
 
-class DataBaseLayerChangeForm(forms.ModelForm, DataBaseLayerFormMixin):
+
+class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
     def clean_form_fields(self):
         values = [x.strip() for x in self.cleaned_data['form_fields'].split(',')]
         return ','.join(values)
@@ -238,7 +250,7 @@ class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
         fields = '__all__'
 
 
-class GeoJsonLayerAddForm(forms.ModelForm):
+class GeoJsonLayerAddForm(ClusterFormMixin, forms.ModelForm):
     # Fake save_as_new
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=True)
 
@@ -256,7 +268,7 @@ class GeoJsonLayerAddForm(forms.ModelForm):
         }
 
 
-class GeoJsonLayerChangeForm(forms.ModelForm):
+class GeoJsonLayerChangeForm(ClusterFormMixin, forms.ModelForm):
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=False)
 
     def clean_name(self):

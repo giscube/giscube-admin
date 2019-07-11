@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import shutil
@@ -20,7 +21,7 @@ from giscube.utils import unique_service_directory
 from layerserver import model_legacy
 
 from .model_legacy import ImageWithThumbnailField
-from .models_mixins import BaseLayerMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
+from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ SERVICE_VISIBILITY_CHOICES = [
 ]
 
 
-class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, models.Model):
+class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     url = models.CharField(_('url'), max_length=255, null=True, blank=True)
     headers = models.TextField(_('headers'), null=True, blank=True)
     data_file = models.FileField(_('data file'), upload_to=geojsonlayer_upload_path,
@@ -83,7 +84,8 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, mo
             'style_rules': style_rules_representation(self),
             'design': {
                 'popup': self.popup,
-                'tooltip': self.tooltip
+                'tooltip': self.tooltip,
+                'cluster': json.loads(self.cluster_options or '{}') if self.cluster_enabled else None
             }
         }
 
@@ -152,7 +154,7 @@ class GeoJsonLayerStyleRule(StyleMixin, models.Model):
         verbose_name_plural = _('Style rules')
 
 
-class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, models.Model):
+class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='db_connections', verbose_name='Database connection')

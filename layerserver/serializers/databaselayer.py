@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 
 from rest_framework import serializers
@@ -119,6 +121,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             data['design']['popup'] = None
             self.format_options_json(obj, data)
         data['design']['tooltip'] = obj.tooltip
+        data['design']['cluster'] = json.loads(obj.cluster_options or '{}') if obj.cluster_enabled else None
 
         return data
 
