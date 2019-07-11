@@ -78,7 +78,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['popup'],
+            'fields': ['tooltip', 'popup'],
+            'classes': ('tab-design',),
+        }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
     ]
@@ -107,6 +111,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': ['tooltip', 'popup'],
+            'classes': ('tab-design',),
+        }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
     ]
@@ -305,6 +313,10 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             ],
             'classes': ('tab-design',),
         }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
+            'classes': ('tab-design',),
+        }),
     ]
 
     edit_geom_fieldsets = [
@@ -340,6 +352,10 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             'fields': [
                 'list_fields', 'form_fields', 'tooltip', 'popup'
             ],
+            'classes': ('tab-design',),
+        }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
     ]

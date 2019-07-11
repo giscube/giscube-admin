@@ -31,6 +31,18 @@ class BaseLayerMixin(models.Model):
         abstract = True
 
 
+class ClusterMixin(models.Model):
+    """
+    Cluster mixin.
+    """
+    cluster_enabled = models.BooleanField(
+        _('enable cluster'), default=False, help_text=_('Enable/disable cluster usage.'))
+    cluster_options = models.TextField(_('cluster options'), blank=True, null=True, help_text=_('JSON format.'))
+
+    class Meta:
+        abstract = True
+
+
 class StyleMixin(models.Model):
     """
     Style mixin.
