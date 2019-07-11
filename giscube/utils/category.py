@@ -24,7 +24,7 @@ def get_or_create_category(server_url, headers, category):
 
     # Search category
     if category is not None:
-        parameters = {'name': category.name.encode}
+        parameters = {'name': category.name.encode()}
         if category.parent is not None:
             parameters['parent__name'] = category.parent.name
         url = '%s?%s' % (category_list_url, urlencode(parameters))
