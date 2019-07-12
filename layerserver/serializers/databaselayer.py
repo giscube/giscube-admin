@@ -13,6 +13,11 @@ from .dblayer_virtualfield import DBLayerVirtualFieldSerializer
 
 
 class DBLayerSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        data = super().to_representation(obj)
+        data['title'] = obj.title or obj.name
+        return data
+
     class Meta:
         model = DataBaseLayer
         fields = ['name', 'pk_field', 'geom_field']
