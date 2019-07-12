@@ -237,7 +237,7 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
     model = DataBaseLayerReference
     extra = 0
 
-    fields = ('service',)
+    fields = ('service', 'refresh',)
     classes = ('tab-references',)
 
 
@@ -347,6 +347,10 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
                 ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
             ],
             'classes': ('tab-permissions',),
+        }),
+        (None, {
+            'fields': ['wms_as_reference'],
+            'classes': ('tab-references',),
         }),
         (None, {
             'fields': [

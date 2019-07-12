@@ -188,6 +188,8 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     mapfile = models.FileField(
         null=True, blank=True, storage=OverwriteStorage(), upload_to=databaselayer_mapfile_upload_path)
 
+    wms_as_reference = models.BooleanField(_('Add layer data'), default=True)
+
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
             LayerModel = model_legacy.create_dblayer_model(self)
@@ -438,6 +440,7 @@ class DataBaseLayerReference(models.Model):
     layer = models.ForeignKey(DataBaseLayer, null=False, blank=False, related_name='references',
                               on_delete=models.CASCADE)
     service = models.ForeignKey('qgisserver.Service', null=False, blank=False, on_delete=models.CASCADE)
+    refresh = models.BooleanField(_('refresh on data changes'), default=False)
 
     def __str__(self):
         return str(self.service.title or self.service.name)

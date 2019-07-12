@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.urls import reverse
 
 from rest_framework import serializers
 
@@ -37,9 +38,14 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
             return serializers.empty
         return url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s/' % obj.service.name)
 
+    def to_representation(self, obj):
+        data = super().to_representation(obj)
+        data['type'] = 'WMS'
+        data['auth'] = None
+
     class Meta:
         model = DataBaseLayerReference
-        fields = ['title', 'url']
+        fields = ['title', 'url', 'refresh']
 
 
 def style_representation(obj):
@@ -84,10 +90,14 @@ def style_rules_representation(obj):
 
 
 class DBLayerDetailSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
     # TODO: serialize category
     fields = DBLayerFieldSerializer(many=True, read_only=True)
     virtual_fields = DBLayerVirtualFieldSerializer(many=True, read_only=True)
     references = DBLayerReferenceSerializer(many=True, read_only=True)
+
+    def get_title(self, obj):
+        return obj.title or obj.name
 
     def format_options_json(self, obj, data):
         return data.update({
@@ -127,6 +137,21 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             self.format_options_json(obj, data)
         data['design']['tooltip'] = obj.tooltip
         data['design']['cluster'] = json.loads(obj.cluster_options or '{}') if obj.cluster_enabled else None
+
+        if obj.wms_as_reference:
+            path = reverse('content-wms', kwargs={'name': obj.name})
+            request = self.context['request'] if 'request' in self.context else None
+            if request:
+                url = request.build_absolute_uri(path)
+            else:
+                url = url_slash_join(settings.GISCUBE_URL, path)
+            reference = {
+                'title': data['title'],
+                'url': url,
+                'type': 'WMS',
+                'auth': 'token' if not obj.anonymous_view else None
+            }
+            data['references'].insert(0, reference)
 
         return data
 
