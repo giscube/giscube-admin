@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from haystack import indexes
 
-from giscube.utils import url_slash_join
+from giscube.utils import url_slash_join, remove_app_url
 
 from .models import DataBaseLayer, GeoJsonLayer
 
@@ -31,7 +31,8 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_children(self, obj):
         children = []
-        url = url_slash_join(settings.GISCUBE_URL, reverse('geojsonlayer', kwargs={'name': obj.name}))
+        url = url_slash_join(
+            settings.GISCUBE_URL, remove_app_url(reverse('geojsonlayer', kwargs={'name': obj.name})))
         children.append({
             'title': _('GeoJSON Layer'),
             'group': False,
