@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.urls import reverse
 
-from giscube.utils.url import url_slash_join
+from giscube.utils.url import remove_app_url, url_slash_join
 
 from .model_legacy import create_dblayer_model
 
@@ -79,7 +79,8 @@ class MapserverLayer(object):
         if service.srid not in suported_srids:
             suported_srids.append(service.srid)
 
-        wms_url = url_slash_join(settings.GISCUBE_URL, reverse('content-wms', kwargs={'name': self.layer.name}))
+        wms_url = url_slash_join(
+            settings.GISCUBE_URL, remove_app_url(reverse('content-wms', kwargs={'name': self.layer.name})))
 
         connection_type = 'POSTGIS'
         vars = {
