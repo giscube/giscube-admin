@@ -17,7 +17,7 @@ from .widgets import widgets_types
 
 class ClusterFormMixin(forms.ModelForm):
     def clean_cluster_options(self):
-        if self.cleaned_data['cluster_options'] is not None:
+        if self.cleaned_data['cluster_options'] is not None and self.cleaned_data['cluster_options'] != '':
             try:
                 data = json.loads(self.cleaned_data['cluster_options'])
             except Exception:
