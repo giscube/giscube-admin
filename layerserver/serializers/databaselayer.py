@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer, DataBaseLayerReference
-from giscube.utils import url_slash_join
+from giscube.utils import remove_app_url, url_slash_join
 
 from .dblayer_field import DBLayerFieldSerializer
 from .dblayer_virtualfield import DBLayerVirtualFieldSerializer
@@ -145,7 +145,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             if request:
                 url = request.build_absolute_uri(path)
             else:
-                url = url_slash_join(settings.GISCUBE_URL, path)
+                url = url_slash_join(settings.GISCUBE_URL, remove_app_url(path))
             reference = {
                 'title': data['title'],
                 'url': url,

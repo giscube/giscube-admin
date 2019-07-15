@@ -1,10 +1,13 @@
-from giscube.utils import url_slash_join
+from django.test.utils import override_settings
+
+from giscube.utils import url_slash_join, remove_app_url
 
 from tests.common import BaseTest
 
 
-class URLSlashJoinTestCase(BaseTest):
-    def test_urls(self):
+@override_settings(APP_URL='/apps/giscube/')
+class URLUtilsTestCase(BaseTest):
+    def test_url_slash_join(self):
         url = url_slash_join('http://localhost/apps/giscube', 'imageserver/services/streets')
         url_ok = 'http://localhost/apps/giscube/imageserver/services/streets'
         self.assertEqual(url, url_ok)
@@ -24,3 +27,7 @@ class URLSlashJoinTestCase(BaseTest):
         url = url_slash_join('http://localhost/apps/giscube/', '/imageserver/services/streets/')
         url_ok = 'http://localhost/apps/giscube/imageserver/services/streets/'
         self.assertEqual(url, url_ok)
+
+    def test_remove_app_url(self):
+        url = remove_app_url('/apps/giscube/imageserver/services/streets')
+        self.assertEqual(url, 'imageserver/services/streets')
