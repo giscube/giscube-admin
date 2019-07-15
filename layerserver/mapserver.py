@@ -19,7 +19,7 @@ from giscube.utils.url import remove_app_url, url_slash_join
 from .model_legacy import create_dblayer_model
 
 
-SUPORTED_SHAPE_TYPES = ['circle', 'line', 'polygon']
+SUPORTED_SHAPE_TYPES = ['marker', 'circle', 'line', 'polygon']
 
 
 class MapserverLayer(object):
@@ -205,6 +205,16 @@ class SLDLayer(object):
     def render_style(self, item, shapetype):
         style = {}
 
+        if self.layer.shapetype == 'marker':
+            fill_color = item.icon_color or settings.LAYERSERVER_STYLE_FILL_COLOR
+            stroke_color = item.marker_color or settings.LAYERSERVER_STYLE_STROKE_COLOR
+            style['fill_color'] = fill_color
+            style['fill_opacity'] = 1
+
+            style['stroke_color'] = stroke_color
+            style['stroke_width'] = 1
+            style['shape_radius'] = 6
+
         if self.layer.shapetype == 'circle':
             style['fill_color'] = item.fill_color
             style['fill_opacity'] = item.fill_opacity
@@ -250,7 +260,7 @@ class SLDLayer(object):
 
         shapetype = geom_type.replace('multi', '')
 
-        if geom_type == 'point' and self.layer.shapetype == 'circle':
+        if geom_type == 'point':
             shapetype = 'circle'
 
         if geom_type == 'linestring':
