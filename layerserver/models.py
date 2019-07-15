@@ -21,8 +21,10 @@ from giscube.utils import unique_service_directory
 from giscube.storage import OverwriteStorage
 from layerserver import model_legacy
 
+from .mapserver import SUPORTED_SHAPE_TYPES
 from .model_legacy import ImageWithThumbnailField
 from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
+from .tasks import async_generate_mapfile
 
 
 logger = logging.getLogger(__name__)
@@ -162,7 +164,7 @@ def databaselayer_mapfile_upload_path(instance, filename):
 class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
-        related_name='db_connections', verbose_name='Database connection')
+        related_name='layers', verbose_name='Database connection')
     name = models.CharField(_('name'), max_length=255, blank=False, null=False, unique=True)
     table = models.CharField(_('table'), max_length=255, blank=False, null=False)
     pk_field = models.CharField(_('pk field'), max_length=255, blank=True, null=False)
@@ -284,6 +286,24 @@ def add_fields(sender, instance, created, **kwargs):
     if changes > 0:
         instance._disable_signal_add_fields = True
         instance.save()
+
+
+def _generate_mapfile(obj):
+    if obj.shapetype in SUPORTED_SHAPE_TYPES and obj.geom_field is not None:
+        async_generate_mapfile.delay(obj.pk)
+
+
+@receiver(post_save, sender=DataBaseLayer)
+def generate_mapfile(sender, instance, created, **kwargs):
+    if not hasattr(instance, '_mapfile_generated') and not created:
+        _generate_mapfile(instance)
+
+
+@receiver(post_save, sender=DBConnection)
+def generate_mapfiles(sender, instance, created, **kwargs):
+    if not created:
+        for obj in instance.layers.all():
+            _generate_mapfile(obj)
 
 
 DATA_TYPES = {

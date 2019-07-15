@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('pk_field', models.CharField(max_length=255)),
                 ('geom_field', models.CharField(max_length=255)),
                 ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='giscube.Category')),
-                ('db_connection', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='db_connections', to='giscube.DBConnection')),
+                ('db_connection', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='layers', to='giscube.DBConnection')),
             ],
             options={
                 'verbose_name': 'DataBaseLayer',
