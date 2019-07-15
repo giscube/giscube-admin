@@ -42,6 +42,7 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
         data = super().to_representation(obj)
         data['type'] = 'WMS'
         data['auth'] = None
+        data['options'] = {}
 
     class Meta:
         model = DataBaseLayerReference
@@ -149,7 +150,13 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
                 'title': data['title'],
                 'url': url,
                 'type': 'WMS',
-                'auth': 'token' if not obj.anonymous_view else None
+                'auth': 'token' if not obj.anonymous_view else None,
+                'options': {
+                    'layers': data['name'],
+                    'format': 'image/png',
+                    'transparent': True,
+                    'uppercase': True
+                }
             }
             data['references'].insert(0, reference)
 
