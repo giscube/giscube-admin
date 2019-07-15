@@ -1,5 +1,3 @@
-import os
-
 from django.core.files.storage import FileSystemStorage
 
 
@@ -9,8 +7,7 @@ class OverwriteStorageMixin(object):
         Returns a filename that's free on the target storage system, and
         available for new content to be written to.
         """
-        if self.exists(name):
-            os.remove(os.path.join(self.location, name))
+        self.delete(name)
         return name
 
 
