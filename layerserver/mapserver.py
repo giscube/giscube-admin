@@ -7,7 +7,6 @@ from requests.exceptions import ConnectionError
 
 from django.conf import settings
 from django.contrib.gis.db.models import Extent
-from django.core.cache import caches
 from django.core.files.base import ContentFile
 from django.db.models import F
 from django.http import HttpResponse
@@ -27,11 +26,8 @@ class MapserverLayer(object):
         self.layer = layer
 
     def wms(self, request):
-        cache = caches['mapserver']
-        mapserver_key = 'mapserver_%s' % self.layer.name
-        if not self.layer.mapfile or request.GET.get('debug', '0') == '1' or cache.get(mapserver_key) is None:
+        if not self.layer.mapfile or request.GET.get('debug', '0') == '1':
             self.write()
-            cache.set(mapserver_key, '1', 25)
 
         mapserver_server_url = settings.GISCUBE_IMAGE_SERVER_URL
         meta = request.META.get('QUERY_STRING', '?')
@@ -186,6 +182,7 @@ class MapserverLayer(object):
             END
         END
         """.format(**vars))
+        service._mapfile_generated = True
         service.mapfile.save(name='wms.map', content=ContentFile(template))
 
 

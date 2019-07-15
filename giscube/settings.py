@@ -350,19 +350,6 @@ if not GISCUBE_LAYERSERVER_DISABLED:
         'rest_framework_gis',
     ]
 
-CACHES = {
-   'default': {
-       'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-       'LOCATION': 'default-%s' % os.environ.get('DB_NAME')
-   },
-   'mapserver': {
-       'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-       'LOCATION': 'mapserver-%s' % os.environ.get('DB_NAME'),
-       'TIMEOUT': 25,
-       'OPTIONS': {'MAX_ENTRIES': 1000}
-   }
-}
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
