@@ -58,12 +58,12 @@ def geojsonlayer_check_cache(layer):
         return QUEUE_GENERATE_GEOJSON_LAYER
 
 
-def geojsonlayer_refresh(pk, force_refresh_data_file):
+def geojsonlayer_refresh(pk, force_refresh_data_file, generate_popup):
     layer = GeoJsonLayer.objects.get(pk=pk)
-    geojsonlayer_refresh_layer(layer, force_refresh_data_file)
+    geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup)
 
 
-def geojsonlayer_refresh_layer(layer, force_refresh_data_file):
+def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
     if layer.url:
         headers = {}
         if layer.headers:
@@ -103,5 +103,7 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file):
         outfile_path = layer.get_data_file_path()
         with open(outfile_path, 'w') as fixed_file:
             fixed_file.write(json.dumps(data, cls=DjangoJSONEncoder))
+        if generate_popup:
+            layer.popup = layer.get_default_popup()
         layer.generated_on = timezone.localtime()
         layer.save()

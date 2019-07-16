@@ -110,7 +110,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['tooltip', 'popup'],
+            'fields': ['tooltip'],
+            'classes': ('tab-design',),
+        }),
+        ('Popup', {
+            'fields': ['generate_popup', 'popup'],
             'classes': ('tab-design',),
         }),
         (_('Cluster'), {
@@ -159,16 +163,21 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
             unique_service_directory(obj)
+
+        force_refresh_data_file = form.cleaned_data.get('force_refresh_data_file', False)
+        generate_popup = form.cleaned_data.get('generate_popup', False)
+        if not force_refresh_data_file and generate_popup:
+            obj.popup = obj.get_default_popup()
+
         super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
+
         if obj.url:
             messages.info(request, _('[%s] will be requested in background.') % obj.url)
         elif obj.data_file:
             messages.info(request, _('GeoJsonLayer will be generated/updated in background.'))
-        force_refresh_data_file = False
-        if 'force_refresh_data_file' in form.cleaned_data:
-            force_refresh_data_file = form.cleaned_data['force_refresh_data_file']
+
         transaction.on_commit(
-            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file)
+            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file, generate_popup)
         )
 
 
