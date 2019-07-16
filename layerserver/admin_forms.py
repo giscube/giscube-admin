@@ -149,7 +149,6 @@ class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
         fields = ('db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field')
 
 
-
 class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
     def clean_form_fields(self):
         values = [x.strip() for x in self.cleaned_data['form_fields'].split(',')]
@@ -253,6 +252,7 @@ class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
 class GeoJsonLayerAddForm(ClusterFormMixin, forms.ModelForm):
     # Fake save_as_new
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=True)
+    generate_popup = forms.BooleanField(label=_('Generate popup from data'), required=False, initial=False)
 
     def clean_name(self):
         return slugify(self.cleaned_data['name'])
@@ -270,6 +270,7 @@ class GeoJsonLayerAddForm(ClusterFormMixin, forms.ModelForm):
 
 class GeoJsonLayerChangeForm(ClusterFormMixin, forms.ModelForm):
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=False)
+    generate_popup = forms.BooleanField(label=_('Generate popup from data'), required=False, initial=False)
 
     def clean_name(self):
         return slugify(self.cleaned_data['name'])

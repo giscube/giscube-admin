@@ -86,7 +86,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
             'style': style_representation(self),
             'style_rules': style_rules_representation(self),
             'design': {
-                'popup': self.popup,
+                'popup': self.popup if self.popup not in (None, '') else None,
                 'tooltip': self.tooltip,
                 'cluster': json.loads(self.cluster_options or '{}') if self.cluster_enabled else None
             }
@@ -98,11 +98,6 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
             for field in self.fields.split(','):
                 fields[field] = field
         return self.get_default_popup_content(fields)
-
-    def save(self, *args, **kwargs):
-        if (self.popup is None or self.popup == ''):
-            self.popup = self.get_default_popup()
-        super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name or self.title
