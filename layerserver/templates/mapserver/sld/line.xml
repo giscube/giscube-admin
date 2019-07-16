@@ -16,8 +16,7 @@
                         <CssParameter name="stroke-dasharray">{{ rule.style.stroke_dash_array }}</CssParameter>
                         {% endif %}
                     </Stroke>
-                  </Stroke>
-                </LineSymbolizer>
+                    </LineSymbolizer>
                 {% if rule.filter %}
                 <Filter>
                     <{{ rule.filter.comparator }}>
