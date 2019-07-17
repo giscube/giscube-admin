@@ -321,11 +321,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'list_fields', 'form_fields',
             ],
             'classes': ('tab-design',),
-        }),
-        (_('Cluster'), {
-            'fields': ['cluster_enabled', 'cluster_options'],
-            'classes': ('tab-design',),
-        }),
+        })
     ]
 
     edit_geom_fieldsets = [
