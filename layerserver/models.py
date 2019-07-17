@@ -5,6 +5,7 @@ import shutil
 
 from model_utils import Choices
 
+from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
@@ -291,14 +292,17 @@ def _generate_mapfile(obj):
 @receiver(post_save, sender=DataBaseLayer)
 def generate_mapfile(sender, instance, created, **kwargs):
     if not hasattr(instance, '_mapfile_generated') and not created:
-        _generate_mapfile(instance)
+        transaction.on_commit(
+            lambda: _generate_mapfile(instance)
+        )
 
 
 @receiver(post_save, sender=DBConnection)
 def generate_mapfiles(sender, instance, created, **kwargs):
     if not created:
-        for obj in instance.layers.all():
-            _generate_mapfile(obj)
+        transaction.on_commit(
+            lambda: [_generate_mapfile(layer) for layer in instance.layers.all()]
+        )
 
 
 DATA_TYPES = {
