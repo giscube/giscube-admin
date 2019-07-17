@@ -89,6 +89,10 @@ class MapserverLayer(object):
         connection_str = ("host={db_hostname} port={db_port} dbname='{db_dbname}' user='{db_user}'"
                           " password='{db_password}'").format(**vars)
 
+        geom_type = (Layer._meta.get_field(service.geom_field).geom_type).replace('MULTI', '')
+        if geom_type == 'LINESTRING':
+            geom_type = 'LINE'
+
         vars = {
             'extent': extent,
             'srid': service.srid,
@@ -96,7 +100,7 @@ class MapserverLayer(object):
             'title': (service.title or service.name).replace("'", "\'"),
             'pk_field': service.pk_field,
             'table_name': service.table,
-            'geom_type': (Layer._meta.get_field(service.geom_field).geom_type).replace('MULTI', ''),
+            'geom_type': geom_type,
             'geom_field': service.geom_field,
             'wms_srs': ' '.join('EPSG:%s' % x for x in suported_srids),
             'wms_onlineresource': '%s?' % wms_url,
@@ -202,7 +206,7 @@ class SLDLayer(object):
     def render_style(self, item, shapetype):
         style = {}
 
-        if self.layer.shapetype == 'marker':
+        if self.layer.shapetype == 'marker' or shapetype == 'marker':
             fill_color = item.icon_color or settings.LAYERSERVER_STYLE_FILL_COLOR
             stroke_color = item.marker_color or settings.LAYERSERVER_STYLE_STROKE_COLOR
             style['fill_color'] = fill_color
@@ -220,7 +224,7 @@ class SLDLayer(object):
             style['stroke_width'] = item.stroke_width
             style['shape_radius'] = item.shape_radius
 
-        if shapetype == 'linestring':
+        if self.layer.shapetype == 'line' or shapetype == 'line':
             style['stroke_color'] = item.stroke_color
             style['stroke_width'] = item.stroke_width
             style['stroke_opacity'] = item.stroke_opacity
@@ -253,21 +257,20 @@ class SLDLayer(object):
 
     def sld(self, request=None):
         Layer = create_dblayer_model(self.layer)
-        geom_type = Layer._meta.get_field(self.layer.geom_field).geom_type.lower().replace('multy', '')
+        geom_type = Layer._meta.get_field(self.layer.geom_field).geom_type.lower()
+        shapetype = geom_type
 
-        shapetype = geom_type.replace('multi', '')
+        if shapetype.startswith('multi'):
+            shapetype = shapetype[len('multi'):]
 
-        if geom_type == 'point':
+        if shapetype == 'linestring':
+            shapetype = 'line'
+
+        if shapetype == 'point':
             shapetype = 'circle'
 
-        if geom_type == 'linestring':
-            shapetype = 'linestring'
-
-        if geom_type == 'polygon':
-            shapetype = 'polygon'
-
         if self.layer.shapetype == 'image':
-            shapetype = 'image'
+            shapetype = 'marker'
 
         tpl = loader.get_template('mapserver/sld/%s.xml' % shapetype)
 
