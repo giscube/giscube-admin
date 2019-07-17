@@ -103,8 +103,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     def format_options_json(self, obj, data):
         return data.update({
             'objects_path': 'data',
-            'attributes_path': None,
-            'geom_path': None
+            'attributes_path': None
         })
 
     def format_options_geojson(self, obj, data):
@@ -124,7 +123,12 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             'list_fields': obj.list_fields,
             'form_fields': obj.form_fields
         }
-        if obj.geom_field is not None:
+        if obj.geom_field is None:
+            data['geom_type'] = None
+            self.format_options_json(obj, data)
+            if 'references' in data:
+                del data['references']
+        else:
             Layer = create_dblayer_model(obj)
             field = Layer._meta.get_field(obj.geom_field)
             data['geom_type'] = field.geom_type
@@ -132,33 +136,29 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             self.format_options_geojson(obj, data)
             data['style'] = style_representation(obj)
             data['style_rules'] = style_rules_representation(obj)
-        else:
-            data['geom_type'] = None
-            data['design']['popup'] = None
-            self.format_options_json(obj, data)
-        data['design']['tooltip'] = obj.tooltip
-        data['design']['cluster'] = json.loads(obj.cluster_options or '{}') if obj.cluster_enabled else None
+            data['design']['tooltip'] = obj.tooltip
+            data['design']['cluster'] = json.loads(obj.cluster_options or '{}') if obj.cluster_enabled else None
 
-        if obj.wms_as_reference:
-            path = reverse('content-wms', kwargs={'name': obj.name})
-            request = self.context['request'] if 'request' in self.context else None
-            if request:
-                url = request.build_absolute_uri(path)
-            else:
-                url = url_slash_join(settings.GISCUBE_URL, remove_app_url(path))
-            reference = {
-                'title': data['title'],
-                'url': url,
-                'type': 'WMS',
-                'auth': 'token' if not obj.anonymous_view else None,
-                'options': {
-                    'layers': data['name'],
-                    'format': 'image/png',
-                    'transparent': True,
-                    'uppercase': True
+            if obj.wms_as_reference:
+                path = reverse('content-wms', kwargs={'name': obj.name})
+                request = self.context['request'] if 'request' in self.context else None
+                if request:
+                    url = request.build_absolute_uri(path)
+                else:
+                    url = url_slash_join(settings.GISCUBE_URL, remove_app_url(path))
+                reference = {
+                    'title': data['title'],
+                    'url': url,
+                    'type': 'WMS',
+                    'auth': 'token' if not obj.anonymous_view else None,
+                    'options': {
+                        'layers': data['name'],
+                        'format': 'image/png',
+                        'transparent': True,
+                        'uppercase': True
+                    }
                 }
-            }
-            data['references'].insert(0, reference)
+                data['references'].insert(0, reference)
 
         return data
 
