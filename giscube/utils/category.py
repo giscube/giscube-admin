@@ -1,17 +1,9 @@
-import os
-import tempfile
-from functools import reduce
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urlencode
 
 import requests
 
 from django.conf import settings
-from django.core import mail
-from django.core.mail import get_connection
 from django.urls import reverse
-from django.utils import log
-from django.utils.module_loading import import_string
-from django.utils.version import get_version as django_get_version
 
 from rest_framework import status
 
@@ -32,7 +24,7 @@ def get_or_create_category(server_url, headers, category):
 
     # Search category
     if category is not None:
-        parameters = {'name': category.name.encode}
+        parameters = {'name': category.name.encode()}
         if category.parent is not None:
             parameters['parent__name'] = category.parent.name
         url = '%s?%s' % (category_list_url, urlencode(parameters))
@@ -66,50 +58,3 @@ def get_or_create_category(server_url, headers, category):
         result = create_category(server_url, headers, data)
         if result is not None:
             return result['id']
-
-
-def get_version(version=None):
-    if version is None:
-        from . import VERSION as version
-
-    return django_get_version(version)
-
-
-def unique_service_directory(instance, filename=None):
-    if not instance.service_path:
-        path = os.path.join(settings.MEDIA_ROOT, instance._meta.app_label)
-        path = os.path.abspath(path)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        pathname = tempfile.mkdtemp(prefix='%s_' % instance.name, dir=path)
-        pathname = os.path.relpath(pathname, settings.MEDIA_ROOT)
-        instance.service_path = pathname
-    if filename:
-        return os.path.join(instance.service_path, filename)
-    else:
-        return instance.service_path
-
-
-def get_cls(key, default=None):
-    value = getattr(settings, key, None)
-    if type(value) is type:
-        return value
-    elif type(value) is tuple or type(value) is list:
-        return tuple(import_string(p) for p in value if type(p) is str)
-    elif type(value) is str:
-        return import_string(value)
-    else:
-        return default
-
-
-class AdminEmailHandler(log.AdminEmailHandler):
-    def send_mail(self, subject, message, *args, **kwargs):
-        kwargs['fail_silently'] = False
-        mail.mail_admins(subject, message, *args, connection=self.connection(), **kwargs)
-
-    def connection(self):
-        return get_connection(backend=self.email_backend, fail_silently=False)
-
-
-def url_slash_join(*args):
-    return reduce(urljoin, args)

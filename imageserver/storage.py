@@ -1,25 +1,10 @@
-import logging
 import os
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import abspathu
 
-
-logger = logging.getLogger(__name__)
-
-
-class OverwriteStorageMixin(object):
-    def get_available_name(self, name, max_length=256):
-        """
-        Returns a filename that's free on the target storage system, and
-        available for new content to be written to.
-        """
-        # If the filename already exists, remove it as if it was a true file system
-        if self.exists(name):
-            logger.info("DELETE existing file (overwrite)", os.path.join(self.location, name))
-            os.remove(os.path.join(self.location, name))
-        return name
+from giscube.storage import OverwriteStorageMixin
 
 
 class VarStorage(FileSystemStorage):

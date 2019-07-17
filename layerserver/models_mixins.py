@@ -31,6 +31,18 @@ class BaseLayerMixin(models.Model):
         abstract = True
 
 
+class ClusterMixin(models.Model):
+    """
+    Cluster mixin.
+    """
+    cluster_enabled = models.BooleanField(
+        _('enable cluster'), default=False, help_text=_('Enable/disable cluster usage.'))
+    cluster_options = models.TextField(_('cluster options'), blank=True, null=True, help_text=_('JSON format.'))
+
+    class Meta:
+        abstract = True
+
+
 class StyleMixin(models.Model):
     """
     Style mixin.
@@ -39,6 +51,7 @@ class StyleMixin(models.Model):
     stroke_color = models.CharField(_('stroke color'), max_length=50, blank=True, null=True,
                                     default=settings.LAYERSERVER_STYLE_STROKE_COLOR)
     stroke_width = models.CharField(_('stroke width'), max_length=50, blank=True, null=True, default='1')
+    stroke_opacity = models.CharField(_('stroke opacity'), max_length=50, blank=True, null=True, default='1')
     stroke_dash_array = models.CharField(_('stroke dash array'), max_length=50, blank=True, null=True, default='')
     fill_color = models.CharField(_('fill color'), max_length=50, blank=True, null=True,
                                   default=settings.LAYERSERVER_STYLE_FILL_COLOR)

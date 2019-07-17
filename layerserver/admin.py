@@ -12,7 +12,8 @@ from giscube.utils import unique_service_directory
 from .admin_actions import geojsonlayer_force_refresh_data
 from .admin_filters import DataBaseLayerGeomNullFilter
 from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
-                          DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm)
+                          DataBaseLayerStyleRuleInlineForm, DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm,
+                          GeoJsonLayerChangeForm, GeoJsonLayerStyleRuleInlineForm)
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
                      DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .tasks import async_geojsonlayer_refresh
@@ -24,13 +25,15 @@ class StyleRuleInlineMixin(admin.StackedInline):
     extra = 0
     classes = ('tab-style',)
     fields = ('order', ('field', 'comparator', 'value'), 'marker_color', ('icon_type', 'icon', 'icon_color'),
-              'shape_radius', ('stroke_color', 'stroke_width', 'stroke_dash_array'), ('fill_color', 'fill_opacity'))
+              'shape_radius', ('stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'),
+              ('fill_color', 'fill_opacity'))
     verbose_name = _('Rule')
     verbose_name_plural = _('Rules')
 
 
 class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
     model = GeoJsonLayerStyleRule
+    form = GeoJsonLayerStyleRuleInlineForm
 
 
 @admin.register(GeoJsonLayer)
@@ -70,12 +73,16 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
-                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['popup'],
+            'fields': ['tooltip', 'popup'],
+            'classes': ('tab-design',),
+        }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
     ]
@@ -98,12 +105,20 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
-                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['tooltip', 'popup'],
+            'fields': ['tooltip'],
+            'classes': ('tab-design',),
+        }),
+        ('Popup', {
+            'fields': ['generate_popup', 'popup'],
+            'classes': ('tab-design',),
+        }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
     ]
@@ -150,16 +165,21 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
             unique_service_directory(obj)
+
+        force_refresh_data_file = form.cleaned_data.get('force_refresh_data_file', False)
+        generate_popup = form.cleaned_data.get('generate_popup', False)
+        if not force_refresh_data_file and generate_popup:
+            obj.popup = obj.get_default_popup()
+
         super(GeoJsonLayerAdmin, self).save_model(request, obj, form, change)
+
         if obj.url:
-            messages.info(request, '[%s] will be requested in background.' % obj.url)
+            messages.info(request, _('[%s] will be requested in background.') % obj.url)
         elif obj.data_file:
-            messages.info(request, 'GeoJsonLayer will be generated/updated in background.')
-        force_refresh_data_file = False
-        if 'force_refresh_data_file' in form.cleaned_data:
-            force_refresh_data_file = form.cleaned_data['force_refresh_data_file']
+            messages.info(request, _('GeoJsonLayer will be generated/updated in background.'))
+
         transaction.on_commit(
-            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file)
+            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file, generate_popup)
         )
 
 
@@ -228,12 +248,13 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
     model = DataBaseLayerReference
     extra = 0
 
-    fields = ('service',)
+    fields = ('service', 'refresh',)
     classes = ('tab-references',)
 
 
 class DataBaseLayerStyleRuleInline(StyleRuleInlineMixin):
     model = DataBaseLayerStyleRule
+    form = DataBaseLayerStyleRuleInlineForm
 
 
 @admin.register(DataBaseLayer)
@@ -302,7 +323,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
                 'list_fields', 'form_fields',
             ],
             'classes': ('tab-design',),
-        }),
+        })
     ]
 
     edit_geom_fieldsets = [
@@ -324,7 +345,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
-                'stroke_width', 'stroke_dash_array', 'fill_color', 'fill_opacity',
+                'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
         }),
@@ -335,9 +356,17 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-permissions',),
         }),
         (None, {
+            'fields': ['wms_as_reference'],
+            'classes': ('tab-references',),
+        }),
+        (None, {
             'fields': [
                 'list_fields', 'form_fields', 'tooltip', 'popup'
             ],
+            'classes': ('tab-design',),
+        }),
+        (_('Cluster'), {
+            'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
     ]

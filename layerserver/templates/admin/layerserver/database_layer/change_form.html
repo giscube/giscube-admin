@@ -57,6 +57,39 @@
 		$('.tab-fields .vLargeTextField').on('input', resize);
 	});
     window.addEventListener('hashchange', resize_all, false);
+
+    // Tags
+    function update_tagify_whitelist(){
+        var value, list_fields = [];
+        $('fieldset.tab-fields .field-enabled input[type="checkbox"]:checked').not('[name*=__prefix__]').each(function(i, el){
+            value = $(el).parents('tr').find('td.field-name').text().trim();
+            if (value != '' && list_fields.indexOf(value) === -1){
+                list_fields.push(value);
+            }
+        });
+        $('fieldset.tab-virtual-fields .field-enabled input[type="checkbox"]:checked').not('[name*=__prefix__]').each(function(i, el){
+            value = $(el).parents('tr').find('td.field-name input').val();
+            if (value != '' && list_fields.indexOf(value) === -1){
+                list_fields.push(value);
+            }
+        });
+        $('textarea.tags-widget').each(function(_, el){
+            $(el).data('tagify').settings.whitelist = list_fields;
+        });
+    }
+
+    $('.field-enabled input[type="checkbox"]').change(function(){
+      update_tagify_whitelist();
+    });
+
+    $('fieldset.tab-virtual-fields td.field-name input').change(function(){
+      update_tagify_whitelist();
+    });
+
+    $(document).ready(function(){
+        update_tagify_whitelist();
+    });
+
 })(django.jQuery);
 </script>
 {% endblock %}

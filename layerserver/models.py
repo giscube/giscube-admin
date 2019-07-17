@@ -1,9 +1,11 @@
+import json
 import logging
 import os
 import shutil
 
 from model_utils import Choices
 
+from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
@@ -17,10 +19,13 @@ from django.utils.translation import gettext as _
 from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
 from giscube.utils import unique_service_directory
+from giscube.storage import OverwriteStorage
 from layerserver import model_legacy
 
+from .mapserver import SUPORTED_SHAPE_TYPES
 from .model_legacy import ImageWithThumbnailField
-from .models_mixins import BaseLayerMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
+from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
+from .tasks import async_generate_mapfile
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +51,7 @@ SERVICE_VISIBILITY_CHOICES = [
 ]
 
 
-class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, models.Model):
+class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     url = models.CharField(_('url'), max_length=255, null=True, blank=True)
     headers = models.TextField(_('headers'), null=True, blank=True)
     data_file = models.FileField(_('data file'), upload_to=geojsonlayer_upload_path,
@@ -82,7 +87,9 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, mo
             'style': style_representation(self),
             'style_rules': style_rules_representation(self),
             'design': {
-                'popup': self.popup
+                'popup': self.popup if self.popup not in (None, '') else None,
+                'tooltip': self.tooltip,
+                'cluster': json.loads(self.cluster_options or '{}') if self.cluster_enabled else None
             }
         }
 
@@ -92,11 +99,6 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, mo
             for field in self.fields.split(','):
                 fields[field] = field
         return self.get_default_popup_content(fields)
-
-    def save(self, *args, **kwargs):
-        if (self.popup is None or self.popup == ''):
-            self.popup = self.get_default_popup()
-        super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name or self.title
@@ -151,10 +153,14 @@ class GeoJsonLayerStyleRule(StyleMixin, models.Model):
         verbose_name_plural = _('Style rules')
 
 
-class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, models.Model):
+def databaselayer_mapfile_upload_path(instance, filename):
+    return unique_service_directory(instance, 'wms.map')
+
+
+class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
-        related_name='db_connections', verbose_name='Database connection')
+        related_name='layers', verbose_name='Database connection')
     name = models.CharField(_('name'), max_length=255, blank=False, null=False, unique=True)
     table = models.CharField(_('table'), max_length=255, blank=False, null=False)
     pk_field = models.CharField(_('pk field'), max_length=255, blank=True, null=False)
@@ -175,6 +181,12 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, m
     anonymous_add = models.BooleanField(_('Can add'), default=False)
     anonymous_update = models.BooleanField(_('Can update'), default=False)
     anonymous_delete = models.BooleanField(_('Can delete'), default=False)
+
+    service_path = models.CharField(max_length=255, null=True, blank=True)
+    mapfile = models.FileField(
+        null=True, blank=True, storage=OverwriteStorage(), upload_to=databaselayer_mapfile_upload_path)
+
+    wms_as_reference = models.BooleanField(_('Add layer data'), default=True)
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
@@ -272,6 +284,27 @@ def add_fields(sender, instance, created, **kwargs):
         instance.save()
 
 
+def _generate_mapfile(obj):
+    if obj.shapetype in SUPORTED_SHAPE_TYPES and obj.geom_field is not None:
+        async_generate_mapfile.delay(obj.pk)
+
+
+@receiver(post_save, sender=DataBaseLayer)
+def generate_mapfile(sender, instance, created, **kwargs):
+    if not hasattr(instance, '_mapfile_generated') and not created:
+        transaction.on_commit(
+            lambda: _generate_mapfile(instance)
+        )
+
+
+@receiver(post_save, sender=DBConnection)
+def generate_mapfiles(sender, instance, created, **kwargs):
+    if not created:
+        transaction.on_commit(
+            lambda: [_generate_mapfile(layer) for layer in instance.layers.all()]
+        )
+
+
 DATA_TYPES = {
     models.GeometryField: 'geometry',
     models.GenericIPAddressField: 'string',
@@ -298,6 +331,7 @@ class DataBaseLayerField(models.Model):
         ('choices', _('Choices, one line per value')),
         ('date', _('Date')),
         ('datetime', _('Date time')),
+        ('distinctvalues', _('Distinct values')),
         ('image', _('Image')),
         ('linkedfield', _('Linked Field')),
         ('sqlchoices', _('SQL choices')),
@@ -425,6 +459,7 @@ class DataBaseLayerReference(models.Model):
     layer = models.ForeignKey(DataBaseLayer, null=False, blank=False, related_name='references',
                               on_delete=models.CASCADE)
     service = models.ForeignKey('qgisserver.Service', null=False, blank=False, on_delete=models.CASCADE)
+    refresh = models.BooleanField(_('refresh on data changes'), default=False)
 
     def __str__(self):
         return str(self.service.title or self.service.name)

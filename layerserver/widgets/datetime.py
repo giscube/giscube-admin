@@ -12,8 +12,8 @@ class DatetimeWidget(BaseJSONWidget):
         "format": "YYYY-MM-DD HH:mm:ss"
     }
     """)
-
     ERROR_FORMAT_REQUIRED = _('\'format\' attribute is required')
+    base_type = 'datetime'
 
     @staticmethod
     def is_valid(value):

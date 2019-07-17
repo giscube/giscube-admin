@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='databaselayer',
             name='db_connection',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='db_connections', to='giscube.DBConnection', verbose_name='Database connection'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='layers', to='giscube.DBConnection', verbose_name='Database connection'),
         ),
         migrations.AddField(
             model_name='databaselayerreference',

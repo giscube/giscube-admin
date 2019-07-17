@@ -6,6 +6,8 @@ from django.utils.translation import ugettext as _
 
 from haystack import indexes
 
+from giscube.utils import url_slash_join, remove_app_url
+
 from .models import DataBaseLayer, GeoJsonLayer
 
 
@@ -29,7 +31,8 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_children(self, obj):
         children = []
-        url = '%s%s' % (settings.GISCUBE_URL, reverse('geojsonlayer', kwargs={'name': obj.name}))
+        url = url_slash_join(
+            settings.GISCUBE_URL, remove_app_url(reverse('geojsonlayer', kwargs={'name': obj.name})))
         children.append({
             'title': _('GeoJSON Layer'),
             'group': False,
@@ -68,14 +71,12 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_children(self, obj):
         children = []
-        url = '%s/layerserver/databaselayers/%s/' % (
-            settings.GISCUBE_URL, obj.name)
+        url = url_slash_join(settings.GISCUBE_URL, '/layerserver/databaselayers/%s/' % obj.name)
         if obj.geom_field is not None:
             references = []
             for reference in obj.references.all():
                 service = reference.service
-                service_url = '%s/qgisserver/services/%s/' % (
-                    settings.GISCUBE_URL, service.name)
+                service_url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s/' % service.name)
                 references.append({
                     'title': service.title or service.name,
                     'url': service_url,

@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 class BaseWidget(object):
     TEMPLATE = ""
+    base_type = 'base'
 
     @staticmethod
     def is_valid(value):
