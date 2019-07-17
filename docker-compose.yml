@@ -52,7 +52,7 @@ services:
     image: giscube_admin_requirements
     env_file:
       - app.env
-    command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/celery.sh"]
+    command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--",  "/bin/bash", "/app/docker/django/celery_devel.sh"]
     volumes:
       - .:/app
       - ./docker_data/django:/docker_data
