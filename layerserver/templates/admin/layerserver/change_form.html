@@ -10,7 +10,7 @@
 </style>
 {% endblock %}
 {% block admin_change_form_document_ready %}{{ block.super }}
-{% if original.geom_field %}
+{% if can_apply_style %}
 <script type="text/javascript">
 (function ($){
     var all_fields = ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width',
@@ -42,7 +42,6 @@
 	$(document).ready(function(){
         apply_shapetype();
 		$('#id_shapetype').on('change', apply_shapetype);
-
 	});
 })(django.jQuery);
 </script>
