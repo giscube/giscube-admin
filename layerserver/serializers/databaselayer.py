@@ -49,42 +49,39 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
         fields = ['title', 'url', 'refresh']
 
 
-def style_representation(obj):
-    res = {'shapetype': obj.shapetype}
-    fields = {
-        'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
+STYLE_FIELDS = {
+        'marker': ['icon_type', 'icon', 'icon_color', 'stroke_color', 'stroke_width',
+                   'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
         'line': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
         'polygon': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
                     'fill_opacity'],
         'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array',
-                   'fill_color',
-                   'fill_opacity'],
+                   'fill_color', 'fill_opacity'],
         'image': ['icon'],
     }
-    if obj.shapetype in fields:
-        for attr in fields[obj.shapetype]:
+
+
+def style_representation(obj):
+    res = {'shapetype': obj.shapetype}
+    if obj.shapetype in STYLE_FIELDS:
+        for attr in STYLE_FIELDS[obj.shapetype]:
             res[attr] = getattr(obj, attr)
+        # Compatibility
+        if obj.shapetype == 'marker':
+            res[attr] = obj.fill_color
     return res
 
 
 def style_rules_representation(obj):
     style_rules = []
-    fields = {
-        'marker': ['marker_color', 'icon_type', 'icon', 'icon_color'],
-        'line': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
-        'polygon': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
-                    'fill_opacity'],
-        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
-                   'fill_opacity'],
-    }
     for rule in obj.rules.all():
         style_rule = {
             'field': rule.field,
             'comparator': rule.comparator,
             'value': rule.value,
         }
-        if obj.shapetype in fields:
-            for attr in fields[obj.shapetype]:
+        if obj.shapetype in STYLE_FIELDS:
+            for attr in STYLE_FIELDS[obj.shapetype]:
                 style_rule[attr] = getattr(rule, attr)
         style_rules.append(style_rule)
     return style_rules
