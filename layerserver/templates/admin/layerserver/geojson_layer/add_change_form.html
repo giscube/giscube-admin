@@ -1,0 +1,29 @@
+{% extends "admin/layerserver/change_form.html" %}
+{% block extrahead %}{{ block.super }}
+<style>
+#id_url{
+    min-width: 50%;
+    max-width: 90%;
+}
+</style>
+{% endblock %}
+{% block admin_change_form_document_ready %}{{ block.super }}
+
+<script type="text/javascript">
+(function ($){
+	function apply_design_from() {
+		var element = $('#id_design_from');
+        if (element.val() == ''){
+            $('#id_popup').closest('fieldset.tab-design').show();
+        }else{
+            $('#id_popup').closest('fieldset.tab-design').hide();
+        }
+	}
+
+	$(document).ready(function(){
+        apply_design_from();
+		$('#id_design_from').on('change', apply_design_from);
+	});
+})(django.jQuery);
+</script>
+{% endblock %}

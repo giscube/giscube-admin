@@ -5,10 +5,11 @@ import shutil
 
 from model_utils import Choices
 
-from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
@@ -18,8 +19,8 @@ from django.utils.translation import gettext as _
 
 from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
-from giscube.utils import unique_service_directory
 from giscube.storage import OverwriteStorage
+from giscube.utils import RecursionException, check_recursion, unique_service_directory
 from layerserver import model_legacy
 
 from .mapserver import SUPORTED_SHAPE_TYPES
@@ -68,11 +69,31 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
                                   help_text=_('visibility=\'Private\' restricts usage to authenticated users'),
                                   choices=SERVICE_VISIBILITY_CHOICES)
     fields = models.TextField(blank=True, null=True)
+    design_from = models.ForeignKey('self', related_name='design_from_childs', verbose_name=_('get design from'),
+                                    blank=True, null=True, on_delete=models.SET_NULL)
 
     def get_data_file_path(self):
         if self.service_path:
             return os.path.join(
                 settings.MEDIA_ROOT, self.service_path, 'data.json')
+
+    def _get_popup(self, done=[]):
+        popup = None
+        if self.design_from is None:
+            popup = self.popup if self.popup not in (None, '') else None
+        elif self.design_from.pk not in done:
+            done.append(self.design_from.pk)
+            popup = self.design_from._get_popup(done)
+        return popup
+
+    def _get_tooltip(self, done=[]):
+        tooltip = None
+        if self.design_from is None:
+            tooltip = self.tooltip if self.tooltip not in (None, '') else None
+        elif self.design_from and self.design_from.pk not in done:
+            done.append(self.design_from.pk)
+            tooltip = self.design_from._get_tooltip(done)
+        return tooltip
 
     @property
     def metadata(self):
@@ -87,8 +108,8 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
             'style': style_representation(self),
             'style_rules': style_rules_representation(self),
             'design': {
-                'popup': self.popup if self.popup not in (None, '') else None,
-                'tooltip': self.tooltip,
+                'popup': self._get_popup(),
+                'tooltip': self._get_tooltip(),
                 'cluster': json.loads(self.cluster_options or '{}') if self.cluster_enabled else None
             }
         }
@@ -100,6 +121,16 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
                 fields[field] = field
         return self.get_default_popup_content(fields)
 
+    def clean(self):
+        try:
+            check_recursion('design_from', self, [])
+        except RecursionException as e:
+            raise ValidationError(e.message)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name or self.title
 
@@ -107,6 +138,19 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
         """Meta information."""
         verbose_name = _('GeoJSONLayer')
         verbose_name_plural = _('GeoJSONLayers')
+
+
+def refresh_childs(layer):
+    from .tasks import async_geojsonlayer_refresh
+    for x in layer.design_from_childs.all():
+        async_geojsonlayer_refresh.delay(x.pk, force_refresh_data_file=False, generate_popup=False)
+
+
+@receiver(post_save, sender=GeoJsonLayer)
+def refresh_design(sender, instance, created, **kwargs):
+    transaction.on_commit(
+        lambda: refresh_childs(instance)
+    )
 
 
 @receiver(pre_save, sender=GeoJsonLayer)

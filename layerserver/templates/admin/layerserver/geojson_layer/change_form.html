@@ -1,13 +1,4 @@
-{% extends "admin/layerserver/change_form.html" %}
-{% block extrahead %}{{ block.super }}
-<style>
-#id_url{
-    min-width: 50%;
-    max-width: 90%;
-}
-
-</style>
-{% endblock %}
+{% extends "admin/layerserver/geojson_layer/add_change_form.html" %}
 {% block object-tools-items %}
   {% if view_layer %}
   <li>
