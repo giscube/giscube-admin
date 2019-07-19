@@ -4,12 +4,13 @@ import time
 import uuid
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import connections, models
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext as _
 
-from .utils import get_cls
+from .utils import RecursionException, check_recursion, get_cls
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,16 @@ class Category(models.Model):
             return '%s > %s' % (self.parent.name, self.name)
         else:
             return '%s' % self.name
+
+    def clean(self):
+        try:
+            check_recursion('parent', self)
+        except RecursionException as e:
+            raise ValidationError(e.message)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
