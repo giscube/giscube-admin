@@ -6,6 +6,7 @@ from django.core import mail
 from django.core.mail import get_connection
 from django.utils import log
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext as _
 from django.utils.version import get_version as django_get_version
 
 
@@ -16,6 +17,24 @@ class AdminEmailHandler(log.AdminEmailHandler):
 
     def connection(self):
         return get_connection(backend=self.email_backend, fail_silently=False)
+
+
+class RecursionException(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+
+def check_recursion(attribute, obj, done=None):
+    if done is None:
+        done = []
+    if obj.pk in done:
+        raise RecursionException(_('There is a recursion problem with [%s]') % obj)
+    else:
+        parent = getattr(obj, attribute)
+        if obj.pk and parent and parent.pk:
+            done.append(obj.pk)
+            check_recursion(attribute, parent, done)
 
 
 def get_cls(key, default=None):
