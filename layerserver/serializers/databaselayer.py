@@ -126,8 +126,6 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
         if obj.geom_field is None:
             data['geom_type'] = None
             self.format_options_json(obj, data)
-            if 'references' in data:
-                del data['references']
         else:
             Layer = create_dblayer_model(obj)
             field = Layer._meta.get_field(obj.geom_field)
