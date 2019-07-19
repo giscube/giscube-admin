@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.db import transaction
-from django.urls import reverse
+from django.urls import resolve, reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext as _
 
@@ -39,7 +39,7 @@ class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
-    autocomplete_fields = ('category',)
+    autocomplete_fields = ('category', 'design_from',)
     list_display = ('name', 'title', 'view_layer', 'public_url')
     list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal', 'shapetype')
     search_fields = ('name', 'title', 'keywords')
@@ -78,7 +78,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['tooltip', 'popup'],
+            'fields': ['design_from'],
+            'classes': ('tab-design',),
+        }),
+        ('Design', {
+            'fields': ['tooltip', 'generate_popup', 'popup'],
             'classes': ('tab-design',),
         }),
         (_('Cluster'), {
@@ -110,11 +114,11 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-style',),
         }),
         (None, {
-            'fields': ['tooltip'],
+            'fields': ['design_from'],
             'classes': ('tab-design',),
         }),
-        ('Popup', {
-            'fields': ['generate_popup', 'popup'],
+        ('Design', {
+            'fields': ['tooltip', 'generate_popup', 'popup'],
             'classes': ('tab-design',),
         }),
         (_('Cluster'), {
@@ -144,6 +148,13 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             defaults['form'] = GeoJsonLayerChangeForm
         defaults.update(kwargs)
         return super().get_form(request, obj, **defaults)
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        current_url = resolve(request.path_info).url_name
+        if current_url == 'layerserver_geojsonlayer_autocomplete':
+            queryset = queryset.filter(design_from__isnull=True)
+        return queryset, use_distinct
 
     def public_url(self, obj):
         text = '-'
