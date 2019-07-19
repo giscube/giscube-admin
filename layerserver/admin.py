@@ -277,8 +277,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
     autocomplete_fields = ['category']
-    list_display = ('has_geometry', 'name', 'table', 'db_connection', 'view_metadata', 'view_layer', 'public_url')
-    list_display_links = ('name', 'table')
+    list_display = ('has_geometry', 'name', 'title', 'table', 'db_connection', 'view_metadata', 'view_layer',
+                    'public_url')
+    list_display_links = ('name', 'title', 'table')
     list_filter = (('category', RelatedDropdownFilter), 'db_connection', 'visible_on_geoportal',
                    DataBaseLayerGeomNullFilter, 'shapetype')
     search_fields = ('name', 'title', 'keywords')
