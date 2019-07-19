@@ -24,7 +24,7 @@ class StyleRuleInlineMixin(admin.StackedInline):
     model = GeoJsonLayerStyleRule
     extra = 0
     classes = ('tab-style',)
-    fields = ('order', ('field', 'comparator', 'value'), 'marker_color', ('icon_type', 'icon', 'icon_color'),
+    fields = ('order', ('field', 'comparator', 'value'), ('icon_type', 'icon', 'icon_color'),
               'shape_radius', ('stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'),
               ('fill_color', 'fill_opacity'))
     verbose_name = _('Rule')
@@ -72,7 +72,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'shapetype', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
                 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
@@ -108,7 +108,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'shapetype', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
                 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),
@@ -133,9 +133,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         extra_context['can_apply_style'] = True
         return super().add_view(request, form_url, extra_context)
 
-    def change_view(self, request, object_id, form_url='', extra_context={}):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
         self.fieldsets = self.edit_fieldsets
         obj = self.model.objects.get(pk=object_id)
+        extra_context = extra_context or {}
         extra_context['view_layer'] = self.view_layer(obj)
         extra_context['can_apply_style'] = True
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
@@ -359,7 +360,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'shapetype', 'marker_color', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
+                'shapetype', 'icon_type', 'icon', 'icon_color', 'shape_radius', 'stroke_color',
                 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity',
             ],
             'classes': ('tab-style',),

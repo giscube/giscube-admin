@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.gis.db import models
 from django.utils.translation import gettext as _
 
@@ -48,15 +47,12 @@ class StyleMixin(models.Model):
     Style mixin.
     """
     shape_radius = models.CharField(_('shape radius'), max_length=50, blank=True, null=True)
-    stroke_color = models.CharField(_('stroke color'), max_length=50, blank=True, null=True,
-                                    default=settings.LAYERSERVER_STYLE_STROKE_COLOR)
+    stroke_color = models.CharField(_('stroke color'), max_length=50, blank=True, null=True)
     stroke_width = models.CharField(_('stroke width'), max_length=50, blank=True, null=True, default='1')
     stroke_opacity = models.CharField(_('stroke opacity'), max_length=50, blank=True, null=True, default='1')
     stroke_dash_array = models.CharField(_('stroke dash array'), max_length=50, blank=True, null=True, default='')
-    fill_color = models.CharField(_('fill color'), max_length=50, blank=True, null=True,
-                                  default=settings.LAYERSERVER_STYLE_FILL_COLOR)
+    fill_color = models.CharField(_('fill color'), max_length=50, blank=True, null=True)
     fill_opacity = models.CharField(_('fill opacity'), max_length=50, blank=True, null=True, default='1')
-    marker_color = models.CharField(_('marker color'), max_length=50, blank=True, null=True)
     icon_type = models.CharField(_('icon type'), max_length=100, blank=True, null=True,
                                  choices=(('fa', 'fa',), ('img', 'img',)))
     icon = models.CharField(_('icon'), max_length=255, blank=True, null=True)
