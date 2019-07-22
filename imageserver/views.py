@@ -12,6 +12,7 @@ from imageserver.models import Service
 
 
 class ImageserverProxy(View):
+    # TODO: Refactor using giscube.wms_proxy.WMSProxy
     def get(self, request, service_name):
         service = get_object_or_404(Service, name=service_name, active=True)
         if service.visibility == 'private' and not request.user.is_authenticated:
