@@ -109,7 +109,6 @@ class MapserverLayer(WMSProxy):
             IMAGECOLOR 255 255 255
             IMAGEQUALITY 95
             IMAGETYPE PNG
-            #RESOLUTION 96
             SIZE 1200 1200
             MAXSIZE 4096
 
@@ -117,7 +116,6 @@ class MapserverLayer(WMSProxy):
               METADATA
                 "wms_title" '{title}'
                 "wms_onlineresource" "{wms_onlineresource}"
-                "wms_enable_request" "*"
                 "wms_srs" "{wms_srs}"
                 "wms_feature_info_mime_type" "application/vnd.ogc.gml"
                 "wms_enable_request" "GetCapabilities GetMap GetFeatureInfo GetLegendGraphic"
@@ -132,7 +130,7 @@ class MapserverLayer(WMSProxy):
               NAME "png"
               DRIVER AGG/PNG
               MIMETYPE "image/png"
-              IMAGEMODE RGB
+              IMAGEMODE RGBA
               EXTENSION "png"
               FORMATOPTION "GAMMA=0.75"
               TRANSPARENT ON
@@ -166,6 +164,9 @@ class MapserverLayer(WMSProxy):
                     "gml_include_items" "none"
                     "wms_format" "image/png"
                     "wms_formatlist"  "image/png, image/jpeg"
+                END
+                PROJECTION
+                   "init=epsg:{srid}"
                 END
             END
         END
