@@ -41,7 +41,7 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super().to_representation(obj)
         data['type'] = 'WMS'
-        data['auth'] = None
+        data['auth'] = 'token' if obj.visibility == 'private' else None
         data['options'] = {}
 
     class Meta:
@@ -151,7 +151,8 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
                         'format': 'image/png',
                         'transparent': True,
                         'uppercase': True
-                    }
+                    },
+                    'refresh': True
                 }
                 data['references'].insert(0, reference)
 
