@@ -1,19 +1,16 @@
 import inspect
-import time
 import urllib.parse
-
-import requests
-from requests.exceptions import ConnectionError
 
 from django.conf import settings
 from django.contrib.gis.db.models import Extent
 from django.core.files.base import ContentFile
 from django.db.models import F
-from django.http import HttpResponse
 from django.template import loader
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from giscube.utils.url import remove_app_url, url_slash_join
+from giscube.wms_proxy import WMSProxy
 
 from .model_legacy import create_dblayer_model
 
@@ -21,48 +18,35 @@ from .model_legacy import create_dblayer_model
 SUPORTED_SHAPE_TYPES = ['marker', 'circle', 'line', 'polygon']
 
 
-class MapserverLayer(object):
-    def __init__(self, layer):
-        self.layer = layer
-
-    def wms(self, request):
-        if not self.layer.mapfile or request.GET.get('debug', '0') == '1':
-            self.write()
-
+class MapserverLayer(WMSProxy):
+    def build_url(self, request):
         mapserver_server_url = settings.GISCUBE_IMAGE_SERVER_URL
         meta = request.META.get('QUERY_STRING', '?')
-        mapfile = "map=%s" % self.layer.mapfile.path
-        sld_body = 'sld_body=%s' % urllib.parse.quote(SLDLayer(self.layer).sld().rstrip('\n\r'))
+        mapfile = "map=%s" % self.service.mapfile.path
+        sld_body = 'sld_body=%s' % urllib.parse.quote(self.sld_ob.sld().rstrip('\n\r'))
         url = "%s?%s&%s&%s" % (mapserver_server_url, meta, mapfile, sld_body)
-        retrying = False
-        response = None
-        for retry in range(5):
-            try:
-                r = requests.get(url)
-                content_type = r.headers['content-type']
-                if content_type == 'text/xml' and \
-                        'ServiceException' in r.content:
-                    print('===================================================')
-                    print(r.content)
+        return url
 
-                response = HttpResponse(r.content, content_type=content_type)
-                response.status_code = r.status_code
-                break
-            except ConnectionError as e:
-                print(e)
+    def get_wms_buffer_enabled(self):
+        return self.sld_ob.get_shapetype() == 'circle'
 
-                if retrying:
-                    # calm down
-                    print('retry number %s' % retry)
-                    time.sleep(1)
-                else:
-                    retrying = True
+    def get_wms_buffer_size(self):
+        size = self.sld_ob.max_size()
+        if not size:
+            size = 64
+        return '%s,%s' % (size, size)
 
-        if not response:
-            response = HttpResponse('Unable to contact server')
-            response.status_code = 500
+    def get_service_name(self):
+        return self.service.name
 
-        return response
+    def get_wms_tile_sizes(self):
+        # TODO: remove '128,128'
+        return ['128,128', '256,256', '512,512']
+
+    def wms(self, request):
+        if not self.service.mapfile or request.GET.get('debug', '0') == '1':
+            self.write()
+        return self.get(request)
 
     def write(self):
         service = self.layer
@@ -189,6 +173,10 @@ class MapserverLayer(object):
         service._mapfile_generated = True
         service.mapfile.save(name='wms.map', content=ContentFile(template))
 
+    @cached_property
+    def sld_ob(self):
+        return SLDLayer(self.service)
+
 
 class SLDLayer(object):
     COMPARATOR_CHOICES = {
@@ -248,21 +236,7 @@ class SLDLayer(object):
 
         return style
 
-    def render_rules(self, shapetype):
-        rules = []
-        for x in self.layer.rules.all().order_by(F('order').asc(nulls_last=False)):
-            r = {}
-            filter = {}
-            filter['comparator'] = self.COMPARATOR_CHOICES[x.comparator]
-            filter['field'] = x.field
-            filter['value'] = x.value
-            r['title'] = str(x)
-            r['filter'] = filter
-            r['style'] = self.render_style(x, shapetype)
-            rules.append(r)
-        return rules
-
-    def sld(self, request=None):
+    def get_shapetype(self):
         Layer = create_dblayer_model(self.layer)
         geom_type = Layer._meta.get_field(self.layer.geom_field).geom_type.lower()
         shapetype = geom_type
@@ -279,6 +253,24 @@ class SLDLayer(object):
         if self.layer.shapetype == 'image':
             shapetype = 'marker'
 
+        return shapetype
+
+    def render_rules(self, shapetype):
+        rules = []
+        for x in self.layer.rules.all().order_by(F('order').asc(nulls_last=False)):
+            r = {}
+            filter = {}
+            filter['comparator'] = self.COMPARATOR_CHOICES[x.comparator]
+            filter['field'] = x.field
+            filter['value'] = x.value
+            r['title'] = str(x)
+            r['filter'] = filter
+            r['style'] = self.render_style(x, shapetype)
+            rules.append(r)
+        return rules
+
+    def sld(self, request=None):
+        shapetype = self.get_shapetype()
         tpl = loader.get_template('mapserver/sld/%s.xml' % shapetype)
 
         context = {}
@@ -289,3 +281,20 @@ class SLDLayer(object):
         context['rules'] += self.render_rules(shapetype)
 
         return tpl.render(context)
+
+    def max_size(self, request=None):
+        shapetype = self.get_shapetype()
+        rules = [{'style': self.render_style(self.layer, shapetype)}]
+        rules += self.render_rules(shapetype)
+
+        sizes = []
+        for x in rules:
+            if 'shape_radius' in x['style'] and x['style']['shape_radius']:
+                value = str(x['style']['shape_radius'])
+                try:
+                    fixed_value = round(float(value)) if '.' in value else int(value)
+                    sizes.append(fixed_value)
+                except Exception:
+                    pass
+
+        return max(sizes) if len(sizes) > 0 else None
