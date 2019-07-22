@@ -151,7 +151,8 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
                         'format': 'image/png',
                         'transparent': True,
                         'uppercase': True
-                    }
+                    },
+                    'refresh': True
                 }
                 data['references'].insert(0, reference)
 
