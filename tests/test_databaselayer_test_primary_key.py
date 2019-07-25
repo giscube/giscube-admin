@@ -3,7 +3,7 @@ from django.test import TransactionTestCase
 
 from giscube.models import DBConnection
 from layerserver.admin_forms import DataBaseLayerAddForm
-from layerserver.model_legacy import create_dblayer_model
+from layerserver.model_legacy import ModelFactory
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
@@ -23,6 +23,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         self.conn = conn
 
     def tearDown(self):
+        super().tearDown()
         cursor = self.conn.get_connection().cursor()
         sql = 'DROP TABLE IF EXISTS address_no_primary_key'
         cursor = self.conn.get_connection().cursor()
@@ -99,14 +100,13 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         layer.anonymous_delete = True
         layer.save()
 
-        Model = create_dblayer_model(layer)
-
-        primary_key = None
-        for f in Model._meta.fields:
-            if getattr(f, 'primary_key'):
-                primary_key = f.name
-                break
-        self.assertEqual(primary_key, 'id')
+        with ModelFactory(layer) as Model:
+            primary_key = None
+            for f in Model._meta.fields:
+                if getattr(f, 'primary_key'):
+                    primary_key = f.name
+                    break
+            self.assertEqual(primary_key, 'id')
 
     def test_code_add_primary_key(self):
         """
@@ -135,11 +135,10 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         layer.anonymous_delete = True
         layer.save()
 
-        Model = create_dblayer_model(layer)
-
-        primary_key = None
-        for f in Model._meta.fields:
-            if getattr(f, 'primary_key'):
-                primary_key = f.name
-                break
-        self.assertEqual(primary_key, 'code')
+        with ModelFactory(layer) as Model:
+            primary_key = None
+            for f in Model._meta.fields:
+                if getattr(f, 'primary_key'):
+                    primary_key = f.name
+                    break
+            self.assertEqual(primary_key, 'code')

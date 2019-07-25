@@ -118,9 +118,8 @@ class ImageWithThumbnailSerializer(object):
                     res['thumbnail'] = thumbnail['url']
                 return res
         else:
-            layer = obj.get_layer()
-            pk = getattr(obj, layer.pk_field)
-            kwargs = {'name': layer.name, 'pk': pk, 'attribute': attribute, 'path': value.name}
+            pk = getattr(obj, obj._schema['pk_field'])
+            kwargs = {'name': obj._schema['name'], 'pk': pk, 'attribute': attribute, 'path': value.name}
             url = reverse('content-detail-file-value', kwargs=kwargs)
             url = self.append_token(self.context['request'].build_absolute_uri(url))
             res = {
@@ -128,7 +127,7 @@ class ImageWithThumbnailSerializer(object):
             }
             thumbnail = value.storage.get_thumbnail(value.name)
             if thumbnail:
-                kwargs = {'name': layer.name, 'pk': pk, 'attribute': attribute,
+                kwargs = {'name': obj._schema['name'], 'pk': pk, 'attribute': attribute,
                           'path': thumbnail['name']}
                 url = reverse('content-detail-thumbnail-value', kwargs=kwargs)
                 url = self.context['request'].build_absolute_uri(url)

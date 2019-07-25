@@ -81,7 +81,7 @@ if not GISCUBE_GEOPORTAL_DISABLED:
     INSTALLED_APPS += ['geoportal', 'haystack']
 
 if not GISCUBE_LAYERSERVER_DISABLED:
-    INSTALLED_APPS += ['colorfield', 'layerserver']
+    INSTALLED_APPS += ['colorfield', 'layerserver', 'layerserver_databaselayer']
 
 
 INSTALLED_APPS += [

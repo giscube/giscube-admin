@@ -25,6 +25,7 @@ class ApiUserAssetsTests(BaseTest):
         UserModel.objects.all().delete()
         UserAsset.objects.all().delete()
         shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'user/assets/'))
+        super().tearDown()
 
     def test_list(self):
         self.login_superuser()

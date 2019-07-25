@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from giscube.models import DBConnection
-from layerserver.model_legacy import create_dblayer_model
+from layerserver.model_legacy import ModelFactory
 from layerserver.models import DataBaseLayer
 from layerserver.serializers import create_dblayer_geom_serializer
 from tests.common import BaseTest
@@ -35,42 +35,42 @@ class DataBaseLayerBlankFieldTestCase(BaseTest):
         self.layer = layer
 
     def test_blank(self):
-        Location = create_dblayer_model(self.layer)
-        self.assertEqual(Location._meta.get_field('address').blank, True)
+        with ModelFactory(self.layer) as Location:
+            self.assertEqual(Location._meta.get_field('address').blank, True)
 
-        blanks = {}
-        for field in self.layer.fields.all():
-            blanks[field.name] = field.blank
+            blanks = {}
+            for field in self.layer.fields.all():
+                blanks[field.name] = field.blank
 
-        self.assertFalse(blanks['code'])
-        self.assertTrue(blanks['address'])
-        self.assertFalse(blanks['geometry'])
+            self.assertFalse(blanks['code'])
+            self.assertTrue(blanks['address'])
+            self.assertFalse(blanks['geometry'])
 
-        field = self.layer.fields.filter(name='address').first()
-        field.blank = False
-        field.save()
-        self.layer.refresh_from_db()
-        blanks = {}
-        for field in self.layer.fields.all():
-            blanks[field.name] = field.blank
+            field = self.layer.fields.filter(name='address').first()
+            field.blank = False
+            field.save()
+            self.layer.refresh_from_db()
+            blanks = {}
+            for field in self.layer.fields.all():
+                blanks[field.name] = field.blank
 
-        self.assertFalse(blanks['code'])
-        self.assertFalse(blanks['address'])
-        self.assertFalse(blanks['geometry'])
+            self.assertFalse(blanks['code'])
+            self.assertFalse(blanks['address'])
+            self.assertFalse(blanks['geometry'])
 
-        Location = create_dblayer_model(self.layer)
-        self.assertEqual(Location._meta.get_field('address').blank, False)
+        with ModelFactory(self.layer) as Location:
+            self.assertEqual(Location._meta.get_field('address').blank, False)
 
-        fields = []
-        readonly_fields = []
-        for field in self.layer.fields.filter(enabled=True):
-            fields.append(field.name)
-            if field.readonly is True:
-                readonly_fields.append(field.name)
+            fields = []
+            readonly_fields = []
+            for field in self.layer.fields.filter(enabled=True):
+                fields.append(field.name)
+                if field.readonly is True:
+                    readonly_fields.append(field.name)
 
-        Serializer = create_dblayer_geom_serializer(Location, fields, self.layer.pk_field, readonly_fields)
-        extra_kwargs = Serializer.Meta.extra_kwargs
+            Serializer = create_dblayer_geom_serializer(Location, fields, self.layer.pk_field, readonly_fields)
+            extra_kwargs = Serializer.Meta.extra_kwargs
 
-        self.assertTrue(extra_kwargs['code']['required'])
-        self.assertTrue(extra_kwargs['address']['required'])
-        self.assertTrue(extra_kwargs['geometry']['required'])
+            self.assertTrue(extra_kwargs['code']['required'])
+            self.assertTrue(extra_kwargs['address']['required'])
+            self.assertTrue(extra_kwargs['geometry']['required'])

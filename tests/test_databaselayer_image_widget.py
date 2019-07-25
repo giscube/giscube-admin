@@ -48,7 +48,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.name = 'tests_testimagefield'
+        layer.name = 'tests_testimagefield02'
         layer.table = 'tests_testimagefield'
         layer.pk_field = 'code'
         layer.geom_field = 'geometry'
@@ -73,6 +73,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.layer = layer
 
     def tearDown(self):
+        super().tearDown()
         try:
             shutil.rmtree(self.upload_root)
         except Exception:

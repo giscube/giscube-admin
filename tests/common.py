@@ -1,5 +1,6 @@
 import json
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
@@ -79,6 +80,9 @@ class BaseTest(APITransactionTestCase):
         self.client.credentials(HTTP_AUTHORIZATION='')
 
     def tearDown(self):
+        if 'layerserver_databaselayer' in apps.all_models:
+            for x in list(apps.all_models['layerserver_databaselayer'].keys()):
+                del apps.all_models['layerserver_databaselayer'][x]
         self.application.delete()
         self.test_user.delete()
         self.dev_user.delete()
