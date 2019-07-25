@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from giscube.models import UserAsset
 
 from .filters import filterset_factory
-from .mapserver import MapserverLayer, SLDLayer, SUPORTED_SHAPE_TYPES
+from .mapserver import SUPORTED_SHAPE_TYPES, MapserverLayer, SLDLayer
 from .model_legacy import create_dblayer_model
 from .models import DataBaseLayer, GeoJsonLayer
 from .pagination import create_geojson_pagination_class, create_json_pagination_class

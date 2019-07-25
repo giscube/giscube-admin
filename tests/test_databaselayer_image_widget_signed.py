@@ -67,10 +67,10 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.widget_options = options
         field.widget_options = json.dumps(options)
         field.save()
-
         self.layer = layer
 
     def tearDown(self):
+        super().tearDown()
         try:
             shutil.rmtree(self.upload_root)
         except Exception:

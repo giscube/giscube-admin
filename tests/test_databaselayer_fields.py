@@ -16,6 +16,7 @@ class DataBaseLayerFieldsValidatorTestCase(BaseTest):
                     shutil.rmtree(f)
             except Exception:
                 print('Error while deleting directory %s' % f)
+        super().tearDown()
 
     def test_date_field(self):
         self.assertEqual(widgets.DateWidget.is_valid(''), widgets.DateWidget.ERROR_INVALID_JSON)

@@ -1,9 +1,14 @@
 import json
+import random
 import re
+import string
 from collections import OrderedDict
 
+from django.apps import apps
 from django.contrib.gis.db import models
 from django.core.management.commands.inspectdb import Command
+from django.utils import timezone
+from django.utils.functional import cached_property
 
 from giscube.db.utils import get_table_parts
 
@@ -202,62 +207,136 @@ def to_image_field(field, original_field):
     return ImageWithThumbnailField(**options)
 
 
-def apply_blank(layer, fields):
-    for field in layer.fields.all():
-        if getattr(fields[field.name], 'blank') != field.blank:
-            setattr(fields[field.name], 'blank', field.blank)
-
-
-def apply_widgets(layer, fields):
-    from .models import DataBaseLayerField
-    for field in layer.fields.all():
-        if field.widget == DataBaseLayerField.WIDGET_CHOICES.image:
-            try:
-                fields[field.name] = to_image_field(field, fields[field.name])
-            except Exception:
-                raise Exception('Invalid configuration for field [%s]' % field.name)
-
-
 def create_dblayer_model(layer):
-    table_parts = get_table_parts(layer.table)
-    table_schema = table_parts['table_schema']
-    table = table_parts['fixed']
+    return ModelFactory(layer).get_model()
 
-    class Meta:
-        app_label = 'layerserver_databaselayer'
-        db_table = layer.table
-        verbose_name = layer.name
-        ordering = [layer.pk_field]
-        managed = False
 
-    @staticmethod
-    def get_layer():
-        return layer
+class ModelFactory:
+    def __init__(self, layer):
+        self.layer = layer
+        self.app_label = 'layerserver_databaselayer'
+        self.unique_tag = ''
 
-    attrs = {
-        '__module__': 'layerserver_databaselayer',
-        'Meta': Meta,
-        'get_layer': get_layer,
-        'databaselayer_db_connection': layer.db_connection.connection_name(
-            schema=table_schema)
-    }
-    fields = get_fields(layer.db_connection.get_connection(schema=table_schema), table)
+    def __exit__(self, *args, **kwargs):
+        self.destroy()
 
-    # Add primary_key if needed
-    primary_key = None
-    for fied_name, field in list(fields.items()):
-        if getattr(field, 'primary_key'):
-            primary_key = fied_name
-            break
-    if primary_key is None:
-        setattr(fields[layer.pk_field], 'primary_key', True)
+    def __enter__(self):
+        self.unique_tag = self._random_string()
+        return self.get_model()
 
-    apply_blank(layer, fields)
-    apply_widgets(layer, fields)
-    if layer.geom_field:
-        fields[layer.geom_field].srid = layer.srid
-    attrs.update(fields)
-    model_name = layer.table.replace('".""', ' ').replace('"', '').replace('.', ' ').title().replace(' ', '')
-    model = type(str(model_name), (models.Model,), attrs)
+    @cached_property
+    def get_layer_fields(self):
+        return self.layer.fields.all()
 
-    return model
+    def apply_blank(self, fields):
+        for field in self.get_layer_fields:
+            if getattr(fields[field.name], 'blank') != field.blank:
+                setattr(fields[field.name], 'blank', field.blank)
+
+    def apply_widgets(self, fields):
+        from .models import DataBaseLayerField
+        for field in self.get_layer_fields:
+            if field.widget == DataBaseLayerField.WIDGET_CHOICES.image:
+                try:
+                    fields[field.name] = to_image_field(field, fields[field.name])
+                except Exception:
+                    raise Exception('Invalid configuration for field [%s]' % field.name)
+
+    def destroy(self):
+        last_model = self.get_registered_model()
+        if last_model:
+            self.try_unregister_model()
+
+    def get_attributes(self):
+        attrs = {}
+        attrs.update(self._base_attributes())
+        attrs.update(self._custom_fields())
+        return attrs
+
+    @property
+    def model_name(self):
+        name = self.layer.table.replace(
+            '"."', '-').replace('"', '').replace('.', ' ').title().replace(' ', '').replace('_', '').replace('-', '_')
+        return '%s%s' % (name, self.unique_tag)
+
+    def get_model(self):
+        return self.get_registered_model() or self.make()
+
+    def get_registered_model(self):
+        model = None
+        try:
+            model = apps.get_model(self.app_label, self.model_name)
+        except LookupError:
+            pass
+        return model
+
+    def make(self):
+        self.try_unregister_model()
+        model = type(
+            self.model_name,
+            (models.Model,),
+            self.get_attributes()
+        )
+        return model
+
+    def _random_string(self, string_length=24):
+        letters_digits = string.ascii_letters + string.digits
+        return ''.join(random.choice(letters_digits) for i in range(string_length))
+
+    def try_unregister_model(self):
+        try:
+            del apps.all_models[self.app_label][self.model_name.lower()]
+        except LookupError:
+            pass
+
+    def _base_attributes(self):
+        table_parts = get_table_parts(self.layer.table)
+        return {
+            '__module__': 'layerserver_databaselayer.models',
+            '_declared': timezone.now(),
+            '_schema': self._get_schema(),
+            'databaselayer_db_connection': self.layer.db_connection.connection_name(
+                schema=table_parts['table_schema']),
+            'Meta': self._model_meta(),
+        }
+
+    def _custom_fields(self):
+        table_parts = get_table_parts(self.layer.table)
+        table_schema = table_parts['table_schema']
+        table = table_parts['fixed']
+
+        fields = get_fields(self.layer.db_connection.get_connection(schema=table_schema), table)
+
+        # Add primary_key if needed
+        primary_key = None
+        for fied_name, field in list(fields.items()):
+            if getattr(field, 'primary_key'):
+                primary_key = fied_name
+                break
+        if primary_key is None:
+            setattr(fields[self.layer.pk_field], 'primary_key', True)
+
+        self.apply_blank(fields)
+        self.apply_widgets(fields)
+        if self.layer.geom_field:
+            fields[self.layer.geom_field].srid = self.layer.srid
+
+        return fields
+
+    def _model_meta(self):
+        class Meta:
+            app_label = self.app_label
+            db_table = self.layer.table
+            verbose_name = self.layer.name
+            ordering = [self.layer.pk_field]
+            managed = False
+        return Meta
+
+    def _get_schema(self):
+        return {
+            'name': self.layer.name,
+            'table': self.layer.table,
+            'pk_field': self.layer.pk_field,
+            'geom_field': self.layer.geom_field,
+            'srid': self.layer.srid
+        }

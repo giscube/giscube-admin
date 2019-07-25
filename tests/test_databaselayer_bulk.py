@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from giscube.models import DBConnection
-from layerserver.model_legacy import create_dblayer_model
+from layerserver.model_legacy import ModelFactory, create_dblayer_model
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
@@ -34,15 +34,15 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         self.layer = layer
 
         self.locations = []
-        Location = create_dblayer_model(layer)
-        self.Location = Location
-        for i in range(0, 12):
-            location = Location()
-            location.code = 'C%s' % str(i).zfill(3)
-            location.address = 'C/ Jaume %s, Girona' % i
-            location.geometry = 'POINT(0 %s)' % i
-            location.save()
-            self.locations.append(location)
+        with ModelFactory(layer) as Location:
+            self.Location = Location
+            for i in range(0, 12):
+                location = Location()
+                location.code = 'C%s' % str(i).zfill(3)
+                location.address = 'C/ Jaume %s, Girona' % i
+                location.geometry = 'POINT(0 %s)' % i
+                location.save()
+                self.locations.append(location)
 
     def test_bulk_ok(self):
         data = {
@@ -80,25 +80,26 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 
-        obj = self.Location.objects.get(code=data['ADD'][0]['code'])
+        Location = create_dblayer_model(self.layer)
+        obj = Location.objects.get(code=data['ADD'][0]['code'])
         self.assertEqual(obj.geometry.wkt, data['ADD'][0]['geometry'])
         self.assertEqual(obj.address, data['ADD'][0]['address'])
-        obj = self.Location.objects.get(code=data['ADD'][1]['code'])
+        obj = Location.objects.get(code=data['ADD'][1]['code'])
         self.assertEqual(obj.geometry.wkt, data['ADD'][1]['geometry'])
         self.assertEqual(obj.address, data['ADD'][1]['address'])
 
-        obj = self.Location.objects.get(code=self.locations[2].code)
+        obj = Location.objects.get(code=self.locations[2].code)
         self.assertEqual(obj.geometry.wkt, data['UPDATE'][0]['geometry'])
 
-        obj = self.Location.objects.get(code=self.locations[5].code)
+        obj = Location.objects.get(code=self.locations[5].code)
         self.assertEqual(obj.address, data['UPDATE'][1]['address'])
         self.assertEqual(obj.geometry.wkt, data['UPDATE'][1]['geometry'])
 
-        obj = self.Location.objects.get(code=self.locations[1].code)
+        obj = Location.objects.get(code=self.locations[1].code)
         self.assertEqual(obj.address, data['UPDATE'][2]['address'])
 
         self.assertEqual(
-            0, self.Location.objects.filter(code__in=data['DELETE']).count())
+            0, Location.objects.filter(code__in=data['DELETE']).count())
 
     def test_bulk_blank_nok(self):
         field = self.layer.fields.filter(name='address').first()
@@ -195,27 +196,28 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
 
-        obj = self.Location.objects.get(code=data['ADD'][0]['properties']['code'])
+        Location = create_dblayer_model(self.layer)
+        obj = Location.objects.get(code=data['ADD'][0]['properties']['code'])
         self.assertEqual(list(obj.geometry.coords), data['ADD'][0]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['ADD'][0]['properties']['address'])
 
-        obj = self.Location.objects.get(code=data['ADD'][1]['properties']['code'])
+        obj = Location.objects.get(code=data['ADD'][1]['properties']['code'])
         self.assertEqual(list(obj.geometry.coords), data['ADD'][1]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['ADD'][1]['properties']['address'])
 
-        obj = self.Location.objects.get(code=self.locations[2].code)
+        obj = Location.objects.get(code=self.locations[2].code)
         self.assertEqual(list(obj.geometry.coords), data['UPDATE'][0]['geometry']['coordinates'])
 
-        obj = self.Location.objects.get(code=self.locations[5].code)
+        obj = Location.objects.get(code=self.locations[5].code)
         self.assertEqual(list(obj.geometry.coords), data['UPDATE'][1]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['UPDATE'][1]['properties']['address'])
 
-        obj = self.Location.objects.get(code=self.locations[1].code)
+        obj = Location.objects.get(code=self.locations[1].code)
         self.assertEqual(list(obj.geometry.coords), data['UPDATE'][2]['geometry']['coordinates'])
         self.assertEqual(obj.address, data['UPDATE'][2]['properties']['address'])
 
         self.assertEqual(
-            0, self.Location.objects.filter(code__in=data['DELETE']).count())
+            0, Location.objects.filter(code__in=data['DELETE']).count())
 
     def test_bulk_not_found(self):
         data = {
@@ -275,7 +277,8 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
-        obj = self.Location.objects.get(code=self.locations[5].code)
+        Location = create_dblayer_model(self.layer)
+        obj = Location.objects.get(code=self.locations[5].code)
         self.assertEqual(old_geom, list(obj.geometry.coords))
         self.assertEqual(obj.address, 'C/ Martí 5, Girona')
 
@@ -297,6 +300,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
-        obj = self.Location.objects.get(code=self.locations[5].code)
+        Location = create_dblayer_model(self.layer)
+        obj = Location.objects.get(code=self.locations[5].code)
         self.assertEqual(old_geom, list(obj.geometry.coords))
         self.assertEqual(obj.address, 'C/ Manel 5, Girona')

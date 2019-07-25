@@ -234,8 +234,8 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
-            LayerModel = model_legacy.create_dblayer_model(self)
-            setattr(self, '_model_fields', LayerModel._meta.get_fields())
+            with model_legacy.ModelFactory(self) as LayerModel:
+                setattr(self, '_model_fields', LayerModel._meta.get_fields())
         for f in self._model_fields:
             if f.name == field_name:
                 return f
@@ -269,9 +269,9 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
 @receiver(pre_save, sender=DataBaseLayer)
 def pre_dblayer(sender, instance, **kwargs):
     if not instance.pk:
-        model = model_legacy.create_dblayer_model(instance)
-        if not instance.pk_field:
-            instance.pk_field = model._meta.pk.name.split('.')[-1]
+        with model_legacy.ModelFactory(instance) as model:
+            if not instance.pk_field:
+                instance.pk_field = model._meta.pk.name.split('.')[-1]
 
 
 @receiver(post_save, sender=DataBaseLayer)

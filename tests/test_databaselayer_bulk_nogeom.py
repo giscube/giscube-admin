@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from giscube.models import DBConnection
-from layerserver.model_legacy import create_dblayer_model
+from layerserver.model_legacy import ModelFactory
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
@@ -33,14 +33,13 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         self.layer = layer
 
         self.species = []
-        Specie = create_dblayer_model(layer)
-        self.SpecieModel = Specie
-        for i in range(0, 12):
-            s = Specie()
-            s.code = 'QI%s' % str(i).zfill(3)
-            s.address = 'Quercus ilex %s' % i
-            s.save()
-            self.species.append(s)
+        with ModelFactory(layer) as Specie:
+            for i in range(0, 12):
+                s = Specie()
+                s.code = 'QI%s' % str(i).zfill(3)
+                s.address = 'Quercus ilex %s' % i
+                s.save()
+                self.species.append(s)
 
     def test_bulk_ok(self):
         data = {
@@ -66,17 +65,16 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 204)
+        with ModelFactory(self.layer) as SpecieModel:
+            obj = SpecieModel.objects.get(code=data['ADD'][0]['code'])
+            self.assertEqual(obj.name, data['ADD'][0]['name'])
+            obj = SpecieModel.objects.get(code=data['ADD'][1]['code'])
+            self.assertEqual(obj.name, data['ADD'][1]['name'])
 
-        obj = self.SpecieModel.objects.get(code=data['ADD'][0]['code'])
-        self.assertEqual(obj.name, data['ADD'][0]['name'])
-        obj = self.SpecieModel.objects.get(code=data['ADD'][1]['code'])
-        self.assertEqual(obj.name, data['ADD'][1]['name'])
+            obj = SpecieModel.objects.get(code=self.species[5].code)
+            self.assertEqual(obj.name, data['UPDATE'][0]['name'])
 
-        obj = self.SpecieModel.objects.get(code=self.species[5].code)
-        self.assertEqual(obj.name, data['UPDATE'][0]['name'])
-
-        self.assertEqual(
-            0, self.SpecieModel.objects.filter(code__in=data['DELETE']).count())
+            self.assertEqual(0, SpecieModel.objects.filter(code__in=data['DELETE']).count())
 
     def test_bulk_blank_nok(self):
         field = self.layer.fields.filter(name='name').first()
