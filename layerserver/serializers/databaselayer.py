@@ -68,7 +68,7 @@ def style_representation(obj):
             res[attr] = getattr(obj, attr)
         # Compatibility
         if obj.shapetype == 'marker':
-            res[attr] = obj.fill_color
+            res['marker_color'] = obj.fill_color
     return res
 
 
