@@ -49,7 +49,7 @@ class MapserverLayer(WMSProxy):
         return self.get(request)
 
     def write(self):
-        service = self.layer
+        service = self.service
         Layer = create_dblayer_model(service)
 
         qs = Layer.objects.all().aggregate(Extent(service.geom_field))
@@ -60,7 +60,7 @@ class MapserverLayer(WMSProxy):
             suported_srids.append(service.srid)
 
         wms_url = url_slash_join(
-            settings.GISCUBE_URL, remove_app_url(reverse('content-wms', kwargs={'name': self.layer.name})))
+            settings.GISCUBE_URL, remove_app_url(reverse('content-wms', kwargs={'name': service.name})))
 
         connection_type = 'POSTGIS'
         vars = {
@@ -201,7 +201,9 @@ class SLDLayer(object):
             if item.stroke_color and item.stroke_width:
                 style['stroke_width'] = 1
                 style['stroke_opacity'] = item.fill_opacity or 1
-            style['shape_radius'] = 6
+            if item.fill_color:
+                style['fill_color'] = item.fill_color
+            style['shape_radius'] = 12
 
         if self.layer.shapetype == 'circle':
             style['fill_color'] = item.fill_color
