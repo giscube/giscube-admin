@@ -41,8 +41,9 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         data = super().to_representation(obj)
         data['type'] = 'WMS'
-        data['auth'] = 'token' if obj.visibility == 'private' else None
+        data['auth'] = 'token' if obj.service.visibility == 'private' else None
         data['options'] = {}
+        return data
 
     class Meta:
         model = DataBaseLayerReference
