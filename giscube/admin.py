@@ -29,7 +29,7 @@ class CategoryAdmin(admin.ModelAdmin):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)
         current_url = resolve(request.path_info).url_name
         if current_url == 'giscube_category_autocomplete':
-            queryset = queryset.filter(parent__isnull=True)
+            queryset = queryset.filter(parent__isnull=False)
         queryset = queryset.prefetch_related('parent')
         queryset = queryset.annotate(custom_order=Concat('parent__name', 'name'))
         queryset = queryset.order_by('custom_order')
