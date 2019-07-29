@@ -116,7 +116,7 @@ ROOT_URLCONF = 'giscube.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': os.getenv('TEMPLATES', '').split(','),
+        'DIRS': list(filter(None, os.getenv('TEMPLATES', '').split(','))),
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -153,16 +153,16 @@ DATABASES = {
 # DEBUG defaults to False if not defined in the environment
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = list(filter(None, os.getenv('ALLOWED_HOSTS', '').split(',')))
 
 # e.g.: My name,admin@example.com,Other admin,admin2@example.com
 # ADMINS will be an empty array is it is not defined in the environment
-ADMINS = list(zip(*([iter(os.getenv('ADMINS', '').split(','))] * 2)))
+ADMINS = list(zip(*([iter(os.getenv('ADMINS', '').split(','))] * 2))) if os.getenv('ADMINS', '') != '' else []
 
 LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', LANGUAGE_CODE)
 
-LOCALE_PATHS = ['locale'] + os.getenv('LOCALE_PATHS', '').split(',')
+LOCALE_PATHS = ['locale'] + list(filter(None, os.getenv('LOCALE_PATHS', '').split(',')))
 
 TIME_ZONE = 'UTC'
 TIME_ZONE = os.getenv('TIME_ZONE', TIME_ZONE)

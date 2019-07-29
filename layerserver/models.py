@@ -117,7 +117,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
     def get_default_popup(self):
         fields = {}
         if self.fields is not None:
-            for field in self.fields.split(','):
+            for field in list(filter(None, self.fields.split(','))):
                 fields[field] = field
         return self.get_default_popup_content(fields)
 

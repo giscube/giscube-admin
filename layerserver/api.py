@@ -156,7 +156,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         self.readonly_fields = []
         only_fields = self.request.GET.get('fields', None)
         if only_fields is not None:
-            only_fields = only_fields.split(',') + [self.layer.pk_field, self.layer.geom_field]
+            only_fields = list(filter(None, only_fields.split(','))) + [self.layer.pk_field, self.layer.geom_field]
         for field in self.layer.fields.filter(enabled=True):
             if only_fields is not None and field.name not in only_fields:
                 continue
