@@ -150,12 +150,15 @@ class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
 
 
 class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
+    def _split_comma(self, value):
+        return list(filter(None, [x.strip() for x in value.split(',')]))
+
     def clean_form_fields(self):
-        values = [x.strip() for x in self.cleaned_data['form_fields'].split(',')]
+        values = self._split_comma(self.cleaned_data.get('form_fields', ''))
         return ','.join(values)
 
     def clean_list_fields(self):
-        values = [x.strip() for x in self.cleaned_data['list_fields'].split(',')]
+        values = self._split_comma(self.cleaned_data.get('list_fields', ''))
         return ','.join(values)
 
     def clean(self):
@@ -165,8 +168,8 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
             self.add_error('pk_field', err)
             return
 
-        form_fields = cleaned_data.get('form_fields', '').split(',')
-        list_fields = cleaned_data.get('list_fields', '').split(',')
+        form_fields = self._split_comma(cleaned_data.get('form_fields', ''))
+        list_fields = self._split_comma(cleaned_data.get('list_fields', ''))
 
         fields_count = int(self.data.get('fields-TOTAL_FORMS', 0))
         fields_enabled = []
