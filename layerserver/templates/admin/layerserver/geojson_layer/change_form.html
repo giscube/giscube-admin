@@ -7,3 +7,8 @@
   {% endif %}
   {{ block.super }}
 {% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% include "admin/layerserver/geojson_layer/table-logtask.html" %}
+{% endblock %}
