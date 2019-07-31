@@ -1,11 +1,10 @@
 import inspect
-import urllib.parse
+import os
 
 from django.conf import settings
 from django.contrib.gis.db.models import Extent
 from django.core.files.base import ContentFile
 from django.db.models import F
-from django.template import loader
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -23,15 +22,14 @@ class MapserverLayer(WMSProxy):
         mapserver_server_url = settings.GISCUBE_IMAGE_SERVER_URL
         meta = request.META.get('QUERY_STRING', '?')
         mapfile = "map=%s" % self.service.mapfile.path
-        sld_body = 'sld_body=%s' % urllib.parse.quote(self.sld_ob.sld().rstrip('\n\r'))
-        url = "%s?%s&%s&%s" % (mapserver_server_url, meta, mapfile, sld_body)
+        url = "%s?%s&%s" % (mapserver_server_url, meta, mapfile)
         return url
 
     def get_wms_buffer_enabled(self):
-        return self.sld_ob.get_shapetype() == 'circle'
+        return self.style_obj.get_shapetype() == 'circle'
 
     def get_wms_buffer_size(self):
-        size = self.sld_ob.max_size()
+        size = self.style_obj.max_size()
         if not size:
             size = 64
         return '%s,%s' % (size, size)
@@ -40,8 +38,7 @@ class MapserverLayer(WMSProxy):
         return self.service.name
 
     def get_wms_tile_sizes(self):
-        # TODO: remove '128,128'
-        return ['128,128', '256,256', '512,512']
+        return ['256,256', '512,512']
 
     def wms(self, request):
         if not self.service.mapfile or request.GET.get('debug', '0') == '1':
@@ -89,8 +86,13 @@ class MapserverLayer(WMSProxy):
             'wms_srs': ' '.join('EPSG:%s' % x for x in suported_srids),
             'wms_onlineresource': '%s?' % wms_url,
             'connection_type': connection_type,
-            'connection_str': connection_str
+            'connection_str': connection_str,
+            'temppath': os.path.join(settings.MEDIA_ROOT, service.service_path, 'tmp'),
+            'styles': StyleLayer(self.service).write()
         }
+
+        if not os.path.exists(vars['temppath']):
+            os.makedirs(vars['temppath'])
 
         template = inspect.cleandoc("""
         MAP
@@ -99,7 +101,16 @@ class MapserverLayer(WMSProxy):
             EXTENT  {extent}
 
             WEB
-              TEMPPATH "/tmp/"
+              TEMPPATH "{temppath}"
+            END
+
+            SYMBOL
+              NAME "mark_symbol_circle_filled"
+              TYPE ELLIPSE
+              FILLED TRUE
+                POINTS
+                1 1
+              END
             END
 
             PROJECTION
@@ -168,6 +179,7 @@ class MapserverLayer(WMSProxy):
                 PROJECTION
                    "init=epsg:{srid}"
                 END
+                {styles}
             END
         END
         """.format(**vars))
@@ -175,25 +187,111 @@ class MapserverLayer(WMSProxy):
         service.mapfile.save(name='wms.map', content=ContentFile(template))
 
     @cached_property
-    def sld_ob(self):
-        return SLDLayer(self.service)
+    def style_obj(self):
+        return StyleLayer(self.service)
 
 
-class SLDLayer(object):
-    COMPARATOR_CHOICES = {
-        '=': 'PropertyIsEqualTo',
-        '!=': 'PropertyIsNotEqualTo',
-        '>': 'PropertyIsGreaterThan',
-        '>=': 'PropertyIsGreaterThanOrEqualTo',
-        '<': 'PropertyIsLessThan',
-        '<=': 'PropertyIsLessThanOrEqualTo'
-    }
-
+class StyleLayer(object):
     def __init__(self, layer):
         self.layer = layer
 
-    def render_style(self, item, shapetype):
+    def add_alpha(self, original_color, alpha):
+        if alpha != 1:
+            original_color += hex(round(float(alpha) * 255))[2:]
+        return '"%s"' % original_color
+
+    def fill_style(self, style):
+        ms_style = ''
+        if style['fill_color'] and style['fill_color'] != '':
+            ms_style = """
+            STYLE
+                COLOR {fill_color}
+            END
+            """.format(fill_color=self.add_alpha(style['fill_color'], style['fill_opacity']))
+        return ms_style
+
+    def stroke_style(self, style):
+        ms_style = ''
+        if style['stroke_color'] and style['stroke_color'] != '':
+            if 'stroke_dash_array' in style and style['stroke_dash_array'] and style['stroke_dash_array'] != '':
+                ms_style = """
+                STYLE
+                    OUTLINECOLOR {stroke_color}
+                    WIDTH {stroke_width}
+                    LINECAP BUTT
+                    PATTERN {stroke_dash_array} END
+                END
+                """.format(stroke_color=self.add_alpha(style['stroke_color'], style['stroke_opacity']),
+                           stroke_width=style['stroke_width'],
+                           stroke_dash_array=style['stroke_dash_array'])
+            else:
+                ms_style = """
+                STYLE
+                    OUTLINECOLOR {stroke_color}
+                    WIDTH {stroke_width}
+                END
+                """.format(stroke_color=self.add_alpha(style['stroke_color'], style['stroke_opacity']),
+                           stroke_width=style['stroke_width'])
+        return ms_style
+
+    def circle(self, style, name, expression):
+        fill_color = ''
+        if style['fill_color'] and style['fill_color'] != '':
+            fill_color = 'COLOR %s' % self.add_alpha(style['fill_color'], style['fill_opacity'])
+        ms_style = """
+        CLASS
+            NAME "{name}"
+            STYLE
+                SYMBOL "mark_symbol_circle_filled"
+                SIZE {shape_radius}
+                OUTLINECOLOR {stroke_color}
+                WIDTH {stroke_width}
+                {fill_color}
+            END
+            {expression}
+        END
+        """.format(
+            name=name.replace('"', '\"'),
+            shape_radius=style['shape_radius'],
+            stroke_color=self.add_alpha(style['stroke_color'], style['stroke_opacity']),
+            stroke_width=style['stroke_width'],
+            fill_color=fill_color,
+            expression=expression)
+        return ms_style
+
+    def line(self, style, name, expression):
+        style = """
+        CLASS
+            NAME "{name}"
+            {stroke_style}
+            {expression}
+        END
+        """.format(
+            name=name.replace('"', '\"'),
+            stroke_style=self.stroke_style(style),
+            expression=expression)
+        return style
+
+    def polygon(self, style, name, expression):
+        style = """
+        CLASS
+            NAME "{name}"
+            {fill_style}
+            {stroke_style}
+            {expression}
+        END
+        """.format(
+            name=name.replace('"', '\"'),
+            stroke_style=self.stroke_style(style),
+            fill_style=self.fill_style(style),
+            expression=expression)
+        return style
+
+    def render_style(self, item, name, expression=None):
+        shapetype = self.get_shapetype()
         style = {}
+
+        expression = """EXPRESSION %s""" % expression if expression else ''
 
         if self.layer.shapetype == 'marker' or shapetype == 'marker':
             style['stroke_color'] = item.stroke_color or settings.LAYERSERVER_STYLE_FILL_COLOR
@@ -204,6 +302,7 @@ class SLDLayer(object):
             if item.fill_color:
                 style['fill_color'] = item.fill_color
             style['shape_radius'] = 12
+            return self.circle(style, name)
 
         if self.layer.shapetype == 'circle':
             style['fill_color'] = item.fill_color
@@ -217,14 +316,18 @@ class SLDLayer(object):
             if style['fill_color'] is None and style['stroke_color'] is None:
                 style['fill_color'] = item.stroke_color or settings.LAYERSERVER_STYLE_FILL_COLOR
                 style['stroke_color'] = item.stroke_color or settings.LAYERSERVER_STYLE_STROKE_COLOR
+            return self.circle(style, name, expression)
 
         if self.layer.shapetype == 'line' or shapetype == 'line':
+            style = {}
             style['stroke_color'] = item.stroke_color or settings.LAYERSERVER_STYLE_STROKE_COLOR
             style['stroke_width'] = item.stroke_width
             style['stroke_opacity'] = item.stroke_opacity
             style['stroke_dash_array'] = item.stroke_dash_array
+            return self.line(style, name, expression)
 
         if shapetype == 'polygon':
+            style = {}
             style['fill_color'] = item.fill_color
             style['fill_opacity'] = item.fill_opacity
 
@@ -236,8 +339,7 @@ class SLDLayer(object):
             if style['fill_color'] is None and style['stroke_color'] is None:
                 style['fill_color'] = item.stroke_color or settings.LAYERSERVER_STYLE_FILL_COLOR
                 style['stroke_color'] = item.stroke_color or settings.LAYERSERVER_STYLE_STROKE_COLOR
-
-        return style
+            return self.polygon(style, name, expression)
 
     def get_shapetype(self):
         Layer = create_dblayer_model(self.layer)
@@ -258,46 +360,39 @@ class SLDLayer(object):
 
         return shapetype
 
-    def render_rules(self, shapetype):
+    def render_rules(self):
         rules = []
         for x in self.layer.rules.all().order_by(F('order').asc(nulls_last=False)):
-            r = {}
-            filter = {}
-            filter['comparator'] = self.COMPARATOR_CHOICES[x.comparator]
-            filter['field'] = x.field
-            filter['value'] = x.value
-            r['title'] = str(x)
-            r['filter'] = filter
-            r['style'] = self.render_style(x, shapetype)
-            rules.append(r)
+            value = x.value
+            if self.is_float(value):
+                expression = """(([%s] %s %s))""" % (x.field, x.comparator, value)
+            else:
+                expression = """(('[%s]' %s '%s'))""" % (x.field, x.comparator, value.replace("'", "\'"))
+            style = self.render_style(x, str(x), expression)
+            if style:
+                rules.append(style)
         return rules
 
-    def sld(self, request=None):
-        shapetype = self.get_shapetype()
-        tpl = loader.get_template('mapserver/sld/%s.xml' % shapetype)
-
-        context = {}
-        context['name'] = self.layer.name
-        title = self.layer.title or self.layer.name
-        context['title'] = title
-        context['rules'] = [{'style': self.render_style(self.layer, shapetype), 'title': title}]
-        context['rules'] += self.render_rules(shapetype)
-
-        return tpl.render(context)
+    def write(self, request=None):
+        styles = []
+        styles += self.render_rules()
+        style = self.render_style(self.layer, self.layer.title or self.layer.name)
+        if style:
+            styles.append(style)
+        return "\n".join(styles)
 
     def max_size(self, request=None):
-        shapetype = self.get_shapetype()
-        rules = [{'style': self.render_style(self.layer, shapetype)}]
-        rules += self.render_rules(shapetype)
-
         sizes = []
-        for x in rules:
-            if 'shape_radius' in x['style'] and x['style']['shape_radius']:
-                value = str(x['style']['shape_radius'])
-                try:
-                    fixed_value = round(float(value)) if '.' in value else int(value)
-                    sizes.append(fixed_value)
-                except Exception:
-                    pass
-
+        if self.layer.shape_radius and self.is_float(self.layer.shape_radius):
+            sizes.append(self.layer.shape_radius)
+        for x in self.layer.rules.all():
+            if self.layer.shape_radius and self.is_float(self.layer.shape_radius):
+                sizes.append(x.shape_radius)
         return max(sizes) if len(sizes) > 0 else None
+
+    def is_float(self, value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False

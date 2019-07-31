@@ -98,6 +98,9 @@ services:
       context: docker/imageserver/
       dockerfile: Dockerfile
     image: giscube_admin_imageserver
+    environment:
+        - MS_DEBUGLEVEL=5
+        - MS_ERRORFILE=/docker_data/ms_error.txt
     volumes:
       # - .:/app
       - ./docker_data/django:/docker_data
