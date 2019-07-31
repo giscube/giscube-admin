@@ -1,0 +1,93 @@
+{% load i18n %}
+
+<div id="table-log-container" class="tab-log">
+  <button id="reload_task_log_button" class="button" v-on:click="reload($event)">reload</button>
+  <full-table />
+</div>
+
+<script type="text/x-template" id="fulltable-template">
+  <table id="result_list" style="width: 100%">
+	    <thead>
+	        <tr>
+	            <th>{% trans "task_id" %}</th>
+	            <th>{% trans "date done" %}</th>
+	            <th>{% trans "status" %}</th>
+	            <th>{% trans "status description" %}</th>
+	        </tr>
+	    </thead>
+		<tbody>
+			<table-row
+				v-for="row in rows"
+				:key="row.task_id"
+				:row="row"
+			></table-row>
+	    </tbody>
+	</table>
+</script>
+
+{% verbatim %}
+<script type="x-template" id="tablerow-template">
+  <tr>
+		<td>{{ row.task_id }}</td>
+		<td>{{ row.date_done }}</td>
+		<td>{{ row.status }}</td>
+		<td>{{ row.status_description }}</td>
+	</tr>
+</script>
+{% endverbatim %}
+
+<script>
+  const TableRow = {
+    template: '#tablerow-template',
+    props: ['row']
+  };
+
+  const FullTable = {
+    template: '#fulltable-template',
+    created: function() {
+      const self = this;
+      this.getTasks();
+      this.$parent.$on('reload', function() {
+        self.getTasks();
+      });
+    },
+    data: function() {
+      return {
+        rows: []
+      }
+    },
+    components: {
+      TableRow: TableRow
+    },
+    methods: {
+      getTasks: function() {
+        const self = this;
+        this.rows.splice(0, this.rows.length);
+        const url = "{% url 'admin-api-geojsonlayer_tasklog_list' original.name %}";
+        django.jQuery.ajax({
+          url: url,
+          type: 'get',
+          dataType: 'json',
+          success: function(data) {
+            django.jQuery.each(data, function(_, item) {
+              self.rows.push(item)
+            });
+          }
+        });
+      }
+    }
+  };
+
+  new Vue({
+    el: '#table-log-container',
+    methods: {
+      reload: function(e) {
+        this.$emit('reload');
+        e.preventDefault();
+      }
+    },
+    components: {
+      FullTable: FullTable
+    }
+  });
+</script>
