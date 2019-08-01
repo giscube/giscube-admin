@@ -349,6 +349,13 @@ def generate_mapfiles(sender, instance, created, **kwargs):
         )
 
 
+@receiver(post_save, sender=DataBaseLayer)
+def unregister_model(sender, instance, created, **kwargs):
+    transaction.on_commit(
+        lambda: model_legacy.ModelFactory(instance).try_unregister_model()
+    )
+
+
 DATA_TYPES = {
     models.GeometryField: 'geometry',
     models.GenericIPAddressField: 'string',
