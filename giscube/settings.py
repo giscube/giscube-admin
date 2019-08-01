@@ -62,9 +62,6 @@ INSTALLED_APPS = [
     'django_admin_listfilter_dropdown',
 ]
 
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'django-cache'
-
 if not GISCUBE_IMAGE_SERVER_DISABLED:
     INSTALLED_APPS += ['imageserver']
     GISCUBE_IMAGE_SERVER_URL = 'http://localhost/fcgis/giscube_imageserver/'
@@ -328,6 +325,10 @@ CELERY_ROUTES = {
         'queue': 'sequential_queue'
     }
 }
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_TASK_TRACK_STARTED = True
 
 USER_ASSETS_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
 

@@ -48,11 +48,19 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     actions = [geojsonlayer_force_refresh_data]
     save_as = True
 
-    tabs = (
+    tabs_add = (
         (_('Information'), ('tab-information',)),
         (_('GeoJSON'), ('tab-geojson',)),
         (_('Style'), ('tab-style',)),
         (_('Design'), ('tab-design',)),
+    )
+
+    tabs_edit = (
+        (_('Information'), ('tab-information',)),
+        (_('GeoJSON'), ('tab-geojson',)),
+        (_('Style'), ('tab-style',)),
+        (_('Design'), ('tab-design',)),
+        (_('Task log'), ('tab-log',)),
     )
 
     add_fieldsets = [
@@ -128,12 +136,14 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     ]
 
     def add_view(self, request, form_url='', extra_context=None):
+        self.tabs = self.tabs_add
         self.fieldsets = self.add_fieldsets
         extra_context = extra_context or {}
         extra_context['can_apply_style'] = True
         return super().add_view(request, form_url, extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.tabs = self.tabs_edit
         self.fieldsets = self.edit_fieldsets
         obj = self.model.objects.get(pk=object_id)
         extra_context = extra_context or {}
