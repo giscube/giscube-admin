@@ -14,7 +14,6 @@ class ServiceLayerInline(admin.TabularInline):
     extra = 0
 
 
-@admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
@@ -30,15 +29,19 @@ class ServiceAdmin(admin.ModelAdmin):
     url_wms.short_description = 'WMS URL'
 
 
-@admin.register(Layer)
 class LayerAdmin(admin.ModelAdmin):
     list_display = ('title',)
     search_fields = ('title',)
     exclude = ('layer_path', 'mask_path')
 
 
-@admin.register(NamedMask)
 class NamedMaskAdmin(admin.ModelAdmin):
     list_display = ('name', 'projection')
     search_fields = ('name',)
     exclude = ('mask_path',)
+
+
+if not settings.GISCUBE_IMAGE_SERVER_DISABLED:
+    admin.site.register(Service, ServiceAdmin)
+    admin.site.register(Layer, LayerAdmin)
+    admin.site.register(NamedMask, NamedMaskAdmin)
