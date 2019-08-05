@@ -60,22 +60,24 @@ INSTALLED_APPS = [
     'loginas',
     'django_celery_results',
     'django_admin_listfilter_dropdown',
+    'haystack',
 ]
 
-if not GISCUBE_IMAGE_SERVER_DISABLED:
-    INSTALLED_APPS += ['imageserver']
-    GISCUBE_IMAGE_SERVER_URL = 'http://localhost/fcgis/giscube_imageserver/'
-    GISCUBE_IMAGE_SERVER_URL = os.environ.get(
-        'GISCUBE_IMAGE_SERVER_URL', GISCUBE_IMAGE_SERVER_URL)
 
+INSTALLED_APPS += ['imageserver']
+GISCUBE_IMAGE_SERVER_URL = 'http://localhost/fcgis/giscube_imageserver/'
+GISCUBE_IMAGE_SERVER_URL = os.environ.get('GISCUBE_IMAGE_SERVER_URL', GISCUBE_IMAGE_SERVER_URL)
+
+
+INSTALLED_APPS += ['qgisserver']
 if not GISCUBE_GIS_SERVER_DISABLED:
     GISCUBE_QGIS_SERVER_URL = 'http://localhost/fcgis/giscube_qgisserver/'
     GISCUBE_QGIS_SERVER_URL = os.environ.get(
         'GISCUBE_QGIS_SERVER_URL', GISCUBE_QGIS_SERVER_URL)
-    INSTALLED_APPS += ['qgisserver']
+
 
 if not GISCUBE_GEOPORTAL_DISABLED:
-    INSTALLED_APPS += ['geoportal', 'haystack']
+    INSTALLED_APPS += ['geoportal']
 
 if not GISCUBE_LAYERSERVER_DISABLED:
     INSTALLED_APPS += ['colorfield', 'layerserver', 'layerserver_databaselayer']

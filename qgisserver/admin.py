@@ -9,7 +9,6 @@ from giscube.utils import url_slash_join
 from qgisserver.models import Project, Service
 
 
-@admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
@@ -30,4 +29,6 @@ class ServiceAdmin(admin.ModelAdmin):
     url_wms.short_description = 'WMS URL'
 
 
-admin.site.register(Service, ServiceAdmin)
+if not settings.GISCUBE_GIS_SERVER_DISABLED:
+    admin.site.register(Project, ProjectAdmin)
+    admin.site.register(Service, ServiceAdmin)
