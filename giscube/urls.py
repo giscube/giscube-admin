@@ -7,7 +7,6 @@ from rest_framework import routers
 
 from giscube import api
 from giscube.admin_views import RebuildIndexView
-from qgisserver import api as qgisserver_api
 
 from . import views
 
@@ -48,6 +47,7 @@ if not settings.GISCUBE_IMAGE_SERVER_DISABLED:
     ]
 
 if not settings.GISCUBE_GIS_SERVER_DISABLED:
+    from qgisserver import api as qgisserver_api
     urlpatterns += [
         path('qgisserver/', include('qgisserver.urls'))
     ]
