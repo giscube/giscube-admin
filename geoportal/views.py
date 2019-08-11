@@ -20,6 +20,19 @@ CATALOG_MODELS = ['geoportal.dataset', 'imageserver.service', 'qgisserver.servic
                   'layerserver.geojsonlayer', 'layerserver.databaselayer']
 
 lock = threading.Lock()
+thread_local = threading.local()
+
+
+def get_search_query_set():
+    if not hasattr(thread_local, 'search_query_set'):
+        # Workaround django-haystack not being thread safe
+        lock.acquire()
+        thread_local.search_query_set = SearchQuerySet()
+        # Evaluate to force setup within locked section
+        thread_local.search_query_set.all().count()
+        lock.release()
+
+    return thread_local.search_query_set
 
 
 class ResultsMixin():
@@ -50,15 +63,12 @@ class GeoportalCatalogView(ResultsMixin, APIView):
 
     def get(self, request):
         category_id = request.GET.get('category_id', '')
-        lock.acquire()
-        try:
-            sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
-            if not request.user.is_authenticated:
-                sqs = sqs.exclude(private=True)
-            sqs = sqs.order_by('title')
-            results = self.format_results(sqs)
-        finally:
-            lock.release()
+
+        sqs = get_search_query_set().all().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
+        if not request.user.is_authenticated:
+            sqs = sqs.exclude(private=True)
+        sqs = sqs.order_by('title')
+        results = self.format_results(sqs)
 
         return results
 
@@ -67,14 +77,11 @@ class GeoportalSearchView(ResultsMixin, APIView):
     permission_classes = ()
 
     def get(self, request):
-        lock.acquire()
-        try:
-            sqs = SearchQuerySet().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(request.GET.get('q', '')))
-            if not request.user.is_authenticated:
-                sqs = sqs.exclude(private=True)
-            results = self.format_results(sqs)
-        finally:
-            lock.release()
+        q = request.GET.get('q', '')
+        sqs = get_search_query_set().all().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(q))
+        if not request.user.is_authenticated:
+            sqs = sqs.exclude(private=True)
+        results = self.format_results(sqs)
 
         return results
 
@@ -83,19 +90,14 @@ class GeoportalCategoryView(APIView):
     permission_classes = ()
 
     def get(self, request):
-        lock.acquire()
-        try:
-            sqs = SearchQuerySet().filter(django_ct='giscube.category')
-            sqs = sqs.order_by('name')
+        sqs = get_search_query_set().all().filter(django_ct='giscube.category').order_by('name')
 
-            results = []
-            for r in sqs.all():
-                results.append({
-                    'id': int(r.pk),
-                    'name': r.name,
-                    'parent': r.parent,
-                })
-        finally:
-            lock.release()
+        results = []
+        for r in sqs.all():
+            results.append({
+                'id': int(r.pk),
+                'name': r.name,
+                'parent': r.parent,
+            })
 
         return Response(results)
