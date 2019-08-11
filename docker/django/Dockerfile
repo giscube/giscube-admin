@@ -15,6 +15,8 @@ RUN chmod +x /docker/*.sh
 RUN pip3 install -r /docker/requirements.txt
 RUN if [ -n "$EXTRA_REQUIREMENTS" -a -f "/docker/requirements-$EXTRA_REQUIREMENTS.txt" ]; then pip3 install -r "/docker/requirements-$EXTRA_REQUIREMENTS.txt"; fi
 
+RUN pip3 install uwsgi
+
 WORKDIR /app
 
 ENTRYPOINT ["/docker/entrypoint.sh"]
