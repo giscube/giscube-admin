@@ -35,6 +35,7 @@ services:
     env_file:
      - app.env
     command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/runserver.sh"]
+    # command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/uwsgi.sh"]
     volumes:
       - .:/app
       - ./docker_data/django:/docker_data
@@ -98,6 +99,9 @@ services:
       context: docker/imageserver/
       dockerfile: Dockerfile
     image: giscube_admin_imageserver
+    environment:
+        - MS_DEBUGLEVEL=5
+        - MS_ERRORFILE=/docker_data/ms_error.txt
     volumes:
       # - .:/app
       - ./docker_data/django:/docker_data
