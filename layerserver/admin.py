@@ -38,6 +38,7 @@ class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
 
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
+    add_form_template = 'admin/layerserver/geojson_layer/add_form.html'
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category', 'design_from',)
     list_display = ('name', 'title', 'view_layer', 'public_url')
