@@ -24,10 +24,6 @@ content_wms = DBLayerDetailViewSet.as_view({
     'get': 'wms'
 })
 
-layer_sld = DBLayerDetailViewSet.as_view({
-    'get': 'sld'
-})
-
 content_list = DBLayerContentViewSet.as_view({
     'get': 'list',
     'post': 'create',
@@ -55,7 +51,6 @@ urlpatterns = [
     path('databaselayers/<slug:name>/data/', content_list, name='content-list'),
     path('databaselayers/<slug:name>/bulk/', content_bulk, name='content-bulk'),
     path('databaselayers/<slug:name>/wms/', content_wms, name='content-wms'),
-    path('databaselayers/<slug:name>/sld/', layer_sld, name='layer-sld'),
     path('databaselayers/<slug:name>/', layer_detail, name='layer-detail'),
     path('databaselayers/', layer_list, name='layer-list'),
 ]
