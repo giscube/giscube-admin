@@ -13,7 +13,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.http import FileResponse, Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import FileResponse, Http404, HttpResponseBadRequest, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from django.utils.functional import cached_property
@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from giscube.models import UserAsset
 
 from .filters import filterset_factory
-from .mapserver import SUPORTED_SHAPE_TYPES, MapserverLayer, SLDLayer
+from .mapserver import SUPORTED_SHAPE_TYPES, MapserverLayer
 from .model_legacy import create_dblayer_model
 from .models import DataBaseLayer, GeoJsonLayer
 from .pagination import create_geojson_pagination_class, create_json_pagination_class
@@ -108,17 +108,6 @@ class DBLayerDetailViewSet(DBLayerViewSet):
             return self.shapetype_not_suported(layer.shapetype)
         ms = MapserverLayer(layer)
         return ms.wms(request)
-
-    @action(methods=['get'], detail=True)
-    def sld(self, request, name):
-        """
-        For debugging purposes
-        """
-        layer = self.get_object()
-        if layer.shapetype not in SUPORTED_SHAPE_TYPES:
-            return self.shapetype_not_suported(layer.shapetype)
-        sld = SLDLayer(layer)
-        return HttpResponse(sld.sld(request))
 
 
 class PageSize0NotAllowedException(Exception):
