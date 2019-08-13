@@ -10,19 +10,38 @@ from django.urls import reverse
 
 from rest_framework import status
 
+from giscube.utils import url_slash_join
+
 
 def patch_qgis_project(service):
-    filename = service.project_file.path
-    tree = ET.parse(filename)
+    file_path = service.project_file.path
+    tree = ET.parse(file_path)
     root = tree.getroot()
     properties = root.find('properties')
+
     wms_url = properties.find('WMSUrl')
     if wms_url is None:
         wms_url = ET.SubElement(properties, 'WMSUrl')
         wms_url.set('type', 'QString')
     giscube_url = getattr(settings, 'GISCUBE_URL', 'http://localhost:8080')
-    wms_url.text = '%s/qgisserver/services/%s/' % (giscube_url, service.name)
-    tree.write(filename)
+    wms_url.text = url_slash_join(giscube_url, '/qgisserver/services/%s/' % service.name)
+
+    project_file = os.path.basename(file_path)
+    filename, _ = os.path.splitext(project_file)
+
+    wms_service_capabilities = properties.find('WMSServiceCapabilities')
+    if wms_service_capabilities is not None:
+        wms_service_capabilities = ET.SubElement(properties, 'WMSServiceCapabilities')
+        wms_service_capabilities.set('type', 'bool')
+    wms_service_capabilities.text = 'true'
+
+    wms_root_name = properties.find('WMSRootName')
+    if wms_root_name is None:
+        wms_root_name = ET.SubElement(properties, 'WMSRootName')
+        wms_root_name.set('type', 'QString')
+    wms_root_name.text = filename
+
+    tree.write(file_path)
 
 
 def unique_service_directory(instance, filename):

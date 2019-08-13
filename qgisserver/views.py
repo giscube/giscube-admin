@@ -84,6 +84,7 @@ class QGISProxy(View):
 
         url = self._build_url(request, service_name)
 
+        r = None
         response = None
         try:
             r = requests.get(url)
