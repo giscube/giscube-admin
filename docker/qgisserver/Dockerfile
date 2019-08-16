@@ -4,8 +4,7 @@ MAINTAINER MICRODISSENY GISCUBE SL <tech@microdisseny.com>
 
 ADD qgis.list /etc/apt/sources.list.d/
 
-RUN gpg --keyserver keyserver.ubuntu.com --recv CAEB3DC3BDF7FB45
-RUN gpg --export --armor CAEB3DC3BDF7FB45 | sudo apt-key add -
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key 51F523511C7028C3
 
 RUN apt update && apt install -y nginx supervisor uwsgi qgis-server
 
