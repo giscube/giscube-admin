@@ -13,37 +13,35 @@
 {% if can_apply_style %}
 <script type="text/javascript">
 (function ($){
-    var all_fields = ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width',
-    'stroke_opacity', 'stroke_dash_array', 'fill_color',
-    'fill_opacity', 'marker_name', 'icon_type', 'icon', 'icon_color'];
+  var all_fields = ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width',
+  'stroke_opacity', 'stroke_dash_array', 'fill_color',
+  'fill_opacity', 'marker_name', 'icon_type', 'icon', 'icon_color'];
 
-	function apply_shapetype() {
-		var element = $('#id_shapetype');
-        var fields = {
-            '': [],
-            'marker': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
-            'fill_opacity', 'icon_type', 'icon', 'icon_color'],
-            'line': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
-            'polygon': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
-            'circle': ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
-            'fill_opacity'],
-            'image': ['order', 'field', 'comparator', 'value', 'icon']
-        }
-        for (var i in all_fields){
-            field = all_fields[i];
-            var selected = fields[element.val()];
-            if (selected.indexOf(field) === -1){
-                $('div.field-' + field).hide();
-            }else{
-                $('div.field-' + field).show();
-            }
-        }
-	}
+  function apply_shapetype() {
+    var element = $('#id_shapetype');
+    var fields = {
+      '': [],
+      'marker': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
+      'fill_opacity', 'icon_type', 'icon', 'icon_color'],
+      'line': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
+      'polygon': ['order', 'field', 'comparator', 'value', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
+      'circle': ['order', 'field', 'comparator', 'value', 'shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
+      'fill_opacity'],
+      'image': ['order', 'field', 'comparator', 'value', 'icon']
+    }
+    for (var i in all_fields){
+      field = all_fields[i];
+      var selected = fields[element.val()];
+      if (selected.indexOf(field) === -1){
+        $('div.field-' + field).hide();
+      }else{
+        $('div.field-' + field).show();
+      }
+    }
+  }
 
-	$(document).ready(function(){
-        apply_shapetype();
-		$('#id_shapetype').on('change', apply_shapetype);
-	});
+  apply_shapetype();
+  $('#id_shapetype').on('change', apply_shapetype);
 })(django.jQuery);
 </script>
 {% endif %}
