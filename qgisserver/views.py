@@ -120,8 +120,16 @@ class QGISProxy(View):
                                     content_type=content_type)
             response.status_code = r.status_code
         else:
-            logger.error(r.url)
-            print(r.content)
+            logger.warning(
+                'Request to the underlying WMS service failed',
+                extra={
+                    'url': r.url,
+                    'status_code': r.status_code,
+                    'content': str(r.content),
+                },
+                exc_info=True,
+            )
+
             response = HttpResponse('Unable to contact server')
             response.status_code = 500
 
