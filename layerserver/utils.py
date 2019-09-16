@@ -6,6 +6,8 @@ import re
 import pytz
 import requests
 
+from traceback import format_exc
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
@@ -103,7 +105,7 @@ def geojsonlayer_remote_data(url, headers):
 
 def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
     result = {}
-    data = None
+    raw_data = None
     if layer.url:
         remote_file = os.path.join(settings.MEDIA_ROOT, layer.service_path, 'remote.json')
         if force_refresh_data_file or not os.path.isfile(remote_file):
@@ -115,20 +117,22 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
                     headers[k] = v
             result = geojsonlayer_remote_data(layer.url, headers)
             if result['status']:
-                data = result['data']
+                raw_data = result['data']
                 del result['data']
                 if os.path.exists(remote_file):
                     os.remove(remote_file)
-                layer.data_file.save('remote.json', ContentFile(data), save=True)
+                layer.data_file.save('remote.json', ContentFile(raw_data), save=True)
                 layer.last_fetch_on = timezone.localtime()
 
     if layer.data_file:
-        if data:
+        data = None
+        if raw_data:
             try:
-                data = json.load(data)
+                data = json.load(raw_data)
             except Exception:
                 result['status'] = False
                 result['error'] = GEOJSONLAYER_ERROR_PARSING_REMOTE_DATA
+
         if data is None:
             path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
             content = open(path)
@@ -159,5 +163,6 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
         except Exception:
             result['status'] = False
             result['error'] = GEOJSONLAYER_ERROR_SAVING
+            result['error_exception'] = format_exc()
 
     return result
