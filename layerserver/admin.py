@@ -272,6 +272,7 @@ class DataBaseLayerVirtualFieldsInline(admin.TabularInline):
 
 
 class DataBaseLayerReferencesInline(admin.TabularInline):
+    autocomplete_fields = ('service',)
     model = DataBaseLayerReference
     form = DataBaseLayerReferencesInlineForm
     extra = 0
