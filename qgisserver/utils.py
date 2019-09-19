@@ -30,7 +30,7 @@ def patch_qgis_project(service):
     filename, _ = os.path.splitext(project_file)
 
     wms_service_capabilities = properties.find('WMSServiceCapabilities')
-    if wms_service_capabilities is not None:
+    if wms_service_capabilities is None:
         wms_service_capabilities = ET.SubElement(properties, 'WMSServiceCapabilities')
         wms_service_capabilities.set('type', 'bool')
     wms_service_capabilities.text = 'true'
