@@ -508,9 +508,16 @@ class DataBaseLayerStyleRule(StyleMixin, models.Model):
 
 
 class DataBaseLayerReference(models.Model):
+    IMAGE_FORMAT_CHOICES = Choices(
+        ('image/png', 'PNG'),
+        ('image/jpeg', 'JPEG'),
+    )
     layer = models.ForeignKey(DataBaseLayer, null=False, blank=False, related_name='references',
                               on_delete=models.CASCADE)
     service = models.ForeignKey('qgisserver.Service', null=False, blank=False, on_delete=models.CASCADE)
+    format = models.CharField(
+        _('format'), max_length=25, blank=False, choices=IMAGE_FORMAT_CHOICES, default='image/jpeg')
+    transparent = models.BooleanField(_('transparent'), null=True)
     refresh = models.BooleanField(_('refresh on data changes'), default=False)
 
     def __str__(self):

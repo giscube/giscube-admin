@@ -1,4 +1,5 @@
 import json
+
 from django import forms
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
@@ -10,8 +11,8 @@ from giscube.models import DBConnection
 from giscube.widgets import ColorWidget, TagsWidget
 
 from .model_legacy import get_fields
-from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerStyleRule, DataBaseLayerVirtualField,
-                     GeoJsonLayer, GeoJsonLayerStyleRule)
+from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
+                     DataBaseLayerVirtualField, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .widgets import widgets_types
 
 
@@ -225,6 +226,21 @@ class DataBaseLayerFieldsInlineForm(forms.ModelForm):
     class Meta:
         model = DataBaseLayerField
         fields = '__all__'
+
+
+class DataBaseLayerReferencesInlineForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        jpeg = getattr(DataBaseLayerReference.IMAGE_FORMAT_CHOICES, 'image/jpeg')
+        if 'format' in cleaned_data and 'transparent' in cleaned_data and (
+                cleaned_data['format'] == jpeg and cleaned_data['transparent'] is True):
+            error = _('%s format doesn\'t support transparent attribute enabled') % \
+                        DataBaseLayerReference.IMAGE_FORMAT_CHOICES['image/jpeg']
+            self.add_error('transparent', error)
+
+    class Meta:
+        model = DataBaseLayerReference
+        exclude = []
 
 
 class DataBaseLayerStyleRuleInlineForm(forms.ModelForm):
