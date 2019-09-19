@@ -1,5 +1,4 @@
 import json
-import os
 
 from django.conf import settings
 
@@ -33,15 +32,12 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
         children = []
         url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
 
-        project_file = os.path.basename(obj.project_file.url)
-        filename, file_extension = os.path.splitext(project_file)
-
         children.append({
             'title': obj.title,
             'group': False,
             'type': 'WMS',
             'url': url,
-            'layers': filename,
+            'layers': obj.default_layer or '',
             'projection': '3857',
         })
 
