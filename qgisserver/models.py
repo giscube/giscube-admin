@@ -68,6 +68,13 @@ class Service(models.Model):
     options = models.TextField(_('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
                                validators=[validate_options_json_format])
 
+    @property
+    def default_layer(self):
+        if self.project_file:
+            project_file = os.path.basename(self.project_file.url)
+            filename, _ = os.path.splitext(project_file)
+            return filename
+
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)
         patch_qgis_project(self)
