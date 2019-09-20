@@ -416,9 +416,16 @@ ENVIRONMENT_NAME = os.environ.get('ENVIRONMENT_NAME', '')
 extra_settings_file = 'settings-%s.py' % ENVIRONMENT_NAME
 extra_settings_dir = os.path.dirname(os.path.abspath(__file__))
 extra_settings_path = os.path.join(extra_settings_dir, extra_settings_file)
-if os.path.exists(extra_settings_path):
+if os.path.isfile(extra_settings_path):
     print('Try to load extra settings: %s' % extra_settings_file)
     # Python 2 only:
     # execfile(extra_settings_path, globals())
     # Python 2 and 3:
-    exec(compile(open(extra_settings_path, 'rb').read(), extra_settings_path, 'exec'), globals())
+    with open(extra_settings_path, 'rb') as f:
+        exec(compile(f.read(), extra_settings_path, 'exec'), globals())
+
+CUSTOM_SETTINGS_FILE = os.environ.get('CUSTOM_SETTINGS_FILE', None)
+if CUSTOM_SETTINGS_FILE and os.path.isfile(CUSTOM_SETTINGS_FILE):
+    print('Try to load extra settings: %s' % CUSTOM_SETTINGS_FILE)
+    with open(CUSTOM_SETTINGS_FILE, 'rb') as f:
+        exec(compile(f.read(), CUSTOM_SETTINGS_FILE, 'exec'), globals())
