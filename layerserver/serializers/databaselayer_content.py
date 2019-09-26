@@ -138,7 +138,10 @@ class ImageWithThumbnailSerializer(object):
         data = super().to_representation(obj)
         for attribute, field in list(self.fields.items()):
             if isinstance(field, ImageWithThumbnailFieldSerializer):
-                data['properties'][attribute] = self.fix_image_value(obj, attribute)
+                if 'properties' in data and isinstance(data['properties'], dict):
+                    data['properties'][attribute] = self.fix_image_value(obj, attribute)
+                else:
+                    data[attribute] = self.fix_image_value(obj, attribute)
         return data
 
 
