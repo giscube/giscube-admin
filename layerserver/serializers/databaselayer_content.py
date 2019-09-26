@@ -134,12 +134,20 @@ class ImageWithThumbnailSerializer(object):
                 res['thumbnail'] = self.append_token(url)
             return res
 
+    def apply_fix_image_value(self, obj, attribute, data):
+        data[attribute] = self.fix_image_value(obj, attribute)
+
     def to_representation(self, obj):
         data = super().to_representation(obj)
         for attribute, field in list(self.fields.items()):
-            if isinstance(field, ImageWithThumbnailFieldSerializer):
-                data['properties'][attribute] = self.fix_image_value(obj, attribute)
+            if isinstance(field, ImageWithThumbnailSerializer):
+                self.apply_fix_image_value(obj, attribute, data)
         return data
+
+
+class ImageWithThumbnailGeomSerializer(ImageWithThumbnailSerializer):
+    def apply_fix_image_value(self, obj, attribute, data):
+        data['properties'][attribute] = self.fix_image_value(obj, attribute)
 
 
 SERIALIZER_ID_FIELD_MAPPING = {
