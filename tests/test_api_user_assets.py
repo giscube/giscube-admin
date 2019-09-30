@@ -1,7 +1,5 @@
 import os
-import shutil
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.test import Client
@@ -24,7 +22,6 @@ class ApiUserAssetsTests(BaseTest):
     def tearDown(self):
         UserModel.objects.all().delete()
         UserAsset.objects.all().delete()
-        shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'user/assets/'))
         super().tearDown()
 
     def test_list(self):
