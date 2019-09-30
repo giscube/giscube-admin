@@ -92,6 +92,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             f = open(path, 'rb')
             test_model.image.save(name=filename, content=File(f))
             test_model.save()
+            f.close()
             test_files.append(test_model)
             i += 1
         return test_files
@@ -161,5 +162,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertEqual(response.status_code, 200)
         im = Image.open(BytesIO(b''.join(response.streaming_content)))
         width, height = im.size
+        im.close()
         self.assertTrue(width <= settings.LAYERSERVER_THUMBNAIL_WIDTH)
         self.assertTrue(height <= settings.LAYERSERVER_THUMBNAIL_HEIGHT)

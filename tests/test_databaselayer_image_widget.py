@@ -95,6 +95,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             f = open(path, 'rb')
             test_model.image.save(name=filename, content=File(f))
             test_model.save()
+            f.close()
             test_files.append(test_model)
             i += 1
         return test_files
@@ -292,6 +293,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             f = open(path, 'rb')
             test_model.image.save(name=filename, content=File(f))
             test_model.save()
+            f.close()
             test_files.append(test_model)
             i += 1
 

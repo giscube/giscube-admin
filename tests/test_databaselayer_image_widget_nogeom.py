@@ -95,6 +95,7 @@ class DataBaseLayerImageWidgetNogeomTestCase(BaseTest, TransactionTestCase):
             f = open(path, 'rb')
             test_model.image.save(name=filename, content=File(f))
             test_model.save()
+            f.close()
             test_files.append(test_model)
             i += 1
         return test_files
@@ -129,6 +130,7 @@ class DataBaseLayerImageWidgetNogeomTestCase(BaseTest, TransactionTestCase):
             'image': f
         }
         response = self.client.patch(url, data)
+        f.close()
         self.assertEqual(response.status_code, 200)
         self.assertFalse(os.path.exists(image_path))
 
