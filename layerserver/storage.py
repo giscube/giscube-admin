@@ -117,6 +117,8 @@ class ThumbnailFileSystemStorageMixin(object):
 
             buffer.seek(0)
             bytes = buffer.read()
+            if file and not file.closed:
+                file.close()
             return bytes, 'png'
 
 

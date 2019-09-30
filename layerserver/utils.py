@@ -135,8 +135,8 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
 
         if data is None:
             path = os.path.join(settings.MEDIA_ROOT, layer.data_file.path)
-            content = open(path)
-            data = json.load(content)
+            with open(path) as content:
+                data = json.load(content)
 
         fields = []
         try:
