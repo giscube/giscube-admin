@@ -20,7 +20,7 @@ GDAL==2.2.3
 requests==2.22.0
 ujson==1.35
 drf-ujson==1.2
-Pillow==6.1.0
+Pillow==6.2.0
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
 Whoosh==2.7.4
 redis==3.2.1
