@@ -240,7 +240,7 @@ class DataBaseLayerImageWidgetNogeomTestCase(BaseTest, TransactionTestCase):
         done = []
         for x in result['data']:
             image = x['image']['src'].split('/')[-1]
-            self.assertTrue(x['image']['src'].split('/')[-1] in images)
+            self.assertTrue(image in images)
             done.append(image)
         images.sort()
         done.sort()

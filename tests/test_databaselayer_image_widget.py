@@ -132,6 +132,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             'image': f
         }
         response = self.client.patch(url, data)
+        f.close()
         self.assertEqual(response.status_code, 200)
         self.assertFalse(os.path.exists(image_path))
 

@@ -1,10 +1,12 @@
 import json
+import os
 import random
 import re
 import string
 from collections import OrderedDict
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.management.commands.inspectdb import Command
 from django.utils import timezone
@@ -12,6 +14,7 @@ from django.utils.functional import cached_property
 
 from giscube.db.utils import get_table_parts
 
+from .fields import ImageWithThumbnailField
 from .storage import get_image_with_thumbnail_storage_class
 
 
@@ -169,44 +172,6 @@ def get_fields(connection, table_name):
     return fields
 
 
-class ImageWithThumbnailField(models.FileField):
-    widget_options = None
-
-    def __init__(self, *args, **kwargs):
-        self.widget_options = kwargs.pop('widget_options')
-        StorageClass = get_image_with_thumbnail_storage_class()
-        storage = StorageClass(
-            location=self.widget_options['upload_root'],
-            base_url=self.widget_options.get('base_url', None),
-            thumbnail_location=self.widget_options.get('thumbnail_root', None),
-            thumbnail_base_url=self.widget_options.get('thumbnail_base_url', None),
-            thumbnail_width=self.widget_options.get('thumbnail_width', None),
-            thumbnail_height=self.widget_options.get('thumbnail_height', None)
-        )
-        storage.save_thumbnail_enabled = storage.thumbnail_base_url is not None
-        kwargs['storage'] = storage
-        super().__init__(*args, **kwargs)
-        self.validators = []
-
-
-def to_image_field(field, original_field):
-    options = {
-        'validators': [],
-        'blank': original_field.blank,
-        'null': original_field.null,
-        'db_index': original_field.db_index,
-        'primary_key': original_field.db_index,
-        'name': original_field.name,
-        'db_tablespace': original_field.db_tablespace,
-        'db_column': original_field.db_column,
-        'default': original_field.default,
-        'editable': original_field.editable,
-        'max_length': original_field.max_length,
-        'widget_options': json.loads(field.widget_options)
-    }
-    return ImageWithThumbnailField(**options)
-
-
 def create_dblayer_model(layer):
     return ModelFactory(layer).get_model()
 
@@ -238,7 +203,7 @@ class ModelFactory:
         for field in self.get_layer_fields:
             if field.widget == DataBaseLayerField.WIDGET_CHOICES.image:
                 try:
-                    fields[field.name] = to_image_field(field, fields[field.name])
+                    fields[field.name] = self.to_image_field(field, fields[field.name])
                 except Exception:
                     raise Exception('Invalid configuration for field [%s]' % field.name)
 
@@ -279,9 +244,63 @@ class ModelFactory:
         )
         return model
 
+    def get_auto_images_root(self, layer, field_name):
+        return os.path.join(settings.MEDIA_ROOT, layer.service_path, 'field_%s' % field_name, 'images')
+
+    def get_auto_thumbnails_root(self, layer, field_name):
+        return os.path.join(settings.MEDIA_ROOT, layer.service_path, 'field_%s' % field_name, 'images')
+
     def _random_string(self, string_length=24):
         letters_digits = string.ascii_letters + string.digits
         return ''.join(random.choice(letters_digits) for i in range(string_length))
+
+    def _get_storage_class(self, field, widget_options):
+        """
+        'upload_root' must contains the full folder path to avoid folders in the image name.
+        That's why upload_to is not used.
+        """
+        if 'upload_root' in widget_options:
+            upload_root = widget_options['upload_root']
+            base_url = widget_options.get('base_url', None)
+            thumbnail_root = widget_options.get('thumbnail_root', None)
+            thumbnail_base_url = widget_options.get('thumbnail_base_url', None)
+            if upload_root == '<auto>':
+                upload_root = self.get_auto_images_root(field.layer, field.name)
+                base_url = None
+            if thumbnail_root == '<auto>':
+                thumbnail_root = self.get_auto_thumbnails_root(field.layer, field.name)
+                thumbnail_base_url = None
+            StorageClass = get_image_with_thumbnail_storage_class()
+            storage = StorageClass(
+                location=upload_root,
+                base_url=base_url,
+                thumbnail_location=thumbnail_root,
+                thumbnail_base_url=thumbnail_base_url,
+                thumbnail_width=widget_options.get('thumbnail_width', None),
+                thumbnail_height=widget_options.get('thumbnail_height', None)
+            )
+            storage.save_thumbnail_enabled = thumbnail_root is not None
+            return storage
+
+    def to_image_field(self, field, original_field):
+        widget_options = json.loads(field.widget_options)
+        options = {
+            'validators': [],
+            'blank': original_field.blank,
+            'null': original_field.null,
+            'db_index': original_field.db_index,
+            'primary_key': original_field.db_index,
+            'name': original_field.name or field.name,
+            'db_tablespace': original_field.db_tablespace,
+            'db_column': original_field.db_column or field.name,
+            'default': original_field.default,
+            'editable': original_field.editable,
+            'max_length': original_field.max_length,
+            'widget_options': widget_options,
+            'storage': self._get_storage_class(field, widget_options)
+        }
+        f = ImageWithThumbnailField(**options)
+        return f
 
     def try_unregister_model(self):
         try:

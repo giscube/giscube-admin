@@ -256,6 +256,8 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     def save(self, *args, **kwargs):
         if self.geom_field is not None and self.srid is None:
             self.srid = 4326
+        if self.service_path is None and self.name:
+            unique_service_directory(self)
         super().save(*args, **kwargs)
 
     def __str__(self):

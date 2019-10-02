@@ -1,10 +1,5 @@
 import json
 import os
-import shutil
-import tempfile
-from io import BytesIO
-
-from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -21,7 +16,7 @@ from tests.common import BaseTest
 UserModel = get_user_model()
 
 
-class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
+class DataBaseLayerImageWidgetAutoTestCase(BaseTest, TransactionTestCase):
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()
@@ -34,24 +29,12 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         conn.port = settings.DATABASES['default']['PORT']
         conn.save()
 
-        upload_root = os.path.join(tempfile.gettempdir(), 'images')
-        if os.path.exists(upload_root):
-            shutil.rmtree(upload_root)
-        os.makedirs(upload_root)
-        self.upload_root = upload_root
-
-        thumbnail_root = os.path.join(tempfile.gettempdir(), 'thumbnails')
-        if os.path.exists(thumbnail_root):
-            shutil.rmtree(thumbnail_root)
-        os.makedirs(thumbnail_root)
-        self.thumbnail_root = thumbnail_root
-
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.name = 'tests_testimagefield'
-        layer.table = 'tests_testimagefield'
+        layer.name = 'tests_specie'
+        layer.table = 'tests_specie'
         layer.pk_field = 'code'
-        layer.geom_field = 'geometry'
+        layer.geom_field = None
         layer.anonymous_view = True
         layer.anonymous_add = True
         layer.anonymous_update = True
@@ -61,24 +44,14 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         field = layer.fields.filter(name='image').first()
         field.widget = DataBaseLayerField.WIDGET_CHOICES.image
         options = {
-            'upload_root': self.upload_root,
-            'thumbnail_root': self.thumbnail_root,
+            'upload_root': '<auto>',
+            'thumbnail_root': '<auto>'
         }
         self.widget_options = options
         field.widget_options = json.dumps(options)
         field.save()
-        self.layer = layer
 
-    def tearDown(self):
-        super().tearDown()
-        try:
-            shutil.rmtree(self.upload_root)
-        except Exception:
-            print('Error while deleting directory')
-        try:
-            shutil.rmtree(self.thumbnail_root)
-        except Exception:
-            print('Error while deleting directory')
+        self.layer = layer
 
     def add_test_files(self, files):
         Model = create_dblayer_model(self.layer)
@@ -87,7 +60,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         for filename in files:
             test_model = Model()
             test_model.code = 'B%s' % i
-            test_model.geometry = 'POINT (%s 10)' % i
+            test_model.name = 'Abies alba'
             path = 'tests/files/%s' % filename
             f = open(path, 'rb')
             test_model.image.save(name=filename, content=File(f))
@@ -97,18 +70,26 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             i += 1
         return test_files
 
-    def test_empty_imge_url(self):
-        Model = create_dblayer_model(self.layer)
-        test_model = Model()
-        test_model.code = 'B%s' % 1
-        test_model.geometry = 'POINT (%s 10)' % 1
-        test_model.save()
-
+    def test_add_image(self):
+        self.login_test_user()
         url = reverse('content-list', kwargs={'name': self.layer.name})
-        response = self.client.get(url)
-        result = response.json()
-        item = result['features'][0]
-        self.assertEqual(item['properties']['image'], None)
+        path = 'tests/files/giscube_01.png'
+        f = open(path, 'rb')
+        data = {
+            'code': '001',
+            'name': 'Abies alba',
+            'image': f
+        }
+        response = self.client.post(url, data)
+        f.close()
+        self.assertEqual(response.status_code, 201)
+
+        Model = create_dblayer_model(self.layer)
+        storage = Model._meta.get_field('image').storage
+        thumbnail_storage = storage.get_thumbnail_storage()
+        self.assertTrue(os.path.isfile(os.path.join(storage.location, 'giscube_01.png')))
+        self.assertTrue(
+            os.path.isfile(os.path.join(thumbnail_storage.location, '%s.thumbnail.png' % 'giscube_01.png')))
 
     def test_urls(self):
         self.login_test_user()
@@ -117,7 +98,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         f = open(path, 'rb')
         data = {
             'code': '001',
-            'geometry': 'POINT(0 0)',
+            'name': 'Abies alba',
             'image': f
         }
         response = self.client.post(url, data)
@@ -126,15 +107,19 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         result = response.json()
 
         c = Client()
-        response = c.get(result['properties']['image']['src'])
+        response = c.get(result['image']['src'])
         self.assertEqual(response.status_code, 200)
 
-        image = result['properties']['image']['thumbnail'].split('/')[-1].split('?')[0]
-        image_path = os.path.join(self.thumbnail_root, image)
+        Model = create_dblayer_model(self.layer)
+        storage = Model._meta.get_field('image').storage
+        thumbnail_storage = storage.get_thumbnail_storage()
+
+        image = result['image']['thumbnail'].split('/')[-1].split('?')[0]
+        image_path = os.path.join(thumbnail_storage.location, image)
         self.assertTrue(os.path.exists(image_path))
 
         c = Client()
-        response = c.get(result['properties']['image']['thumbnail'])
+        response = c.get(result['image']['thumbnail'])
         self.assertTrue(os.path.exists(image_path))
         self.assertEqual(response.status_code, 200)
 
@@ -142,26 +127,11 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         response = self.client.get(url)
         result = response.json()
         self.assertEqual(response.status_code, 200)
-        for item in result['features']:
+        for item in result['data']:
             c = Client()
-            response = c.get(item['properties']['image']['src'])
+            response = c.get(item['image']['src'])
             self.assertEqual(response.status_code, 200)
 
             c = Client()
-            response = c.get(item['properties']['image']['thumbnail'])
+            response = c.get(item['image']['thumbnail'])
             self.assertEqual(response.status_code, 200)
-
-    def test_thumbnail_size(self):
-        test_files = self.add_test_files(['giscube_01.png'])
-        self.login_test_user()
-        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': test_files[0].code})
-        response = self.client.get(url)
-        result = response.json()
-        url = result['properties']['image']['thumbnail']
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        im = Image.open(BytesIO(b''.join(response.streaming_content)))
-        width, height = im.size
-        im.close()
-        self.assertTrue(width <= settings.LAYERSERVER_THUMBNAIL_WIDTH)
-        self.assertTrue(height <= settings.LAYERSERVER_THUMBNAIL_HEIGHT)
