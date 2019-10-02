@@ -2,11 +2,11 @@ import datetime
 import json
 import os
 import re
+import tempfile
+from traceback import format_exc
 
 import pytz
 import requests
-
-from traceback import format_exc
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -15,8 +15,6 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from django_celery_results.models import TaskResult
-
-from .models import GeoJsonLayer
 
 
 GENERATE_GEOJSON_LAYER = 'GENERATE_GEOJSON_LAYER'
@@ -70,6 +68,7 @@ def geojsonlayer_check_cache(layer):
 
 
 def geojsonlayer_refresh(pk, force_refresh_data_file, generate_popup):
+    from .models import GeoJsonLayer
     layer = GeoJsonLayer.objects.get(pk=pk)
     return geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup)
 
@@ -164,5 +163,4 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
             result['status'] = False
             result['error'] = GEOJSONLAYER_ERROR_SAVING
             result['error_exception'] = format_exc()
-
     return result

@@ -1,7 +1,11 @@
 import json
+import os
+import shutil
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.test.utils import override_settings
 from django.urls import reverse
 
 from oauth2_provider.models import get_access_token_model, get_application_model
@@ -13,6 +17,7 @@ ApplicationModel = get_application_model()
 AccessTokenModel = get_access_token_model()
 
 
+@override_settings(MEDIA_ROOT='/tmp/giscube')
 class BaseTest(APITransactionTestCase):
     def setUp(self):
         self.superuser = UserModel.objects.create_superuser(
@@ -86,3 +91,13 @@ class BaseTest(APITransactionTestCase):
         self.application.delete()
         self.test_user.delete()
         self.dev_user.delete()
+
+        try:
+            for root, dirs, files in os.walk(settings.MEDIA_ROOT):
+                for f in files:
+                    os.unlink(os.path.join(root, f))
+                for d in dirs:
+                    shutil.rmtree(os.path.join(root, d))
+        except Exception as e:
+            print('Error deleting %s directory' % settings.MEDIA_ROOT)
+            print(str(e))

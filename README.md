@@ -111,7 +111,7 @@ docker-compose exec django /docker/bash.sh python3 manage.py collectstatic
 
 ### Run tests
 
-docker-compose exec django /docker/bash.sh /bin/bash.sh scripts/run_test.sh
+docker-compose exec django /docker/bash.sh /bin/bash scripts/run_tests.sh
 
 ## Database
 
