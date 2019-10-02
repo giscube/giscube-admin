@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from haystack import indexes
 
-from giscube.utils import url_slash_join, remove_app_url
+from giscube.utils import remove_app_url, url_slash_join
 
 from .models import DataBaseLayer, GeoJsonLayer
 

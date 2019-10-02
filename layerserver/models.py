@@ -160,7 +160,7 @@ def geojsonlayer_pre_save(sender, instance, *args, **kwargs):
         instance._old_data_file = None
         if instance.pk:
             me = GeoJsonLayer.objects.filter(pk=instance.pk).first()
-            if me: # fix manage.py loaddata
+            if me:  # fix manage.py loaddata
                 instance._old_data = model_to_dict(me)
 
 
