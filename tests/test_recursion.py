@@ -1,5 +1,4 @@
 from giscube.utils import RecursionException, check_recursion
-
 from tests.common import BaseTest
 
 

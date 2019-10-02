@@ -5,9 +5,9 @@ from django.urls import reverse
 
 from rest_framework import serializers
 
+from giscube.utils import remove_app_url, url_slash_join
 from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer, DataBaseLayerReference
-from giscube.utils import remove_app_url, url_slash_join
 
 from .dblayer_field import DBLayerFieldSerializer
 from .dblayer_virtualfield import DBLayerVirtualFieldSerializer
@@ -55,15 +55,20 @@ class DBLayerReferenceSerializer(serializers.ModelSerializer):
 
 
 STYLE_FIELDS = {
-        'marker': ['icon_type', 'icon', 'icon_color', 'stroke_color', 'stroke_width',
-                   'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity'],
-        'line': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
-        'polygon': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
-                    'fill_opacity'],
-        'circle': ['shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array',
-                   'fill_color', 'fill_opacity'],
-        'image': ['icon'],
-    }
+    'marker': [
+        'icon_type', 'icon', 'icon_color', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array',
+        'fill_color', 'fill_opacity'
+    ],
+    'line': ['stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array'],
+    'polygon': [
+        'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color', 'fill_opacity'
+    ],
+    'circle': [
+        'shape_radius', 'stroke_color', 'stroke_width', 'stroke_opacity', 'stroke_dash_array', 'fill_color',
+        'fill_opacity'
+    ],
+    'image': ['icon'],
+}
 
 
 def style_representation(obj):
@@ -137,7 +142,8 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             data['style'] = style_representation(obj)
             data['style_rules'] = style_rules_representation(obj)
             data['design']['tooltip'] = obj.tooltip
-            data['design']['cluster'] = json.loads(obj.cluster_options or '{}') if obj.cluster_enabled else None
+            data['design']['cluster'] = json.loads(
+                obj.cluster_options or '{}') if obj.cluster_enabled else None
 
             if obj.wms_as_reference:
                 path = reverse('content-wms', kwargs={'name': obj.name})

@@ -1,14 +1,13 @@
-from django.db.models import Value as V
-from django.db.models.functions import Coalesce, Concat
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import Value as V
+from django.db.models.functions import Coalesce, Concat
 from django.urls import resolve
 from django.utils.html import format_html
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
 from giscube.utils import url_slash_join
-
 from qgisserver.models import Project, Service
 
 

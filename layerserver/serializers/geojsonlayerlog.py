@@ -19,7 +19,7 @@ class GeoJSONLayerLogSerializer(serializers.ModelSerializer):
             try:
                 result = json.loads(obj.result)
             except Exception:
-                    pass
+                pass
             if result:
                 if result['status']:
                     data['status'] = 'generated'

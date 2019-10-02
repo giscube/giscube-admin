@@ -235,7 +235,7 @@ class DataBaseLayerReferencesInlineForm(forms.ModelForm):
         if 'format' in cleaned_data and 'transparent' in cleaned_data and (
                 cleaned_data['format'] == jpeg and cleaned_data['transparent'] is True):
             error = _('%s format doesn\'t support transparent attribute enabled') % \
-                        DataBaseLayerReference.IMAGE_FORMAT_CHOICES['image/jpeg']
+                DataBaseLayerReference.IMAGE_FORMAT_CHOICES['image/jpeg']
             self.add_error('transparent', error)
 
     class Meta:
