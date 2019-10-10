@@ -395,10 +395,6 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             ],
             'classes': ('tab-design',),
         }),
-        (_('Cluster'), {
-            'fields': ['cluster_enabled', 'cluster_options'],
-            'classes': ('tab-design',),
-        }),
     ]
 
     def has_geometry(self, obj):
