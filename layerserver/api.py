@@ -30,8 +30,11 @@ from .model_legacy import create_dblayer_model
 from .models import DataBaseLayer, GeoJsonLayer
 from .pagination import create_geojson_pagination_class, create_json_pagination_class
 from .permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
-from .serializers import (DBLayerDetailSerializer, DBLayerSerializer, GeoJSONLayerSerializer,
-                          create_dblayer_geom_serializer, create_dblayer_serializer)
+from .serializers import (
+    DBLayerDetailSerializer,
+    DBLayerSerializer, GeoJSONLayerSerializer,
+    create_dblayer_serializer
+)
 from .utils import geojsonlayer_check_cache
 
 
@@ -114,7 +117,23 @@ class PageSize0NotAllowedException(Exception):
     pass
 
 
-class DBLayerContentViewSet(viewsets.ModelViewSet):
+class DBLayerContentViewSetMixin(object):
+    def get_model_serializer_class(self):
+        fields = list(self._fields.keys())
+        return create_dblayer_serializer(
+            self.model, fields, self.lookup_field, self.readonly_fields, self._virtual_fields)
+
+    def _virtual_fields_get_queryset(self, qs):
+        for field in self._virtual_fields.values():
+            qs = field.widget_class.get_queryset(qs, field, self.request)
+        return qs
+
+    @cached_property
+    def _virtual_fields(self):
+        return {field.name: field for field in self.layer.virtual_fields.all()}
+
+
+class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
     parser_classes = (parsers.MultiPartParser, parsers.JSONParser)
     permission_classes = (DBLayerIsValidUser,)
     queryset = []
@@ -163,6 +182,9 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         return super(DBLayerContentViewSet,
                      self).dispatch(
                          request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        return self.get_model_serializer_class()
 
     def bbox2wkt(self, bbox, srid):
         bbox = bbox.split(',')
@@ -220,6 +242,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         model_filter = filterset_factory(self.model, self.filter_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
+        qs = self._virtual_fields_get_queryset(qs)
         return qs
 
     def get_pagination_class(self, layer):
@@ -232,14 +255,6 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
                 return create_json_pagination_class(page_size=page_size, max_page_size=max_page_size)
             else:
                 return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
-
-    def get_serializer_class(self, *args, **kwargs):
-        if self.layer.geom_field is None:
-            return create_dblayer_serializer(
-                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
-        else:
-            return create_dblayer_geom_serializer(
-                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
 
     # def delete_multiple(self, request, *args, **kwargs):
     #     queryset = self.filter_queryset(self.get_queryset())
@@ -285,7 +300,7 @@ class DBLayerContentViewSet(viewsets.ModelViewSet):
         filter_overrides = ['geom']
 
 
-class DBLayerContentBulkViewSet(views.APIView):
+class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
     ERROR_NOT_EXIST = 'ERROR_NOT_EXIST'
     ERROR_ON_SAVE = 'ERROR_ON_SAVE'
 
@@ -316,14 +331,6 @@ class DBLayerContentBulkViewSet(views.APIView):
         return super(DBLayerContentBulkViewSet,
                      self).dispatch(
                          request, *args, **kwargs)
-
-    def get_model_serializer_class(self):
-        if self.layer.geom_field is None:
-            return create_dblayer_serializer(
-                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
-        else:
-            return create_dblayer_geom_serializer(
-                self.model, list(self._fields.keys()), self.lookup_field, self.readonly_fields)
 
     def get_queryset(self):
         qs = self.model.objects.all()
