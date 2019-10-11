@@ -136,6 +136,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-design',),
         }),
     ]
+    ordering = ['name']
 
     def add_view(self, request, form_url='', extra_context=None):
         self.tabs = self.tabs_add
@@ -395,11 +396,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             ],
             'classes': ('tab-design',),
         }),
-        (_('Cluster'), {
-            'fields': ['cluster_enabled', 'cluster_options'],
-            'classes': ('tab-design',),
-        }),
     ]
+    ordering = ['name']
 
     def has_geometry(self, obj):
         return obj.geom_field is not None
