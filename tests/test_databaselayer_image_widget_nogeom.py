@@ -18,7 +18,7 @@ from tests.common import BaseTest
 UserModel = get_user_model()
 
 
-class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
+class DataBaseLayerImageWidgetNogeomTestCase(BaseTest, TransactionTestCase):
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()
@@ -48,10 +48,10 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         layer = DataBaseLayer()
         layer.db_connection = conn
-        layer.name = 'tests_testimagefield02'
-        layer.table = 'tests_testimagefield'
+        layer.name = 'tests_specie'
+        layer.table = 'tests_specie'
         layer.pk_field = 'code'
-        layer.geom_field = 'geometry'
+        layer.geom_field = None
         layer.anonymous_view = True
         layer.anonymous_add = True
         layer.anonymous_update = True
@@ -90,7 +90,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         for filename in files:
             test_model = Model()
             test_model.code = 'B%s' % i
-            test_model.geometry = 'POINT (%s 10)' % i
+            test_model.name = 'Abies alba'
             path = 'tests/files/%s' % filename
             f = open(path, 'rb')
             test_model.image.save(name=filename, content=File(f))
@@ -107,7 +107,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         f = open(path, 'rb')
         data = {
             'code': '001',
-            'geometry': 'POINT(0 0)',
+            'name': 'Abies alba',
             'image': f
         }
         response = self.client.post(url, data)
@@ -115,11 +115,9 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertEqual(response.status_code, 201)
         result = response.json()
         self.assertTrue(os.path.isfile(os.path.join(self.upload_root, 'giscube_01.png')))
-        self.assertEqual(
-            result['properties']['image']['src'], '%s%s' % (self.base_url, 'giscube_01.png'))
-        self.assertEqual(
-            result['properties']['image']['thumbnail'], '%s%s.thumbnail.png' % (
-                self.thumbnail_base_url, 'giscube_01.png'))
+        self.assertEqual(result['image']['src'], '%s%s' % (self.base_url, 'giscube_01.png'))
+        self.assertEqual(result['image']['thumbnail'], '%s%s.thumbnail.png' % (
+            self.thumbnail_base_url, 'giscube_01.png'))
 
     def test_update_image(self):
         test_files = self.add_test_files(['giscube_01.png'])
@@ -178,7 +176,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
             'ADD': [
                 {
                     'code': 'C1',
-                    'geometry': 'POINT (0 10)',
+                    'name': 'Abies alba',
                     'image': assets['2210571.jpg']['file']
                 }
             ],
@@ -189,7 +187,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
                 },
                 {
                     'code': 'B1',
-                    'geometry': 'POINT (0 63)',
+                    'name': 'Bur Oak',
                     'image': assets['giscube_01.png']['file']
                 },
             ],
@@ -207,7 +205,7 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertTrue(obj.image.name.endswith('2210571.jpg'))
 
         obj = Model.objects.get(code='B1')
-        self.assertEqual(obj.geometry.wkt, 'POINT (0 63)')
+        self.assertEqual(obj.name, 'Bur Oak')
         self.assertTrue(os.path.exists(obj.image.path))
         self.assertFalse(obj.image.name.endswith('giscube_01.png'))
         self.assertTrue('giscube_01' in obj.image.name)
@@ -231,116 +229,19 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         self.assertEqual(UserAsset.objects.all().count(), 0)
 
-    def test_bulk_undo_create(self):
+    def test_list(self):
         self.login_test_user()
-
-        Model = create_dblayer_model(self.layer)
-
-        url = reverse('user_assets-list')
-        files = ['2210571.jpg', 'giscube_01.png']
-        assets = {}
-        for filename in files:
-            path = 'tests/files/%s' % filename
-            f = open(path, 'rb')
-            data = {'file': f}
-            response = self.client.post(url, data)
-            f.close()
-            assets[filename] = response.data
-
-        data = {
-            'ADD': [
-                {
-                    'code': 'C1',
-                    'geometry': 'POINT (0 10)',
-                    'image': assets['2210571.jpg']['file']
-                }
-            ],
-            'UPDATE': [
-                {
-                    'code': 'XX',
-                    'geometry': 'POINT (0 63)',
-                    'image': assets['giscube_01.png']['file']
-                },
-            ],
-            'DELETE': []
-        }
-
-        url = reverse('content-bulk', kwargs={'name': self.layer.name})
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 400)
-
-        dirs, files = Model._meta.get_field('image').storage.listdir('.')
-        self.assertEqual(len(files), 0)
-        self.assertEqual(Model.objects.all().count(), 0)
-
-        dirs, files = Model._meta.get_field('image').storage.get_thumbnail_storage().listdir('.')
-        self.assertEqual(len(files), 0)
-        self.assertEqual(Model.objects.all().count(), 0)
-
-        self.assertEqual(UserAsset.objects.all().count(), len(list(assets.keys())))
-
-    def test_bulk_undo_update(self):
-        self.login_test_user()
-
-        Model = create_dblayer_model(self.layer)
-        files = ['giscube_01.png', 'bad name.jpg']
-        test_files = []
-        i = 0
-        for filename in files:
-            test_model = Model()
-            test_model.code = 'B%s' % i
-            test_model.geometry = 'POINT (0 10)'
-            path = 'tests/files/%s' % filename
-            f = open(path, 'rb')
-            test_model.image.save(name=filename, content=File(f))
-            test_model.save()
-            f.close()
-            test_files.append(test_model)
-            i += 1
-
-        url = reverse('user_assets-list')
-        files = ['2210571.jpg', 'giscube_01.png']
-        assets = {}
-        for filename in files:
-            path = 'tests/files/%s' % filename
-            f = open(path, 'rb')
-            data = {'file': f}
-            response = self.client.post(url, data)
-            f.close()
-            assets[filename] = response.data
-
-        data = {
-            'ADD': [
-                {
-                    'code': 'C1',
-                    'geometry': 'POINT (0 10)',
-                    'image': assets['2210571.jpg']['file']
-                }
-            ],
-            'UPDATE': [
-                {
-                    'code': 'B0',
-                    'geometry': 'POINT (0 63)',
-                    'image': assets['giscube_01.png']['file']
-                },
-                {
-                    'code': 'XX',
-                    'geometry': 'POINT (0 63)',
-                    'image': assets['giscube_01.png']['file']
-                },
-            ],
-            'DELETE': []
-        }
-
-        url = reverse('content-bulk', kwargs={'name': self.layer.name})
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 400)
-
-        dirs, files = Model._meta.get_field('image').storage.listdir('.')
-        self.assertEqual(len(files), 2)
-        files.sort()
-        self.assertEqual(files, ['bad_name.jpg', 'giscube_01.png'])
-
-        dirs, files = Model._meta.get_field('image').storage.get_thumbnail_storage().listdir('.')
-        self.assertEqual(len(files), 2)
-        self.assertEqual(sorted(files), sorted(['giscube_01.png.thumbnail.png', 'bad_name.jpg.thumbnail.png']))
+        images = ['giscube_01.png', 'giscube_02.png', 'giscube_03.png']
+        self.add_test_files(images)
+        url = reverse('content-list', kwargs={'name': self.layer.name})
+        response = self.client.get(url)
+        result = response.json()
+        self.assertEqual(3, result['count'])
+        done = []
+        for x in result['data']:
+            image = x['image']['src'].split('/')[-1]
+            self.assertTrue(image in images)
+            done.append(image)
+        images.sort()
+        done.sort()
+        self.assertEqual(images, done)

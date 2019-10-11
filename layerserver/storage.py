@@ -62,7 +62,7 @@ class ThumbnailFileSystemStorageMixin(object):
         return klass(location=self.thumbnail_location, base_url=self.thumbnail_base_url)
 
     def save(self, *args, **kwargs):
-        file_name = super(ThumbnailFileSystemStorageMixin, self).save(*args, **kwargs)
+        file_name = super().save(*args, **kwargs)
         if self.thumbnail_location and self.save_thumbnail_enabled:
             self.save_thumbnail(file_name)
         return file_name
@@ -85,6 +85,7 @@ class ThumbnailFileSystemStorageMixin(object):
         # Only png extension is supported
         im = None
         format = None
+        file = None
         if file_name.endswith('.pdf'):
             file = self.open(file_name)
             images = pdf2image.convert_from_bytes(file.read(), first_page=1, last_page=1)
@@ -117,6 +118,8 @@ class ThumbnailFileSystemStorageMixin(object):
 
             buffer.seek(0)
             bytes = buffer.read()
+            if file and not file.closed:
+                file.close()
             return bytes, 'png'
 
 

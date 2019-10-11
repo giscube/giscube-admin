@@ -160,7 +160,7 @@ def geojsonlayer_pre_save(sender, instance, *args, **kwargs):
         instance._old_data_file = None
         if instance.pk:
             me = GeoJsonLayer.objects.filter(pk=instance.pk).first()
-            if me: # fix manage.py loaddata
+            if me:  # fix manage.py loaddata
                 instance._old_data = model_to_dict(me)
 
 
@@ -256,6 +256,8 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     def save(self, *args, **kwargs):
         if self.geom_field is not None and self.srid is None:
             self.srid = 4326
+        if self.service_path is None and self.name:
+            unique_service_directory(self)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -508,9 +510,16 @@ class DataBaseLayerStyleRule(StyleMixin, models.Model):
 
 
 class DataBaseLayerReference(models.Model):
+    IMAGE_FORMAT_CHOICES = Choices(
+        ('image/png', 'PNG'),
+        ('image/jpeg', 'JPEG'),
+    )
     layer = models.ForeignKey(DataBaseLayer, null=False, blank=False, related_name='references',
                               on_delete=models.CASCADE)
     service = models.ForeignKey('qgisserver.Service', null=False, blank=False, on_delete=models.CASCADE)
+    format = models.CharField(
+        _('format'), max_length=25, blank=False, choices=IMAGE_FORMAT_CHOICES, default='image/jpeg')
+    transparent = models.BooleanField(_('transparent'), null=True)
     refresh = models.BooleanField(_('refresh on data changes'), default=False)
 
     def __str__(self):

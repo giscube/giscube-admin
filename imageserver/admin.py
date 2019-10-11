@@ -5,7 +5,6 @@ from django.utils.html import format_html
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 
 from giscube.utils import url_slash_join
-
 from imageserver.models import Layer, NamedMask, Service, ServiceLayer
 
 

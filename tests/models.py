@@ -34,3 +34,4 @@ class TestImageField(models.Model):
 class Specie(models.Model):
     code = models.CharField(max_length=25, blank=False, null=False, unique=True)
     name = models.CharField(max_length=255, blank=True, null=True)
+    image = models.CharField(max_length=255, blank=True, null=True)

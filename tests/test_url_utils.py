@@ -1,7 +1,6 @@
 from django.test.utils import override_settings
 
-from giscube.utils import url_slash_join, remove_app_url
-
+from giscube.utils import remove_app_url, url_slash_join
 from tests.common import BaseTest
 
 
