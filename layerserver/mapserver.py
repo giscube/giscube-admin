@@ -302,7 +302,7 @@ class StyleLayer(object):
             if item.fill_color:
                 style['fill_color'] = item.fill_color
             style['shape_radius'] = 12
-            return self.circle(style, name)
+            return self.circle(style, name, expression)
 
         if self.layer.shapetype == 'circle':
             style['fill_color'] = item.fill_color
