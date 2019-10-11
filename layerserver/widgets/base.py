@@ -13,6 +13,14 @@ class BaseWidget(object):
     def serialize_widget_options(obj):
         return {}
 
+    @staticmethod
+    def serialize_value(model_obj, field):
+        pass
+
+    @staticmethod
+    def get_queryset(qs, field, request):
+        return qs
+
 
 class BaseJSONWidget(BaseWidget):
     TEMPLATE = "{}"

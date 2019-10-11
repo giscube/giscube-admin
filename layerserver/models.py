@@ -28,6 +28,7 @@ from .model_legacy import ImageWithThumbnailField
 from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
 from .tasks import async_generate_mapfile
 
+from .widgets import widgets_types
 
 logger = logging.getLogger(__name__)
 
@@ -483,6 +484,20 @@ class DataBaseLayerVirtualField(models.Model):
     enabled = models.BooleanField(_('enabled'), default=True)
     widget = models.CharField(_('widget'), max_length=25, blank=False, choices=WIDGET_CHOICES)
     widget_options = models.TextField(_('widget options'), null=True, blank=True)
+
+    @cached_property
+    def config(self):
+        data = {}
+        try:
+            data = json.loads(self.widget_options)
+        except Exception:
+            raise Exception('Invalid configuration for DataBaseLayerVirtualField: %s.%s' % (
+                self.layer.name, self.name))
+        return data
+
+    @cached_property
+    def widget_class(self):
+        return widgets_types[self.widget]
 
     def __str__(self):
         return self.label or self.name

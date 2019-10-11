@@ -53,7 +53,7 @@ class JSONSerializer(serializers.ModelSerializer):
         return JSONModelListSerializer(*args, **kwargs)
 
 
-class UndoSerializerMixin(serializers.ModelSerializer):
+class UndoSerializerMixin(object):
     def __init__(self, *args, **kwargs):
         self.instance = None
         return super().__init__(*args, **kwargs)
@@ -97,11 +97,19 @@ class AccessTokenMixin(object):
         return url
 
 
+class FixPropertiesSerializerMixin(object):
+    def append_value(self, data, attribute, value):
+        if isinstance(data.get('properties'), dict):
+            data['properties'][attribute] = value
+        else:
+            data[attribute] = value
+
+
 class ImageWithThumbnailFieldSerializer(serializers.FileField):
     pass
 
 
-class ImageWithThumbnailSerializer(object):
+class ImageWithThumbnailSerializerMixin(object):
     def fix_image_value(self, obj, attribute):
         image_options = getattr(obj, attribute).field.widget_options
         value = getattr(obj, attribute)
@@ -138,10 +146,18 @@ class ImageWithThumbnailSerializer(object):
         data = super().to_representation(obj)
         for attribute, field in list(self.fields.items()):
             if isinstance(field, ImageWithThumbnailFieldSerializer):
-                if 'properties' in data and isinstance(data['properties'], dict):
-                    data['properties'][attribute] = self.fix_image_value(obj, attribute)
-                else:
-                    data[attribute] = self.fix_image_value(obj, attribute)
+                value = self.fix_image_value(obj, attribute)
+                self.append_value(data, attribute, value)
+        return data
+
+
+class VirtualFieldsSerializer(object):
+    def to_representation(self, obj):
+        data = super().to_representation(obj)
+        for field in self.Meta.virtual_fields.values():
+            value = field.widget_class.serialize_value(obj, field)
+            if value:
+                self.append_value(data, field.name, value)
         return data
 
 
@@ -181,89 +197,107 @@ def apply_widgets(attrs, model, fields):
             attrs[field] = to_image_field(field, f)
 
 
-def create_dblayer_serializer(model, fields, id_field, read_only_fields):
-    if id_field is None or id_field == '':
-        id_field = id
+class JSONSerializerFactory(object):
+    common_mixins = (
+        UndoSerializerMixin, AccessTokenMixin, FixPropertiesSerializerMixin, ImageWithThumbnailSerializerMixin,
+        VirtualFieldsSerializer
+    )
+    serializer_class = JSONSerializer
 
-    map_id_field = id_field in fields
+    def __init__(self, model, fields, id_field, read_only_fields, virtual_fields=None):
+        self.model = model
+        self.fields = fields
+        self.id_field = 'id' if id_field is None or id_field == '' else id_field
+        self.read_only_fields = read_only_fields
+        self.virtual_fields = virtual_fields or {}
 
-    extra_kwargs = {}
-    for f in model._meta.fields:
-        extra_kwargs[f.name] = {'required': not model._meta.get_field(f.name).blank}
+    def to_image_field(self, field_name, field):
+        field_kwargs = serializers.get_field_kwargs(field_name, field)
+        kwargs = {}
+        valid_attrs = ['max_length', 'required', 'allow_null']
+        for k, v in field_kwargs.items():
+            if k in valid_attrs:
+                kwargs[k] = v
+        return ImageWithThumbnailFieldSerializer(**kwargs)
 
-    fields_to_serialize = fields[:]
+    def apply_widgets(self, attrs, model, fields):
+        from layerserver.model_legacy import ImageWithThumbnailField
+        for field in fields:
+            f = model._meta.get_field(field)
+            if type(f) is ImageWithThumbnailField:
+                attrs[field] = self.to_image_field(field, f)
 
-    # pk field is always needed
-    if id_field not in fields_to_serialize:
-        fields_to_serialize.append(id_field)
+    def get_attrs(self):
+        attrs = {
+            '__module__': 'layerserver',
+            'Meta': type(str('Meta'), (object,), self.get_meta_attrs())
+        }
+        self.apply_widgets(attrs, self.model, self.fields)
+        return attrs
 
-    meta_attrs = {
-        'model': model, 'id_field': id_field,
-        'map_id_field': map_id_field,
-        'extra_kwargs': extra_kwargs,
-        'list_serializer_class': JSONModelListSerializer
-    }
-    attrs = {
-        '__module__': 'layerserver',
-        'Meta': type(str('Meta'), (object,), meta_attrs)
-    }
+    def get_fields_to_serialize(self):
+        fields_to_serialize = self.fields[:]
+        # pk field is always needed
+        if self.id_field not in fields_to_serialize:
+            fields_to_serialize.append(self.id_field)
+        return fields_to_serialize
 
-    if len(fields) > 0:
-        setattr(attrs['Meta'], 'fields', fields_to_serialize)
-    if len(read_only_fields) > 0:
-        setattr(attrs['Meta'], 'read_only_fields', read_only_fields)
+    def get_meta_attrs(self):
+        extra_kwargs = {}
+        for f in self.model._meta.fields:
+            extra_kwargs[f.name] = {'required': not self.model._meta.get_field(f.name).blank}
+        meta_attrs = {
+            'model': self.model,
+            'id_field': self.id_field,
+            'map_id_field': self.id_field in self.fields,
+            'extra_kwargs': extra_kwargs,
+            'list_serializer_class': JSONModelListSerializer
+        }
 
-    apply_widgets(attrs, model, fields)
-    serializer = type(str('%s_serializer') % str(model._meta.db_table), (
-        UndoSerializerMixin, AccessTokenMixin, ImageWithThumbnailSerializer, JSONSerializer,), attrs)
+        if len(self.fields) > 0:
+            meta_attrs['fields'] = self.get_fields_to_serialize()
+        if len(self.read_only_fields) > 0:
+            meta_attrs['read_only_fields'] = self.read_only_fields
+        meta_attrs['virtual_fields'] = self.virtual_fields
 
-    return serializer
+        return meta_attrs
+
+    def get_serializer(self):
+        attrs = self.get_attrs()
+        mixins = self.common_mixins + (self.serializer_class,)
+        return type(str('%s_serializer') % str(self.model._meta.db_table), mixins, attrs)
 
 
-def create_dblayer_geom_serializer(model, fields, id_field, read_only_fields):
-    if id_field is None or id_field == '':
-        id_field = id
+class Geom4326SerializerFactory(JSONSerializerFactory):
+    serializer_class = Geom4326Serializer
 
-    map_id_field = id_field in fields
+    def __init__(self, model, fields, id_field, read_only_fields, virtual_fields):
+        super().__init__(model, fields, id_field, read_only_fields, virtual_fields)
 
-    extra_kwargs = {}
-    for f in model._meta.fields:
-        extra_kwargs[f.name] = {'required': not model._meta.get_field(f.name).blank}
+        self.geo_field = None
+        for f in model._meta.fields:
+            if isinstance(f, models.GeometryField):
+                self.geo_field = str(f).split('.')[-1]
+                break
 
-    geo_field = None
-    for f in model._meta.fields:
-        if isinstance(f, models.GeometryField):
-            geo_field = str(f).split('.')[-1]
-            break
+        if self.geo_field is None:
+            raise Exception('NO GEOM FIELD DEFINED')
 
-    if geo_field is None:
-        raise Exception('NO GEOM FIELD DEFINED')
+    def get_fields_to_serialize(self):
+        fields = super().get_fields_to_serialize()
+        if self.geo_field in fields:
+            fields.remove(self.geo_field)
+        return fields
 
-    fields_to_serialize = fields[:]
-    if geo_field in fields_to_serialize:
-        fields_to_serialize.remove(geo_field)
+    def get_meta_attrs(self):
+        meta_attrs = super().get_meta_attrs()
+        del meta_attrs['list_serializer_class']
+        meta_attrs['geo_field'] = self.geo_field
+        return meta_attrs
 
-    # pk field is always needed by Geom4326Serializer
-    if id_field not in fields_to_serialize:
-        fields_to_serialize.append(id_field)
 
-    meta_attrs = {
-        'model': model, 'geo_field': geo_field, 'id_field': id_field,
-        'map_id_field': map_id_field,
-        'extra_kwargs': extra_kwargs
-    }
-    attrs = {
-        '__module__': 'layerserver',
-        'Meta': type(str('Meta'), (object,), meta_attrs)
-    }
-
-    if len(fields) > 0:
-        setattr(attrs['Meta'], 'fields', fields_to_serialize)
-    if len(read_only_fields) > 0:
-        setattr(attrs['Meta'], 'read_only_fields', read_only_fields)
-
-    apply_widgets(attrs, model, fields)
-    serializer = type(str('%s_serializer') % str(model._meta.db_table), (
-        UndoSerializerMixin, AccessTokenMixin, ImageWithThumbnailSerializer, Geom4326Serializer,), attrs)
-
-    return serializer
+def create_dblayer_serializer(model, fields, id_field, read_only_fields, virtual_fields=None):
+    if model._schema.get('geom_field', None):
+        return Geom4326SerializerFactory(model, fields, id_field, read_only_fields, virtual_fields).get_serializer()
+    else:
+        return JSONSerializerFactory(model, fields, id_field, read_only_fields, virtual_fields).get_serializer()
