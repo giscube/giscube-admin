@@ -343,4 +343,4 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         dirs, files = Model._meta.get_field('image').storage.get_thumbnail_storage().listdir('.')
         self.assertEqual(len(files), 2)
-        self.assertEqual(files, ['giscube_01.png.thumbnail.png', 'bad_name.jpg.thumbnail.png'])
+        self.assertEqual(sorted(files), sorted(['giscube_01.png.thumbnail.png', 'bad_name.jpg.thumbnail.png']))
