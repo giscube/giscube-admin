@@ -196,7 +196,7 @@ class StyleLayer(object):
         self.layer = layer
 
     def add_alpha(self, original_color, alpha):
-        if alpha != 1:
+        if alpha and alpha != 1:
             original_color += hex(round(float(alpha) * 255))[2:]
         return '"%s"' % original_color
 
