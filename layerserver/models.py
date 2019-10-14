@@ -374,7 +374,7 @@ DATA_TYPES = {
     models.IntegerField: 'number',
     models.TextField: 'string',
     models.CharField: 'string',
-    ImageWithThumbnailField: 'image',
+    ImageWithThumbnailField: 'string',
 }
 
 
