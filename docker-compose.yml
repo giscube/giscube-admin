@@ -23,7 +23,7 @@ services:
     command: ["/bin/bash", "/app/docker/db/postgresql10.sh"]
     volumes:
       - .:/app
-      - ./docker_data/postgresql/:/var/lib/postgresql/
+      - postgresql_data:/var/lib/postgresql/
     stdin_open: true
     tty: true
 
@@ -67,7 +67,7 @@ services:
     restart: always
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./docker_data/redis:/data
+      - redis_data:/data
 
   nginx:
     container_name: giscube_admin_nginx
@@ -109,5 +109,6 @@ services:
     stdin_open: true
     tty: true
 
-# volumes:
-#   docker_data:
+volumes:
+  postgresql_data:
+  redis_data:
