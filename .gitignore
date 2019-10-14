@@ -11,3 +11,5 @@ tests/media/*
 app.env
 docker_data/*
 !docker_data/.gitkeep
+.env
+example-data
