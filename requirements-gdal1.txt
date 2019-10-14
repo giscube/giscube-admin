@@ -1,6 +1,6 @@
 celery==4.3.0
 Django==2.1.10
-django-admin-list-filter-dropdown==1.0.2
+django-admin-list-filter-dropdown==1.0.3
 django-cas-ng==3.6.0
 django-celery-results==1.1.2
 django-colorfield==0.1.15
