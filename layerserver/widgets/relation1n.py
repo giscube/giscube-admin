@@ -66,7 +66,7 @@ class Relation1NWidget(BaseJSONWidget):
             items = related_model.objects.filter(**filter).order_by().values(dblayer_fk)
             count_items = items.annotate(count=Count(dblayer_fk)).values('count')
             qs = qs.annotate(**{field.name: Coalesce(Subquery(count_items), Value(0))})
-            return qs
+        return qs
 
     @staticmethod
     def serialize_value(model_obj, field):
