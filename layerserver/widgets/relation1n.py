@@ -52,7 +52,7 @@ class Relation1NWidget(BaseJSONWidget):
     def get_queryset(qs, field, request):
         from layerserver.models import DataBaseLayer
         from layerserver.model_legacy import create_dblayer_model
-        if field.get('count') is True:
+        if field.config.get('count') is True:
             dblayer = field.config['dblayer']
             related_layer = DataBaseLayer.objects.filter(name=dblayer).first()
             if not related_layer:
@@ -70,6 +70,6 @@ class Relation1NWidget(BaseJSONWidget):
 
     @staticmethod
     def serialize_value(model_obj, field):
-        if field.get('count') is True:
+        if field.config.get('count') is True:
             value = getattr(model_obj, field.name)
             return {'count': value}
