@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
-DOCKER_USER=www-data
+set -e
 
 exec /usr/sbin/gosu "$DOCKER_USER" "$@"

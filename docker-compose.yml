@@ -6,7 +6,9 @@ services:
       context: .
       dockerfile: docker/django/Dockerfile
       args:
-        - EXTRA_REQUIREMENTS=devel
+        - EXTRA_REQUIREMENTS=${ENVIRONMENT_NAME}
+        - USER_UID=${USER_UID}
+        - DOCKER_USER=${DOCKER_USER}
     image: giscube_admin_requirements
     entrypoint:
       - /bin/bash
@@ -19,13 +21,12 @@ services:
       dockerfile: Dockerfile
     image: giscube_admin_db
     env_file:
+     - .env
      - app.env
     command: ["/bin/bash", "/app/docker/db/postgresql10.sh"]
     volumes:
       - .:/app
       - postgresql_data:/var/lib/postgresql/
-    stdin_open: true
-    tty: true
 
   django:
     container_name: giscube_admin_django
@@ -33,6 +34,7 @@ services:
       - db
     image: giscube_admin_requirements
     env_file:
+     - .env
      - app.env
     command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/runserver.sh"]
     # command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/uwsgi.sh"]
@@ -41,8 +43,6 @@ services:
       - ./docker_data/django:/docker_data
     ports:
       - "8000:8000"
-    stdin_open: true
-    tty: true
 
   celery:
     container_name: giscube_admin_celery
@@ -52,19 +52,17 @@ services:
       - db
     image: giscube_admin_requirements
     env_file:
-      - app.env
+     - .env
+     - app.env
     command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--",  "/bin/bash", "/app/docker/django/celery_devel.sh"]
     volumes:
       - .:/app
       - ./docker_data/django:/docker_data
-    stdin_open: true
-    tty: true
 
   redis:
     container_name: giscube_admin_redis
     hostname: giscube_admin_redis
     image: redis:latest
-    restart: always
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
@@ -77,8 +75,6 @@ services:
     image: giscube_admin_nginx
     ports:
       - "8080:8080"
-    stdin_open: true
-    tty: true
 
   qgisserver:
     container_name: giscube_admin_qgisserver
@@ -87,11 +83,7 @@ services:
       dockerfile: Dockerfile
     image: giscube_admin_qgisserver
     volumes:
-      # - .:/app
       - ./docker_data/django:/docker_data
-    # command: ["tail", "-f", "/dev/null"]
-    stdin_open: true
-    tty: true
 
   imageserver:
     container_name: giscube_admin_imageserver
@@ -103,11 +95,7 @@ services:
         - MS_DEBUGLEVEL=5
         - MS_ERRORFILE=/docker_data/ms_error.txt
     volumes:
-      # - .:/app
       - ./docker_data/django:/docker_data
-    # command: ["tail", "-f", "/dev/null"]
-    stdin_open: true
-    tty: true
 
 volumes:
   postgresql_data:

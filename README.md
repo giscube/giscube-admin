@@ -92,26 +92,26 @@ docker-compose restart django && docker-compose logs -f
 
 ### Interactive bash
 
-docker-compose exec django /docker/bash.sh
+docker-compose exec django bash.sh
 
 
 ## Django
 
 ### Run migrations
 
-docker-compose exec django /docker/bash.sh python3 manage.py migrate
+docker-compose exec django bash.sh python3 manage.py migrate
 
 ### Run createsuperuser
 
-docker-compose exec django /docker/bash.sh python3 manage.py createsuperuser
+docker-compose exec django bash.sh python3 manage.py createsuperuser
 
 ### Run collectstatic
 
-docker-compose exec django /docker/bash.sh python3 manage.py collectstatic
+docker-compose exec django bash.sh python3 manage.py collectstatic
 
 ### Run tests
 
-docker-compose exec django /docker/bash.sh /bin/bash scripts/run_tests.sh
+docker-compose exec django bash.sh /bin/bash scripts/run_tests.sh
 
 ## Database
 
