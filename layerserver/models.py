@@ -287,7 +287,7 @@ def add_fields(sender, instance, created, **kwargs):
     table_parts = get_table_parts(instance.table)
     table_schema = table_parts['table_schema']
     conn = instance.db_connection.get_connection(schema=table_schema)
-    fields = model_legacy.get_fields(conn, instance.table)
+    fields = model_legacy.get_fields(conn, instance.table, instance.pk_field)
     old_fields = []
     if not created:
         old_fields = [field.name for field in instance.fields.all()]

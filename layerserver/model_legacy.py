@@ -69,7 +69,7 @@ def strip_prefix(s):
     return s[1:] if s.startswith("u'") else s
 
 
-def get_fields(connection, table_name):
+def get_fields(connection, table_name, forced_primary_key_column=None):
     table_parts = get_table_parts(table_name)
     table_name_simple = table_parts['table_name']
     fields = {}
@@ -87,6 +87,9 @@ def get_fields(connection, table_name):
         pass
 
     primary_key_column = connection.introspection.get_primary_key_column(cursor, str(table_name_simple))
+    if not primary_key_column and forced_primary_key_column:
+        primary_key_column = forced_primary_key_column
+
     unique_columns = [
         c['columns'][0] for c in constraints.values()
         if c['unique'] and len(c['columns']) == 1
@@ -107,12 +110,14 @@ def get_fields(connection, table_name):
 
         used_column_names.append(att_name)
         column_to_field_name[column_name] = att_name
-
         # Add primary_key and unique, if necessary.
         if column_name == primary_key_column:
             extra_params['primary_key'] = True
-        elif column_name in unique_columns:
+        if column_name in unique_columns:
             extra_params['unique'] = True
+
+        if att_name == 'id' and not primary_key_column and extra_params.get('primary_key', False) is False:
+            extra_params['primary_key'] = True
 
         if is_relation:
             rel_to = (
@@ -131,16 +136,11 @@ def get_fields(connection, table_name):
             extra_params.update(field_params)
             comment_notes.extend(field_notes)
 
-            field_type += '('
+            # a Model can only have one AutoField
+            if field_type == 'AutoField' and att_name != primary_key_column:
+                field_type = 'IntegerField'
 
-        # Don't output 'id = meta.AutoField(primary_key=True)', because
-        # that's assumed if it doesn't exist.
-        if att_name == 'id' and extra_params == {'primary_key': True}:
-            if field_type == 'AutoField(':
-                # continue
-                pass
-            elif field_type == 'IntegerField(' and not connection.features.can_introspect_autofield:
-                comment_notes.append('AutoField?')
+            field_type += '('
 
         # Add 'null' and 'blank', if the 'null_ok' flag was present in the
         # table description.
@@ -336,16 +336,8 @@ class ModelFactory:
         table_schema = table_parts['table_schema']
         table = table_parts['fixed']
 
-        fields = get_fields(self.layer.db_connection.get_connection(schema=table_schema), table)
-
-        # Add primary_key if needed
-        primary_key = None
-        for fied_name, field in list(fields.items()):
-            if getattr(field, 'primary_key'):
-                primary_key = fied_name
-                break
-        if primary_key is None:
-            setattr(fields[self.layer.pk_field], 'primary_key', True)
+        fields = get_fields(
+            self.layer.db_connection.get_connection(schema=table_schema), table, self.layer.pk_field)
 
         self.apply_blank(fields)
         self.apply_widgets(fields)
