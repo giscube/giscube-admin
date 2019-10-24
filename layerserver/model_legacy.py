@@ -131,6 +131,10 @@ def get_fields(connection, table_name):
             extra_params.update(field_params)
             comment_notes.extend(field_notes)
 
+            # a Model can only have one AutoField
+            if field_type == 'AutoField' and att_name != primary_key_column:
+                field_type = 'IntegerField'
+
             field_type += '('
 
         # Don't output 'id = meta.AutoField(primary_key=True)', because
