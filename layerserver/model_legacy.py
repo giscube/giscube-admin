@@ -16,6 +16,12 @@ from giscube.db.utils import get_table_parts
 
 from .fields import ImageWithThumbnailField
 from .storage import get_image_with_thumbnail_storage_class
+from django.db.models import Value
+
+
+class FixDefaultExpression(Value):
+    def as_sql(self, compiler, connection):
+        return self.value, []
 
 
 def get_field_type(connection, table_name, row):
@@ -161,6 +167,12 @@ def get_fields(connection, table_name):
             field_desc += ', '.join(
                 '%s=%s' % (k, strip_prefix(repr(v)))
                 for k, v in list(extra_params.items()))
+
+        if row.default is not None and field_type != 'AutoField(':
+            if not field_desc.endswith('('):
+                field_desc += ', '
+            field_desc += 'default=FixDefaultExpression(%s)' % repr(row.default)
+
         field_desc += ')'
         # if comment_notes:
         #     field_desc += '  # ' + ' '.join(comment_notes)
