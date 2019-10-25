@@ -130,7 +130,7 @@ class DBLayerContentViewSetMixin(object):
 
     @cached_property
     def _virtual_fields(self):
-        return {field.name: field for field in self.layer.virtual_fields.all()}
+        return {field.name: field for field in self.layer.virtual_fields.filter(enabled=True)}
 
 
 class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
