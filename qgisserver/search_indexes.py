@@ -4,12 +4,13 @@ from django.conf import settings
 
 from haystack import indexes
 
-from giscube.utils import url_slash_join
+from giscube.utils import get_giscube_id, url_slash_join
 
 from .models import Service
 
 
 class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
+    giscube_id = indexes.CharField(model_attr='pk')
     text = indexes.CharField(document=True, use_template=True)
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
@@ -42,6 +43,9 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
         })
 
         return json.dumps(children)
+
+    def prepare_giscube_id(self, obj):
+        return get_giscube_id(obj)
 
     def prepare_options(self, obj):
         return obj.options or '{}'
