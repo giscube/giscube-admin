@@ -1,6 +1,8 @@
 import inspect
 import json
 
+from django.db.models import Count, OuterRef, Subquery, Value
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 
 from .base import BaseJSONWidget
@@ -11,7 +13,8 @@ class Relation1NWidget(BaseJSONWidget):
     {
         "dblayer": "layername",
         "to_field": "id",
-        "dblayer_fk": "parent_id"
+        "dblayer_fk": "parent_id",
+        "count": false
     }
     """)
     ERROR_DBLAYER_REQUIRED = _('\'dblayer\' attribute is required')
@@ -44,3 +47,29 @@ class Relation1NWidget(BaseJSONWidget):
 
         data = {'widget_options': options}
         return data
+
+    @staticmethod
+    def get_queryset(qs, field, request):
+        from layerserver.models import DataBaseLayer
+        from layerserver.model_legacy import create_dblayer_model
+        if field.config.get('count') is True:
+            dblayer = field.config['dblayer']
+            related_layer = DataBaseLayer.objects.filter(name=dblayer).first()
+            if not related_layer:
+                msg = 'Invalid configuration for DataBaseLayerVirtualField: %s.%s. %s doesn\'t exist' % (
+                    field.layer.name, field.name, dblayer)
+                raise Exception(msg)
+
+            dblayer_fk = field.config['dblayer_fk']
+            related_model = create_dblayer_model(related_layer)
+            filter = {dblayer_fk: OuterRef(field.config['to_field'])}
+            items = related_model.objects.filter(**filter).order_by().values(dblayer_fk)
+            count_items = items.annotate(count=Count(dblayer_fk)).values('count')
+            qs = qs.annotate(**{field.name: Coalesce(Subquery(count_items), Value(0))})
+        return qs
+
+    @staticmethod
+    def serialize_value(model_obj, field):
+        if field.config.get('count') is True:
+            value = getattr(model_obj, field.name)
+            return {'count': value}

@@ -267,7 +267,6 @@ class DataBaseLayerVirtualFieldsInline(admin.TabularInline):
     form = DataBaseLayerVirtualFieldsInlineForm
     extra = 0
     ordering = ('name',)
-    can_delete = False
     fields = ('enabled', 'name', 'label', 'widget', 'widget_options',)
     classes = ('tab-virtual-fields',)
 
