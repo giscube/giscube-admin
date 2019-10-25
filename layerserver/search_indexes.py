@@ -6,12 +6,13 @@ from django.utils.translation import ugettext as _
 
 from haystack import indexes
 
-from giscube.utils import remove_app_url, url_slash_join
+from giscube.utils import get_giscube_id, remove_app_url, url_slash_join
 
 from .models import DataBaseLayer, GeoJsonLayer
 
 
 class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
+    giscube_id = indexes.CharField(model_attr='pk')
     text = indexes.CharField(document=True, use_template=True)
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
@@ -43,6 +44,9 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
         return json.dumps(children)
 
+    def prepare_giscube_id(self, obj):
+        return get_giscube_id(obj)
+
     def prepare_private(self, obj):
         return obj.visibility == 'private'
 
@@ -52,6 +56,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
 
 
 class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
+    giscube_id = indexes.CharField(model_attr='pk')
     text = indexes.CharField(document=True, use_template=True)
     category_id = indexes.IntegerField(model_attr='category_id', null=True)
     category = indexes.CharField(model_attr='category', null=True)
@@ -100,6 +105,9 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
                 'url': url
             })
         return json.dumps(children)
+
+    def prepare_giscube_id(obj):
+        return get_giscube_id(obj)
 
     def prepare_private(self, obj):
         return not obj.anonymous_view
