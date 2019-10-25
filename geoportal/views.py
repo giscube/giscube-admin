@@ -80,17 +80,16 @@ class GeoportalGiscubeIdView(ResultsMixin, APIView):
 
     def get(self, request, giscube_ids):
         giscube_ids = filter(None, giscube_ids.split(','))
-        seen = set()
-        filtered_giscube_ids = [x for x in giscube_ids if not (x in seen or seen.add(x))]
-        items = []
-        for giscube_id in filtered_giscube_ids:
-            sqs = get_search_query_set().all().filter(django_ct__in=CATALOG_MODELS, giscube_id=giscube_id)
-            if not request.user.is_authenticated:
-                sqs = sqs.exclude(private=True)
-            sqs = sqs.order_by('title')
-            items += [x for x in sqs.all()]
-        print(items)
-        results = self.format_results(items)
+        filtered_giscube_ids = dict.fromkeys(giscube_ids)
+        sqs = get_search_query_set().all().filter(
+            django_ct__in=CATALOG_MODELS,
+            giscube_id__in=list(filtered_giscube_ids.keys())
+        )
+        if not request.user.is_authenticated:
+            sqs = sqs.exclude(private=True)
+        for x in sqs.all():
+            filtered_giscube_ids[x.giscube_id] = x
+        results = self.format_results(filtered_giscube_ids.values())
 
         return results
 
