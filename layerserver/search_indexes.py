@@ -106,7 +106,7 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
             })
         return json.dumps(children)
 
-    def prepare_giscube_id(obj):
+    def prepare_giscube_id(self, obj):
         return get_giscube_id(obj)
 
     def prepare_private(self, obj):
