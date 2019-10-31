@@ -84,3 +84,6 @@ if settings.USE_CAS:
         path('accounts/logout', django_cas_ng.views.LogoutView.as_view(), name='cas_ng_logout'),
     ]
     urlpatterns.extend(cas_login_urls)
+
+for plugin in settings.GISCUBE_PLUGINS:
+    urlpatterns.append(path('plugins/%s/' % plugin, include('%s.urls' % plugin)))
