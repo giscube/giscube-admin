@@ -12,6 +12,7 @@ import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import re
+import sys
 
 from kombu import Exchange, Queue
 
@@ -409,6 +410,20 @@ if SENTRY_DSN is not None:
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()]
     )
+
+# Plugins
+GISCUBE_PLUGINS_PATH = os.environ.get('GISCUBE_PLUGINS_PATH', None)
+GISCUBE_PLUGINS = list(filter(None, os.environ.get('GISCUBE_PLUGINS', '').split(',')))
+
+if GISCUBE_PLUGINS_PATH:
+    for plugin in GISCUBE_PLUGINS:
+        path = os.path.join(GISCUBE_PLUGINS_PATH, plugin, 'src')
+        sys.path.append(path)
+        INSTALLED_APPS.append(plugin)
+        settings_plugin_path = os.path.join(path, plugin, 'settings.py')
+        if os.path.isfile(settings_plugin_path):
+            with open(settings_plugin_path, 'rb') as f:
+                exec(compile(f.read(), settings_plugin_path, 'exec'), globals())
 
 # Overwrite settings
 # -------------------------------------
