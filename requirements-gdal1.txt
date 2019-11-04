@@ -15,7 +15,7 @@ django-vue-tabs==0.0.10
 djangorestframework==3.9.4
 djangorestframework-gis==0.14
 django-url-filter==0.3.12
-GDAL==1.10.0
+GDAL==3.0.2
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
 requests==2.22.0
 ujson==1.35
