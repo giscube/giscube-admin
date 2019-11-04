@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
@@ -86,4 +88,6 @@ if settings.USE_CAS:
     urlpatterns.extend(cas_login_urls)
 
 for plugin in settings.GISCUBE_PLUGINS:
-    urlpatterns.append(path('plugins/%s/' % plugin, include('%s.urls' % plugin)))
+    plugins_url_path = '%s/%s/src/%s/urls.py' % (settings.GISCUBE_PLUGINS_PATH, plugin, plugin)
+    if os.path.isfile(plugins_url_path):
+        urlpatterns.append(path('plugins/%s/' % plugin, include('%s.urls' % plugin)))
