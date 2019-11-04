@@ -1,0 +1,19 @@
+{% load i18n %}
+<div style="float: left; width: 100%;">
+  <div class="module">
+    <table style="width: 100%;">
+      <caption>
+        <a href="#" class="section" title="{{ trans 'tasks' %}">{% trans 'tasks' %}</a>
+      </caption>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>
+            <a href="{{ item.url }}">{{ item.title }}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

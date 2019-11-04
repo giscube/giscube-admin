@@ -1,26 +1,8 @@
 {% extends "admin/index.html" %}
 {% load i18n %}
+{% load giscube_admin_tags %}
 
 {% block sidebar %}
-    {{block.super}}
-
-    <div style="float: left; width: 100%;">
-    <div class="module">
-            <table style="width: 100%;">
-            <caption>
-                <a href="#" class="section"
-                    title="{% trans 'tasks' %}">{% trans 'tasks' %}</a>
-            </caption>
-                <tbody>
-                <tr>
-                        <td>
-                            <a href="{% url 'rebuild_index' %}" class="">
-                                {% trans 'Rebuild search cache' %}
-                            </a>
-                        </td>
-                </tr>
-            </tbody>
-        </table>
-            </div>
-        </div>
+    {{ block.super }}
+    {% admin_tasks_menu %}
 {% endblock %}

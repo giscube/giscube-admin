@@ -16,6 +16,7 @@ import sys
 
 from kombu import Exchange, Queue
 
+from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
@@ -387,6 +388,16 @@ LOGGING = {
     },
 }
 
+# Tasks menu
+ADMIN_TASKS_MENU = [
+    {
+        'url': 'rebuild_index',
+        'reverse': True,
+        'title': _('Rebuild search cache')
+    }
+]
+
+# Email
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
