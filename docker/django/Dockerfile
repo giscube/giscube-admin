@@ -13,7 +13,7 @@ RUN echo "DOCKER_USER: $DOCKER_USER"
 
 ENV PATH /usr/local/bin:$PATH
 
-RUN if [ "$DOCKER_USER" != "www-data" ]; then useradd --shell /bin/bash -u $USER_UID -o -c "" -m user || true ; fi
+RUN if [ "$DOCKER_USER" != "www-data" ]; then useradd --shell /bin/bash -u $USER_UID -o -c "" -m $DOCKER_USER || true ; fi
 RUN if [ "$DOCKER_USER" != "www-data" ]; then echo "PATH=\$PATH:/home/$DOCKER_USER/.local/bin/" >> "/home/$DOCKER_USER/.bashrc" ; fi
 
 RUN mkdir -p /app
