@@ -31,7 +31,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
         return True
 
     def prepare_category(self, obj):
-        return obj.category.title if hasattr(obj, 'category') else None
+        return obj.category.title if hasattr(obj, 'category') and obj.category else None
 
     def prepare_children(self, obj):
         children = []
@@ -78,7 +78,7 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
         return True
 
     def prepare_category(self, obj):
-        return obj.category.title if hasattr(obj, 'category') else None
+        return obj.category.title if hasattr(obj, 'category') and obj.category else None
 
     def prepare_children(self, obj):
         children = []
