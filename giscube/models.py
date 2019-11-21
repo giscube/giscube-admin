@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class Category(models.Model):
+    SEPARATOR = ' > '
     name = models.CharField(_('name'), max_length=50)
     parent = models.ForeignKey(
         'Category', verbose_name=_('parent category'), null=True, blank=True, on_delete=models.CASCADE)
@@ -28,7 +29,7 @@ class Category(models.Model):
     @property
     def title(self):
         if self.parent:
-            return '%s > %s' % (self.parent.name, self.name)
+            return '%s%s%s' % (self.parent.name, self.SEPARATOR, self.name)
         else:
             return '%s' % self.name
 

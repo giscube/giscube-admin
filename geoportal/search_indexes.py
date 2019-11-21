@@ -27,6 +27,9 @@ class DatasetIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_has_children(self, obj):
         return True
 
+    def prepare_category(self, obj):
+        return obj.category.title if hasattr(obj, 'category') else None
+
     def prepare_children(self, obj):
         children = []
         for r in obj.resources.all():

@@ -7,6 +7,8 @@ from haystack.query import SearchQuerySet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from giscube.models import Category
+
 
 DEFAULT_SEARCH = [
     {
@@ -56,6 +58,7 @@ class ResultsMixin():
                 'group': getattr(r, 'has_children', False),
                 'children': children,
                 'options': json.loads(getattr(r, 'options', '{}') or '{}'),
+                'catalog':  (r.category or '').split(Category.SEPARATOR) if r.category else []
             })
         return Response({'results': results})
 
