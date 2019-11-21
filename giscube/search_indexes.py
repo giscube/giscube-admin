@@ -8,15 +8,15 @@ from .models import Category
 class CategoryIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     parent = indexes.IntegerField(model_attr='parent__id', null=True)
-    name = indexes.CharField(model_attr='title', null=True, default='')
+    name = indexes.CharField(model_attr='name', null=True, default='')
+    title = indexes.CharField(model_attr='name', null=True, default='')
+    text = indexes.CharField(document=True, use_template=False)
 
     def get_model(self):
         return Category
 
-    text = indexes.CharField(document=True, use_template=False)
-
     def prepare_title(self, obj):
-        return str(obj)
+        return obj.title
 
     def index_queryset(self, using=None):
         # Exclude categories without items
