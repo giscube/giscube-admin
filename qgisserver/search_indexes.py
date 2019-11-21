@@ -29,6 +29,9 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_has_children(self, obj):
         return True
 
+    def prepare_category(self, obj):
+        return obj.category.title if hasattr(obj, 'category') else None
+
     def prepare_children(self, obj):
         children = []
         url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
