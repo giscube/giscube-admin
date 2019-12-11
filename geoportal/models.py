@@ -36,6 +36,8 @@ class Resource(models.Model):
     url = models.CharField(max_length=255, null=True, blank=True)
     layers = models.CharField(max_length=255, null=True, blank=True)
     projection = models.IntegerField(help_text='EPSG code')
+    getfeatureinfo_support = models.BooleanField(_('WMS GetFeatureInfo support'), default=True)
+    single_image = models.BooleanField(_('Use single image'), default=False)
 
     def __str__(self):
         return '%s' % self.title or self.name
