@@ -147,11 +147,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
 
             if obj.wms_as_reference:
                 path = reverse('content-wms', kwargs={'name': obj.name})
-                request = self.context['request'] if 'request' in self.context else None
-                if request:
-                    url = request.build_absolute_uri(path)
-                else:
-                    url = url_slash_join(settings.GISCUBE_URL, remove_app_url(path))
+                url = url_slash_join(settings.GISCUBE_URL, remove_app_url(path))
                 reference = {
                     'title': data['title'],
                     'url': url,
