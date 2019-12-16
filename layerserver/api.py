@@ -399,7 +399,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         Serializer = self.get_model_serializer_class()
         add_serializers = []
         for i, item in enumerate(items):
-            serializer = Serializer(data=item)
+            serializer = Serializer(data=item, context={'request': self.request})
             if serializer.is_valid():
                 add_serializers.append(serializer)
             else:
@@ -409,6 +409,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
             try:
                 self.created_objects.append(serializer.save())
             except Exception:
+                raise
                 self.created_objects.append(serializer.instance)
                 return {i: self.ERROR_ON_SAVE}
 
@@ -446,7 +447,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
                 return {i: self.ERROR_NOT_EXIST}
 
             self.original_updated_objects[list(filter.values())[0]] = model_to_dict(obj, exclude=['pk'])
-            serializer = Serializer(instance=obj, data=item, partial=True)
+            serializer = Serializer(instance=obj, data=item, partial=True, context={'request': self.request})
             if serializer.is_valid():
                 update_serializers.append(serializer)
             else:

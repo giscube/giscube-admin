@@ -5,4 +5,6 @@ export TEST_DB_USER=giscube-admin
 export TEST_DB_PASSWORD=giscube-admin
 export TEST_DB_HOST=db
 
-python3 -Wall manage.py test tests
+ARG1=${1:-tests}
+
+python3 -Wall manage.py test $ARG1

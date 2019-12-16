@@ -8,6 +8,8 @@ from django.urls import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
+from ..widgets import widgets_types
+
 
 class Geom4326Serializer(GeoFeatureModelSerializer):
     def to_representation(self, instance):
@@ -197,10 +199,26 @@ def apply_widgets(attrs, model, fields):
             attrs[field] = to_image_field(field, f)
 
 
+class WidgetSerializerMixin(object):
+    def create(self, validated_data):
+        for field in self.__class__.Meta.model._meta.get_fields():
+            if field._giscube_field['enabled']:
+                widget_class = widgets_types[field._giscube_field['widget']]
+                widget_class.create(self.context['request'], validated_data, field._giscube_field)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        for field in self.__class__.Meta.model._meta.get_fields():
+            if field._giscube_field['enabled']:
+                widget_class = widgets_types[field._giscube_field['widget']]
+                widget_class.update(self.context['request'], instance, validated_data, field._giscube_field)
+        return super().update(instance, validated_data)
+
+
 class JSONSerializerFactory(object):
     common_mixins = (
-        UndoSerializerMixin, AccessTokenMixin, FixPropertiesSerializerMixin, ImageWithThumbnailSerializerMixin,
-        VirtualFieldsSerializer
+        UndoSerializerMixin, WidgetSerializerMixin, AccessTokenMixin, FixPropertiesSerializerMixin,
+        ImageWithThumbnailSerializerMixin, VirtualFieldsSerializer
     )
     serializer_class = JSONSerializer
 

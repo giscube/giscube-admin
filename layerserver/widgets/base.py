@@ -2,11 +2,19 @@ from django.utils.translation import gettext as _
 
 
 class BaseWidget(object):
+    ERROR_READONLY_REQUIRED = _('\'readonly\' attribute must be checked')
     TEMPLATE = ""
     base_type = 'base'
 
     @staticmethod
-    def is_valid(value):
+    def create(request, validated_data, widget):
+        pass
+
+    @staticmethod
+    def is_valid(cleaned_data):
+        """
+        admin validation
+        """
         pass
 
     @staticmethod
@@ -20,6 +28,10 @@ class BaseWidget(object):
     @staticmethod
     def get_queryset(qs, field, request):
         return qs
+
+    @staticmethod
+    def update(request, instance, validated_data, widget):
+        pass
 
 
 class BaseJSONWidget(BaseWidget):

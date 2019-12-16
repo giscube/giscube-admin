@@ -19,42 +19,53 @@ class DataBaseLayerFieldsValidatorTestCase(BaseTest):
         super().tearDown()
 
     def test_date_field(self):
-        self.assertEqual(widgets.DateWidget.is_valid(''), widgets.DateWidget.ERROR_INVALID_JSON)
-        self.assertEqual(widgets.DateWidget.is_valid('{}'), widgets.DateWidget.ERROR_FORMAT_REQUIRED)
+        field = {'widget_options': ''}
+        self.assertEqual(widgets.DateWidget.is_valid(field), widgets.DateWidget.ERROR_INVALID_JSON)
+        field = {'widget_options': '{}'}
+        self.assertEqual(widgets.DateWidget.is_valid(field), widgets.DateWidget.ERROR_FORMAT_REQUIRED)
 
     def test_linkedfield(self):
-        self.assertEqual(widgets.LinkedfieldWidget.is_valid(''), widgets.LinkedfieldWidget.ERROR_INVALID_JSON)
-        self.assertEqual(widgets.LinkedfieldWidget.is_valid('{}'), widgets.LinkedfieldWidget.ERROR_SOURCE_REQUIRED)
-        self.assertEqual(widgets.LinkedfieldWidget.is_valid('{"source": "type_id", "column": "type_name"}'), None)
+        field = {'widget_options': ''}
+        self.assertEqual(widgets.LinkedfieldWidget.is_valid(field), widgets.LinkedfieldWidget.ERROR_INVALID_JSON)
+        field = {'widget_options': '{}'}
+        self.assertEqual(widgets.LinkedfieldWidget.is_valid(field), widgets.LinkedfieldWidget.ERROR_SOURCE_REQUIRED)
+        field = {'widget_options': '{"source": "type_id", "column": "type_name"}'}
+        self.assertEqual(widgets.LinkedfieldWidget.is_valid(field), None)
 
     def test_image(self):
-        self.assertEqual(widgets.ImageWidget.is_valid(''), widgets.ImageWidget.ERROR_INVALID_JSON)
-        self.assertEqual(widgets.ImageWidget.is_valid('{}'), widgets.ImageWidget.ERROR_UPLOAD_ROOT_REQUIRED)
+        field = {'widget_options': ''}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_INVALID_JSON)
+        field = {'widget_options': '{}'}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_UPLOAD_ROOT_REQUIRED)
         temp_root = tempfile.mkdtemp()
         self.to_delete.append(temp_root)
         upload_root = os.path.join(temp_root, 'images_nok')
         config = '{"upload_root": "%s"}' % upload_root
-        self.assertEqual(widgets.ImageWidget.is_valid(config), widgets.ImageWidget.ERROR_UPLOAD_ROOT_NOT_EXISTS)
+        field = {'widget_options': config}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_UPLOAD_ROOT_NOT_EXISTS)
         os.mkdir(upload_root, 0o444)
         self.assertTrue(os.path.isdir(upload_root))
-        self.assertEqual(widgets.ImageWidget.is_valid(config), widgets.ImageWidget.ERROR_UPLOAD_ROOT_NOT_WRITABLE)
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_UPLOAD_ROOT_NOT_WRITABLE)
 
         upload_root = os.path.join(temp_root, 'images_ok')
         config = '{"upload_root": "%s", "base_url": "http//localhost"}' % upload_root
+        field = {'widget_options': config}
         os.mkdir(upload_root)
         self.assertTrue(os.path.isdir(upload_root))
-        self.assertEqual(widgets.ImageWidget.is_valid(config), widgets.ImageWidget.ERROR_BASE_URL)
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_BASE_URL)
         config = '{"upload_root": "%s", "base_url": "http://localhost"}' % upload_root
-        self.assertEqual(widgets.ImageWidget.is_valid(config), None)
+        field = {'widget_options': config}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), None)
 
         thumbnail_root = os.path.join(temp_root, 'thumbnail_nok')
         config = '{"upload_root": "%s", "base_url": "http://localhost", "thumbnail_root": "%s"}' % (
             upload_root, thumbnail_root)
-        self.assertEqual(widgets.ImageWidget.is_valid(config), widgets.ImageWidget.ERROR_THUMBNAIL_ROOT_NOT_EXISTS)
+        field = {'widget_options': config}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_THUMBNAIL_ROOT_NOT_EXISTS)
 
         os.mkdir(thumbnail_root, 0o444)
         self.assertTrue(os.path.isdir(thumbnail_root))
-        self.assertEqual(widgets.ImageWidget.is_valid(config), widgets.ImageWidget.ERROR_THUMBNAIL_ROOT_NOT_WRITABLE)
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_THUMBNAIL_ROOT_NOT_WRITABLE)
 
         thumbnail_root = os.path.join(temp_root, 'thumbnail_ok')
         config = '{"upload_root": "%s", "base_url": "http://localhost", "thumbnail_root": "%s"}' % (
@@ -63,7 +74,9 @@ class DataBaseLayerFieldsValidatorTestCase(BaseTest):
         self.assertTrue(os.path.isdir(thumbnail_root))
         config = ('{"upload_root": "%s", "base_url": "http://localhost", "thumbnail_root": "%s",'
                   '"thumbnail_base_url": "http//localhost"}') % (upload_root, thumbnail_root)
-        self.assertEqual(widgets.ImageWidget.is_valid(config), widgets.ImageWidget.ERROR_THUMBNAIL_BASE_URL)
+        field = {'widget_options': config}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), widgets.ImageWidget.ERROR_THUMBNAIL_BASE_URL)
 
         config = '{"upload_root": "%s", "base_url": "http://localhost"}' % upload_root
-        self.assertEqual(widgets.ImageWidget.is_valid(config), None)
+        field = {'widget_options': config}
+        self.assertEqual(widgets.ImageWidget.is_valid(field), None)

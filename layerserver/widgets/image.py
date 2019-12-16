@@ -32,7 +32,8 @@ class ImageWidget(BaseJSONWidget):
     base_type = 'image'
 
     @staticmethod  # noqa: C901
-    def is_valid(value):
+    def is_valid(cleaned_data):
+        value = cleaned_data['widget_options']
         try:
             data = json.loads(value)
         except Exception:

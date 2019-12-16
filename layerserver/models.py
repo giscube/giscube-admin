@@ -380,15 +380,20 @@ DATA_TYPES = {
 
 
 class DataBaseLayerField(models.Model):
-
     WIDGET_CHOICES = Choices(
         ('auto', _('Auto')),
         ('choices', _('Choices, one line per value')),
+        ('creationdate', _('Creation date')),
+        ('creationdatetime', _('Creation datetime')),
+        ('creationuser', _('Creation user')),
         ('date', _('Date')),
         ('datetime', _('Date time')),
         ('distinctvalues', _('Distinct values')),
         ('image', _('Image')),
         ('linkedfield', _('Linked Field')),
+        ('modificationdate', _('Modification date')),
+        ('modificationdatetime', _('Modification datetime')),
+        ('modificationuser', _('Modification user')),
         ('sqlchoices', _('SQL choices')),
     )
 

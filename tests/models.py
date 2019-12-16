@@ -8,6 +8,18 @@ class Location(models.Model):
     geometry = models.PointField()
 
 
+class LocationAuto(models.Model):
+    code = models.CharField(max_length=10, blank=False, null=False, unique=True)
+    address = models.CharField(max_length=50, blank=True, null=True)
+    creationuser = models.CharField(max_length=50, blank=True, null=True)
+    modificationuser = models.CharField(max_length=50, blank=True, null=True)
+    creationdate = models.DateField(blank=True, null=True)
+    modificationdate = models.DateField(blank=True, null=True)
+    creationdatetime = models.DateTimeField(blank=True, null=True)
+    modificationdatetime = models.DateTimeField(blank=True, null=True)
+    geometry = models.PointField()
+
+
 class Location_25831(models.Model):
     code = models.CharField(max_length=10, blank=False, null=False, unique=True)
     address = models.CharField(max_length=50, blank=True, null=True)
