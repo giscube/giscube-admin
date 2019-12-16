@@ -16,7 +16,8 @@ class DatetimeWidget(BaseJSONWidget):
     base_type = 'datetime'
 
     @staticmethod
-    def is_valid(value):
+    def is_valid(cleaned_data):
+        value = cleaned_data['widget_options']
         try:
             data = json.loads(value)
         except Exception:

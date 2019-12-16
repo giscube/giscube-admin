@@ -32,4 +32,19 @@ class Migration(migrations.Migration):
                 ('geometry', django.contrib.gis.db.models.fields.PointField(srid=25831)),
             ],
         ),
+        migrations.CreateModel(
+            name='LocationAuto',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('code', models.CharField(max_length=10, unique=True)),
+                ('address', models.CharField(blank=True, max_length=50, null=True)),
+                ('creationuser', models.CharField(blank=True, max_length=50, null=True)),
+                ('modificationuser', models.CharField(blank=True, max_length=50, null=True)),
+                ('creationdate', models.DateField(blank=True, null=True)),
+                ('modificationdate', models.DateField(blank=True, null=True)),
+                ('creationdatetime', models.DateTimeField(blank=True, null=True)),
+                ('modificationdatetime', models.DateTimeField(blank=True, null=True)),
+                ('geometry', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+            ],
+        ),
     ]

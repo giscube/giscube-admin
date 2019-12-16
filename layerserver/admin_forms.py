@@ -219,7 +219,7 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
 class DataBaseLayerFieldsInlineForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
-        err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data['widget_options'])
+        err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data)
         if err is not None:
             self.add_error('widget_options', err)
 
@@ -259,7 +259,7 @@ class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         if 'widget' in cleaned_data and cleaned_data['widget'] in widgets_types:
-            err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data['widget_options'])
+            err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data)
             if err is not None:
                 self.add_error('widget_options', err)
 

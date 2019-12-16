@@ -9,6 +9,8 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.management.commands.inspectdb import Command
+from django.db.models import Value
+from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.utils.functional import cached_property
 
@@ -16,7 +18,6 @@ from giscube.db.utils import get_table_parts
 
 from .fields import ImageWithThumbnailField
 from .storage import get_image_with_thumbnail_storage_class
-from django.db.models import Value
 
 
 class FixDefaultExpression(Value):
@@ -218,6 +219,7 @@ class ModelFactory:
                     fields[field.name] = self.to_image_field(field, fields[field.name])
                 except Exception:
                     raise Exception('Invalid configuration for field [%s]' % field.name)
+            fields[field.name]._giscube_field = model_to_dict(field)
 
     def destroy(self):
         last_model = self.get_registered_model()
