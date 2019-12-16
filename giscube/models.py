@@ -210,7 +210,7 @@ def user_asset_upload_to(instance, filename, uuid_folder=None):
 class UserAsset(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     file = models.FileField(_('file'), max_length=255, upload_to=user_asset_upload_to)
-    created = models.DateTimeField(_('created'), auto_now_add=True)
+    created = models.DateTimeField(_('creation datetime'), auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assets', on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):

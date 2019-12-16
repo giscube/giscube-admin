@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
                 ('file', models.FileField(max_length=255, upload_to=giscube.models.user_asset_upload_to)),
-                ('created', models.DateTimeField(auto_now_add=True)),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='creation datetime')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assets', to=settings.AUTH_USER_MODEL)),
             ],
         ),

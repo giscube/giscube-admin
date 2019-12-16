@@ -190,7 +190,7 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
             if x not in enabled_names:
                 list_fields_errors.append(x)
         if len(list_fields_errors) > 0:
-            self.add_error('list_fields', _('[%s] doesn\'t exist or aren\'t enabled.') %
+            self.add_error('list_fields', _('[%s] don\'t exist or aren\'t enabled.') %
                            ', '.join(list_fields_errors))
             return
 
@@ -199,7 +199,7 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
             if x not in enabled_names:
                 form_fields_errors.append(x)
         if len(form_fields_errors) > 0:
-            self.add_error('form_fields', _('[%s] doesn\'t exist or aren\'t enabled.') %
+            self.add_error('form_fields', _('[%s] don\'t exist or aren\'t enabled.') %
                            ', '.join(form_fields_errors))
             return
 

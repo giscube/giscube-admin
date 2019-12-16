@@ -232,7 +232,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     mapfile = models.FileField(
         null=True, blank=True, storage=OverwriteStorage(), upload_to=databaselayer_mapfile_upload_path)
 
-    wms_as_reference = models.BooleanField(_('Add layer data'), default=True)
+    wms_as_reference = models.BooleanField(_('Use generated WMS as reference'), default=True)
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
