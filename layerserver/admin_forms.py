@@ -217,6 +217,11 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
 
 
 class DataBaseLayerFieldsInlineForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        sorted_choices = sorted(DataBaseLayerField.WIDGET_CHOICES, key=lambda x: x[1])
+        self.fields['widget'].choices = sorted_choices
+
     def clean(self):
         cleaned_data = super().clean()
         err = widgets_types[cleaned_data['widget']].is_valid(cleaned_data)
@@ -256,6 +261,11 @@ class DataBaseLayerStyleRuleInlineForm(forms.ModelForm):
 
 
 class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        sorted_choices = sorted(DataBaseLayerVirtualField.WIDGET_CHOICES, key=lambda x: x[1])
+        self.fields['widget'].choices = sorted_choices
+
     def clean(self):
         cleaned_data = super().clean()
         if 'widget' in cleaned_data and cleaned_data['widget'] in widgets_types:
