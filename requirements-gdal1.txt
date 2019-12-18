@@ -1,5 +1,5 @@
 celery==4.3.0
-Django==2.1.10
+Django==3.0.1
 django-admin-list-filter-dropdown==1.0.2
 django-cas-ng==3.6.0
 django-celery-results==1.1.2
