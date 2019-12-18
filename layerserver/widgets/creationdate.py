@@ -1,10 +1,10 @@
 from datetime import datetime
 from django.utils.timezone import get_current_timezone
 
-from .base import BaseWidget
+from .date import DateWidget
 
 
-class CreationDateWidget(BaseWidget):
+class CreationDateWidget(DateWidget):
     base_type = 'date'
 
     @staticmethod
@@ -14,4 +14,5 @@ class CreationDateWidget(BaseWidget):
     @staticmethod
     def is_valid(cleaned_data):
         if not cleaned_data['readonly']:
-            return BaseWidget.ERROR_READONLY_REQUIRED
+            return CreationDateWidget.ERROR_READONLY_REQUIRED
+        return DateWidget.is_valid(cleaned_data)
