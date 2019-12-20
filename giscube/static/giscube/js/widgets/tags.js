@@ -25,10 +25,10 @@
       $element.val(value);
     }
 
-    tagify = new Tagify($target[0], {callbacks: {
-        add: update_element,
-        remove: update_element
-    }});
+    tagify = new Tagify($target[0], {
+      dropdown: {enabled: 0},
+      callbacks: {add: update_element, remove: update_element}
+    });
     $element.data('tagify', tagify);
 
     function onEnd(evt) {
