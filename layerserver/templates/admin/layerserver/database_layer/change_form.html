@@ -43,6 +43,7 @@
           to.val(template_html);
           to.trigger('input');
       }
+      to.prop('readonly', item.val() === 'auto');
   }
 
   function field_widget_init(){
