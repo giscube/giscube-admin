@@ -18,77 +18,77 @@
 {% block admin_change_form_document_ready %}{{ block.super }}
 <script type="text/javascript">
 (function ($){
-	function resize() {
-		var e = $(this);
-		e.height(0);
-		e.height(this.scrollHeight);
-	}
+  function resize() {
+    var e = $(this);
+    e.height(0);
+    e.height(this.scrollHeight);
+  }
 
-	function resize_all() {
-        $('.tab-fields .vLargeTextField').each(resize);
-    }
+  function resize_all() {
+    $('.tab-fields .vLargeTextField').each(resize);
+  }
 
-    var widgets_templates = {};
-    {% for k,v in widgets_templates.items %}
-        widgets_templates["{{ k }}"] = "{{ v }}";
-    {% endfor %}
+  var widgets_templates = {};
+  {% for k,v in widgets_templates.items %}
+      widgets_templates["{{ k }}"] = "{{ v }}";
+  {% endfor %}
 
-    function field_widget_change(e){
-        var is_init = typeof e === 'undefined' ? true : false;
-        var item = $(this);
-        var to = $('#' + item.attr('id').replace(/-widget/, '-widget_options'));
-        if ((is_init === true && to.val() === '') || is_init === false){
-            var template_html = widgets_templates[item.val()];
-            var fixed = ""
-            to.val(template_html);
-            to.trigger('input');
+  function field_widget_change(e){
+      var is_init = typeof e === 'undefined' ? true : false;
+      var item = $(this);
+      var to = $('#' + item.attr('id').replace(/-widget/, '-widget_options'));
+      if ((is_init === true && to.val() === '') || is_init === false){
+          var template_html = widgets_templates[item.val()];
+          var fixed = ""
+          to.val(template_html);
+          to.trigger('input');
+      }
+  }
+
+  function field_widget_init(){
+      field_widget_change.call(this);
+  }
+
+  $(document).ready(function(){
+    $('.field-widget select').each(field_widget_init);
+    $('.field-widget select').on('change', field_widget_change);
+
+    resize_all();
+    $('.tab-fields .vLargeTextField').on('input', resize);
+  });
+  window.addEventListener('hashchange', resize_all, false);
+
+  // Tags
+  function update_tagify_whitelist(){
+    var value, list_fields = [];
+    $('fieldset.tab-fields .field-enabled input[type="checkbox"]:checked').not('[name*=__prefix__]').each(function(i, el){
+        value = $(el).parents('tr').find('td.field-name').text().trim();
+        if (value != '' && list_fields.indexOf(value) === -1){
+            list_fields.push(value);
         }
-    }
+    });
+    $('fieldset.tab-virtual-fields .field-enabled input[type="checkbox"]:checked').not('[name*=__prefix__]').each(function(i, el){
+        value = $(el).parents('tr').find('td.field-name input').val();
+        if (value != '' && list_fields.indexOf(value) === -1){
+            list_fields.push(value);
+        }
+    });
+    $('textarea.tags-widget').each(function(_, el){
+        $(el).data('tagify').settings.whitelist = list_fields;
+    });
+  }
 
-    function field_widget_init(){
-        field_widget_change.call(this);
-    }
+  $('.field-enabled input[type="checkbox"]').change(function(){
+    update_tagify_whitelist();
+  });
 
-	$(document).ready(function(){
-        $('.field-widget select').each(field_widget_init);
-        $('.field-widget select').on('change', field_widget_change);
+  $('fieldset.tab-virtual-fields td.field-name input').change(function(){
+    update_tagify_whitelist();
+  });
 
-        resize_all();
-		$('.tab-fields .vLargeTextField').on('input', resize);
-	});
-    window.addEventListener('hashchange', resize_all, false);
-
-    // Tags
-    function update_tagify_whitelist(){
-        var value, list_fields = [];
-        $('fieldset.tab-fields .field-enabled input[type="checkbox"]:checked').not('[name*=__prefix__]').each(function(i, el){
-            value = $(el).parents('tr').find('td.field-name').text().trim();
-            if (value != '' && list_fields.indexOf(value) === -1){
-                list_fields.push(value);
-            }
-        });
-        $('fieldset.tab-virtual-fields .field-enabled input[type="checkbox"]:checked').not('[name*=__prefix__]').each(function(i, el){
-            value = $(el).parents('tr').find('td.field-name input').val();
-            if (value != '' && list_fields.indexOf(value) === -1){
-                list_fields.push(value);
-            }
-        });
-        $('textarea.tags-widget').each(function(_, el){
-            $(el).data('tagify').settings.whitelist = list_fields;
-        });
-    }
-
-    $('.field-enabled input[type="checkbox"]').change(function(){
+  $(document).ready(function(){
       update_tagify_whitelist();
-    });
-
-    $('fieldset.tab-virtual-fields td.field-name input').change(function(){
-      update_tagify_whitelist();
-    });
-
-    $(document).ready(function(){
-        update_tagify_whitelist();
-    });
+  });
 
 })(django.jQuery);
 </script>
