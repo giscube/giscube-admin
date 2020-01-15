@@ -67,6 +67,7 @@ class Service(models.Model):
     servers = models.ManyToManyField(Server, blank=True)
     options = models.TextField(_('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
                                validators=[validate_options_json_format])
+    legend = models.TextField(_('legend'), null=True, blank=True)
 
     @property
     def default_layer(self):

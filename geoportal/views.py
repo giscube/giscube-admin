@@ -58,7 +58,8 @@ class ResultsMixin():
                 'group': getattr(r, 'has_children', False),
                 'children': children,
                 'options': json.loads(getattr(r, 'options', '{}') or '{}'),
-                'catalog':  (r.category or '').split(Category.SEPARATOR) if r.category else []
+                'catalog':  (r.category or '').split(Category.SEPARATOR) if r.category else [],
+                'legend': r.legend
             })
         return Response({'results': results})
 
