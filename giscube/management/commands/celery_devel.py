@@ -3,7 +3,6 @@ import shlex
 import subprocess
 
 from django.core.management.base import BaseCommand
-from django.utils import autoreload
 
 
 def restart_celery():
@@ -17,4 +16,10 @@ def restart_celery():
 class Command(BaseCommand):
     def handle(self, *args, **options):
         print('Starting celery workers with autoreload...')
-        autoreload.main(restart_celery)
+
+        try:
+            from django.utils.autoreload import run_with_reloader
+            run_with_reloader(restart_celery)
+        except ImportError:
+            from django.utils import autoreload
+            autoreload.main(restart_celery)

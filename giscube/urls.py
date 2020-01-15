@@ -14,9 +14,9 @@ from . import views
 
 
 router = routers.DefaultRouter()
-router.register(r'giscube/category', api.CategoryViewSet, base_name='giscube_category')
+router.register(r'giscube/category', api.CategoryViewSet, basename='giscube_category')
 
-router.register(r'giscube/user-assets', api.UserAssetViewSet, base_name='user_assets')
+router.register(r'giscube/user-assets', api.UserAssetViewSet, basename='user_assets')
 
 # OAuth2 provider endpoints
 oauth2_endpoint_views = [

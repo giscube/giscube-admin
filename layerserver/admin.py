@@ -47,7 +47,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [GeoJsonLayerStyleRuleInline]
-    actions = [geojsonlayer_force_refresh_data]
+    actions = admin.ModelAdmin.actions + [geojsonlayer_force_refresh_data]
     save_as = True
 
     tabs_add = (

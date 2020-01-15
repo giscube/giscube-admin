@@ -3,6 +3,7 @@ import os
 import shutil
 
 from django.apps import apps
+from django.db import connections
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test.utils import override_settings
@@ -101,3 +102,18 @@ class BaseTest(APITransactionTestCase):
         except Exception as e:
             print('Error deleting %s directory' % settings.MEDIA_ROOT)
             print(str(e))
+
+
+    # Fix AttributeError: 'function' object has no attribute 'wrapped'
+    @classmethod
+    def _remove_databases_failures(cls):
+        for alias in connections:
+            if alias in cls.databases:
+                continue
+            connection = connections[alias]
+            for name, _ in cls._disallowed_connection_methods:
+                method = getattr(connection, name)
+                try:
+                    setattr(connection, name, method.wrapped)
+                except Exception:
+                    pass
