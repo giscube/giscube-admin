@@ -10,10 +10,12 @@ class ColorWidget(widgets.TextInput):
 
     class Media:
         extra = '' if settings.DEBUG else '.min'
-        js = ['vendors/bgrins-spectrum/spectrum%s.js' % extra, 'giscube/js/widgets/color.js']
+        js = [
+            'admin/js/jquery.init.js', 'vendors/bgrins-spectrum/spectrum%s.js' % extra, 'giscube/js/widgets/color.js'
+        ]
         lang = get_language()
         if lang != 'en':
-            js.insert(1, 'vendors/bgrins-spectrum/i18n/jquery.spectrum-%s.js' % lang)
+            js.insert(2, 'vendors/bgrins-spectrum/i18n/jquery.spectrum-%s.js' % lang)
         css = {
             'all': ('vendors/bgrins-spectrum/spectrum%s.css' % extra,)
         }
@@ -27,6 +29,7 @@ class TagsWidget(widgets.Textarea):
     class Media:
         extra = '' if settings.DEBUG else '.min'
         js = [
+            'admin/js/jquery.init.js',
             'vendors/tagify/tagify%s.js' % extra,
             'vendors/sortable/Sortable%s.js' % extra,
             'giscube/js/widgets/tags.js']

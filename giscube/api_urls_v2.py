@@ -6,7 +6,7 @@ from .api_v2 import CategoryViewSet
 
 
 router = routers.DefaultRouter()
-router.register('category', CategoryViewSet, base_name='api_v2_giscube_category')
+router.register('category', CategoryViewSet, basename='api_v2_giscube_category')
 
 urlpatterns = []
 
