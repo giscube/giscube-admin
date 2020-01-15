@@ -23,6 +23,7 @@ class GeoJSONLayerIndex(indexes.SearchIndex, indexes.Indexable):
     has_children = indexes.BooleanField()
     children = indexes.CharField()
     private = indexes.BooleanField()
+    legend = indexes.CharField(model_attr='legend', null=True)
 
     def get_model(self):
         return GeoJsonLayer
@@ -70,6 +71,7 @@ class DataBaseLayerIndex(indexes.SearchIndex, indexes.Indexable):
     has_children = indexes.BooleanField()
     children = indexes.CharField()
     private = indexes.BooleanField()
+    legend = indexes.CharField(model_attr='legend', null=True)
 
     def get_model(self):
         return DataBaseLayer

@@ -15,6 +15,7 @@ class Dataset(models.Model):
     active = models.BooleanField(default=True, help_text='Enable/disable usage')
     options = models.TextField(_('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
                                validators=[validate_options_json_format])
+    legend = models.TextField(_('legend'), null=True, blank=True)
 
     def __str__(self):
         return '%s' % self.title or self.name

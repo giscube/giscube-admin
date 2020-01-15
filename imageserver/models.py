@@ -45,6 +45,7 @@ class Service(models.Model):
     visible_on_geoportal = models.BooleanField(_('visible on geoportal'), default=False)
     options = models.TextField(_('options'), null=True, blank=True, help_text=_('json format. Ex: {"maxZoom": 20}'),
                                validators=[validate_options_json_format])
+    legend = models.TextField(_('legend'), null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':

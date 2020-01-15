@@ -22,6 +22,7 @@ class ServiceIndex(indexes.SearchIndex, indexes.Indexable):
     children = indexes.CharField()
     options = indexes.CharField()
     private = indexes.BooleanField()
+    legend = indexes.CharField(model_attr='legend', null=True)
 
     def get_model(self):
         return Service
