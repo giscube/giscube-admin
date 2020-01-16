@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 12:23+0100\n"
-"PO-Revision-Date: 2019-12-18 12:26+0100\n"
+"POT-Creation-Date: 2020-01-16 09:37+0100\n"
+"PO-Revision-Date: 2020-01-16 09:37+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -47,11 +47,16 @@ msgstr "Email enviat des de mail_admins per app_admin"
 msgid "options"
 msgstr "opcions"
 
-#: geoportal/models.py:39
+#: geoportal/models.py:18 imageserver/models.py:48 layerserver/models.py:75
+#: layerserver/models.py:237 qgisserver/models.py:70
+msgid "legend"
+msgstr "llegenda"
+
+#: geoportal/models.py:40
 msgid "WMS GetFeatureInfo support"
 msgstr "Suport per WMS GetFeatureInfo"
 
-#: geoportal/models.py:40
+#: geoportal/models.py:41
 msgid "Use single image"
 msgstr "Fer servir una sola imatge"
 
@@ -64,11 +69,11 @@ msgid "None"
 msgstr "Buit"
 
 #: giscube/models.py:21 giscube/models.py:177 imageserver/models.py:31
-#: imageserver/models.py:39 imageserver/models.py:84 imageserver/models.py:113
-#: imageserver/models.py:122 layerserver/models.py:210
-#: layerserver/models.py:403 layerserver/models.py:487
+#: imageserver/models.py:39 imageserver/models.py:85 imageserver/models.py:114
+#: imageserver/models.py:123 layerserver/models.py:211
+#: layerserver/models.py:405 layerserver/models.py:489
 #: layerserver/models_mixins.py:22 qgisserver/models.py:43
-#: qgisserver/models.py:147
+#: qgisserver/models.py:148
 msgid "name"
 msgstr "nom"
 
@@ -190,7 +195,7 @@ msgstr "Privat"
 msgid "Public"
 msgstr "Públic"
 
-#: imageserver/models.py:32 imageserver/models.py:114
+#: imageserver/models.py:32 imageserver/models.py:115
 #: layerserver/models_mixins.py:23 qgisserver/models.py:44
 msgid "title"
 msgstr "títol"
@@ -205,11 +210,11 @@ msgstr "descripció"
 msgid "keywords"
 msgstr "paraules clau"
 
-#: imageserver/models.py:35 imageserver/models.py:85 imageserver/models.py:116
+#: imageserver/models.py:35 imageserver/models.py:86 imageserver/models.py:117
 msgid "projection"
 msgstr "projecció"
 
-#: imageserver/models.py:35 imageserver/models.py:85
+#: imageserver/models.py:35 imageserver/models.py:86
 msgid "EPSG code"
 msgstr "codi EPSG"
 
@@ -221,7 +226,7 @@ msgstr "srs suportats"
 msgid "Comma separated list of supported EPSG codes"
 msgstr "Llistat de codis EPSG separats per comes"
 
-#: imageserver/models.py:40 imageserver/models.py:117
+#: imageserver/models.py:40 imageserver/models.py:118
 msgid "extent"
 msgstr "extensió"
 
@@ -247,71 +252,71 @@ msgstr "visible al geoportal"
 msgid "json format. Ex: {\"maxZoom\": 20}"
 msgstr "format json. Ex: {\"maxZoom\": 20}"
 
-#: imageserver/models.py:74 qgisserver/models.py:87
+#: imageserver/models.py:75 qgisserver/models.py:88
 msgid "Service"
 msgstr "Servei"
 
-#: imageserver/models.py:75 qgisserver/models.py:88
+#: imageserver/models.py:76 qgisserver/models.py:89
 msgid "Services"
 msgstr "Serveis"
 
-#: imageserver/models.py:86
+#: imageserver/models.py:87
 msgid "mask"
 msgstr "màscara"
 
-#: imageserver/models.py:88
+#: imageserver/models.py:89
 msgid "mask path"
 msgstr "camí de la màscara"
 
-#: imageserver/models.py:102
+#: imageserver/models.py:103
 msgid "Mask"
 msgstr "Màcara"
 
-#: imageserver/models.py:103
+#: imageserver/models.py:104
 msgid "Masks"
 msgstr "Màscares"
 
-#: imageserver/models.py:115
+#: imageserver/models.py:116
 msgid "group"
 msgstr "grup"
 
-#: imageserver/models.py:118
+#: imageserver/models.py:119
 msgid "layer path"
 msgstr "camí a la capa"
 
-#: imageserver/models.py:121
+#: imageserver/models.py:122
 msgid "file mask"
 msgstr "fitxer de màscara"
 
-#: imageserver/models.py:124
+#: imageserver/models.py:125
 msgid "image"
 msgstr "imatge"
 
-#: imageserver/models.py:124
+#: imageserver/models.py:125
 msgid "Image file or folder with tiled images"
 msgstr "Fitxer amb la imatge o directori amb els tiles"
 
-#: imageserver/models.py:164
+#: imageserver/models.py:165
 msgid "Layer"
 msgstr "Capa"
 
-#: imageserver/models.py:165
+#: imageserver/models.py:166
 msgid "Layers"
 msgstr "Capes"
 
-#: imageserver/models.py:174
+#: imageserver/models.py:175
 msgid "Service Layer"
 msgstr "Servei de capa"
 
-#: imageserver/models.py:175
+#: imageserver/models.py:176
 msgid "Services Layers"
 msgstr "Serveis de capa"
 
-#: imageserver/models.py:208
+#: imageserver/models.py:209
 msgid "Layer Preview"
 msgstr "Vista prèvia de capa"
 
-#: imageserver/models.py:209
+#: imageserver/models.py:210
 msgid "Layer Previews"
 msgstr "Vistes prèvies de capa"
 
@@ -366,19 +371,19 @@ msgstr "[%s] es demanarà en segon pla."
 msgid "GeoJsonLayer will be generated/updated in background."
 msgstr "GeoJsonLayer es generarà / s'actualitzarà en segon pla."
 
-#: layerserver/admin.py:218 layerserver/models.py:556 layerserver/models.py:566
+#: layerserver/admin.py:218 layerserver/models.py:558 layerserver/models.py:568
 msgid "Group"
 msgstr "Grup"
 
-#: layerserver/admin.py:219 layerserver/models.py:567
+#: layerserver/admin.py:219 layerserver/models.py:569
 msgid "Groups"
 msgstr "Grups"
 
-#: layerserver/admin.py:226 layerserver/models.py:572 layerserver/models.py:582
+#: layerserver/admin.py:226 layerserver/models.py:574 layerserver/models.py:584
 msgid "User"
 msgstr "Usuari"
 
-#: layerserver/admin.py:227 layerserver/models.py:583
+#: layerserver/admin.py:227 layerserver/models.py:585
 msgid "Users"
 msgstr "Usuaris"
 
@@ -386,11 +391,11 @@ msgstr "Usuaris"
 msgid "Data base"
 msgstr "Base de dades"
 
-#: layerserver/admin.py:312 layerserver/admin.py:321 layerserver/models.py:475
+#: layerserver/admin.py:312 layerserver/admin.py:321 layerserver/models.py:477
 msgid "Fields"
 msgstr "Camps"
 
-#: layerserver/admin.py:313 layerserver/admin.py:322 layerserver/models.py:512
+#: layerserver/admin.py:313 layerserver/admin.py:322 layerserver/models.py:514
 msgid "Virtual Fields"
 msgstr "Camps virtuals"
 
@@ -398,7 +403,7 @@ msgstr "Camps virtuals"
 msgid "Permissions"
 msgstr "Permisos"
 
-#: layerserver/admin.py:325 layerserver/models.py:550
+#: layerserver/admin.py:325 layerserver/models.py:552
 msgid "References"
 msgstr "Referències"
 
@@ -455,16 +460,16 @@ msgstr "Es requereix l'atribut 'Srid'"
 msgid "[%s] don't exist or aren't enabled."
 msgstr "Els [%s] no existeixen o no estan actius"
 
-#: layerserver/admin_forms.py:237
+#: layerserver/admin_forms.py:242
 #, python-format
 msgid "%s format doesn't support transparent attribute enabled"
 msgstr "El format %s no suporta l'atribut 'transparent' activat"
 
-#: layerserver/admin_forms.py:273 layerserver/admin_forms.py:291
+#: layerserver/admin_forms.py:283 layerserver/admin_forms.py:301
 msgid "Force refresh Data file"
 msgstr "Forçar el refresc del fitxer de dades"
 
-#: layerserver/admin_forms.py:274 layerserver/admin_forms.py:292
+#: layerserver/admin_forms.py:284 layerserver/admin_forms.py:302
 msgid "Generate popup from data"
 msgstr "Generar finestra de més informació des de les dades"
 
@@ -508,222 +513,222 @@ msgstr "data generació"
 msgid "get design from"
 msgstr "obtenir disseny de"
 
-#: layerserver/models.py:140
+#: layerserver/models.py:141
 msgid "GeoJSONLayer"
 msgstr "Capa GeoJSON"
 
-#: layerserver/models.py:141
+#: layerserver/models.py:142
 msgid "GeoJSONLayers"
 msgstr "Capes GeoJSON"
 
-#: layerserver/models.py:188 layerserver/models.py:518
+#: layerserver/models.py:189 layerserver/models.py:520
 msgid "field"
 msgstr "camp"
 
-#: layerserver/models.py:189 layerserver/models.py:519
+#: layerserver/models.py:190 layerserver/models.py:521
 msgid "comparator"
 msgstr "comparador"
 
-#: layerserver/models.py:190 layerserver/models.py:520
+#: layerserver/models.py:191 layerserver/models.py:522
 msgid "value"
 msgstr "valor"
 
-#: layerserver/models.py:191 layerserver/models.py:521
+#: layerserver/models.py:192 layerserver/models.py:523
 msgid "order"
 msgstr "ordre"
 
-#: layerserver/models.py:198 layerserver/models.py:528
+#: layerserver/models.py:199 layerserver/models.py:530
 msgid "Style rule"
 msgstr "Regla d'estil"
 
-#: layerserver/models.py:199 layerserver/models.py:529
+#: layerserver/models.py:200 layerserver/models.py:531
 msgid "Style rules"
 msgstr "Regles d'estil"
 
-#: layerserver/models.py:211
+#: layerserver/models.py:212
 msgid "table"
 msgstr "taula"
 
-#: layerserver/models.py:212
+#: layerserver/models.py:213
 msgid "pk field"
 msgstr "clau primària"
 
-#: layerserver/models.py:213
+#: layerserver/models.py:214
 msgid "geom field"
 msgstr "camp amb geometria"
 
-#: layerserver/models.py:214
+#: layerserver/models.py:215
 msgid "srid"
 msgstr "srid"
 
-#: layerserver/models.py:215
+#: layerserver/models.py:216
 msgid "Allow page size=0 (Disables pagination)"
 msgstr "Permetre mida de la pàgina=0 (Desactiva la paginació)"
 
-#: layerserver/models.py:217
+#: layerserver/models.py:218
 msgid "page size"
 msgstr "mida de la pàgina"
 
-#: layerserver/models.py:217
+#: layerserver/models.py:218
 #, python-format
 msgid "Default value is %s. Value 0 disables pagination."
 msgstr "El valor per defecte és %s. Valor 0 desactiva la paginació."
 
-#: layerserver/models.py:220
+#: layerserver/models.py:221
 msgid "maximum page size"
 msgstr "valor màxim de mida de la pàgina"
 
-#: layerserver/models.py:220
+#: layerserver/models.py:221
 #, python-format
 msgid "Default value is %s"
 msgstr "El valor per defecte és %s"
 
-#: layerserver/models.py:223
+#: layerserver/models.py:224
 msgid "list fields"
 msgstr "Camps al llistat"
 
-#: layerserver/models.py:224
+#: layerserver/models.py:225
 msgid "form fields"
 msgstr "Camps al formulari"
 
-#: layerserver/models.py:226 layerserver/models.py:557
-#: layerserver/models.py:573
+#: layerserver/models.py:227 layerserver/models.py:559
+#: layerserver/models.py:575
 msgid "Can view"
 msgstr "Permet veure"
 
-#: layerserver/models.py:227 layerserver/models.py:558
-#: layerserver/models.py:574
+#: layerserver/models.py:228 layerserver/models.py:560
+#: layerserver/models.py:576
 msgid "Can add"
 msgstr "Permet afegir"
 
-#: layerserver/models.py:228 layerserver/models.py:559
-#: layerserver/models.py:575
+#: layerserver/models.py:229 layerserver/models.py:561
+#: layerserver/models.py:577
 msgid "Can update"
 msgstr "Permet actualitzar"
 
-#: layerserver/models.py:229 layerserver/models.py:560
-#: layerserver/models.py:576
+#: layerserver/models.py:230 layerserver/models.py:562
+#: layerserver/models.py:578
 msgid "Can delete"
 msgstr "Permet eliminar"
 
-#: layerserver/models.py:235
+#: layerserver/models.py:236
 msgid "Use generated WMS as reference"
 msgstr "Fes servir el WMS generat com a referència"
 
-#: layerserver/models.py:384
+#: layerserver/models.py:386
 msgid "Auto"
 msgstr "Automàtic"
 
-#: layerserver/models.py:385
+#: layerserver/models.py:387
 msgid "Choices, one line per value"
 msgstr "Escollir: un valor per línia"
 
-#: layerserver/models.py:386
+#: layerserver/models.py:388
 msgid "Creation date"
 msgstr "Data de creació"
 
-#: layerserver/models.py:387
+#: layerserver/models.py:389
 msgid "Creation datetime"
 msgstr "Data i temps de creació"
 
-#: layerserver/models.py:388
+#: layerserver/models.py:390
 msgid "Creation user"
 msgstr "Usuari de creació"
 
-#: layerserver/models.py:389
+#: layerserver/models.py:391
 msgid "Date"
 msgstr "Data"
 
-#: layerserver/models.py:390
+#: layerserver/models.py:392
 #, fuzzy
 msgid "Date time"
 msgstr "Data i temps"
 
-#: layerserver/models.py:391
+#: layerserver/models.py:393
 msgid "Distinct values"
 msgstr "Valors diferents"
 
-#: layerserver/models.py:392 layerserver/models_mixins.py:12
+#: layerserver/models.py:394 layerserver/models_mixins.py:12
 msgid "Image"
 msgstr "Imatge"
 
-#: layerserver/models.py:393 layerserver/models.py:482
+#: layerserver/models.py:395 layerserver/models.py:484
 msgid "Linked Field"
 msgstr "Camp enllaçat"
 
-#: layerserver/models.py:394
+#: layerserver/models.py:396
 msgid "Modification date"
 msgstr "Data de modificació"
 
-#: layerserver/models.py:395
+#: layerserver/models.py:397
 msgid "Modification datetime"
 msgstr "Data i temps de modificació"
 
-#: layerserver/models.py:396
+#: layerserver/models.py:398
 msgid "Modification user"
 msgstr "Usuari de modificació"
 
-#: layerserver/models.py:397
+#: layerserver/models.py:399
 msgid "SQL choices"
 msgstr "Escollir: mitjançant consulta SQL"
 
-#: layerserver/models.py:404 layerserver/models.py:488
+#: layerserver/models.py:406 layerserver/models.py:490
 msgid "label"
 msgstr "etiqueta"
 
-#: layerserver/models.py:405
+#: layerserver/models.py:407
 msgid "search"
 msgstr "cercable"
 
-#: layerserver/models.py:406
+#: layerserver/models.py:408
 msgid "full search"
 msgstr "activa cerca completa"
 
-#: layerserver/models.py:407 layerserver/models.py:489
+#: layerserver/models.py:409 layerserver/models.py:491
 msgid "enabled"
 msgstr "actiu"
 
-#: layerserver/models.py:408
+#: layerserver/models.py:410
 msgid "readonly"
 msgstr "mode lectura"
 
-#: layerserver/models.py:409
+#: layerserver/models.py:411
 msgid "blank"
 msgstr "blanc"
 
-#: layerserver/models.py:411 layerserver/models.py:490
+#: layerserver/models.py:413 layerserver/models.py:492
 msgid "widget"
 msgstr "giny"
 
-#: layerserver/models.py:412 layerserver/models.py:491
+#: layerserver/models.py:414 layerserver/models.py:493
 msgid "widget options"
 msgstr "opcions del giny"
 
-#: layerserver/models.py:474
+#: layerserver/models.py:476
 msgid "Field"
 msgstr "Camp"
 
-#: layerserver/models.py:481
+#: layerserver/models.py:483
 msgid "1:N Relation"
 msgstr "Relació 1 a molts"
 
-#: layerserver/models.py:511
+#: layerserver/models.py:513
 msgid "Virtual Field"
 msgstr "Camp virtual"
 
-#: layerserver/models.py:541
+#: layerserver/models.py:543
 msgid "format"
 msgstr "format"
 
-#: layerserver/models.py:542
+#: layerserver/models.py:544
 msgid "transparent"
 msgstr "transparent"
 
-#: layerserver/models.py:543
+#: layerserver/models.py:545
 msgid "refresh on data changes"
 msgstr "forçar el refresc del fitxer de dades"
 
-#: layerserver/models.py:549
+#: layerserver/models.py:551
 msgid "Reference"
 msgstr "Referència"
 
@@ -823,11 +828,11 @@ msgstr "popup"
 msgid "tooltip"
 msgstr "tooltip"
 
-#: layerserver/search_indexes.py:41
+#: layerserver/search_indexes.py:42
 msgid "GeoJSON Layer"
 msgstr "Capa GeoJSON"
 
-#: layerserver/search_indexes.py:97 layerserver/search_indexes.py:107
+#: layerserver/search_indexes.py:99 layerserver/search_indexes.py:109
 msgid "DataBase Layer"
 msgstr "Capa de base de dades"
 
@@ -954,15 +959,15 @@ msgstr "mida del buffer"
 msgid "tile sizes"
 msgstr "mida dels tiles"
 
-#: qgisserver/models.py:148
+#: qgisserver/models.py:149
 msgid "data"
 msgstr "dades"
 
-#: qgisserver/models.py:156
+#: qgisserver/models.py:157
 msgid "Project"
 msgstr "Projecte"
 
-#: qgisserver/models.py:157
+#: qgisserver/models.py:158
 msgid "Projects"
 msgstr "Projectes"
 
