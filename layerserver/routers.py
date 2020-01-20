@@ -6,20 +6,18 @@ class DataBaseLayersRouter:
         """
         Attempts to read
         """
-        if hasattr(model, 'databaselayer_db_connection'):
-            return model.databaselayer_db_connection
-        return None
+        if hasattr(model, '_giscube_dblayer_db_connection'):
+            return model._giscube_dblayer_db_connection
 
     def db_for_write(self, model, **hints):
         """
         Attempts to write
         """
-        if hasattr(model, 'databaselayer_db_connection'):
-            return model.databaselayer_db_connection
-        return None
+        if hasattr(model, '_giscube_dblayer_db_connection'):
+            return model._giscube_dblayer_db_connection
 
     def allow_relation(self, obj1, obj2, **hints):
-        return None
+        pass
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        return None
+        pass

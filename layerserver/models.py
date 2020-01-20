@@ -21,10 +21,10 @@ from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
 from giscube.storage import OverwriteStorage
 from giscube.utils import RecursionException, check_recursion, unique_service_directory
-from layerserver import model_legacy
 
+from . import model_legacy
+from .fields import ImageWithThumbnailField
 from .mapserver import SUPORTED_SHAPE_TYPES
-from .model_legacy import ImageWithThumbnailField
 from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
 from .tasks import async_generate_mapfile
 
@@ -293,16 +293,16 @@ def add_fields(sender, instance, created, **kwargs):
     old_fields = []
     if not created:
         old_fields = [field.name for field in instance.fields.all()]
-    for field in list(fields.keys()):
-        if field not in old_fields:
+    for field_name, field in fields.items():
+        if field_name not in old_fields:
             db_field = DataBaseLayerField()
             db_field.layer = instance
-            db_field.name = field
-            db_field.blank = fields[field].null
+            db_field.name = field_name
+            db_field.blank = field['kwargs']['blank']
             db_field.save()
         else:
-            if field in old_fields:
-                old_fields.remove(field)
+            if field_name in old_fields:
+                old_fields.remove(field_name)
     if not created and len(old_fields) > 0:
         DataBaseLayerField.objects.filter(
             layer=instance, name__in=old_fields).delete()

@@ -24,9 +24,11 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
 
     def tearDown(self):
         super().tearDown()
+
         cursor = self.conn.get_connection().cursor()
         sql = 'DROP TABLE IF EXISTS address_no_primary_key'
-        cursor = self.conn.get_connection().cursor()
+        cursor.execute(sql)
+        sql = 'DROP TABLE IF EXISTS public.address_no_primary_key'
         cursor.execute(sql)
 
     def test_add_form_autofield_add_primary_key(self):
@@ -49,7 +51,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
 
     def test_add_form_no_primary_key_no_autofield(self):
         sql = """
-            CREATE TABLE address_no_primary_key
+            CREATE TABLE public.address_no_primary_key
             (
               code character varying(255),
               address character varying(255),
@@ -113,7 +115,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         If there isn't a primary key it looks but a pk_field is defined sets primary_key=True to pk_field
         """
         sql = """
-            CREATE TABLE address_no_primary_key
+            CREATE TABLE public.address_no_primary_key
             (
               code character varying(10),
               address character varying(255),

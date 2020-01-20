@@ -138,27 +138,6 @@ class DBConnection(models.Model):
             rows.append(row)
         return rows
 
-    def table_exists(self, table_name):
-        db_conn = self.get_connection()
-        cursor = db_conn.cursor()
-        try:
-            db_conn.introspection.get_table_description(cursor, table_name)
-        except Exception:
-            return False
-        return True
-
-    def fetchall(self, sql):
-        rows = []
-        conn = self.get_connection()
-        try:
-            cur = conn.cursor()
-            cur.execute(sql)
-            rows = cur.fetchall()
-            cur.close()
-        except Exception:
-            rows = ['error']
-        return rows
-
     def full_clean(self, *args, **kwargs):
         from django.core.validators import ValidationError
         if not self.check_connection():
