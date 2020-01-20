@@ -232,9 +232,14 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         self.assertEqual(UserAsset.objects.all().count(), 0)
 
     def test_bulk_undo_create(self):
+        """
+        Undo created object due a failed update
+        """
         self.login_test_user()
 
         Model = create_dblayer_model(self.layer)
+
+        self.assertEqual(Model.objects.all().count(), 0)
 
         url = reverse('user_assets-list')
         files = ['2210571.jpg', 'giscube_01.png']
@@ -271,10 +276,10 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         dirs, files = Model._meta.get_field('image').storage.listdir('.')
         self.assertEqual(len(files), 0)
-        self.assertEqual(Model.objects.all().count(), 0)
 
         dirs, files = Model._meta.get_field('image').storage.get_thumbnail_storage().listdir('.')
         self.assertEqual(len(files), 0)
+
         self.assertEqual(Model.objects.all().count(), 0)
 
         self.assertEqual(UserAsset.objects.all().count(), len(list(assets.keys())))
@@ -344,3 +349,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
         dirs, files = Model._meta.get_field('image').storage.get_thumbnail_storage().listdir('.')
         self.assertEqual(len(files), 2)
         self.assertEqual(sorted(files), sorted(['giscube_01.png.thumbnail.png', 'bad_name.jpg.thumbnail.png']))
+
+        updated = Model.objects.get(code='B0')
+        self.assertEqual(10, updated.geometry.y)

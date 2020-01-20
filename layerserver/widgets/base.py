@@ -7,6 +7,10 @@ class BaseWidget(object):
     base_type = 'base'
 
     @staticmethod
+    def apply(field_definition, dblayer_field, ctx):
+        return field_definition['klass'](**field_definition['kwargs'])
+
+    @staticmethod
     def create(request, validated_data, widget):
         pass
 

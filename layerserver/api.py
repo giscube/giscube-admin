@@ -328,6 +328,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         self.updated_objects = []
         self.user_assets = []
         self.readonly_fields = []
+        self._to_do = []
 
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(name=kwargs['name'])
@@ -375,6 +376,14 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
                 if field in item:
                     item[field] = self.to_image(field, item[field])
 
+    def clean_opened_files(self):
+        for file in self.opened_files:
+            try:
+                file.close()
+            except Exception as e:
+                if settings.DEBUG:
+                    logger.warning(e)
+
     def undo(self):
         self.undo_add()
         self.undo_update()
@@ -391,9 +400,6 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
                         logger.error(str(e), exc_info=True)
 
     def undo_update(self):
-        """
-        - Remove new images
-        """
         image_fields = self._image_fields
         for item in self.updated_objects:
             pk = getattr(item, self.lookup_field)
@@ -420,7 +426,6 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
             try:
                 self.created_objects.append(serializer.save())
             except Exception:
-                raise
                 self.created_objects.append(serializer.instance)
                 return {i: self.ERROR_ON_SAVE}
 
@@ -485,9 +490,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
             for field in image_fields:
                 file = getattr(item, field, None)
                 if file is not None:
-                    transaction.on_commit(
-                        lambda: file.delete(save=False)
-                    )
+                    self._to_do.append(lambda: file.delete(save=False))
             item.delete()
 
     def delete_user_assets(self):
@@ -506,46 +509,37 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         autocommit = transaction.get_autocommit(using=conn)
         transaction.set_autocommit(False, using=conn)
 
-        try:
-            if 'ADD' in data and len(data['ADD']) > 0:
-                add_errors = self.add(data['ADD'])
-                if add_errors:
-                    errors['ADD'] = add_errors
-                    self.undo()
+        if 'ADD' in data and len(data['ADD']) > 0:
+            add_errors = self.add(data['ADD'])
+            if add_errors:
+                errors['ADD'] = add_errors
 
-            if 'UPDATE' in data and len(data['UPDATE']) > 0:
-                update_errors = self.update(data['UPDATE'])
-                if update_errors:
-                    errors['UPDATE'] = update_errors
-                    self.undo()
+        if len(list(errors.keys())) == 0 and 'UPDATE' in data and len(data['UPDATE']) > 0:
+            update_errors = self.update(data['UPDATE'])
+            if update_errors:
+                errors['UPDATE'] = update_errors
 
-            if 'DELETE' in data and len(data['DELETE']) > 0:
+        # TODO: catch and raise delete errors
+        if len(list(errors.keys())) == 0 and 'DELETE' in data and len(data['DELETE']) > 0:
+            try:
                 self.delete(data['DELETE'])
+            except Exception:
+                errors['DELETE'] = ['Unknown reason']
 
-            if len(list(errors.keys())) > 0:
-                transaction.rollback(using=conn)
-                transaction.set_autocommit(autocommit, using=conn)
-                self.undo()
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                transaction.commit(using=conn)
-                transaction.set_autocommit(autocommit, using=conn)
-                self.delete_user_assets()
-                result = {}
-                self.add_result(result)
-                return Response(result, status=status.HTTP_200_OK)
-
-        except Exception:
+        if len(list(errors.keys())) > 0:
+            response_status = status.HTTP_400_BAD_REQUEST
             self.undo()
             transaction.rollback(using=conn)
-            transaction.set_autocommit(autocommit, using=conn)
-            logger.error('ERROR in DBLayerContentBulkViewSet', exc_info=True)
-            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
         else:
-            for file in self.opened_files:
-                try:
-                    file.close()
-                except Exception as e:
-                    if settings.DEBUG:
-                        logger.warning(e)
+            response_status = status.HTTP_200_OK
+            transaction.commit(using=conn)
+            self.execute_to_do()
+            self.delete_user_assets()
+
+        transaction.set_autocommit(autocommit, using=conn)
+
+        return Response(errors, status=response_status)
+
+    def execute_to_do(self):
+        for x in self._to_do:
+            x()

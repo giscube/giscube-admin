@@ -75,7 +75,7 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
 
         return field_type, field_params
 
-    def get_table_description(self, cursor, table_name):
+    def _get_table_description(self, cursor, table_name):
         """
         Return a description of the table with the DB-API cursor.description
         interface.
@@ -83,18 +83,83 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         table_parts = get_table_parts(table_name)
         table_name = table_parts['table_name']
         table_schema = table_parts['table_schema']
+
+        # Query the pg_catalog tables as cursor.description does not reliably
+        # return the nullable property and information_schema.columns does not
+        # contain details of materialized views.
+        # Query from https://dataedo.com/kb/query/postgresql/list-table-columns-in-database
+
         cursor.execute("""
-            SELECT column_name, is_nullable, column_default
-            FROM information_schema.columns
-            WHERE table_name = %s""", [table_name])
+            select
+                   column_name as column_name,
+                   is_nullable,
+                   column_default
+            from information_schema.columns
+            where table_schema = %s and table_name = %s
+            order by table_schema,
+                 table_name,
+                 ordinal_position
+        """, [table_schema, table_name])
         field_map = {line[0]: line[1:] for line in cursor.fetchall()}
-        if table_schema:
-            sql = "SELECT * FROM %s.%s LIMIT 1" % (
+
+        sql = "SELECT * FROM %s.%s LIMIT 1" % (
                 self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
-        else:
-            sql = "SELECT * FROM %s LIMIT 1" % self.connection.ops.quote_name(table_name)
         cursor.execute(sql)
         return [
-            FieldInfo(*(list(line[0:6]) + [field_map[line.name][0] == 'YES', field_map[line.name][1]]))
+            FieldInfo(
+                line.name,
+                line.type_code,
+                line.display_size,
+                line.internal_size,
+                line.precision,
+                line.scale,
+                *field_map[line.name],
+            )
             for line in cursor.description
         ]
+
+    def get_table_description(self, cursor, table_name):
+        table_parts = get_table_parts(table_name)
+        table_schema = table_parts['table_schema']
+        if table_schema:
+            return self._get_table_description(cursor, table_name)
+        else:
+            return super().get_table_description(cursor, table_name)
+
+    def _get_current_user(self):
+        cursor = self.connection.cursor()
+        cursor.execute('SELECT current_user;')
+        return cursor.fetchone()[0]
+
+    def join_schema_table_name(self, table_schema, table_name):
+        return '"%s"."%s"' % (table_schema, table_name)
+
+    def get_fixed_table_name(self, table_name):
+        table_parts = get_table_parts(table_name)
+        table_name = table_parts['table_name']
+        table_schema = table_parts['table_schema']
+
+        if table_schema:
+            return table_parts['fixed']
+
+        self._get_current_user()
+        sql = "SHOW search_path;"
+        cursor = self.connection.cursor()
+        cursor.execute(sql)
+        search_path = cursor.fetchone()
+        for schema in search_path[0].split(','):
+            schema = schema.strip()
+            if schema == '"$user"':
+                schema = self._get_current_user()
+            if self.table_exists(schema, table_name):
+                return self.join_schema_table_name(schema, table_name)
+
+    def table_exists(self, table_schema, table_name):
+        cursor = self.connection.cursor()
+        try:
+            sql = "SELECT * FROM %s.%s LIMIT 1" % (
+                    self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
+            cursor.execute(sql)
+        except Exception:
+            return False
+        return True

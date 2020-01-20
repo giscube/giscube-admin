@@ -10,7 +10,7 @@ from giscube.db.utils import get_table_parts
 from giscube.models import DBConnection
 from giscube.widgets import ColorWidget, TagsWidget
 
-from .model_legacy import get_fields
+from .model_legacy import get_fields, get_klass
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
                      DataBaseLayerVirtualField, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .widgets import widgets_types
@@ -41,7 +41,7 @@ class DataBaseLayerFormMixin(ClusterFormMixin, forms.ModelForm):
         if self.cleaned_data['pk_field'] in (None, ''):
             primary_key = None
             for field_name, field in list(fields.items()):
-                if getattr(field, 'primary_key'):
+                if field['kwargs'].get('primary_key'):
                     primary_key = field_name
                     break
             if primary_key:
@@ -49,7 +49,7 @@ class DataBaseLayerFormMixin(ClusterFormMixin, forms.ModelForm):
             else:
                 auto_field = None
                 for field_name, field in list(fields.items()):
-                    if isinstance(field, models.AutoField):
+                    if field['field_type'] == 'AutoField':
                         auto_field = field_name
                         break
                 if auto_field:
@@ -80,50 +80,30 @@ class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
                 table_choices.append((i, column['label']))
         self.fields['geometry_columns'].choices = table_choices
 
-    def is_valid_geom_field(self):
-        table = self.cleaned_data.get('table', None)
-        if table is not None and 'geom_field' in self.cleaned_data and self.cleaned_data['geom_field'] is not None:
-            table_parts = get_table_parts(table)
-            table_name = table_parts['table_name']
-            table_schema = table_parts['table_schema']
-            table = table_parts['fixed']
-            self.cleaned_data['table'] = table
-
-            geom_field = self.cleaned_data['geom_field']
-            try:
-                columns = self.cleaned_data['db_connection'].geometry_columns()
-            except Exception:
-                raise Exception(_('ERROR getting geometry columns'))
-
-            has_geometry = False
-            for column in columns:
-                if table_name == column['f_table_name'] and (
-                    'f_table_schema' not in column or (column['f_table_schema'] == table_schema)
-                ):
-                    geom_col_name = column['f_geometry_column']
-                    if geom_field == '':
-                        self.cleaned_data['geom_field'] = geom_col_name
-                        has_geometry = True
-                        break
-                    else:
-                        if geom_field == geom_col_name:
-                            has_geometry = True
-                            break
-            return has_geometry
-
-    def is_valid_table(self, table):
-        db_connection = self.cleaned_data['db_connection']
-        return db_connection.table_exists(table)
+    def is_valid_geom_field(self, table_name, geom_field):
+        if geom_field is not None:
+            connection = self.cleaned_data.get('db_connection').get_connection()
+            fields = get_fields(connection, table_name)
+            for name, data in fields.items():
+                if name == self.cleaned_data['geom_field']:
+                    klass = get_klass(data['field_type'])
+                    if issubclass(klass, models.GeometryField):
+                        return True
+        return False
 
     def clean(self):
         super().clean()
         table = self.cleaned_data['table']
-        if not self.is_valid_table(table):
+
+        connection = self.cleaned_data.get('db_connection').get_connection()
+        fixed_table_name = connection.introspection.get_fixed_table_name(table)
+
+        if not fixed_table_name:
             self.add_error('table', _('Table [%s] doesn\'t exist') % table)
             return
 
         if self.cleaned_data['geom_field'] is not None and self.cleaned_data['geom_field'] != '':
-            if not self.is_valid_geom_field():
+            if not self.is_valid_geom_field(fixed_table_name, self.cleaned_data['geom_field']):
                 msg = _('[%s] is not geometry type or not exists') % self.cleaned_data['geom_field']
                 self.add_error('geom_field', msg)
                 return
@@ -132,10 +112,6 @@ class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
         err = self.validate_pk_field(db_connection, table)
         if err is not None:
             self.add_error('pk_field', err)
-
-    def clean_table(self):
-        table_parts = get_table_parts(self.cleaned_data['table'])
-        return table_parts['fixed']
 
     def clean_srid(self):
         geom_field = self.cleaned_data.get('geom_field', None)

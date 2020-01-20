@@ -8,6 +8,7 @@ from django.urls import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
+from ..fields import ImageWithThumbnailField
 from ..widgets import widgets_types
 
 
@@ -128,8 +129,9 @@ class ImageWithThumbnailSerializerMixin(object):
                     res['thumbnail'] = thumbnail['url']
                 return res
         else:
-            pk = getattr(obj, obj._schema['pk_field'])
-            kwargs = {'name': obj._schema['name'], 'pk': pk, 'attribute': attribute, 'path': value.name}
+            pk = getattr(obj, obj._giscube_dblayer_schema['pk_field'])
+            kwargs = {'name': obj._giscube_dblayer_schema['name'], 'pk': pk, 'attribute': attribute,
+                      'path': value.name}
             url = reverse('content-detail-file-value', kwargs=kwargs)
             url = self.append_token(self.context['request'].build_absolute_uri(url))
             res = {
@@ -137,7 +139,7 @@ class ImageWithThumbnailSerializerMixin(object):
             }
             thumbnail = value.storage.get_thumbnail(value.name)
             if thumbnail:
-                kwargs = {'name': obj._schema['name'], 'pk': pk, 'attribute': attribute,
+                kwargs = {'name': obj._giscube_dblayer_schema['name'], 'pk': pk, 'attribute': attribute,
                           'path': thumbnail['name']}
                 url = reverse('content-detail-thumbnail-value', kwargs=kwargs)
                 url = self.context['request'].build_absolute_uri(url)
@@ -192,7 +194,6 @@ def to_image_field(field_name, field):
 
 
 def apply_widgets(attrs, model, fields):
-    from layerserver.model_legacy import ImageWithThumbnailField
     for field in fields:
         f = model._meta.get_field(field)
         if type(f) is ImageWithThumbnailField:
@@ -239,9 +240,9 @@ class JSONSerializerFactory(object):
         return ImageWithThumbnailFieldSerializer(**kwargs)
 
     def apply_widgets(self, attrs, model, fields):
-        from layerserver.model_legacy import ImageWithThumbnailField
         for field in fields:
             f = model._meta.get_field(field)
+            # TODO: move to image widget
             if type(f) is ImageWithThumbnailField:
                 attrs[field] = self.to_image_field(field, f)
 
@@ -315,7 +316,7 @@ class Geom4326SerializerFactory(JSONSerializerFactory):
 
 
 def create_dblayer_serializer(model, fields, id_field, read_only_fields, virtual_fields=None):
-    if model._schema.get('geom_field', None):
+    if model._giscube_dblayer_schema.get('geom_field', None):
         return Geom4326SerializerFactory(model, fields, id_field, read_only_fields, virtual_fields).get_serializer()
     else:
         return JSONSerializerFactory(model, fields, id_field, read_only_fields, virtual_fields).get_serializer()
