@@ -391,6 +391,7 @@ class DataBaseLayerField(models.Model):
         ('date', _('Date')),
         ('datetime', _('Date time')),
         ('distinctvalues', _('Distinct values')),
+        ('foreignkey', _('Foreign key')),
         ('image', _('Image')),
         ('linkedfield', _('Linked Field')),
         ('modificationdate', _('Modification date')),
