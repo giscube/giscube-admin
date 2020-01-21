@@ -7,6 +7,7 @@ from .creationuser import CreationUserWidget
 from .date import DateWidget
 from .datetime import DatetimeWidget
 from .distinctvalues import DisctintValuesWidget
+from .foreignkey import ForeignKeyWidget
 from .image import ImageWidget
 from .linkedfield import LinkedfieldWidget
 from .modificationdate import ModificationDateWidget
@@ -18,8 +19,8 @@ from .sqlchoices import SqlchoicesWidget
 
 __all__ = ['BaseWidget', 'BaseJSONWidget', 'AutoWidget', 'ChoicesWidget', 'CreationDateWidget',
            'CreationDatetimeWidget', 'CreationUserWidget', 'DateWidget', 'DatetimeWidget', 'DisctintValuesWidget',
-           'ImageWidget', 'LinkedfieldWidget', 'ModificationDateWidget', 'ModificationDatetimeWidget',
-           'ModificationUserWidget', 'Relation1NWidget', 'SqlchoicesWidget'
+           'ForeignKeyWidget', 'ImageWidget', 'LinkedfieldWidget', 'ModificationDateWidget',
+           'ModificationDatetimeWidget', 'ModificationUserWidget', 'Relation1NWidget', 'SqlchoicesWidget'
            ]
 
 
@@ -32,6 +33,7 @@ widgets_types = {
     'date': DateWidget,
     'datetime': DatetimeWidget,
     'distinctvalues': DisctintValuesWidget,
+    'foreignkey': ForeignKeyWidget,
     'image': ImageWidget,
     'linkedfield': LinkedfieldWidget,
     'modificationdate': ModificationDateWidget,
