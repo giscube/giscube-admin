@@ -2,11 +2,14 @@ import json
 import logging
 import mimetypes
 import os
+import warnings
+
 from functools import reduce
 from operator import __or__ as OR
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.gis.geos import Polygon
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.files.uploadedfile import UploadedFile
@@ -201,8 +204,16 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
             geom.transform(trans)
         return geom
 
-    def transform_wkt(self, wkt, srid):
-        geom = GEOSGeometry(wkt, srid=4326)
+    def geom_from_intersects_param(self, intersects, srid):
+        if intersects.startswith('POLYGON'):
+            geom = GEOSGeometry(intersects, srid=4326)
+            warnings.warn(
+                'WKT POLYGON in intersects parameter is deprecated, use coordinates instead', DeprecationWarning
+            )
+        else:
+            coordinates = list(map(float, intersects.split(',')))
+            pairs = list(zip(coordinates[0::2], coordinates[1::2]))
+            geom = Polygon(pairs, srid=4326)
         if srid != 4326:
             srs_to = SpatialReference(srid)
             srs_4326 = SpatialReference(4326)
@@ -219,7 +230,7 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         intersects = self.request.query_params.get('intersects', None)
         if intersects:
             poly__intersects = '%s__intersects' % self.layer.geom_field
-            qs = qs.filter(**{poly__intersects: self.transform_wkt(intersects, self.layer.srid)})
+            qs = qs.filter(**{poly__intersects: self.geom_from_intersects_param(intersects, self.layer.srid)})
         return qs
 
     def _fullsearch_filters(self, qs):
