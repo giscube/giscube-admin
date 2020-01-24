@@ -28,6 +28,8 @@ class DateWidget(BaseJSONWidget):
 
     @staticmethod
     def serialize_widget_options(obj):
+        if obj.widget_options is None or obj.widget_options == '':
+            obj.widget_options = DateWidget.TEMPLATE
         try:
             options = json.loads(obj.widget_options)
         except Exception:
