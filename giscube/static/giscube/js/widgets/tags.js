@@ -36,9 +36,6 @@
       // Remove old index
       tagify.value.splice(evt.oldIndex, 1)
       var newIndex = evt.newIndex;
-      if (evt.newIndex > evt.oldIndex){
-          newIndex -= 1
-      }
       // Insert item into new position
       tagify.value.splice(newIndex, 0, item);
 
