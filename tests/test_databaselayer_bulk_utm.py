@@ -65,7 +65,7 @@ class DataBaseLayerBulkUTMAPITestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['code'])
         self.assertAlmostEqual(obj.geometry.x, 482974.6931716673, places=6)
@@ -95,7 +95,7 @@ class DataBaseLayerBulkUTMAPITestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['code'])
         self.assertEqual(obj.geometry.wkt, 'POINT (482974.6931716673 4647178.590265266)')

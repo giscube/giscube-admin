@@ -71,7 +71,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=code)
@@ -90,7 +90,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = Location.objects.get(code=code)
         self.assertTrue(obj.creationuser, 'test_user')
@@ -118,7 +118,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=code)
@@ -137,7 +137,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = Location.objects.get(code=code)
         self.assertTrue(obj.modificationuser, 'test_user')
@@ -166,7 +166,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=code)
@@ -197,7 +197,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=code)
@@ -215,7 +215,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = Location.objects.get(code=code)
         self.assertEqual(obj.modificationdate, today.date())
@@ -249,7 +249,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=code)
@@ -268,7 +268,7 @@ class DataBaseLayerWidgetAutoFillTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = Location.objects.get(code=code)
         self.assertIsNotNone(obj.modificationdatetime)
