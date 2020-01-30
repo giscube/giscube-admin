@@ -198,7 +198,7 @@ class DataBaseLayerImageWidgetNogeomTestCase(BaseTest, TransactionTestCase):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = Model.objects.get(code='C1')
         self.assertTrue(os.path.exists(obj.image.path))

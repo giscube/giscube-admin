@@ -82,7 +82,7 @@ class DataBaseLayerDefaultValueTestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         # with ModelFactory(self.layer) as Tree:
         self.assertEqual(Tree.objects.last().code, '2')
 
@@ -145,7 +145,7 @@ class DataBaseLayerDefaultValueTestCase(BaseTest):
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         # print(response.json())
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Tree.objects.last().code, 2)
 
     def tearDown(self):

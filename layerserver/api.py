@@ -424,6 +424,11 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
                 self.created_objects.append(serializer.instance)
                 return {i: self.ERROR_ON_SAVE}
 
+    def add_result(self, result):
+        result['ADD'] = []
+        for obj in self.created_objects:
+            result['ADD'].append({self.lookup_field: getattr(obj, self.lookup_field)})
+
     def get_lookup_field_value(self, data):
         if 'properties' in data and isinstance(data['properties'], dict):
             if 'id' in data:
@@ -526,7 +531,9 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
                 transaction.commit(using=conn)
                 transaction.set_autocommit(autocommit, using=conn)
                 self.delete_user_assets()
-                return Response({}, status=status.HTTP_204_NO_CONTENT)
+                result = {}
+                self.add_result(result)
+                return Response(result, status=status.HTTP_200_OK)
 
         except Exception:
             self.undo()

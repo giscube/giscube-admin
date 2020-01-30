@@ -81,7 +81,7 @@ class DataBaseLayerBulkIDAPITestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['code'])
         self.assertEqual(obj.geometry.wkt, data['ADD'][0]['geometry'])
@@ -167,7 +167,7 @@ class DataBaseLayerBulkIDAPITestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         obj = self.Location.objects.get(code=data['ADD'][0]['properties']['code'])
         self.assertEqual(list(obj.geometry.coords), data['ADD'][0]['geometry']['coordinates'])

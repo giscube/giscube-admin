@@ -78,7 +78,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=data['ADD'][0]['code'])
@@ -194,7 +194,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
 
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=data['ADD'][0]['properties']['code'])
@@ -276,7 +276,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         }
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=self.locations[5].code)
         self.assertEqual(old_geom, list(obj.geometry.coords))
@@ -299,7 +299,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
         }
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         Location = create_dblayer_model(self.layer)
         obj = Location.objects.get(code=self.locations[5].code)
         self.assertEqual(old_geom, list(obj.geometry.coords))
