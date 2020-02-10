@@ -24,5 +24,5 @@ Pillow==7.0.0
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
 Whoosh==2.7.4
 redis==3.3.11
-pdf2image==1.11.0
+pdf2image==1.12.0
 sentry-sdk==0.14.0
