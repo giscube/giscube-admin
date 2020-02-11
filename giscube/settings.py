@@ -14,6 +14,7 @@ import os
 import re
 import sys
 
+from corsheaders.defaults import default_headers
 from kombu import Exchange, Queue
 
 from django.utils.translation import ugettext_lazy as _
@@ -216,6 +217,9 @@ CORS_ORIGIN_WHITELIST = tuple(
     if whitelisted
 )
 # CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-bulk-hash',
+]
 
 GISCUBE_IMAGESERVER = {
     'DATA_ROOT': os.environ.get('GISCUBE_IMAGESERVER_DATA_ROOT', os.path.join(APP_ROOT, 'imageserver')).split(',')
