@@ -17,7 +17,7 @@ djangorestframework-gis==0.14
 django-url-filter==0.3.12
 GDAL==1.10.0
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
-requests==2.22.0
+requests==2.23.0
 ujson==1.35
 drf-ujson==1.2
 Pillow==6.1.0
