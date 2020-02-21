@@ -4,6 +4,7 @@ import time
 import uuid
 
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import connections, models
@@ -208,3 +209,19 @@ class UserAsset(models.Model):
     class Meta:
         verbose_name = _('User Asset')
         verbose_name_plural = _('User Assets')
+
+
+class GiscubeTransaction(models.Model):
+    hash = models.CharField(_('Accessed ViewSet'), max_length=32, null=False, blank=False)
+    created = models.DateTimeField(_('Access timestamp'), auto_now_add=True, editable=False, null=False, blank=False)
+    user = models.CharField(_('User'), max_length=255, null=False, blank=False)
+    url = models.CharField(_('URL'), max_length=255, null=False, blank=False)
+    request_headers = JSONField(_('request headers'), default=dict)
+    request_body = models.TextField(_('request body'), null=True, blank=True)
+    response_headers = JSONField(_('request headers'), default=dict)
+    response_status_code = models.IntegerField(_('response status code'), null=True, blank=True)
+    response_body = models.TextField(_('response body'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('giscube transaction')
+        verbose_name_plural = _('giscube transactions')
