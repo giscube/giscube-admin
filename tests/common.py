@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import shutil
@@ -8,6 +9,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils import timezone
+from rest_framework.test import APIClient
 
 from oauth2_provider.models import get_access_token_model, get_application_model
 from rest_framework.test import APITransactionTestCase
@@ -18,9 +21,28 @@ ApplicationModel = get_application_model()
 AccessTokenModel = get_access_token_model()
 
 
+class BulkClient(APIClient):
+    def post(self, url, data, *args, **kwargs):
+        if list(filter(None, url.split('/')))[-1] == 'bulk' and type(data) is dict and 'X_BULK_HASH' not in kwargs:
+            if '_META' not in data:
+                data['_META'] = {'time': timezone.now().isoformat()}
+            body = json.dumps(data, sort_keys=True, separators=(',', ':'))
+            if type(body) is str:
+                body = body.encode('utf-8')
+            hash = hashlib.md5(body).hexdigest()
+            kwargs['X_BULK_HASH'] = hash
+            kwargs['content_type'] = 'application/json'
+            if 'format' in kwargs:
+                del kwargs['format']
+            return super().generic('POST', url, body, content_type='application/json', X_BULK_HASH=hash)
+        else:
+            return super().post(url, data, *args, **kwargs)
+
+
 @override_settings(MEDIA_ROOT='/tmp/giscube')
 class BaseTest(APITransactionTestCase):
     def setUp(self):
+        self.client = BulkClient()
         self.superuser = UserModel.objects.create_superuser(
             'superuser', 'superuser@example.com', '123456')
         self.test_user = UserModel.objects.create_user(
@@ -103,6 +125,12 @@ class BaseTest(APITransactionTestCase):
             print('Error deleting %s directory' % settings.MEDIA_ROOT)
             print(str(e))
 
+    # def bulk_post(self, url, data):
+    #     if '_META' not in data:
+    #         data['_META'] = {'time': timezone.now().isoformat()}
+    #     body = json.dumps(data, sort_keys=True, separators=(',', ':'))
+    #     hash = hashlib.md5(body.encode('utf-8')).hexdigest()
+    #     return self.client.generic('POST', url, body, content_type='application/json', X_BULK_HASH=hash)
 
     # Fix AttributeError: 'function' object has no attribute 'wrapped'
     @classmethod

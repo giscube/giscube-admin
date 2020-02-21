@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import mimetypes
@@ -25,6 +26,7 @@ from rest_framework import filters, parsers, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from giscube.cache_utils import giscube_transaction_cache_response
 from giscube.models import UserAsset
 
 from .filters import filterset_factory
@@ -330,6 +332,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         self.readonly_fields = []
         self._to_do = []
 
+    @giscube_transaction_cache_response()
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(name=kwargs['name'])
         self.model = create_dblayer_model(self.layer)
