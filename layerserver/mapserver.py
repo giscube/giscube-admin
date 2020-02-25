@@ -386,7 +386,7 @@ class StyleLayer(object):
         if self.layer.shape_radius and self.is_float(self.layer.shape_radius):
             sizes.append(self.layer.shape_radius)
         for x in self.layer.rules.all():
-            if self.layer.shape_radius and self.is_float(self.layer.shape_radius):
+            if x.shape_radius and self.is_float(x.shape_radius):
                 sizes.append(x.shape_radius)
         return max(sizes) if len(sizes) > 0 else None
 
