@@ -32,7 +32,7 @@ class GiscubeTransactionCacheResponse:
             if type(response_body) is bytes:
                 response_body = response_body.decode('utf-8')
         data = {
-            'hash': request.META.get('X_BULK_HASH'),
+            'hash': request.META.get('HTTP_X_BULK_HASH'),
             'user': user,
             'url': request.build_absolute_uri(),
             'request_headers': request_headers,
@@ -48,9 +48,9 @@ class GiscubeTransactionCacheResponse:
         if type(body) is str:
             body = body.encode('utf-8')
         hash = hashlib.md5(body).hexdigest()
-        bulk_hash_meta = request.META.get('X_BULK_HASH')
-        if not (bulk_hash_meta and (hash == bulk_hash_meta)):
-            return HttpResponseBadRequest()
+        bulk_hash_meta = request.META.get('HTTP_X_BULK_HASH')
+        if bulk_hash_meta and (hash != bulk_hash_meta):
+            return HttpResponseBadRequest('INVALID X-Bulk-Hash')
         transaction = GiscubeTransaction.objects.filter(hash=bulk_hash_meta).first()
 
         if not transaction:
