@@ -4,7 +4,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
-from giscube.models import DBConnection
+from giscube.models import DBConnection, GiscubeTransaction
 from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
@@ -48,7 +48,7 @@ class DataBaseLayerBulkHashAPITestCase(BaseTest):
         location.save()
         self.locations.append(location)
 
-    def test_bulk_4326(self):
+    def test_bulk_hash(self):
         data = {
             'ADD': [
                 {
@@ -63,17 +63,17 @@ class DataBaseLayerBulkHashAPITestCase(BaseTest):
         }
 
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
-        body = json.dumps(data, sort_keys=True, separators=(',', ':'))
-
-        # Avoid BulkClient post
-        response = self.client.generic('POST', url, body, content_type='application/json')
-        self.assertEqual(response.status_code, 400)
 
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, 200)
+        hash = response.request['HTTP_X_BULK_HASH']
+        self.assertTrue(GiscubeTransaction.objects.filter(hash=hash).exists())
+
         response1 = response
 
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(response1.json(), response.json())
+        self.assertEqual(GiscubeTransaction.objects.all().count(), 1)
