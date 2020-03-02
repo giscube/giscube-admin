@@ -1,4 +1,4 @@
-celery==4.3.0
+celery==4.4.1
 Django==2.2.10
 django-admin-list-filter-dropdown==1.0.3
 django-cas-ng==3.6.0
