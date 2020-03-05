@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import connections, models
 from django.forms.models import model_to_dict
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from .utils import RecursionException, check_recursion, get_cls
@@ -221,6 +222,14 @@ class GiscubeTransaction(models.Model):
     response_headers = JSONField(_('request headers'), default=dict)
     response_status_code = models.IntegerField(_('response status code'), null=True, blank=True)
     response_body = models.TextField(_('response body'), null=True, blank=True)
+
+    @staticmethod
+    def purge_old():
+        time_delete = {settings.PURGE_GISCUBETRANSACTIONS_UNIT: settings.PURGE_GISCUBETRANSACTIONS_VALUE}
+        past = timezone.datetime.today() - timezone.timedelta(**time_delete)
+        if settings.USE_TZ:
+            past = timezone.make_aware(past)
+        GiscubeTransaction.objects.filter(created__lte=past).delete()
 
     class Meta:
         verbose_name = _('giscube transaction')
