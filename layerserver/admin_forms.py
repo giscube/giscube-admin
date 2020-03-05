@@ -101,6 +101,7 @@ class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
         if not fixed_table_name:
             self.add_error('table', _('Table [%s] doesn\'t exist') % table)
             return
+        self.cleaned_data['table'] = fixed_table_name
 
         if self.cleaned_data['geom_field'] is not None and self.cleaned_data['geom_field'] != '':
             if not self.is_valid_geom_field(fixed_table_name, self.cleaned_data['geom_field']):
