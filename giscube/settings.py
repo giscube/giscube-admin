@@ -401,6 +401,10 @@ ADMIN_TASKS_MENU = [
     }
 ]
 
+# Purge old GiscubeTransaction objects
+PURGE_GISCUBETRANSACTIONS_UNIT = os.getenv('PURGE_GISCUBETRANSACTIONS_UNIT', 'days')
+PURGE_GISCUBETRANSACTIONS_VALUE = int(os.getenv('PURGE_GISCUBETRANSACTIONS_VALUE', '30'))
+
 # Email
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
