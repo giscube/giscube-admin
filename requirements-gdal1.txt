@@ -18,7 +18,7 @@ django-url-filter==0.3.12
 GDAL==1.10.0
 -e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
 requests==2.22.0
-ujson==1.35
+ujson==2.0.1
 drf-ujson==1.2
 Pillow==6.1.0
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
