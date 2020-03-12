@@ -238,7 +238,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
-            with model_legacy.ModelFactory(self) as LayerModel:
+            with model_legacy.ModelFactory(self, exclude_enabled=False) as LayerModel:
                 setattr(self, '_model_fields', LayerModel._meta.get_fields())
         for f in self._model_fields:
             if f.name == field_name:
