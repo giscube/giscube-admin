@@ -50,7 +50,7 @@ def geojsonlayer_check_cache(layer):
         else:
             if layer.max_outdated_time is not None:
                 if now > _get_layer_time(layer, cache_time + layer.max_outdated_time):
-                    geojsonlayer_refresh_layer(layer, True)
+                    geojsonlayer_refresh_layer(layer, force_refresh_data_file=True, generate_popup=False)
                     return GENERATE_GEOJSON_LAYER
 
         qs = TaskResult.objects.filter(
