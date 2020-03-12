@@ -19,11 +19,12 @@ models_module = None
 class ModelFactory:
     app_label = 'layerserver_databaselayer'
 
-    def __init__(self, layer):
+    def __init__(self, layer, exclude_enabled=True):
         self.layer = layer
         self.table_parts = get_table_parts(layer.table)
         self.unique_tag = ''
         self.conn = None
+        self.exclude_enabled = exclude_enabled
 
     def __enter__(self):
         self.unique_tag = random_string()
@@ -96,7 +97,10 @@ class ModelFactory:
         model_fields = {}
         for field_options in self.field_options:
             # Change field type and kwargs if needed
-            if field_options.enabled:
+            enabled = field_options.enabled
+            if not self.exclude_enabled:
+                enabled = True
+            if enabled:
                 widget = widgets_types[field_options.widget]
                 field = self.original_fields[field_options.name]
                 widget.apply(field, field_options, {'layer': self.layer})
