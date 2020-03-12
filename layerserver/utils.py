@@ -81,10 +81,9 @@ def geojsonlayer_remote_data(url, headers):
         result['error'] = GEOJSONLAYER_ERROR_UNKNOWN
     else:
         if r.status_code >= 200 and r.status_code < 300:
-            content = r.text
-            if content:
+            if r.content:
                 result['status'] = True
-                result['data'] = r.text
+                result['data'] = r.content.decode(r.encoding or 'utf-8')
             else:
                 result['status'] = False
                 result['error'] = GEOJSONLAYER_ERROR_EMPTY
