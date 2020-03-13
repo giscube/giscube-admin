@@ -10,5 +10,7 @@
 
 {% block content %}
 {{ block.super }}
-{% include "admin/layerserver/geojson_layer/table-logtask.html" %}
+{% if original and original.name %}
+  {% include "admin/layerserver/geojson_layer/table-logtask.html" %}
+{% endif %}
 {% endblock %}
