@@ -30,10 +30,12 @@ class Category(models.Model):
 
     @property
     def title(self):
-        if self.parent:
-            return '%s%s%s' % (self.parent.name, self.SEPARATOR, self.name)
-        else:
-            return '%s' % self.name
+        names = []
+        parent = self
+        while parent is not None:
+            names.insert(0, parent.name)
+            parent = parent.parent
+        return self.SEPARATOR.join(names)
 
     def clean(self):
         try:
