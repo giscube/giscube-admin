@@ -202,7 +202,7 @@ class StyleLayer(object):
 
     def fill_style(self, style):
         ms_style = ''
-        if style['fill_color'] and style['fill_color'] != '':
+        if 'fill_color' and style['fill_color'] and style['fill_color'] != '':
             ms_style = """
             STYLE
                 COLOR {fill_color}
@@ -212,7 +212,7 @@ class StyleLayer(object):
 
     def stroke_style(self, style):
         ms_style = ''
-        if style['stroke_color'] and style['stroke_color'] != '':
+        if 'stroke_color' in style and style['stroke_color'] and style['stroke_color'] != '':
             if 'stroke_dash_array' in style and style['stroke_dash_array'] and style['stroke_dash_array'] != '':
                 ms_style = """
                 STYLE
@@ -236,7 +236,7 @@ class StyleLayer(object):
 
     def circle(self, style, name, expression):
         fill_color = ''
-        if style['fill_color'] and style['fill_color'] != '':
+        if 'fill_color' in style and style['fill_color'] and style['fill_color'] != '':
             fill_color = 'COLOR %s' % self.add_alpha(style['fill_color'], style['fill_opacity'])
         ms_style = """
         CLASS
