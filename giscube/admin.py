@@ -5,11 +5,13 @@ from django.contrib import admin
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.urls import re_path
+from django.utils.translation import gettext as _
 
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
 from .admin_forms import DBConnectionForm
-from .models import Category, DBConnection, Server
+from .models import Category, Dataset, DBConnection, Resource, Server
 
 
 admin.site.site_title = settings.ADMIN_SITE_TITLE
@@ -73,3 +75,52 @@ class DBConnectionAdmin(TabsMixin, admin.ModelAdmin):
 @admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):
     pass
+
+
+class ResourceInline(admin.StackedInline):
+    model = Resource
+    extra = 0
+    classes = ('tab-resources',)
+
+
+@admin.register(Dataset)
+class DatasetAdmin(TabsMixin, admin.ModelAdmin):
+    autocomplete_fields = ('category',)
+    list_display = ('title',)
+    inlines = (ResourceInline,)
+    list_filter = (('category', RelatedDropdownFilter), 'active')
+
+    tabs = (
+        (_('Information'), ('tab-information',)),
+        (_('Options'), ('tab-options',)),
+        (_('Design'), ('tab-design',)),
+        (_('Resources'), ('tab-resources',)),
+    )
+
+    fieldsets = [
+        (None, {
+            'fields': [
+                'category', 'name', 'title',
+                'description', 'keywords', 'active', 'visible_on_geoportal'
+            ],
+            'classes': ('tab-information',),
+        }),
+        (None, {
+            'fields': [
+                'options'
+            ],
+            'classes': ('tab-options',),
+        }),
+        (None, {
+            'fields': [
+                'legend',
+            ],
+            'classes': ('tab-design',),
+        }),
+    ]
+
+    class Media:
+        js = [
+            'admin/js/jquery.init.js',
+            'admin/js/giscube/dataset/change_view.js'
+        ]
