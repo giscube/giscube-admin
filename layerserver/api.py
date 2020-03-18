@@ -251,10 +251,10 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         qs = self.model.objects.all()
         qs = self._fullsearch_filters(qs)
         qs = self._geom_filters(qs)
-        model_filter = filterset_factory(self.model, self.filter_fields)
+        qs = self._virtual_fields_get_queryset(qs)
+        model_filter = filterset_factory(self.model, self.filter_fields, self._virtual_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
-        qs = self._virtual_fields_get_queryset(qs)
         return qs
 
     def get_pagination_class(self, layer):
