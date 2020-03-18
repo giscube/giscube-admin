@@ -202,7 +202,7 @@ class StyleLayer(object):
 
     def fill_style(self, style):
         ms_style = ''
-        if 'fill_color' and style['fill_color'] and style['fill_color'] != '':
+        if 'fill_color' in style and style['fill_color'] and style['fill_color'] != '':
             ms_style = """
             STYLE
                 COLOR {fill_color}
