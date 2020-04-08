@@ -5,11 +5,15 @@ from django.contrib import admin
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.urls import re_path
+from django.utils.translation import gettext as _
 
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
 from .admin_forms import DBConnectionForm
-from .models import Category, DBConnection, Server
+from .admin_mixins import MetadataInlineMixin
+from .models import (Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetUserPermission, DBConnection,
+                     MetadataCategory, Resource, Server)
 
 
 admin.site.site_title = settings.ADMIN_SITE_TITLE
@@ -73,3 +77,88 @@ class DBConnectionAdmin(TabsMixin, admin.ModelAdmin):
 @admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):
     pass
+
+
+class ResourceInline(admin.StackedInline):
+    model = Resource
+    extra = 0
+    classes = ('tab-resources',)
+
+
+class DatasetMetadataInline(MetadataInlineMixin):
+    model = DatasetMetadata
+
+
+class DatasetGroupPermissionInline(admin.TabularInline):
+    model = DatasetGroupPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('Group')
+    verbose_name_plural = _('Groups')
+
+
+class DatasetUserPermissionInline(admin.TabularInline):
+    model = DatasetUserPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('User')
+    verbose_name_plural = _('Users')
+
+
+@admin.register(Dataset)
+class DatasetAdmin(TabsMixin, admin.ModelAdmin):
+    autocomplete_fields = ('category',)
+    list_display = ('title',)
+    inlines = (ResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)
+    list_filter = (('category', RelatedDropdownFilter), 'active')
+
+    tabs = (
+        (_('Information'), ('tab-information',)),
+        (_('Options'), ('tab-options',)),
+        (_('Design'), ('tab-design',)),
+        (_('Resources'), ('tab-resources',)),
+        (_('Permissions'), ('tab-permissions',)),
+        (_('Metadata'), ('tab-metadata',)),
+    )
+
+    fieldsets = [
+        (None, {
+            'fields': [
+                'category', 'name', 'title',
+                'description', 'keywords', 'active', 'visible_on_geoportal'
+            ],
+            'classes': ('tab-information',),
+        }),
+        (None, {
+            'fields': [
+                'options'
+            ],
+            'classes': ('tab-options',),
+        }),
+        (None, {
+            'fields': [
+                'legend',
+            ],
+            'classes': ('tab-design',),
+        }),
+        (_('Basic permissions'), {
+            'fields': [
+                'anonymous_view', 'authenticated_user_view',
+            ],
+            'classes': ('tab-permissions',),
+        }),
+    ]
+
+    class Media:
+        js = [
+            'admin/js/jquery.init.js',
+            'admin/js/giscube/dataset/change_view.js'
+        ]
+
+
+@admin.register(MetadataCategory)
+class MetadataCategoryAdmin(admin.ModelAdmin):
+    fields = ('code', 'name')
+    list_display = ('code', 'name', )
+    list_display_links = list_display
+    search_fields = ('code', 'name')

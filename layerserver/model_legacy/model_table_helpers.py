@@ -1,9 +1,10 @@
 import importlib
-import re
 import random
+import re
 import string
 
 from django.core.management.commands.inspectdb import Command as InspectdbCommand
+
 
 models_module = None
 

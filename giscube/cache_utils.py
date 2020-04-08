@@ -1,6 +1,6 @@
 import hashlib
 
-from functools import wraps, WRAPPER_ASSIGNMENTS
+from functools import WRAPPER_ASSIGNMENTS, wraps
 
 from django.http.response import HttpResponse, HttpResponseBadRequest
 
@@ -59,8 +59,7 @@ class GiscubeTransactionCacheResponse:
             response.render()
             self.log_transaction(request, response)
         else:
-            response = HttpResponse(
-                    content=transaction.response_body, status=transaction.response_status_code)
+            response = HttpResponse(content=transaction.response_body, status=transaction.response_status_code)
             for k, v in transaction.response_headers.values():
                 response[k] = v
 

@@ -18,6 +18,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 from giscube.db.utils import get_table_parts
+from giscube.model_mixins import MetadataModelMixin
 from giscube.models import DBConnection
 from giscube.storage import OverwriteStorage
 from giscube.utils import RecursionException, check_recursion, unique_service_directory
@@ -27,8 +28,8 @@ from .fields import ImageWithThumbnailField
 from .mapserver import SUPORTED_SHAPE_TYPES
 from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
 from .tasks import async_generate_mapfile
-
 from .widgets import widgets_types
+
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +48,6 @@ def geojsonlayer_upload_path(instance, filename):
     return unique_service_directory(instance, 'remote.json')
 
 
-SERVICE_VISIBILITY_CHOICES = [
-    ('private', _('Private')),
-    ('public', _('Public')),
-]
-
-
 class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
     url = models.CharField(_('url'), max_length=255, null=True, blank=True)
     headers = models.TextField(_('headers'), null=True, blank=True)
@@ -66,9 +61,8 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
         _('maximum outdated time'), blank=True, null=True, help_text=help_text)
     last_fetch_on = models.DateTimeField(_('last fetch on'), null=True, blank=True)
     generated_on = models.DateTimeField(_('generated on'), null=True, blank=True)
-    visibility = models.CharField(_('visibility'), max_length=10, default='private',
-                                  help_text=_('visibility=\'Private\' restricts usage to authenticated users'),
-                                  choices=SERVICE_VISIBILITY_CHOICES)
+    anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
+    authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     fields = models.TextField(blank=True, null=True)
     design_from = models.ForeignKey('self', related_name='design_from_childs', verbose_name=_('get design from'),
                                     blank=True, null=True, on_delete=models.SET_NULL)
@@ -172,6 +166,36 @@ def geojsonlayer_delete(sender, instance, **kwargs):
         path = os.path.join(settings.MEDIA_ROOT, instance.service_path)
         if os.path.exists(path):
             shutil.rmtree(path)
+
+
+class GeoJsonLayerGroupPermission(models.Model):
+    layer = models.ForeignKey(GeoJsonLayer, related_name='group_permissions', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, verbose_name=_('Group'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
+
+
+class GeoJsonLayerUserPermission(models.Model):
+    layer = models.ForeignKey(GeoJsonLayer, related_name='user_permissions', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
+
+
+class GeoJsonLayerMetadata(MetadataModelMixin):
+    parent = models.OneToOneField(GeoJsonLayer, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
 
 
 COMPARATOR_CHOICES = (
@@ -361,6 +385,10 @@ def unregister_model(sender, instance, created, **kwargs):
     transaction.on_commit(
         lambda: model_legacy.ModelFactory(instance).try_unregister_model()
     )
+
+
+class DataBaseLayerMetadata(MetadataModelMixin):
+    parent = models.OneToOneField(DataBaseLayer, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
 
 
 DATA_TYPES = {
@@ -568,7 +596,7 @@ class DataBaseLayerReference(models.Model):
 
 
 class DBLayerGroup(models.Model):
-    layer = models.ForeignKey(DataBaseLayer, related_name='layer_groups', on_delete=models.CASCADE)
+    layer = models.ForeignKey(DataBaseLayer, related_name='group_permissions', on_delete=models.CASCADE)
     group = models.ForeignKey(Group, verbose_name=_('Group'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
     can_add = models.BooleanField(_('Can add'), default=True)
@@ -584,7 +612,7 @@ class DBLayerGroup(models.Model):
 
 
 class DBLayerUser(models.Model):
-    layer = models.ForeignKey(DataBaseLayer, related_name='layer_users', on_delete=models.CASCADE)
+    layer = models.ForeignKey(DataBaseLayer, related_name='user_permissions', on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
     can_add = models.BooleanField(_('Can add'), default=True)

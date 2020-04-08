@@ -6,6 +6,7 @@ from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.core.validators import validate_comma_separated_integer_list
 from django.utils.translation import gettext as _
 
+from giscube.model_mixins import MetadataModelMixin
 from giscube.models import Category
 from giscube.validators import validate_options_json_format
 from imageserver.mapserver import MapserverMapWriter
@@ -71,9 +72,17 @@ class Service(models.Model):
     def mapfile_path(self):
         return os.path.join(self.service_path, 'mapfile.map')
 
+    @property
+    def anonymous_view(self):
+        return not (self.visibility == 'private')
+
     class Meta:
         verbose_name = _('Service')
         verbose_name_plural = _('Services')
+
+
+class ServiceMetadata(MetadataModelMixin):
+    parent = models.OneToOneField(Service, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
 
 
 def get_named_mask_upload_path(obj, filename):

@@ -19,6 +19,7 @@ from kombu import Exchange, Queue
 
 from django.utils.translation import ugettext_lazy as _
 
+
 logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -57,13 +58,14 @@ INSTALLED_APPS = [
     'app_admin',
     # app
     'giscube',
+    'giscube_search',
+    'geoportal',
     'corsheaders',
     'oauth2_provider',
     'rest_framework',
     'loginas',
     'django_celery_results',
     'django_admin_listfilter_dropdown',
-    'haystack',
 ]
 
 
@@ -78,9 +80,6 @@ if not GISCUBE_GIS_SERVER_DISABLED:
     GISCUBE_QGIS_SERVER_URL = os.environ.get(
         'GISCUBE_QGIS_SERVER_URL', GISCUBE_QGIS_SERVER_URL)
 
-
-if not GISCUBE_GEOPORTAL_DISABLED:
-    INSTALLED_APPS += ['geoportal']
 
 if not GISCUBE_LAYERSERVER_DISABLED:
     INSTALLED_APPS += ['colorfield', 'layerserver', 'layerserver_databaselayer']
@@ -223,13 +222,6 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 
 GISCUBE_IMAGESERVER = {
     'DATA_ROOT': os.environ.get('GISCUBE_IMAGESERVER_DATA_ROOT', os.path.join(APP_ROOT, 'imageserver')).split(',')
-}
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(VAR_ROOT, 'whoosh_index'),
-    },
 }
 
 # try:
@@ -395,11 +387,15 @@ LOGGING = {
 # Tasks menu
 ADMIN_TASKS_MENU = [
     {
-        'url': 'rebuild_index',
+        'url': 'rebuild_giscube_search_index',
         'reverse': True,
-        'title': _('Rebuild search cache')
+        'title': _('Rebuild Giscube Search cache')
     }
 ]
+
+# GiscubeSearch settings
+GISCUBE_SEARCH_DEFAULT_DICTIONARY = os.getenv('GISCUBE_SEARCH_DEFAULT_DICTIONARY', 'english')
+GISCUBE_SEARCH_MAX_RESULTS = os.getenv('GISCUBE_SEARCH_MAX_RESULTS', None)
 
 # Purge old GiscubeTransaction objects
 PURGE_GISCUBETRANSACTIONS_UNIT = os.getenv('PURGE_GISCUBETRANSACTIONS_UNIT', 'days')

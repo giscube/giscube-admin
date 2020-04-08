@@ -2,6 +2,7 @@ import io
 import logging
 
 import pdf2image
+
 from PIL import Image
 
 from django.conf import settings

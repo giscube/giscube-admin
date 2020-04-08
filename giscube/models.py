@@ -4,6 +4,7 @@ import time
 import uuid
 
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
@@ -12,7 +13,10 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from .model_mixins import MetadataModelMixin
+from .storage import OverwriteStorage
 from .utils import RecursionException, check_recursion, get_cls
+from .validators import validate_options_json_format
 
 
 logger = logging.getLogger(__name__)
@@ -236,3 +240,108 @@ class GiscubeTransaction(models.Model):
     class Meta:
         verbose_name = _('giscube transaction')
         verbose_name_plural = _('giscube transactions')
+
+
+class Dataset(models.Model):
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL, related_name='datasets')
+    name = models.CharField(_('name'), max_length=50, unique=True)
+    title = models.CharField(_('title'), max_length=100, null=True, blank=True)
+    description = models.TextField(_('description'), null=True, blank=True)
+    keywords = models.CharField(_('keywords'), max_length=200, null=True, blank=True)
+    active = models.BooleanField(_('active'), default=True, help_text='Enable/disable usage')
+    visible_on_geoportal = models.BooleanField(_('visible on geoportal'), default=False)
+    options = models.TextField(
+        _('options'), null=True, blank=True, help_text='json format. Ex: {"maxZoom": 20}',
+        validators=[validate_options_json_format])
+    legend = models.TextField(_('legend'), null=True, blank=True)
+    anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
+    authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
+
+    def __str__(self):
+        return '%s' % self.title or self.name
+
+
+RESOURCE_TYPE_CHOICES = [
+    ('TMS', 'TMS'),
+    ('WMS', 'WMS'),
+    ('document', 'Document'),
+    ('url', 'URL'),
+]
+
+
+def resource_upload_to(instance, filename):
+    return 'dataset/{0}/resource/{1}'.format(instance.dataset.pk, filename)
+
+
+class Resource(models.Model):
+    dataset = models.ForeignKey(Dataset, related_name='resources', on_delete=models.CASCADE)
+    type = models.CharField(_('type'), max_length=12, choices=RESOURCE_TYPE_CHOICES)
+    name = models.CharField(_('name'), max_length=50)
+    description = models.TextField(_('description'), null=True, blank=True)
+    title = models.CharField(_('title'), max_length=100, null=True, blank=True)
+    path = models.CharField(_('path'), max_length=255, null=True, blank=True)
+    url = models.CharField(_('url'), max_length=255, null=True, blank=True)
+    file = models.FileField(
+        _('file'), max_length=255, null=True, blank=True, upload_to=resource_upload_to, storage=OverwriteStorage())
+    layers = models.CharField(_('layers'), max_length=255, null=True, blank=True)
+    projection = models.IntegerField(_('projection'), null=True, blank=True, help_text='EPSG code')
+    getfeatureinfo_support = models.BooleanField(_('WMS GetFeatureInfo support'), default=True)
+    single_image = models.BooleanField(_('use single image'), default=False)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        if self.file:
+            folder = os.path.dirname(self.file.name)
+            self.file.delete(save=False)
+            delete_parent = None
+            if isinstance(self.file.storage, FileSystemStorage):
+                dirs, files = self.file.storage.listdir(folder)
+                if len(files) == 0:
+                    delete_parent = os.path.join(self.file.storage.location, folder)
+            if delete_parent is not None:
+                os.rmdir(delete_parent)
+
+    def __str__(self):
+        return '%s' % self.title or self.name
+
+
+class DatasetGroupPermission(models.Model):
+    dataset = models.ForeignKey(Dataset, related_name='group_permissions', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, verbose_name=_('Group'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
+
+
+class DatasetUserPermission(models.Model):
+    dataset = models.ForeignKey(Dataset, related_name='user_permissions', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
+
+
+class DatasetMetadata(MetadataModelMixin):
+    parent = models.OneToOneField(Dataset, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
+
+
+class MetadataCategory(models.Model):
+    code = models.CharField(_('code'), max_length=50, null=False, blank=False, unique=True)
+    name = models.CharField(_('name'), max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return '%s' % self.name or self.code
+
+    class Meta:
+        verbose_name = _('metadata category')
+        verbose_name_plural = _('metadata categories')

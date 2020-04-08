@@ -1,13 +1,10 @@
-import threading
-
-import ujson as json
-
-from haystack.inputs import AutoQuery
-from haystack.query import SearchQuerySet
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from giscube.models import Category
+from giscube.api_search_views import FilterByUserMixin
+from giscube_search.model_utils import DocumentIndexEditor
+from giscube_search.views import SearchView
+
+from . import CATALOG_MODELS
 
 
 DEFAULT_SEARCH = [
@@ -18,111 +15,84 @@ DEFAULT_SEARCH = [
     },
 ]
 
-CATALOG_MODELS = ['geoportal.dataset', 'imageserver.service', 'qgisserver.service',
-                  'layerserver.geojsonlayer', 'layerserver.databaselayer']
 
-lock = threading.Lock()
-thread_local = threading.local()
+class GeoportalMixin(object):
+    permission_classes = []
 
-
-def get_search_query_set():
-    if not hasattr(thread_local, 'search_query_set'):
-        # Workaround django-haystack not being thread safe
-        lock.acquire()
-        thread_local.search_query_set = SearchQuerySet()
-        # Evaluate to force setup within locked section
-        thread_local.search_query_set.all().count()
-        lock.release()
-
-    return thread_local.search_query_set
+    def get_model(self):
+        return DocumentIndexEditor(name='geoportal').get_model()
 
 
-class ResultsMixin():
-    def format_results(self, items):
-        results = []
-        for r in items:
-            children = []
-            if hasattr(r, 'children'):
-                try:
-                    children = json.loads(r.children)
-                except Exception as e:
-                    print(e)
+class CatalogMixin(FilterByUserMixin, GeoportalMixin):
+    def filter_by_content_type(self, request, qs):
+        qs = qs.filter(content_type__in=CATALOG_MODELS)
+        return qs
 
-            results.append({
-                'giscube_id': getattr(r, 'giscube_id'),
-                'private': r.private,
-                'category_id': r.category_id,
-                'title': r.title,
-                'description': r.description,
-                'keywords': r.keywords,
-                'group': getattr(r, 'has_children', False),
-                'children': children,
-                'options': json.loads(getattr(r, 'options', '{}') or '{}'),
-                'catalog':  (r.category or '').split(Category.SEPARATOR) if r.category else [],
-                'legend': r.legend
-            })
-        return Response({'results': results})
+    def filter_by_visible_on_geoportal(self, request, qs):
+        qs = qs.filter(search_data__visible_on_geoportal=True)
+        return qs
+
+    def apply_all_filters(self, request, qs):
+        qs = super().apply_all_filters(request, qs)
+        qs = self.filter_by_visible_on_geoportal(request, qs)
+        return qs
 
 
-class GeoportalCatalogView(ResultsMixin, APIView):
-    permission_classes = ()
-
-    def get(self, request):
-        category_id = request.GET.get('category_id', '')
-
-        sqs = get_search_query_set().all().filter(django_ct__in=CATALOG_MODELS, category_id__exact=category_id)
-        if not request.user.is_authenticated:
-            sqs = sqs.exclude(private=True)
-        sqs = sqs.order_by('title')
-        results = self.format_results(sqs.all())
-
-        return results
+class GeoportalCatalogView(CatalogMixin, SearchView):
+    def apply_all_filters(self, request, qs):
+        qs = super().apply_all_filters(request, qs)
+        try:
+            category_id = int(request.GET.get('category_id'))
+        except Exception:
+            qs = qs.none()
+        else:
+            qs = qs.filter(search_data__category_id=category_id)
+        return qs
 
 
-class GeoportalGiscubeIdView(ResultsMixin, APIView):
-    permission_classes = ()
+class GeoportalGiscubeIdView(CatalogMixin, SearchView):
+    def filter_by_giscube_ids(self, qs):
+        giscube_ids = filter(None, self.giscube_ids.split(','))
+        qs = qs.filter(search_data__giscube_id__in=giscube_ids)
+        return qs
+
+    def apply_all_filters(self, request, qs):
+        qs = super().apply_all_filters(request, qs)
+        qs = self.filter_by_giscube_ids(qs)
+        return qs
+
+    def get_data(self, request):
+        giscube_ids = filter(None, self.giscube_ids.split(','))
+        sorted_giscube_ids = {giscube_id: None for giscube_id in [x for x in giscube_ids]}
+        for x in self.get_queryset(request):
+            sorted_giscube_ids[x.search_data['giscube_id']] = x.output_data
+        return list(sorted_giscube_ids.values())
 
     def get(self, request, giscube_ids):
-        giscube_ids = filter(None, giscube_ids.split(','))
-        filtered_giscube_ids = dict.fromkeys(giscube_ids)
-        sqs = get_search_query_set().all().filter(
-            django_ct__in=CATALOG_MODELS,
-            giscube_id__in=list(filtered_giscube_ids.keys())
-        )
-        if not request.user.is_authenticated:
-            sqs = sqs.exclude(private=True)
-        for x in sqs.all():
-            filtered_giscube_ids[x.giscube_id] = x
-        results = self.format_results(filtered_giscube_ids.values())
-
-        return results
+        self.giscube_ids = giscube_ids
+        return super().get(request)
 
 
-class GeoportalSearchView(ResultsMixin, APIView):
-    permission_classes = ()
-
-    def get(self, request):
-        q = request.GET.get('q', '')
-        sqs = get_search_query_set().all().filter(django_ct__in=CATALOG_MODELS, content=AutoQuery(q))
-        if not request.user.is_authenticated:
-            sqs = sqs.exclude(private=True)
-        results = self.format_results(sqs.all())
-
-        return results
+class GeoportalSearchView(CatalogMixin, SearchView):
+    def filter_by_q(self, request, qs):
+        q = request.GET.get('q', None)
+        if q:
+            qs = qs.search(q)
+        else:
+            qs = qs.none()
+        return qs
 
 
-class GeoportalCategoryView(APIView):
-    permission_classes = ()
+class GeoportalCategoryView(GeoportalMixin, SearchView):
+    def filter_by_content_type(self, request, qs):
+        qs = qs.filter(content_type='giscube.category')
+        return qs
+
+    def apply_all_filters(self, request, qs):
+        qs = super().apply_all_filters(request, qs)
+        qs = qs.order_by('search_data__name')
+        return qs
 
     def get(self, request):
-        sqs = get_search_query_set().all().filter(django_ct='giscube.category').order_by('name')
-
-        results = []
-        for r in sqs.all():
-            results.append({
-                'id': int(r.pk),
-                'name': r.name,
-                'parent': r.parent,
-            })
-
-        return Response(results)
+        data = self.get_data(request)
+        return Response(data)

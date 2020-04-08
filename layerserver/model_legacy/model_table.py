@@ -1,8 +1,6 @@
 from django.contrib.gis.db import models
 
-
 from giscube.db.utils import get_table_parts
-
 
 from .model_table_helpers import get_klass, normalize_col_name
 

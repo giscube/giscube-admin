@@ -7,7 +7,6 @@ django-colorfield==0.1.15
 django-cors-headers==3.2.1
 psycopg2==2.8.4 --no-binary psycopg2
 django-groupadmin-users==0.3.3
-django-haystack==2.8.1
 django-loginas==0.3.6
 django-model-utils==4.0.0
 django-oauth-toolkit==1.2.0
@@ -22,7 +21,6 @@ ujson==1.35
 drf-ujson2==1.4.1
 Pillow==7.0.0
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
-Whoosh==2.7.4
 redis==3.3.11
 pdf2image==1.11.0
 sentry-sdk==0.14.0

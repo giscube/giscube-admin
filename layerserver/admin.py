@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
+from giscube.admin_mixins import MetadataInlineMixin
 from giscube.utils import unique_service_directory
 
 from .admin_actions import geojsonlayer_force_refresh_data
@@ -15,8 +16,10 @@ from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBas
                           DataBaseLayerReferencesInlineForm, DataBaseLayerStyleRuleInlineForm,
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm,
                           GeoJsonLayerStyleRuleInlineForm)
-from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
-                     DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer, GeoJsonLayerStyleRule)
+from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata, DataBaseLayerReference,
+                     DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer,
+                     GeoJsonLayerGroupPermission, GeoJsonLayerMetadata, GeoJsonLayerStyleRule,
+                     GeoJsonLayerUserPermission)
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -32,6 +35,26 @@ class StyleRuleInlineMixin(admin.StackedInline):
     verbose_name_plural = _('Rules')
 
 
+class GeoJsonGroupPermissionsInline(admin.TabularInline):
+    model = GeoJsonLayerGroupPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('Group')
+    verbose_name_plural = _('Groups')
+
+
+class GeoJsonUserPermissionsInline(admin.TabularInline):
+    model = GeoJsonLayerUserPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('User')
+    verbose_name_plural = _('Users')
+
+
+class GeoJsonLayerMetadataInline(MetadataInlineMixin):
+    model = GeoJsonLayerMetadata
+
+
 class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
     model = GeoJsonLayerStyleRule
     form = GeoJsonLayerStyleRuleInlineForm
@@ -43,10 +66,13 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category', 'design_from',)
     list_display = ('name', 'title', 'view_layer', 'public_url')
-    list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal', 'shapetype')
+    list_filter = (('category', RelatedDropdownFilter), 'visible_on_geoportal', 'shapetype')
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
-    inlines = [GeoJsonLayerStyleRuleInline]
+    inlines = [
+        GeoJsonLayerStyleRuleInline, GeoJsonLayerMetadataInline, GeoJsonGroupPermissionsInline,
+        GeoJsonUserPermissionsInline
+    ]
     actions = admin.ModelAdmin.actions + [geojsonlayer_force_refresh_data]
     save_as = True
 
@@ -55,6 +81,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('GeoJSON'), ('tab-geojson',)),
         (_('Style'), ('tab-style',)),
         (_('Design'), ('tab-design',)),
+        (_('Permissions'), ('tab-permissions',)),
+        (_('Metadata'), ('tab-metadata',)),
     )
 
     tabs_edit = (
@@ -62,6 +90,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('GeoJSON'), ('tab-geojson',)),
         (_('Style'), ('tab-style',)),
         (_('Design'), ('tab-design',)),
+        (_('Permissions'), ('tab-permissions',)),
+        (_('Metadata'), ('tab-metadata',)),
         (_('Task log'), ('tab-log',)),
     )
 
@@ -69,7 +99,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visibility', 'visible_on_geoportal',
+                'description', 'keywords', 'active', 'visible_on_geoportal',
             ],
             'classes': ('tab-information',),
         }),
@@ -99,13 +129,19 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
             'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
         }),
+        (_('Basic permissions'), {
+            'fields': [
+                'anonymous_view', 'authenticated_user_view',
+            ],
+            'classes': ('tab-permissions',),
+        }),
     ]
 
     edit_fieldsets = [
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visibility', 'visible_on_geoportal',
+                'description', 'keywords', 'active', 'visible_on_geoportal',
             ],
             'classes': ('tab-information',),
         }),
@@ -134,6 +170,12 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Cluster'), {
             'fields': ['cluster_enabled', 'cluster_options'],
             'classes': ('tab-design',),
+        }),
+        (_('Basic permissions'), {
+            'fields': [
+                'anonymous_view', 'authenticated_user_view',
+            ],
+            'classes': ('tab-permissions',),
         }),
     ]
     ordering = ['name']
@@ -209,6 +251,10 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         transaction.on_commit(
             lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file, generate_popup)
         )
+
+
+class DBLayerMetadataInline(MetadataInlineMixin):
+    model = DataBaseLayerMetadata
 
 
 class DBLayerGroupInline(admin.TabularInline):
@@ -311,8 +357,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Data base'), ('tab-data-base',)),
         (_('Fields'), ('tab-fields',)),
         (_('Virtual Fields'), ('tab-virtual-fields',)),
-        (_('Permissions'), ('tab-permissions',)),
         (_('Design'), ('tab-design',)),
+        (_('Permissions'), ('tab-permissions',)),
+        (_('Metadata'), ('tab-metadata',)),
     )
 
     edit_geom_tabs = (
@@ -321,9 +368,10 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Fields'), ('tab-fields',)),
         (_('Virtual Fields'), ('tab-virtual-fields',)),
         (_('Style'), ('tab-style',)),
-        (_('Permissions'), ('tab-permissions',)),
-        (_('References'), ('tab-references',)),
         (_('Design'), ('tab-design',)),
+        (_('References'), ('tab-references',)),
+        (_('Permissions'), ('tab-permissions',)),
+        (_('Metadata'), ('tab-metadata',)),
     )
 
     edit_fieldsets = [
@@ -342,7 +390,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             ],
             'classes': ('tab-data-base',),
         }),
-        ('Anonymous user', {
+        ('Anonymous users', {
             'fields': [
                 ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
             ],
@@ -379,7 +427,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             ],
             'classes': ('tab-style',),
         }),
-        ('Anonymous user', {
+        ('Anonymous users', {
             'fields': [
                 ('anonymous_view', 'anonymous_add', 'anonymous_update', 'anonymous_delete',)
             ],
@@ -451,12 +499,12 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             self.fieldsets = self.edit_geom_fieldsets
             self.inlines = [DataBaseLayerFieldsInline, DataBaseLayerVirtualFieldsInline,
                             DBLayerUserInline, DBLayerGroupInline, DataBaseLayerReferencesInline,
-                            DataBaseLayerStyleRuleInline]
+                            DataBaseLayerStyleRuleInline, DBLayerMetadataInline]
         else:
             self.tabs = self.edit_tabs
             self.fieldsets = self.edit_fieldsets
             self.inlines = [DataBaseLayerFieldsInline, DataBaseLayerVirtualFieldsInline, DBLayerUserInline,
-                            DBLayerGroupInline]
+                            DBLayerGroupInline, DBLayerMetadataInline, DBLayerMetadataInline]
         conn_status = obj.db_connection.check_connection()
         if not conn_status:
             msg = 'ERROR: There was an error when connecting to: %s' % obj.db_connection

@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+
+{% block extrastyle %}
+{{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {% trans 'Rebuild Giscube Search cache' %}
+</div>
+{% endblock %}
+
+
+{% block content %}
+{{ block.super }}
+<div id="content-main">
+    {% if task %}
+        {% trans 'Rebuild Giscube Search cache task has been queued' %} [{{ task.task_id }}]
+    {% else %}
+        {% trans 'Error trying to rebuild Giscube Search cache' %}
+    {% endif %}
+</div>
+{% endblock %}

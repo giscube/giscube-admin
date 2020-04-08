@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
                 ('can_update', models.BooleanField(default=True, verbose_name='Can update')),
                 ('can_delete', models.BooleanField(default=True, verbose_name='Can delete')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.Group', verbose_name='Group')),
-                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='layer_groups', to='layerserver.DataBaseLayer')),
+                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='layerserver.DataBaseLayer')),
             ],
             options={
                 'verbose_name': 'Group',
@@ -141,7 +141,7 @@ class Migration(migrations.Migration):
                 ('can_add', models.BooleanField(default=True, verbose_name='Can add')),
                 ('can_update', models.BooleanField(default=True, verbose_name='Can update')),
                 ('can_delete', models.BooleanField(default=True, verbose_name='Can delete')),
-                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='layer_users', to='layerserver.DataBaseLayer')),
+                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_permissions', to='layerserver.DataBaseLayer')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
             options={
