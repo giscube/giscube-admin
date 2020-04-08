@@ -8,10 +8,8 @@ from functools import reduce
 from operator import __or__ as OR
 
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.gis.geos import Polygon
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import GEOSGeometry, Polygon
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.db.models import Q
@@ -34,11 +32,7 @@ from .model_legacy import create_dblayer_model
 from .models import DataBaseLayer, GeoJsonLayer
 from .pagination import create_geojson_pagination_class, create_json_pagination_class
 from .permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
-from .serializers import (
-    DBLayerDetailSerializer,
-    DBLayerSerializer, GeoJSONLayerSerializer,
-    create_dblayer_serializer
-)
+from .serializers import DBLayerDetailSerializer, DBLayerSerializer, GeoJSONLayerSerializer, create_dblayer_serializer
 from .utils import geojsonlayer_check_cache
 
 
@@ -54,9 +48,19 @@ class GeoJSONLayerViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.filter(active=True)
+        filter_anonymous = Q(anonymous_view=True)
 
-        if type(self.request.user) is AnonymousUser:
-            qs = qs.exclude(visibility='private')
+        if self.request.user.is_anonymous:
+            qs = qs.filter(filter_anonymous)
+        else:
+            self.user_groups = self.request.user.groups.values_list('name', flat=True)
+            filter_authenticated_user_view = Q(authenticated_user_view=True)
+            filter_group = (
+                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_view=True))
+            filter_user = Q(user_permissions__user=self.request.user) & Q(user_permissions__can_view=True)
+            qs = qs.filter(
+                filter_anonymous | filter_authenticated_user_view | filter_user | filter_group).distinct()
+
         return qs
 
     def retrieve(self, request, name):
@@ -87,16 +91,16 @@ class DBLayerViewSet(viewsets.ModelViewSet):
         filter_anonymous = Q(anonymous_view=True) | Q(anonymous_add=True) | Q(anonymous_update=True) \
             | Q(anonymous_delete=True)
 
-        if type(self.request.user) is AnonymousUser:
+        if self.request.user.is_anonymous:
             qs = qs.filter(filter_anonymous)
         else:
             self.user_groups = self.request.user.groups.values_list('name', flat=True)
-            filter_group = Q(layer_groups__group__name__in=self.user_groups) & Q(
-                Q(layer_groups__can_view=True) | Q(layer_groups__can_add=True) | Q(layer_groups__can_update=True) | Q(
-                    layer_groups__can_delete=True))
-            filter_user = Q(layer_users__user=self.request.user) & Q(
-                Q(layer_users__can_view=True) | Q(layer_users__can_add=True) | Q(
-                    layer_users__can_update=True) | Q(layer_users__can_delete=True))
+            filter_group = Q(group_permissions__group__name__in=self.user_groups) & Q(
+                Q(group_permissions__can_view=True) | Q(group_permissions__can_add=True) | Q(
+                    group_permissions__can_update=True) | Q(group_permissions__can_delete=True))
+            filter_user = Q(user_permissions__user=self.request.user) & Q(
+                Q(user_permissions__can_view=True) | Q(user_permissions__can_add=True) | Q(
+                    user_permissions__can_update=True) | Q(user_permissions__can_delete=True))
             qs = qs.filter(Q(filter_anonymous) | Q(filter_user) | Q(filter_group)).distinct()
 
         return qs

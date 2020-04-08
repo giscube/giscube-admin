@@ -122,3 +122,10 @@ docker-compose exec db bash docker/db/db_init.sh
 or
 
 docker-compose exec db bash docker/db/db_init.sh giscube.sql
+
+
+## Catalan dictionary for giscube_search
+
+Automatic script:
+
+docker-compose exec db bash docker/db/db_catalan_dictionary.sh

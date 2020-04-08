@@ -5,6 +5,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
+from giscube.model_mixins import MetadataModelMixin
 from giscube.models import Category, Server
 from giscube.validators import validate_options_json_format
 from qgisserver.utils import deactivate_services, patch_qgis_project, unique_service_directory, update_external_service
@@ -84,6 +85,10 @@ class Service(models.Model):
     def __str__(self):
         return str(self.title or self.name)
 
+    @property
+    def anonymous_view(self):
+        return not (self.visibility == 'private')
+
     class Meta:
         verbose_name = _('Service')
         verbose_name_plural = _('Services')
@@ -142,6 +147,10 @@ def auto_dectivate_external_services(sender, **kwargs):
 
     if action == 'post_remove' or action == 'post_clear':
         deactivate_services.delay(instance.name, list(pk_set))
+
+
+class ServiceMetadata(MetadataModelMixin):
+    parent = models.OneToOneField(Service, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
 
 
 class Project(models.Model):

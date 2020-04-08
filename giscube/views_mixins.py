@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.views.generic import View
 
+
 logger = logging.getLogger(__name__)
 
 

@@ -79,8 +79,8 @@ class ImageWidget(BaseJSONWidget):
         })
         return ImageWithThumbnailField(**fixed_kwargs)
 
-    @staticmethod  # noqa: C901
-    def is_valid(cleaned_data):
+    @staticmethod
+    def is_valid(cleaned_data):  # noqa: C901
         value = cleaned_data['widget_options']
         try:
             data = json.loads(value)

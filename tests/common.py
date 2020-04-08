@@ -4,16 +4,15 @@ import os
 import shutil
 
 from django.apps import apps
-from django.db import connections
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import connections
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework.test import APIClient
 
 from oauth2_provider.models import get_access_token_model, get_application_model
-from rest_framework.test import APITransactionTestCase
+from rest_framework.test import APIClient, APITransactionTestCase
 
 
 UserModel = get_user_model()

@@ -103,7 +103,7 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         field_map = {line[0]: line[1:] for line in cursor.fetchall()}
 
         sql = "SELECT * FROM %s.%s LIMIT 1" % (
-                self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
+            self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
         cursor.execute(sql)
         return [
             FieldInfo(
@@ -158,7 +158,7 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         cursor = self.connection.cursor()
         try:
             sql = "SELECT * FROM %s.%s LIMIT 1" % (
-                    self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
+                self.connection.ops.quote_name(table_schema), self.connection.ops.quote_name(table_name),)
             cursor.execute(sql)
         except Exception:
             return False

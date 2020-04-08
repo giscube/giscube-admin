@@ -1,5 +1,3 @@
-import importlib
-
 from django.apps import apps
 from django.db import models
 from django.forms.models import model_to_dict
@@ -93,7 +91,6 @@ class ModelFactory:
 
     @cached_property
     def fields(self):
-        table_name = self.table_parts['fixed']
         model_fields = {}
         for field_options in self.field_options:
             # Change field type and kwargs if needed

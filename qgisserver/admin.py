@@ -4,11 +4,18 @@ from django.db.models import Value as V
 from django.db.models.functions import Coalesce, Concat
 from django.urls import resolve
 from django.utils.html import format_html
+from django.utils.translation import gettext as _
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+from django_vue_tabs.admin import TabsMixin
 
+from giscube.admin_mixins import MetadataInlineMixin
 from giscube.utils import url_slash_join
-from qgisserver.models import Project, Service
+from qgisserver.models import Project, Service, ServiceMetadata
+
+
+class ServiceMetadataInline(MetadataInlineMixin):
+    model = ServiceMetadata
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -16,7 +23,7 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class ServiceAdmin(admin.ModelAdmin):
+class ServiceAdmin(TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms', 'visibility', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visibility',
@@ -24,6 +31,44 @@ class ServiceAdmin(admin.ModelAdmin):
     exclude = ('service_path', 'active')
     search_fields = ('name', 'title', 'keywords')
     filter_horizontal = ('servers',)
+    inlines = (ServiceMetadataInline,)
+
+    tabs = (
+        (_('Information'), ('tab-information',)),
+        (_('Options'), ('tab-options',)),
+        (_('Design'), ('tab-design',)),
+        (_('Metadata'), ('tab-metadata',)),
+        (_('Servers'), ('tab-servers',)),
+    )
+
+    fieldsets = [
+        (None, {
+            'fields': [
+                'category', 'name', 'title',
+                'description', 'keywords', 'visibility', 'visible_on_geoportal',
+                'project_file'
+            ],
+            'classes': ('tab-information',),
+        }),
+        (None, {
+            'fields': [
+                'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes', 'options'
+            ],
+            'classes': ('tab-options',),
+        }),
+        (None, {
+            'fields': [
+                'legend',
+            ],
+            'classes': ('tab-design',),
+        }),
+        (None, {
+            'fields': [
+                'servers',
+            ],
+            'classes': ('tab-servers',),
+        })
+    ]
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)

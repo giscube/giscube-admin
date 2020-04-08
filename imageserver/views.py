@@ -1,6 +1,7 @@
 import time
 
 import requests
+
 from requests.exceptions import ConnectionError
 
 from django.conf import settings

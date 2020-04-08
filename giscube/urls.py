@@ -5,10 +5,10 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 
 import oauth2_provider.views as oauth2_views
+
 from rest_framework import routers
 
 from giscube import api
-from giscube.admin_views import RebuildIndexView
 
 from . import views
 
@@ -32,10 +32,10 @@ urlpatterns = [
     # Examples:
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
+    path('', include('giscube_search.urls')),
     path('api/v2/giscube/', include('giscube.api_urls_v2')),
     re_path(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
     path('admin/admin/', include('app_admin.urls')),
-    path('admin/giscube/rebuild_index/', admin.site.admin_view(RebuildIndexView.as_view()), name='rebuild_index'),
     path('admin/', admin.site.urls),
     path('admin/', include('loginas.urls')),
     re_path(r'^media/(?P<path>.*)$', views.private_serve, {'document_root': settings.MEDIA_ROOT}),

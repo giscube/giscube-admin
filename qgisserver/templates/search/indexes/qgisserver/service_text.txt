@@ -1,5 +1,0 @@
-{{ object.keywords }}
-{{ object.title }}
-{{ object.category }}
-{{ object.description }}
-{{ object.keywords }}

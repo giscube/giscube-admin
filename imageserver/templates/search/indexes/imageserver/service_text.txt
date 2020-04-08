@@ -1,4 +1,0 @@
-{{ object.keywords }}
-{{ object.title }} Image service
-{{ object.category }}
-{{ object.description }}
