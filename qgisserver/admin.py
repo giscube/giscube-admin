@@ -18,7 +18,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class ServiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ('category',)
-    list_display = ('title', 'url_wms')
+    list_display = ('title', 'url_wms', 'visibility', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visibility',
                    'visible_on_geoportal')
     exclude = ('service_path', 'active')
