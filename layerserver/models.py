@@ -299,6 +299,7 @@ def add_fields(sender, instance, created, **kwargs):
             db_field.layer = instance
             db_field.name = field_name
             db_field.blank = field['kwargs']['blank']
+            db_field.fullsearch = DataBaseLayerField.get_default_for_fullsearch(field)
             db_field.save()
         else:
             if field_name in old_fields:
@@ -472,6 +473,18 @@ class DataBaseLayerField(models.Model):
 
     def __str__(self):
         return self.label or self.name
+
+    @staticmethod
+    def get_default_for_fullsearch(field):
+        return not (issubclass(field.get('klass', None), models.fields.GeometryField))
+
+    def clean(self):
+        if self.name == self.layer.geom_field and not self.enabled:
+            raise ValidationError({'enabled': _('Geom field must be enabled')})
+        if self.name == self.layer.geom_field and self.fullsearch:
+            raise ValidationError({'enabled': _('full search is not available for geom fields')})
+        if self.name == self.layer.pk_field and not self.enabled:
+            raise ValidationError({'enabled': _('pk field must be enabled')})
 
     class Meta:
         verbose_name = _('Field')
