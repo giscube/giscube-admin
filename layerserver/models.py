@@ -233,7 +233,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     mapfile = models.FileField(
         null=True, blank=True, storage=OverwriteStorage(), upload_to=databaselayer_mapfile_upload_path)
 
-    wms_as_reference = models.BooleanField(_('Use generated WMS as reference'), default=True)
+    wms_as_reference = models.BooleanField(_('Use generated WMS as reference'), default=False)
     legend = models.TextField(_('legend'), null=True, blank=True)
 
     def get_model_field(self, field_name):

@@ -146,6 +146,11 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
             self.add_error('pk_field', err)
             return
 
+        wms_as_reference = self.cleaned_data.get('wms_as_reference', False)
+        shapetype = self.cleaned_data.get('wms_as_reference')
+        if wms_as_reference and not shapetype:
+            self.add_error('wms_as_reference', _('Shapetype is required'))
+
         form_fields = self._split_comma(cleaned_data.get('form_fields', ''))
         list_fields = self._split_comma(cleaned_data.get('list_fields', ''))
 

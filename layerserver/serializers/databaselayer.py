@@ -145,7 +145,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             data['design']['cluster'] = json.loads(
                 obj.cluster_options or '{}') if obj.cluster_enabled else None
 
-            if obj.wms_as_reference:
+            if obj.wms_as_reference and obj.shapetype:
                 path = reverse('content-wms', kwargs={'name': obj.name})
                 url = url_slash_join(settings.GISCUBE_URL, remove_app_url(path))
                 reference = {
