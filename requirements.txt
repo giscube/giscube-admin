@@ -11,7 +11,7 @@ django-haystack==2.8.1
 django-loginas==0.3.6
 django-model-utils==4.0.0
 django-oauth-toolkit==1.2.0
-django-vue-tabs==0.0.11
+django-vue-tabs==0.0.12
 djangorestframework==3.10.3
 djangorestframework-gis==0.15
 django-url-filter==0.3.15
