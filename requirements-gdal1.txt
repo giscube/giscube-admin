@@ -2,7 +2,7 @@ celery==4.3.0
 Django==2.2.11
 django-admin-list-filter-dropdown==1.0.3
 django-cas-ng==3.6.0
-django-celery-results==1.1.2
+django-celery-results==1.2.1
 django-colorfield==0.1.15
 django-cors-headers==3.2.1
 psycopg2==2.8.4 --no-binary psycopg2
