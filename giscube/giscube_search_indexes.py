@@ -54,5 +54,6 @@ index_config = [
         'fields': ['name'],
         'output_data': ['id', 'name', 'parent.id'],
         'output_data_keys': ['id', 'name', 'parent'],
+        'search_data': ['title']
     })
 ]

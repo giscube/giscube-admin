@@ -90,7 +90,7 @@ class GeoportalCategoryView(GeoportalMixin, SearchView):
 
     def apply_all_filters(self, request, qs):
         qs = super().apply_all_filters(request, qs)
-        qs = qs.order_by('search_data__name')
+        qs = qs.order_by('search_data__title')
         return qs
 
     def get(self, request):
