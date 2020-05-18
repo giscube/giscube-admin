@@ -2,6 +2,7 @@ from functools import update_wrapper
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.urls import re_path
@@ -162,3 +163,38 @@ class MetadataCategoryAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', )
     list_display_links = list_display
     search_fields = ('code', 'name')
+
+
+@admin.register(LogEntry)
+class LogEntryAdmin(admin.ModelAdmin):
+    list_display = ('content_type',
+                    'user',
+                    'action_time',
+                    'object_repr',
+                    'accion',
+                    )
+    readonly_fields = ('content_type',
+                       'user',
+                       'action_time',
+                       'object_id',
+                       'object_repr',
+                       'action_flag',
+                       'change_message',
+                       )
+    list_filter = ('user', 'content_type',)
+    date_hierarchy = 'action_time'
+
+    def accion(self, obj):
+        return str(obj)
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser and settings.GISCUBE_ENABLE_LOGENTRY
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
