@@ -190,7 +190,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.tabs = self.tabs_edit
         self.fieldsets = self.edit_fieldsets
-        obj = self.model.objects.get(pk=object_id)
+        obj = self.model.objects.filter(pk=object_id).first()
         extra_context = extra_context or {}
         extra_context['view_layer'] = self.view_layer(obj)
         extra_context['can_apply_style'] = True
