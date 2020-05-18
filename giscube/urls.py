@@ -35,7 +35,7 @@ urlpatterns = [
     path('', include('giscube_search.urls')),
     path('api/v2/giscube/', include('giscube.api_urls_v2')),
     re_path(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
-    path('admin/admin/', include('app_admin.urls')),
+    path('admin/app_admin/', include('app_admin.urls')),
     path('admin/', admin.site.urls),
     path('admin/', include('loginas.urls')),
     re_path(r'^media/(?P<path>.*)$', views.private_serve, {'document_root': settings.MEDIA_ROOT}),

@@ -392,6 +392,9 @@ ADMIN_TASKS_MENU = [
         'title': _('Rebuild Giscube Search cache')
     }
 ]
+# LogEntry
+
+GISCUBE_ENABLE_LOGENTRY = os.getenv('GISCUBE_ENABLE_LOGENTRY', 'false').lower() == 'true'
 
 # GiscubeSearch settings
 GISCUBE_SEARCH_DEFAULT_DICTIONARY = os.getenv('GISCUBE_SEARCH_DEFAULT_DICTIONARY', 'english')
