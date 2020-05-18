@@ -146,7 +146,7 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
         layer.fields = ','.join(geojsonlayer_get_fields(data))
 
         try:
-            data['metadata'] = layer.metadata
+            data['metadata'] = layer.geojson_metadata
             outfile_path = layer.get_data_file_path()
             with open(outfile_path, 'w') as fixed_file:
                 fixed_file.write(json.dumps(data, cls=DjangoJSONEncoder))
