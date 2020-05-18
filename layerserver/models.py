@@ -92,7 +92,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
         return tooltip
 
     @property
-    def metadata(self):
+    def geojson_metadata(self):
         from .serializers import style_representation, style_rules_representation
         return {
             'description': {
