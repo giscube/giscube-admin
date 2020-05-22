@@ -27,6 +27,8 @@ class FilterByUserMixin:
 
 
 class GiscubeSearchView(FilterByUserMixin, SearchView):
+    permission_classes = []
+
     def get_model(self):
         return DocumentIndexEditor(name='geoportal').get_model()
 
