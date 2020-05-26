@@ -11,14 +11,14 @@
     };
 
     var item = $(this);
-    var form = $(this).closest('form');
+    var container = $(this).closest('fieldset');
     var selected_fields = fields[item.val()];
     for (var i in all_fields){
       field = all_fields[i];
       if (selected_fields.indexOf(field) === -1){
-        form.find('div.field-' + field).hide();
+        container.find('div.field-' + field).hide();
       }else{
-        form.find('div.field-' + field).show();
+        container.find('div.field-' + field).show();
       }
     }
   }
@@ -28,8 +28,8 @@
   }
 
   $(document).ready(function(){
-    $('.field-type select').each(field_type_init);
     $('.field-type select').on('change', field_type_change);
+    $('.field-type select').each(field_type_init);
   });
 
 })(django.jQuery);
