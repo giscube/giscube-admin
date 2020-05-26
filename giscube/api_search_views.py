@@ -53,14 +53,14 @@ class GiscubeSearchView(FilterByUserMixin, SearchView):
             if len(dates) == 2:
                 start = self.year_to_first_day(dates[0])
                 end = self.year_to_last_day(dates[1])
-                qs = qs.filter(data_search__date__range=(start, end))
+                qs = qs.filter(search_data__date__range=(start, end))
             if len(dates) == 1:
                 if len(dates[0]) == 4:
                     start = self.year_to_first_day(dates[0])
                     end = self.year_to_last_day(dates[0])
-                    qs = qs.filter(data_search__date__range=(start, end))
+                    qs = qs.filter(search_data__date__range=(start, end))
                 else:
-                    qs = qs.filter(data_search__date=dates[0])
+                    qs = qs.filter(search_data__date=dates[0])
         return qs
 
     def apply_all_filters(self, request, qs):
