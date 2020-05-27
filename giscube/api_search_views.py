@@ -2,7 +2,7 @@ from django.db.models import Q
 
 from geoportal import CATALOG_MODELS
 from giscube_search.model_utils import DocumentIndexEditor
-from giscube_search.views import SearchView
+from giscube_search.views import GeomSearchView
 
 
 class FilterByUserMixin:
@@ -26,7 +26,7 @@ class FilterByUserMixin:
         return qs
 
 
-class GiscubeSearchView(FilterByUserMixin, SearchView):
+class GiscubeSearchView(FilterByUserMixin, GeomSearchView):
     permission_classes = []
 
     def get_model(self):
