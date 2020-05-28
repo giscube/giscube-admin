@@ -1,7 +1,7 @@
 import ujson as json
 
 from django.contrib.gis.db import models
-from django.contrib.gis.db.models.functions import Distance, PointOnSurface
+from django.contrib.gis.db.models.functions import Distance, GeoFunc, PointOnSurface
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.postgres.fields import JSONField
@@ -12,6 +12,12 @@ from django.db.models import Case, F, Q, When
 import giscube.settings as custom_settings
 
 from .utils import remove_accents
+
+
+class ContainsFunc(GeoFunc):
+    function = 'ST_contains'
+    output_field = models.BooleanField()
+    arity = 2
 
 
 class DocumentIndexBaseQuerySet(models.QuerySet):
@@ -56,7 +62,11 @@ class DocumentIndexBaseQuerySet(models.QuerySet):
 
     def geo_contains(self, geom):
         return self.filter(
-            Q(geom_polygon__isnull=False) & Q(geom_polygon__bbcontains=geom) & Q(geom_polygon__contains=geom)
+            Q(geom_polygon__isnull=False)
+        ).annotate(
+            is_contained=ContainsFunc(geom, F('geom_polygon'))
+        ).filter(
+            is_contained=True
         ).annotate(
             distance=Distance(geom, PointOnSurface('geom_polygon'))
         ).order_by('distance')
