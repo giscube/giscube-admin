@@ -35,6 +35,7 @@ class CatalogMixin(FilterByUserMixin, GeoportalMixin):
     def apply_all_filters(self, request, qs):
         qs = super().apply_all_filters(request, qs)
         qs = self.filter_by_visible_on_geoportal(request, qs)
+        qs = qs.order_by('output_data__title')
         return qs
 
 
