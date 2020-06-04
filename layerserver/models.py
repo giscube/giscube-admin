@@ -8,6 +8,7 @@ from model_utils import Choices
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -230,11 +231,20 @@ def databaselayer_mapfile_upload_path(instance, filename):
 
 
 class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
+    DATA_FILTER_STATUS_CHOICES = Choices(
+        ('enabled', _('Enabled'),),
+        ('disabled', _('Error misconfigured'),),
+    )
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='layers', verbose_name='Database connection')
     name = models.CharField(_('name'), max_length=255, blank=False, null=False, unique=True)
     table = models.CharField(_('table'), max_length=255, blank=False, null=False)
+    data_filter = JSONField(_('data filter'), blank=True, null=True, default=dict)
+    data_filter_status = models.CharField(choices=DATA_FILTER_STATUS_CHOICES,
+        max_length=50, null=True, blank=True, editable=False)
+    data_filter_error = models.TextField(null=True, blank=True, editable=False)
+
     pk_field = models.CharField(_('pk field'), max_length=255, blank=True, null=False)
     geom_field = models.CharField(_('geom field'), max_length=255, blank=True, null=True)
     srid = models.IntegerField(_('srid'), blank=True, null=True)

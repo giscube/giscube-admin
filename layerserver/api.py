@@ -251,7 +251,8 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
                 qs = qs.filter(reduce(OR, lst))  # noqa: E0602
         return qs
 
-    def get_queryset(self):
+
+    def _get_queryset(self):
         qs = self.model.objects.all()
         qs = self._fullsearch_filters(qs)
         qs = self._geom_filters(qs)
@@ -259,6 +260,14 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         model_filter = filterset_factory(self.model, self.filter_fields, self._virtual_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
+        return qs
+
+    def get_queryset(self):
+        qs = None
+        try:
+            qs = self._get_queryset()
+        except Exception:
+            qs = self.model.objects_default.none()
         return qs
 
     def get_pagination_class(self, layer):
