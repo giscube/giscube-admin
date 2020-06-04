@@ -42,6 +42,12 @@ class GeoportalCatalogView(CatalogMixin, SearchView):
     def apply_all_filters(self, request, qs):
         qs = super().apply_all_filters(request, qs)
         qs = qs.order_by('output_data__title')
+        return qs
+
+
+class GeoportalCatalogFilteredByCategoryView(GeoportalCatalogView):
+    def apply_all_filters(self, request, qs):
+        qs = super().apply_all_filters(request, qs)
         try:
             category_id = int(request.GET.get('category_id'))
         except Exception:
@@ -96,4 +102,32 @@ class GeoportalCategoryView(GeoportalMixin, SearchView):
 
     def get(self, request):
         data = self.get_data(request)
+        return Response(data)
+
+
+class GeoportalCategoryCatalogView(GeoportalCategoryView):
+    def get(self, request):
+        # TODO: Refactor
+        v = GeoportalCatalogView()
+        rows = v.get_queryset(request)
+        content = {}
+        for r in rows:
+            if r.output_data['category_id']:
+                if r.output_data['category_id'] not in content:
+                    content[r.output_data['category_id']] = []
+                content[r.output_data['category_id']].append(r.output_data)
+
+        raw_data = []
+        with_content = []
+
+        for x in self.get_queryset(request):
+            category = x.output_data
+            if category['id'] in content:
+                category['content'] = content[category['id']]
+            raw_data.append(category)
+            with_content.append(category['id'])
+            if category['parent']:
+                with_content.append(category['parent'])
+        data = [x for x in raw_data if category['id'] in with_content]
+
         return Response(data)

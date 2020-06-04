@@ -5,7 +5,8 @@ from geoportal import views
 
 urlpatterns = [
     path('search/', views.GeoportalSearchView.as_view(), name='geoportal-search'),
-    path('catalog/', views.GeoportalCatalogView.as_view(), name='geoportal-catalog'),
+    path('catalog/', views.GeoportalCatalogFilteredByCategoryView.as_view(), name='geoportal-catalog'),
+    path('category/catalog/', views.GeoportalCategoryCatalogView.as_view(), name='geoportal-category-catalog'),
     path('category/', views.GeoportalCategoryView.as_view(), name='geoportal-category'),
     path('giscube_id/<giscube_ids>', views.GeoportalGiscubeIdView.as_view(), name='geoportal-giscube_id'),
 ]
