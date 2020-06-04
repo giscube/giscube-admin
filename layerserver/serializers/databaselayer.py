@@ -137,11 +137,12 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
             Layer = create_dblayer_model(obj)
             field = Layer._meta.get_field(obj.geom_field)
             data['geom_type'] = field.geom_type
-            data['design']['popup'] = obj.popup
+            data['design']['popup'] = obj.popup if obj.interactive else None
             self.format_options_geojson(obj, data)
             data['style'] = style_representation(obj)
             data['style_rules'] = style_rules_representation(obj)
-            data['design']['tooltip'] = obj.tooltip
+            data['design']['interactive'] = obj.interactive
+            data['design']['tooltip'] = obj.tooltip if obj.interactive else None
             data['design']['cluster'] = json.loads(
                 obj.cluster_options or '{}') if obj.cluster_enabled else None
 

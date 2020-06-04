@@ -104,8 +104,9 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
             'style': style_representation(self),
             'style_rules': style_rules_representation(self),
             'design': {
-                'popup': self._get_popup(),
-                'tooltip': self._get_tooltip(),
+                'interactive': self.interactive,
+                'popup': self._get_popup() if self.interactive else None,
+                'tooltip': self._get_tooltip() if self.interactive else None,
                 'cluster': json.loads(self.cluster_options or '{}') if self.cluster_enabled else None
             }
         }
