@@ -65,7 +65,6 @@ class ModelFactory:
     def make_model(self):
         self.try_unregister_model()
         self.set_conn()
-        print(self.base_attributes)
         model = type(
             self.model_name,
             (models.Model,),
