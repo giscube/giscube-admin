@@ -61,6 +61,12 @@ class DataBaseLayerFormMixin(ClusterFormMixin, forms.ModelForm):
     def clean_name(self):
         return slugify(self.cleaned_data['name'])
 
+    def clean_data_filter(self):
+        data_filter = self.cleaned_data['data_filter']
+        if data_filter is None:
+            data_filter = {}
+        return data_filter
+
 
 class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
     geometry_columns = forms.ChoiceField(choices=(), widget=forms.Select(), required=False)

@@ -14,6 +14,18 @@ from .model_table_helpers import random_string
 models_module = None
 
 
+class FilterDataManager(models.Manager):
+    def __init__(self, *args, **kwargs):
+        self.data_filter = kwargs.pop('data_filter')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.data_filter:
+            qs = qs.filter(**self.data_filter)
+        return qs
+
+
 class ModelFactory:
     app_label = 'layerserver_databaselayer'
 
@@ -53,6 +65,7 @@ class ModelFactory:
     def make_model(self):
         self.try_unregister_model()
         self.set_conn()
+        print(self.base_attributes)
         model = type(
             self.model_name,
             (models.Model,),
@@ -68,6 +81,8 @@ class ModelFactory:
             '_declared': timezone.now(),
             '_giscube_dblayer_schema': self._get_schema(),
             '_giscube_dblayer_db_connection': self.conn,
+            'objects': FilterDataManager(data_filter=self.layer.data_filter),
+            'objects_default': models.Manager(),
             'Meta': self.model_meta,
         }
 

@@ -20,6 +20,7 @@ from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata, D
                      DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer,
                      GeoJsonLayerGroupPermission, GeoJsonLayerMetadata, GeoJsonLayerStyleRule,
                      GeoJsonLayerUserPermission)
+from .model_legacy import ModelFactory
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -348,7 +349,9 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
 
     add_fieldsets = (
         ('Layer', {
-            'fields': ('db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field')
+            'fields': (
+            'db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field', 'data_filter',
+            )
         }),
     )
     tabs = None
@@ -386,7 +389,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'db_connection', 'table', 'pk_field'
+                'db_connection', 'table', 'pk_field', 'data_filter',
+                'data_filter_status', 'data_filter_error'
             ],
             'classes': ('tab-data-base',),
         }),
@@ -416,7 +420,8 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'db_connection', 'table', 'pk_field', 'geom_field', 'srid'
+                'db_connection', 'table', 'pk_field', 'geom_field', 'srid',
+                'data_filter', 'data_filter_status', 'data_filter_error'
             ],
             'classes': ('tab-data-base',),
         }),
@@ -482,9 +487,11 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     view_metadata.short_description = 'METADATA'
 
     def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj)
         if obj:
-            return self.readonly_fields + ('table', 'geom_field', 'srid', 'view_metadata', 'view_layer', 'public_url')
-        return self.readonly_fields
+            readonly_fields += ('table', 'geom_field', 'srid', 'view_metadata', 'view_layer', 'public_url',)
+            readonly_fields += ('data_filter_status', 'data_filter_error',)
+        return readonly_fields
 
     def add_view(self, request, form_url='', extra_context=None):
         self.fieldsets = self.add_fieldsets
@@ -541,3 +548,19 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             request.POST = request.POST.copy()
             request.POST['_continue'] = 1
         return super().response_add(request, obj, post_url_continue)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if change and 'data_filter' in form.changed_data:
+            obj.data_filter_status = None
+            obj.data_filter_error = None
+            if obj.data_filter:
+                with ModelFactory(obj) as Model:
+                    try:
+                        Model.objects.none()
+                    except Exception as e:
+                        obj.data_filter_status = DataBaseLayer.DATA_FILTER_STATUS_CHOICES.disabled
+                        obj.data_filter_error = str(e)
+                    else:
+                        obj.data_filter_status = DataBaseLayer.DATA_FILTER_STATUS_CHOICES.enabled
+            obj.save()
