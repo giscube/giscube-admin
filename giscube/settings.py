@@ -61,10 +61,10 @@ INSTALLED_APPS = [
     'giscube_search',
     'geoportal',
     'corsheaders',
-    'oauth2_provider',
+    'giscube.apps_titles.GiscubeOauth2ProviderConfig', # 'oauth2_provider',
     'rest_framework',
     'loginas',
-    'django_celery_results',
+    'giscube.apps_titles.GiscubeCeleryResultConfig', # 'django_celery_results',
     'django_admin_listfilter_dropdown',
 ]
 

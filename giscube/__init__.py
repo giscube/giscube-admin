@@ -4,3 +4,5 @@ from .utils import get_version  # noqa isort:skip
 VERSION = (0, 112, 0, 'final', 0)
 
 __version__ = get_version(VERSION)
+
+default_app_config = 'giscube.apps.GiscubeConfig'
