@@ -52,8 +52,8 @@ index_config = [
         'index': 'geoportal',
         'model': Category,
         'fields': ['name'],
-        'output_data': ['id', 'name', 'parent.id'],
-        'output_data_keys': ['id', 'name', 'parent'],
+        'output_data': ['id', 'name', 'color', 'parent.id'],
+        'output_data_keys': ['id', 'name', 'color', 'parent'],
         'search_data': ['title']
     })
 ]
