@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 class Category(models.Model):
     SEPARATOR = ' > '
     name = models.CharField(_('name'), max_length=50)
+    color = models.CharField(_('color'), max_length=50, null=True, blank=True)
     parent = models.ForeignKey(
         'Category', verbose_name=_('parent category'), null=True, blank=True, on_delete=models.CASCADE)
 

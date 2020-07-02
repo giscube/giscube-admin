@@ -25,7 +25,7 @@ admin.site.index_title = settings.ADMIN_INDEX_TITLE
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     autocomplete_fields = ('parent',)
-    fields = ('parent', 'name')
+    fields = ('parent', 'name', 'color')
     list_display = ('__str__', 'parent', 'name', )
     list_display_links = ('__str__',)
     search_fields = ('name', 'parent__name')
