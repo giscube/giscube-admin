@@ -1,6 +1,6 @@
 from django.urls import path
 
-from geoportal import views
+from geoportal import api, views
 
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     path('category/catalog/', views.GeoportalCategoryCatalogView.as_view(), name='geoportal-category-catalog'),
     path('category/', views.GeoportalCategoryView.as_view(), name='geoportal-category'),
     path('giscube_id/<giscube_ids>', views.GeoportalGiscubeIdView.as_view(), name='geoportal-giscube_id'),
+    path('api/v1/profile/', api.profile),
 ]
