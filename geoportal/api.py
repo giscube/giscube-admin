@@ -11,5 +11,6 @@ def profile(request):
     data = {
         'username': request.user.username,
         'admin_url': request.build_absolute_uri(reverse('admin:index')),
+        'is_staff': request.user.is_staff,
     }
     return Response(data)
