@@ -33,7 +33,15 @@ class GiscubeSearchView(FilterByUserMixin, GeomSearchView):
         return DocumentIndexEditor(name='geoportal').get_model()
 
     def filter_by_content_type(self, request, qs):
-        qs = qs.filter(content_type__in=CATALOG_MODELS)
+        e = request.GET.get('e', None)
+        if e:
+            content_types = list(filter(None, e.split(',')))
+            if set(content_types).intersection(CATALOG_MODELS) == set(content_types):
+                qs = qs.filter(content_type__in=content_types)
+            else:
+                qs = self.get_model().objects.none()
+        else:
+            qs = qs.filter(content_type__in=CATALOG_MODELS)
         return qs
 
     def year_to_first_day(self, d):
