@@ -75,7 +75,16 @@ class DBLayerIsValidUser(permissions.BasePermission, DBLayerPermissions):
 class BulkDBLayerIsValidUser(permissions.BasePermission, DBLayerPermissions):
     def has_permission(self, request, view):
         permission = self.get_permissions(view.layer, request.user)
-        return permission['add'] and permission['update'] and permission['delete']
+        data = request.data
+
+        if not permission['add'] and ('ADD' in data and len(data['ADD']) > 0):
+            return False
+        if not permission['update'] and ('UPDATE' in data and len(data['UPDATE']) > 0):
+            return False
+        if not permission['delete'] and ('DELETE' in data and len(data['DELETE']) > 0):
+            return False
+
+        return permission['add'] or permission['update'] or permission['delete']
 
 
 class DataBaseLayerDjangoPermission(permissions.DjangoModelPermissions):
