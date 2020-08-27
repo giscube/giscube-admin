@@ -51,8 +51,12 @@ class GiscubeTransactionCacheResponse:
         bulk_hash_meta = request.META.get('HTTP_X_BULK_HASH')
         if bulk_hash_meta and (hash != bulk_hash_meta):
             return HttpResponseBadRequest('INVALID X-Bulk-Hash')
-        transaction = GiscubeTransaction.objects.filter(hash=bulk_hash_meta).first()
-
+        filter = {
+            hash: bulk_hash_meta,
+            response_status_code__gte: 200,
+            response_status_code__lt: 300
+        }
+        transaction = GiscubeTransaction.objects.filter(**filter).first()
         if not transaction:
             response = view_method(view_instance, request, *args, **kwargs)
             response = view_instance.finalize_response(request, response, *args, **kwargs)
