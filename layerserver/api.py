@@ -128,8 +128,7 @@ class PageSize0NotAllowedException(Exception):
 class DBLayerContentViewSetMixin(object):
     def get_model_serializer_class(self):
         fields = list(self._fields.keys())
-        return create_dblayer_serializer(
-            self.model, fields, self.lookup_field, self.readonly_fields, self._virtual_fields)
+        return create_dblayer_serializer(self.model, fields, self.lookup_field, self._virtual_fields)
 
     def _virtual_fields_get_queryset(self, qs):
         for field in self._virtual_fields.values():
@@ -163,10 +162,6 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
             raise Http404
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
-        try:
-            self.pagination_class = self.get_pagination_class(self.layer)
-        except PageSize0NotAllowedException:
-            return HttpResponseBadRequest()
         self.filter_fields = []
         self._fields = {}
         self.readonly_fields = []
@@ -187,6 +182,11 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         defaults = {}
         defaults[self.lookup_field] = lookup_field_value
         kwargs.update(defaults)
+        try:
+            self.pagination_class = self.get_pagination_class(self.layer)
+        except PageSize0NotAllowedException:
+            return HttpResponseBadRequest()
+
         return super(DBLayerContentViewSet,
                      self).dispatch(
                          request, *args, **kwargs)
@@ -276,10 +276,10 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         if not layer.allow_page_size_0 and self.request.GET.get('page_size', page_size) == '0':
             raise PageSize0NotAllowedException()
         if self.request.GET.get('page_size', page_size) != '0':
-            if self.layer.geom_field is None:
-                return create_json_pagination_class(page_size=page_size, max_page_size=max_page_size)
-            else:
+            if self.layer.geom_field and self.layer.geom_field in self._fields:
                 return create_geojson_pagination_class(page_size=page_size, max_page_size=max_page_size)
+            else:
+                return create_json_pagination_class(page_size=page_size, max_page_size=max_page_size)
 
     # def delete_multiple(self, request, *args, **kwargs):
     #     queryset = self.filter_queryset(self.get_queryset())

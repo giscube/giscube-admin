@@ -62,13 +62,10 @@ class DataBaseLayerBlankFieldTestCase(BaseTest):
             self.assertEqual(Location._meta.get_field('address').blank, False)
 
             fields = []
-            readonly_fields = []
             for field in self.layer.fields.filter(enabled=True):
                 fields.append(field.name)
-                if field.readonly is True:
-                    readonly_fields.append(field.name)
 
-            Serializer = create_dblayer_serializer(Location, fields, self.layer.pk_field, readonly_fields)
+            Serializer = create_dblayer_serializer(Location, fields, self.layer.pk_field)
             extra_kwargs = Serializer.Meta.extra_kwargs
 
             self.assertTrue(extra_kwargs['code']['required'])
