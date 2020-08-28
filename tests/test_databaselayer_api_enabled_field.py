@@ -7,7 +7,7 @@ from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
 
-class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
+class DataBaseLayerAPIEnabledFieldTestCase(BaseTest):
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()
@@ -33,10 +33,9 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
         layer.save()
         self.layer = layer
 
-
-    def create_model(self, readonly_fields=None):
-        readonly_fields = readonly_fields or ['address']
-        self.layer.fields.filter(name__in=readonly_fields).update(readonly=True)
+    def create_model(self, disabled_fields=None):
+        disabled_fields = disabled_fields or ['address']
+        self.layer.fields.filter(name__in=disabled_fields).update(enabled=False)
 
         self.locations = []
         Location = create_dblayer_model(self.layer)
@@ -49,65 +48,40 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
             location.save()
             self.locations.append(location)
 
-    def test_content_readonly(self):
+    def test_no_address_serialized(self):
         self.create_model()
-
         url = reverse('content-list', kwargs={'name': self.layer.name})
-        data = {
-            'code': 'A001',
-            'address': 'Test',
-            'geometry': 'POINT(0 0)'
-        }
-        response = self.client.post(url, data, format='json')
-        res = response.json()
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(res['properties']['address'], None)
-        location = self.Location.objects.filter(code='A001').first()
-        location.address = 'Test'
-        location.save()
-        location.refresh_from_db()
-        self.assertEqual(location.address, 'Test')
-
-        url = reverse('content-detail', kwargs={'name': self.layer.name, 'pk': res['id']})
-        data = {
-            'address': 'Test Update'
-        }
-        response = self.client.patch(url, data, format='json')
-        res = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(res['properties']['address'], 'Test')
+        response = self.client.get(url)
+        feature = response.json()['features'][0]
+        self.assertTrue('address' not in feature)
 
     def test_bulk(self):
         self.create_model()
-
+        obj = self.Location.objects.get(pk=self.locations[2].id)
+        self.assertEqual(obj.address, 'C/ Jaume 2, Girona')
         data = {
             'ADD': [
                 {
-                    'code': 'A101',
-                    'address': 'C/ Jaume 100, Girona',
-                    'geometry': 'POINT (0 10)'
-                },
-                {
-                    'code': 'A102',
-                    'geometry': 'POINT (0 10)'
+                    'code': 'A901',
+                    'address': 'Major 4, Girona',
+                    'geometry': 'POINT (0 35)'
                 }
             ],
             'UPDATE': [
                 {
                     'id': self.locations[2].id,
-                    'geometry': 'POINT (0 10)'
+                    'address': 'Major 4, Girona'
                 }
             ],
             'DELETE': []
         }
+        address = self.locations[2].address
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
-        obj = self.Location.objects.get(code=data['ADD'][0]['code'])
-
+        result = response.json()
+        obj = self.Location.objects.get(pk=result['ADD'][0]['id'])
         self.assertEqual(obj.address, None)
-
-        obj = self.Location.objects.get(code=self.locations[2].code)
+        obj = self.Location.objects.get(pk=self.locations[2].id)
         self.assertEqual(obj.address, 'C/ Jaume 2, Girona')
 
     def test_bulk_geom(self):
