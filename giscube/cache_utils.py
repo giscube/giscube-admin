@@ -52,9 +52,9 @@ class GiscubeTransactionCacheResponse:
         if bulk_hash_meta and (hash != bulk_hash_meta):
             return HttpResponseBadRequest('INVALID X-Bulk-Hash')
         filter = {
-            hash: bulk_hash_meta,
-            response_status_code__gte: 200,
-            response_status_code__lt: 300
+            'hash': bulk_hash_meta,
+            'response_status_code__gte': 200,
+            'response_status_code__lt': 300
         }
         transaction = GiscubeTransaction.objects.filter(**filter).first()
         if not transaction:
