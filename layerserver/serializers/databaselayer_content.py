@@ -256,10 +256,22 @@ class JSONSerializerFactory(object):
 
     def get_fields_to_serialize(self):
         fields_to_serialize = self.fields[:]
+        for field in self.model._meta.get_fields():
+            if not field._giscube_field['enabled']:
+                if field.name in fields_to_serialize:
+                    fields_to_serialize.remove(field.name)
+
         # pk field is always needed
         if self.id_field not in fields_to_serialize:
             fields_to_serialize.append(self.id_field)
         return fields_to_serialize
+
+    def get_read_only_fields(self):
+        read_only_fields = []
+        for field in self.model._meta.get_fields():
+            if field._giscube_field['readonly'] and field._giscube_field['enabled']:
+                read_only_fields.append(field.name)
+        return read_only_fields
 
     def get_meta_attrs(self):
         extra_kwargs = {}
@@ -283,6 +295,8 @@ class JSONSerializerFactory(object):
 
     def get_serializer(self):
         attrs = self.get_attrs()
+        for readonly in self.get_read_only_fields():
+            attrs.update({readonly: serializers.ReadOnlyField()})
         mixins = self.common_mixins + (self.serializer_class,)
         return type(str('%s_serializer') % str(self.model._meta.db_table), mixins, attrs)
 

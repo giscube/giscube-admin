@@ -107,19 +107,19 @@ class ModelFactory:
     def fields(self):
         model_fields = {}
         for field_options in self.field_options:
-            # Change field type and kwargs if needed
-            enabled = field_options.enabled
-            if not self.exclude_enabled:
-                enabled = True
-            if enabled:
-                widget = widgets_types[field_options.widget]
-                field = self.original_fields[field_options.name]
-                widget.apply(field, field_options, {'layer': self.layer})
-                field['kwargs'].update({'blank': field_options.blank})
-                if self.layer.geom_field and self.layer.geom_field == field_options.name:
-                    field['kwargs'].update({'srid': self.layer.srid})
-                model_fields[field_options.name] = widget.apply(field, field_options, {'layer': self.layer})
-                model_fields[field_options.name]._giscube_field = model_to_dict(field_options)
+            widget = widgets_types[field_options.widget]
+            field = self.original_fields[field_options.name]
+            widget.apply(field, field_options, {'layer': self.layer})
+            options = {
+                'blank': field_options.blank
+            }
+            if not field_options.enabled:
+                options['editable'] = False
+            field['kwargs'].update(options)
+            if self.layer.geom_field and self.layer.geom_field == field_options.name:
+                field['kwargs'].update({'srid': self.layer.srid})
+            model_fields[field_options.name] = widget.apply(field, field_options, {'layer': self.layer})
+            model_fields[field_options.name]._giscube_field = model_to_dict(field_options)
         return model_fields
 
     @property
