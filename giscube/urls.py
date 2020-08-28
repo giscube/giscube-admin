@@ -4,8 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 
-import oauth2_provider.views as oauth2_views
-
+from oauth2_provider import views as oauth2_views
 from rest_framework import routers
 
 from giscube import api

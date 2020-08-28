@@ -7,7 +7,6 @@ https://docs.djangoproject.com/en/1.7/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
-
 import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -61,10 +60,10 @@ INSTALLED_APPS = [
     'giscube_search',
     'geoportal',
     'corsheaders',
-    'giscube.apps_titles.GiscubeOauth2ProviderConfig', # 'oauth2_provider',
+    'giscube.apps_titles.GiscubeOauth2ProviderConfig',  # 'oauth2_provider',
     'rest_framework',
     'loginas',
-    'giscube.apps_titles.GiscubeCeleryResultConfig', # 'django_celery_results',
+    'giscube.apps_titles.GiscubeCeleryResultConfig',  # 'django_celery_results',
     'django_admin_listfilter_dropdown',
 ]
 
@@ -422,6 +421,7 @@ SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 SENTRY_DSN = os.getenv('SENTRY_DSN', None)
 if SENTRY_DSN is not None:
     import sentry_sdk
+
     from sentry_sdk.integrations.django import DjangoIntegration
 
     sentry_sdk.init(

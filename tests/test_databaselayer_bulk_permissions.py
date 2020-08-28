@@ -86,7 +86,6 @@ class DataBaseLayerBulkPermissionsTestCase(BaseTest):
         response = self.client.post(url, data, format='json')
         return response.status_code
 
-
     def test_anonymous_permission_denied(self):
         status_code = self.send_data()
         self.assertEqual(status_code, 401)

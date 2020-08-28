@@ -78,7 +78,7 @@ class PopupMixin(models.Model):
     """
     help_text = '%s %s' % (_('Field between curly braces. e.g.'), '{%s}' % _('street'))
     popup = models.TextField(_('popup'), blank=True, null=True, help_text=help_text)
-    interactive =  models.BooleanField(_('interactive'), default=True)
+    interactive = models.BooleanField(_('interactive'), default=True)
 
     def get_default_popup_content(self, fields):
         content = []

@@ -251,7 +251,6 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
                 qs = qs.filter(reduce(OR, lst))  # noqa: E0602
         return qs
 
-
     def _get_queryset(self):
         qs = self.model.objects.all()
         qs = self._fullsearch_filters(qs)

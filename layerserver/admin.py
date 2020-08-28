@@ -16,11 +16,11 @@ from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBas
                           DataBaseLayerReferencesInlineForm, DataBaseLayerStyleRuleInlineForm,
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm,
                           GeoJsonLayerStyleRuleInlineForm)
+from .model_legacy import ModelFactory
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata, DataBaseLayerReference,
                      DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer,
                      GeoJsonLayerGroupPermission, GeoJsonLayerMetadata, GeoJsonLayerStyleRule,
                      GeoJsonLayerUserPermission)
-from .model_legacy import ModelFactory
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -350,7 +350,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     add_fieldsets = (
         ('Layer', {
             'fields': (
-            'db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field', 'data_filter',
+                'db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field', 'data_filter',
             )
         }),
     )

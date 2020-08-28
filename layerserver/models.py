@@ -242,7 +242,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     table = models.CharField(_('table'), max_length=255, blank=False, null=False)
     data_filter = JSONField(_('data filter'), blank=True, null=True, default=dict)
     data_filter_status = models.CharField(choices=DATA_FILTER_STATUS_CHOICES,
-        max_length=50, null=True, blank=True, editable=False)
+                                          max_length=50, null=True, blank=True, editable=False)
     data_filter_error = models.TextField(null=True, blank=True, editable=False)
 
     pk_field = models.CharField(_('pk field'), max_length=255, blank=True, null=False)
