@@ -202,17 +202,19 @@ def apply_widgets(attrs, model, fields):
 
 class WidgetSerializerMixin(object):
     def create(self, validated_data):
-        for field in self.__class__.Meta.model._meta.get_fields():
-            if field._giscube_field['enabled']:
-                widget_class = widgets_types[field._giscube_field['widget']]
-                widget_class.create(self.context['request'], validated_data, field._giscube_field)
+        model_fields = {x.name: x for x in self.__class__.Meta.model._meta.get_fields()}
+        for field in self.fields:
+            giscube_field = model_fields[field]._giscube_field
+            widget_class = widgets_types[giscube_field['widget']]
+            widget_class.create(self.context['request'], validated_data, giscube_field)
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        for field in self.__class__.Meta.model._meta.get_fields():
-            if field._giscube_field['enabled']:
-                widget_class = widgets_types[field._giscube_field['widget']]
-                widget_class.update(self.context['request'], instance, validated_data, field._giscube_field)
+        model_fields = {x.name: x for x in self.__class__.Meta.model._meta.get_fields()}
+        for field in self.fields:
+            giscube_field = model_fields[field]._giscube_field
+            widget_class = widgets_types[giscube_field['widget']]
+            widget_class.update(self.context['request'], instance, validated_data, giscube_field)
         return super().update(instance, validated_data)
 
 
@@ -223,11 +225,10 @@ class JSONSerializerFactory(object):
     )
     serializer_class = JSONSerializer
 
-    def __init__(self, model, fields, id_field, read_only_fields, virtual_fields=None):
+    def __init__(self, model, fields, id_field, virtual_fields=None):
         self.model = model
         self.fields = fields
         self.id_field = 'id' if id_field is None or id_field == '' else id_field
-        self.read_only_fields = read_only_fields
         self.virtual_fields = virtual_fields or {}
 
     def to_image_field(self, field_name, field):
@@ -261,10 +262,19 @@ class JSONSerializerFactory(object):
             fields_to_serialize.append(self.id_field)
         return fields_to_serialize
 
+    def get_read_only_fields(self):
+        model_fields = {x.name: x for x in self.model._meta.get_fields()}
+        read_only_fields = []
+        for field in self.fields:
+            if model_fields[field]._giscube_field['readonly']:
+                read_only_fields.append(field)
+        return read_only_fields
+
     def get_meta_attrs(self):
+        model_fields = {x.name: x for x in self.model._meta.get_fields()}
         extra_kwargs = {}
-        for f in self.model._meta.fields:
-            extra_kwargs[f.name] = {'required': not self.model._meta.get_field(f.name).blank}
+        for field in self.fields:
+            extra_kwargs[model_fields[field].name] = {'required': not model_fields[field].blank}
         meta_attrs = {
             'model': self.model,
             'id_field': self.id_field,
@@ -273,10 +283,10 @@ class JSONSerializerFactory(object):
             'list_serializer_class': JSONModelListSerializer
         }
 
-        if len(self.fields) > 0:
-            meta_attrs['fields'] = self.get_fields_to_serialize()
-        if len(self.read_only_fields) > 0:
-            meta_attrs['read_only_fields'] = self.read_only_fields
+        meta_attrs['fields'] = self.get_fields_to_serialize()
+        read_only_fields = self.get_read_only_fields()
+        if len(read_only_fields) > 0:
+            meta_attrs['read_only_fields'] = read_only_fields
         meta_attrs['virtual_fields'] = self.virtual_fields
 
         return meta_attrs
@@ -290,8 +300,8 @@ class JSONSerializerFactory(object):
 class Geom4326SerializerFactory(JSONSerializerFactory):
     serializer_class = Geom4326Serializer
 
-    def __init__(self, model, fields, id_field, read_only_fields, virtual_fields):
-        super().__init__(model, fields, id_field, read_only_fields, virtual_fields)
+    def __init__(self, model, fields, id_field, virtual_fields):
+        super().__init__(model, fields, id_field, virtual_fields)
 
         self.geo_field = None
         for f in model._meta.fields:
@@ -314,9 +324,9 @@ class Geom4326SerializerFactory(JSONSerializerFactory):
         meta_attrs['geo_field'] = self.geo_field
         return meta_attrs
 
-
-def create_dblayer_serializer(model, fields, id_field, read_only_fields, virtual_fields=None):
-    if model._giscube_dblayer_schema.get('geom_field', None):
-        return Geom4326SerializerFactory(model, fields, id_field, read_only_fields, virtual_fields).get_serializer()
+def create_dblayer_serializer(model, fields, id_field, virtual_fields=None):
+    geom_field = model._giscube_dblayer_schema.get('geom_field', None)
+    if geom_field and geom_field in fields:
+        return Geom4326SerializerFactory(model, fields, id_field, virtual_fields).get_serializer()
     else:
-        return JSONSerializerFactory(model, fields, id_field, read_only_fields, virtual_fields).get_serializer()
+        return JSONSerializerFactory(model, fields, id_field, virtual_fields).get_serializer()
