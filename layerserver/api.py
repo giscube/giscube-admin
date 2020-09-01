@@ -128,6 +128,17 @@ class PageSize0NotAllowedException(Exception):
 class DBLayerContentViewSetMixin(object):
     def get_model_serializer_class(self):
         fields = list(self._fields.keys())
+        if self.request.method == 'GET':
+            only_fields = self.request.GET.get('fields', None)
+            if only_fields is not None:
+                only_fields = list(filter(None, only_fields.split(',')))
+                for field in list(only_fields):
+                    if field not in fields:
+                        only_fields.remove(field)
+                only_fields.append(self.layer.pk_field)
+                if self.layer.geom_field in fields:
+                    only_fields.append(self.layer.geom_field)
+                fields = list(set(only_fields))
         return create_dblayer_serializer(self.model, fields, self.lookup_field, self._virtual_fields)
 
     def _virtual_fields_get_queryset(self, qs):
@@ -154,7 +165,6 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
     filter_backends = (filters.OrderingFilter,)
     lookup_url_kwarg = 'pk'
     _fields = {}
-    readonly_fields = []
 
     def dispatch(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.filter(name=kwargs['name']).first()
@@ -164,20 +174,12 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         self.lookup_field = self.layer.pk_field
         self.filter_fields = []
         self._fields = {}
-        self.readonly_fields = []
-        only_fields = self.request.GET.get('fields', None)
-        if only_fields is not None:
-            only_fields = list(filter(None, only_fields.split(','))) + [self.layer.pk_field, self.layer.geom_field]
         for field in self.layer.fields.filter(enabled=True):
-            if only_fields is not None and field.name not in only_fields:
-                continue
             if field.search is True:
                 self.filter_fields.append(field.name)
             self._fields[field.name] = {
                 'fullsearch': field.fullsearch
             }
-            if field.readonly is True:
-                self.readonly_fields.append(field.name)
         lookup_field_value = kwargs.get(self.lookup_url_kwarg)
         defaults = {}
         defaults[self.lookup_field] = lookup_field_value
@@ -187,9 +189,7 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         except PageSize0NotAllowedException:
             return HttpResponseBadRequest()
 
-        return super(DBLayerContentViewSet,
-                     self).dispatch(
-                         request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_serializer_class(self):
         return self.get_model_serializer_class()
@@ -250,7 +250,6 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
             if len(lst) > 0:
                 qs = qs.filter(reduce(OR, lst))  # noqa: E0602
         return qs
-
 
     def _get_queryset(self):
         qs = self.model.objects.all()
@@ -341,7 +340,6 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         self.original_updated_objects = {}
         self.updated_objects = []
         self.user_assets = []
-        self.readonly_fields = []
         self._to_do = []
 
     @giscube_transaction_cache_response()
@@ -353,11 +351,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         self._fields = {}
         for field in self.layer.fields.filter(enabled=True):
             self._fields[field.name] = {}
-            if field.readonly is True:
-                self.readonly_fields.append(field.name)
-        return super(DBLayerContentBulkViewSet,
-                     self).dispatch(
-                         request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = self.model.objects.all()
