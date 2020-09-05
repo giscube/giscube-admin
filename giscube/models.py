@@ -229,6 +229,8 @@ class GiscubeTransaction(models.Model):
     response_headers = JSONField(_('request headers'), default=dict)
     response_status_code = models.IntegerField(_('response status code'), null=True, blank=True)
     response_body = models.TextField(_('response body'), null=True, blank=True)
+    error = models.TextField(_('error'), null=True, blank=True)
+    traceback = models.TextField(_('traceback'), null=True, blank=True)
 
     @staticmethod
     def purge_old():

@@ -344,6 +344,9 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
 
     @giscube_transaction_cache_response()
     def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def initial(self, request, *args, **kwargs):
         self.layer = DataBaseLayer.objects.get(name=kwargs['name'])
         self.model = create_dblayer_model(self.layer)
         self.lookup_field = self.layer.pk_field
@@ -351,7 +354,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         self._fields = {}
         for field in self.layer.fields.filter(enabled=True):
             self._fields[field.name] = {}
-        return super().dispatch(request, *args, **kwargs)
+        return super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = self.model.objects.all()

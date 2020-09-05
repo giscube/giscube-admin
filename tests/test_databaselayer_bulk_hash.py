@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -75,3 +77,38 @@ class DataBaseLayerBulkHashAPITestCase(BaseTest):
 
         self.assertEqual(response1.json(), response.json())
         self.assertEqual(GiscubeTransaction.objects.all().count(), 1)
+
+    @mock.patch('layerserver.api.DBLayerContentBulkViewSet.post')
+    def test_bulk_hash_post_error(self, fake_post):
+        fake_post.side_effect = Exception('Test')
+        data = {
+            'ADD': [
+                {
+                    'code': 'C003',
+                    'address': 'C/ Major 3, Salt',
+                    'geometry': 'POINT (2.79450 41.97642)'
+                }
+            ],
+            'UPDATE': [],
+            'DELETE': [],
+            '_META': {'time': timezone.now().isoformat()}
+        }
+        url = reverse('content-bulk', kwargs={'name': self.layer.name})
+        try:
+            self.client.post(url, data)
+        except Exception:
+            pass
+
+        try:
+            self.client.post(url, data)
+        except Exception:
+            pass
+
+        _, hash = self.client.bulk_hash(data)
+        filter = {'hash': hash, 'response_status_code': 500}
+        transactions = GiscubeTransaction.objects.filter(**filter)
+        self.assertEqual(transactions.count(), 2)
+        first = transactions.first()
+        last = transactions.last()
+        self.assertEqual(first.hash, first.hash)
+        self.assertEqual(transactions.first().error, 'Test')

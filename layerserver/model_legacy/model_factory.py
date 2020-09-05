@@ -109,7 +109,6 @@ class ModelFactory:
         for field_options in self.field_options:
             widget = widgets_types[field_options.widget]
             field = self.original_fields[field_options.name]
-            widget.apply(field, field_options, {'layer': self.layer})
             options = {
                 'blank': field_options.blank
             }
