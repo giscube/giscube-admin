@@ -1,6 +1,7 @@
 import hashlib
 
 from functools import WRAPPER_ASSIGNMENTS, wraps
+from traceback import format_tb
 
 from django.http.response import HttpResponse, HttpResponseBadRequest
 
@@ -22,25 +23,33 @@ class GiscubeTransactionCacheResponse:
             )
         return inner
 
-    def log_transaction(self, request, response):
+    def log_transaction(self, request, response=None, error=None):
         request_headers = {k: v for k, v in request.META.items() if 'wsgi' not in k}
-        response_headers = response._headers.copy()
         user = request.user.username or str(request.user)
-        response_body = None
-        if response.rendered_content:
-            response_body = response.rendered_content
-            if type(response_body) is bytes:
-                response_body = response_body.decode('utf-8')
         data = {
             'hash': request.META.get('HTTP_X_BULK_HASH'),
             'user': user,
             'url': request.build_absolute_uri(),
             'request_headers': request_headers,
-            'response_headers': response_headers,
-            'request_body': request.body,
-            'response_body': response_body,
-            'response_status_code': response.status_code
+            'request_body': request.body
         }
+        if response:
+            response_headers = response._headers.copy()
+            response_body = None
+            if response.rendered_content:
+                response_body = response.rendered_content
+                if type(response_body) is bytes:
+                    response_body = response_body.decode('utf-8')
+            data.update({
+                'response_headers': response_headers,
+                'response_body': response_body,
+                'response_status_code': response.status_code
+            })
+        if error:
+            data.update({
+                'response_status_code': 500,
+                'error': error
+            })
         GiscubeTransaction(**data).save()
 
     def process_cache_response(self, view_instance, view_method, request, args, kwargs):
@@ -52,16 +61,20 @@ class GiscubeTransactionCacheResponse:
         if bulk_hash_meta and (hash != bulk_hash_meta):
             return HttpResponseBadRequest('INVALID X-Bulk-Hash')
         filter = {
-            'hash': bulk_hash_meta,
-            'response_status_code__gte': 200,
-            'response_status_code__lt': 300
+            'hash': bulk_hash_meta
         }
         transaction = GiscubeTransaction.objects.filter(**filter).first()
         if not transaction:
-            response = view_method(view_instance, request, *args, **kwargs)
-            response = view_instance.finalize_response(request, response, *args, **kwargs)
-            response.render()
-            self.log_transaction(request, response)
+            response = None
+            error = None
+            try:
+                response = view_method(view_instance, request, *args, **kwargs)
+            except Exception as e:
+                error = '\n'.join(format_tb(e.__traceback__))
+                raise
+            finally:
+                self.log_transaction(request, response=response, error=error)
+
         else:
             response = HttpResponse(content=transaction.response_body, status=transaction.response_status_code)
             for k, v in transaction.response_headers.values():
