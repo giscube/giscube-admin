@@ -21,15 +21,19 @@ AccessTokenModel = get_access_token_model()
 
 
 class BulkClient(APIClient):
+
+    def bulk_hash(self, data):
+        if '_META' not in data:
+            data['_META'] = {'time': timezone.now().isoformat()}
+        body = json.dumps(data, sort_keys=True, separators=(',', ':'))
+        if type(body) is str:
+            body = body.encode('utf-8')
+        return body, hashlib.md5(body).hexdigest()
+
     def post(self, url, data, *args, **kwargs):
         if list(filter(None, url.split('/')))[-1] == 'bulk' and type(data) is dict and \
                 'HTTP_X_BULK_HASH' not in kwargs:
-            if '_META' not in data:
-                data['_META'] = {'time': timezone.now().isoformat()}
-            body = json.dumps(data, sort_keys=True, separators=(',', ':'))
-            if type(body) is str:
-                body = body.encode('utf-8')
-            hash = hashlib.md5(body).hexdigest()
+            body, hash = self.bulk_hash(data)
             if 'format' in kwargs:
                 del kwargs['format']
             return super().generic('POST', url, body, content_type='application/json', HTTP_X_BULK_HASH=hash)
