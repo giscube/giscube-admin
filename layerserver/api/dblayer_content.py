@@ -1,4 +1,3 @@
-import json
 import logging
 import mimetypes
 import os
@@ -14,7 +13,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.http import FileResponse, Http404, HttpResponseBadRequest, HttpResponseServerError
+from django.http import FileResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from django.utils.functional import cached_property
@@ -26,99 +25,15 @@ from rest_framework.response import Response
 from giscube.cache_utils import giscube_transaction_cache_response
 from giscube.models import UserAsset
 
-from .filters import filterset_factory
-from .mapserver import SUPORTED_SHAPE_TYPES, MapserverLayer
-from .model_legacy import create_dblayer_model
-from .models import DataBaseLayer, GeoJsonLayer
-from .pagination import create_geojson_pagination_class, create_json_pagination_class
-from .permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
-from .serializers import DBLayerDetailSerializer, DBLayerSerializer, GeoJSONLayerSerializer, create_dblayer_serializer
-from .utils import geojsonlayer_check_cache
+from ..filters import filterset_factory
+from ..model_legacy import create_dblayer_model
+from ..models import DataBaseLayer
+from ..pagination import create_geojson_pagination_class, create_json_pagination_class
+from ..permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
+from ..serializers import create_dblayer_serializer
 
 
 logger = logging.getLogger(__name__)
-
-
-class GeoJSONLayerViewSet(viewsets.ReadOnlyModelViewSet):
-    lookup_field = 'name'
-    permission_classes = ()
-    queryset = []
-    model = GeoJsonLayer
-    serializer_class = GeoJSONLayerSerializer
-
-    def get_queryset(self, *args, **kwargs):
-        qs = self.model.objects.filter(active=True)
-        filter_anonymous = Q(anonymous_view=True)
-
-        if self.request.user.is_anonymous:
-            qs = qs.filter(filter_anonymous)
-        else:
-            self.user_groups = self.request.user.groups.values_list('name', flat=True)
-            filter_authenticated_user_view = Q(authenticated_user_view=True)
-            filter_group = (
-                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_view=True))
-            filter_user = Q(user_permissions__user=self.request.user) & Q(user_permissions__can_view=True)
-            qs = qs.filter(
-                filter_anonymous | filter_authenticated_user_view | filter_user | filter_group).distinct()
-
-        return qs
-
-    def retrieve(self, request, name):
-        layer = self.get_queryset().filter(name=name).first()
-        if layer is None:
-            raise Http404
-
-        if layer and layer.data_file:
-            path = layer.get_data_file_path()
-            if os.path.isfile(path):
-                geojsonlayer_check_cache(layer)
-                return FileResponse(open(path, 'rb'))
-
-        error = {'error': 'DATA_FILE_NOT_FOUND'}
-        return HttpResponseServerError(json.dumps(error))
-
-
-class DBLayerViewSet(viewsets.ModelViewSet):
-    lookup_field = 'name'
-    permission_classes = ()
-    queryset = []
-    model = DataBaseLayer
-    serializer_class = DBLayerSerializer
-    user = None
-
-    def get_queryset(self, *args, **kwargs):
-        qs = self.model.objects.filter(active=True)
-        filter_anonymous = Q(anonymous_view=True) | Q(anonymous_add=True) | Q(anonymous_update=True) \
-            | Q(anonymous_delete=True)
-
-        if self.request.user.is_anonymous:
-            qs = qs.filter(filter_anonymous)
-        else:
-            self.user_groups = self.request.user.groups.values_list('name', flat=True)
-            filter_group = Q(group_permissions__group__name__in=self.user_groups) & Q(
-                Q(group_permissions__can_view=True) | Q(group_permissions__can_add=True) | Q(
-                    group_permissions__can_update=True) | Q(group_permissions__can_delete=True))
-            filter_user = Q(user_permissions__user=self.request.user) & Q(
-                Q(user_permissions__can_view=True) | Q(user_permissions__can_add=True) | Q(
-                    user_permissions__can_update=True) | Q(user_permissions__can_delete=True))
-            qs = qs.filter(Q(filter_anonymous) | Q(filter_user) | Q(filter_group)).distinct()
-
-        return qs
-
-
-class DBLayerDetailViewSet(DBLayerViewSet):
-    serializer_class = DBLayerDetailSerializer
-
-    def shapetype_not_suported(self, shapetype):
-        return HttpResponseServerError('shapetype [%s] not suported' % shapetype)
-
-    @action(methods=['get'], detail=True)
-    def wms(self, request, name):
-        layer = self.get_object()
-        if layer.shapetype not in SUPORTED_SHAPE_TYPES:
-            return self.shapetype_not_suported(layer.shapetype)
-        ms = MapserverLayer(layer)
-        return ms.wms(request)
 
 
 class PageSize0NotAllowedException(Exception):
@@ -374,7 +289,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
 
     @cached_property
     def _image_fields(self):
-        from .models import DataBaseLayerField
+        from ..models import DataBaseLayerField
         image_fields = {}
         for field in self.layer.fields.filter(widget=DataBaseLayerField.WIDGET_CHOICES.image):
             image_fields[field.name] = field
