@@ -1,4 +1,3 @@
-from django.contrib.gis.db.backends.postgis.introspection import GeoIntrospectionError
 from django.contrib.gis.db.backends.postgis.introspection import PostGISIntrospection as OriginalPostGISIntrospection
 from django.contrib.gis.gdal import OGRGeomType
 from django.db.backends.postgresql.introspection import DatabaseIntrospection as OriginalDatabaseIntrospection
@@ -12,7 +11,7 @@ class DatabaseIntrospection(OriginalDatabaseIntrospection):
 
 
 class PostGISIntrospection(OriginalPostGISIntrospection):
-    def get_geometry_type(self, table_name, geo_col):
+    def get_geometry_type(self, table_name, description):
         """
         The geometry type OID used by PostGIS does not indicate the particular
         type of field that a geometry column is (e.g., whether it's a
@@ -23,56 +22,40 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         table_name = table_parts['table_name']
         table_schema = table_parts['table_schema']
 
-        cursor = self.connection.cursor()
-        try:
-            try:
-                if table_schema:
-                    cursor.execute('SELECT "coord_dimension", "srid", "type" '
-                                   'FROM "geometry_columns" '
-                                   'WHERE "f_table_name"=%s AND "f_geometry_column"=%s'
-                                   'AND "f_table_schema"=%s',
-                                   (table_name, geo_col, table_schema))
-                else:
-                    cursor.execute('SELECT "coord_dimension", "srid", "type" '
-                                   'FROM "geometry_columns" '
-                                   'WHERE "f_table_name"=%s AND "f_geometry_column"=%s',
-                                   (table_name, geo_col))
-                row = cursor.fetchone()
-                if not row:
-                    raise GeoIntrospectionError
-            except GeoIntrospectionError:
-                if table_schema:
-                    cursor.execute('SELECT "coord_dimension", "srid", "type" '
-                                   'FROM "geography_columns" '
-                                   'WHERE "f_table_name"=%s AND "f_geometry_column"=%s'
-                                   'AND "f_table_schema"=%s',
-                                   (table_name, geo_col, table_schema))
-                else:
-                    cursor.execute('SELECT "coord_dimension", "srid", "type" '
-                                   'FROM "geography_columns" '
-                                   'WHERE "f_table_name"=%s AND "f_geometry_column"=%s',
-                                   (table_name, geo_col))
-                row = cursor.fetchone()
-
+        with self.connection.cursor() as cursor:
+            if table_schema:
+                cursor.execute('SELECT "coord_dimension", "srid", "type" FROM '
+                               '(SELECT * FROM geometry_columns'
+                               ' UNION ALL '
+                               'SELECT * FROM geography_columns) AS t'
+                               ' WHERE '
+                               't.f_table_name=%s AND t.f_geometry_column=%s'
+                               'AND t.f_table_schema=%s',
+                               (table_name, description.name, table_schema))
+            else:
+                cursor.execute('SELECT "coord_dimension", "srid", "type" FROM '
+                               '(SELECT * FROM geometry_columns'
+                               ' UNION ALL '
+                               'SELECT * FROM geography_columns) AS t'
+                               ' WHERE '
+                               't.f_table_name=%s AND t.f_geometry_column=%s',
+                               (table_name, description.name))
+            row = cursor.fetchone()
             if not row:
                 raise Exception('Could not find a geometry or geography column for "%s"."%s"' %
-                                (table_name, geo_col))
-
+                                (table_name, description.name))
+            dim, srid, field_type = row
             # OGRGeomType does not require GDAL and makes it easy to convert
             # from OGC geom type name to Django field.
-            field_type = OGRGeomType(row[2]).django
-
+            field_type = OGRGeomType(field_type).django
             # Getting any GeometryField keyword arguments that are not the default.
-            dim = row[0]
-            srid = row[1]
             field_params = {}
+            if self.postgis_oid_lookup.get(description.type_code) == 'geography':
+                field_params['geography'] = True
             if srid != 4326:
                 field_params['srid'] = srid
             if dim != 2:
                 field_params['dim'] = dim
-        finally:
-            cursor.close()
-
         return field_type, field_params
 
     def _get_table_description(self, cursor, table_name):

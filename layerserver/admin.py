@@ -286,7 +286,7 @@ class DataBaseLayerFieldsInline(admin.TabularInline):
     readonly_fields = ('name', 'get_type', 'get_size', 'get_decimals', 'get_null')
     classes = ('tab-fields',)
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def get_type(self, obj):
@@ -350,7 +350,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
     add_fieldsets = (
         ('Layer', {
             'fields': (
-            'db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field', 'data_filter',
+                'db_connection', 'geometry_columns', 'name', 'table', 'geom_field', 'srid', 'pk_field', 'data_filter',
             )
         }),
     )
