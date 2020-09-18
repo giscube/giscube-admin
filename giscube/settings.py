@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'loginas',
     'giscube.apps_titles.GiscubeCeleryResultConfig', # 'django_celery_results',
     'django_admin_listfilter_dropdown',
+    'django_db_logger',
 ]
 
 
@@ -368,16 +369,20 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'giscube.utils.AdminEmailHandler'
         },
+        'db_log': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+        },
     },
     'loggers': {
         # django request
-        # 'django.request': {
-        #     'handlers': ['console'],
-        #     'level': 'INFO',  # change debug level as appropiate
-        #     'propagate': False,
-        # },
+        'db': {
+            'handlers': ['db_log'],
+            'level': 'ERROR'
+        },
         'django.request': {
-            'handlers': ['mail_admins', 'console'],
+            'handlers': ['mail_admins', 'mail_admins', 'db_log'],
             'level': 'ERROR',
             'propagate': False,
         },
