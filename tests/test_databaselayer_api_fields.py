@@ -78,12 +78,12 @@ class DataBaseLayerAPIFieldsTestCase(BaseTest):
         self.assertEqual(fields['x']['size'], None)
         self.assertEqual(fields['geometry']['size'], None)
 
-        self.assertEqual(fields['id']['decimals'], None)
+        self.assertEqual(fields['id']['decimals'], 0)
         self.assertEqual(fields['code']['decimals'], None)
         self.assertEqual(fields['name']['decimals'], None)
         self.assertEqual(fields['price']['decimals'], 2)
-        self.assertEqual(fields['x']['decimals'], None)
-        self.assertEqual(fields['geometry']['decimals'], None)
+        self.assertEqual(fields['x']['decimals'], 0)
+        self.assertTrue(fields['geometry']['decimals'] in ('', None))
 
     def test_geom_field_type(self):
         url = reverse('layer-detail', kwargs={'name': self.layer.name})

@@ -2,7 +2,6 @@ import os
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.utils._os import abspathu
 
 from giscube.storage import OverwriteStorageMixin
 
@@ -13,7 +12,7 @@ class VarStorage(FileSystemStorage):
 
         location = settings.VAR_ROOT
         self.base_location = location
-        self.location = abspathu(self.base_location)
+        self.location = os.path.abspath(self.base_location)
 
         base_url = settings.VAR_URL
         if not base_url.endswith('/'):
@@ -27,7 +26,7 @@ class LayerStorage(OverwriteStorageMixin, VarStorage):
 
         location = os.path.join(self.base_location, 'imageserver', 'layers')
         self.base_location = location
-        self.location = abspathu(self.base_location)
+        self.location = os.path.abspath(self.base_location)
 
 
 class NamedMaskStorage(OverwriteStorageMixin, VarStorage):
@@ -36,4 +35,4 @@ class NamedMaskStorage(OverwriteStorageMixin, VarStorage):
 
         location = os.path.join(self.base_location, 'imageserver', 'named_masks')
         self.base_location = location
-        self.location = abspathu(self.base_location)
+        self.location = os.path.abspath(self.base_location)
