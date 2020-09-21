@@ -9,9 +9,9 @@ from django.utils.translation import gettext as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
-from giscube.admin_mixins import MetadataInlineMixin
+from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.utils import url_slash_join
-from qgisserver.models import Project, Service, ServiceMetadata
+from qgisserver.models import Project, Service, ServiceMetadata, ServiceResource
 
 
 class ServiceMetadataInline(MetadataInlineMixin):
@@ -23,7 +23,13 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class ServiceAdmin(TabsMixin, admin.ModelAdmin):
+class ServiceResourceInline(admin.StackedInline):
+    model = ServiceResource
+    extra = 0
+    classes = ('tab-resources',)
+
+
+class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms', 'visibility', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visibility',
@@ -31,13 +37,14 @@ class ServiceAdmin(TabsMixin, admin.ModelAdmin):
     exclude = ('service_path', 'active')
     search_fields = ('name', 'title', 'keywords')
     filter_horizontal = ('servers',)
-    inlines = (ServiceMetadataInline,)
+    inlines = (ServiceMetadataInline, ServiceResourceInline,)
 
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),
         (_('Design'), ('tab-design',)),
         (_('Metadata'), ('tab-metadata',)),
+        (_('Resources'), ('tab-resources',)),
         (_('Servers'), ('tab-servers',)),
     )
 

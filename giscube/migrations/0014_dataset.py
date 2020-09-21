@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(blank=True, max_length=100, null=True, verbose_name='title')),
                 ('path', models.CharField(blank=True, max_length=255, null=True, verbose_name='path')),
                 ('url', models.CharField(blank=True, max_length=255, null=True, verbose_name='url')),
-                ('file', models.FileField(blank=True, max_length=255, null=True, storage=giscube.storage.OverwriteStorage(), upload_to=giscube.models.resource_upload_to, verbose_name='file')),
+                ('file', models.FileField(blank=True, max_length=255, null=True, storage=giscube.storage.OverwriteStorage(), upload_to=giscube.model_mixins.resource_upload_to, verbose_name='file')),
                 ('layers', models.CharField(blank=True, max_length=255, null=True, verbose_name='layers')),
                 ('projection', models.IntegerField(blank=True, help_text='EPSG code', null=True, verbose_name='projection')),
                 ('getfeatureinfo_support', models.BooleanField(default=True, verbose_name='WMS GetFeatureInfo support')),

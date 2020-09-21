@@ -6,9 +6,9 @@ from django.utils.translation import gettext as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
-from giscube.admin_mixins import MetadataInlineMixin
+from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.utils import url_slash_join
-from imageserver.models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata
+from imageserver.models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata, ServiceResource
 
 
 class ServiceLayerInline(admin.TabularInline):
@@ -20,20 +20,27 @@ class ServiceMetadataInline(MetadataInlineMixin):
     model = ServiceMetadata
 
 
-class ServiceAdmin(TabsMixin, admin.ModelAdmin):
+class ServiceResourceInline(admin.StackedInline):
+    model = ServiceResource
+    extra = 0
+    classes = ('tab-resources',)
+
+
+class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
     list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal')
     search_fields = ('title',)
     exclude = ('service_path',)
     readonly_fields = ('extent',)
-    inlines = (ServiceLayerInline, ServiceMetadataInline,)
+    inlines = (ServiceLayerInline, ServiceMetadataInline, ServiceResourceInline,)
 
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),
         (_('Design'), ('tab-design',)),
         (_('Metadata'), ('tab-metadata',)),
+        (_('Resources'), ('tab-resources',)),
     )
 
     fieldsets = [

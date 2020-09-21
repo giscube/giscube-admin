@@ -19,7 +19,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 from giscube.db.utils import get_table_parts
-from giscube.model_mixins import MetadataModelMixin
+from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import DBConnection
 from giscube.storage import OverwriteStorage
 from giscube.utils import RecursionException, check_recursion, unique_service_directory
@@ -198,6 +198,10 @@ class GeoJsonLayerUserPermission(models.Model):
 
 class GeoJsonLayerMetadata(MetadataModelMixin):
     parent = models.OneToOneField(GeoJsonLayer, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
+
+
+class GeoJsonLayerResource(ResourceModelMixin):
+    parent = models.ForeignKey(GeoJsonLayer, related_name='resources', on_delete=models.CASCADE)
 
 
 COMPARATOR_CHOICES = (
@@ -603,6 +607,10 @@ class DataBaseLayerReference(models.Model):
         verbose_name = _('Reference')
         verbose_name_plural = _('References')
         unique_together = ('layer', 'service',)
+
+
+class DataBaseLayerResource(ResourceModelMixin):
+    parent = models.ForeignKey(DataBaseLayer, related_name='resources', on_delete=models.CASCADE)
 
 
 class DBLayerGroup(models.Model):

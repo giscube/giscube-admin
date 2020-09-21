@@ -4,13 +4,14 @@ from django.utils.translation import ugettext as _
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
 from giscube.indexes_mixin import PermissionIndexMixin
+from giscube.giscube_search_indexes_mixins import ResourcesIndexMixin
 from giscube.utils import remove_app_url, url_slash_join
 from layerserver.models import DataBaseLayer, GeoJsonLayer
 
 
-class DataBaseLayerIndex(PermissionIndexMixin, GeoportalSearchIndexMixin):
+class DataBaseLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIndexMixin):
     def prepare_children(self, obj):
-        children = []
+        children = super().prepare_children(obj)
         url = url_slash_join(settings.GISCUBE_URL, '/layerserver/databaselayers/%s/' % obj.name)
         if obj.geom_field is not None:
             references = []
@@ -42,9 +43,9 @@ class DataBaseLayerIndex(PermissionIndexMixin, GeoportalSearchIndexMixin):
         return children
 
 
-class GeoJsonLayerIndex(PermissionIndexMixin, GeoportalSearchIndexMixin):
+class GeoJsonLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIndexMixin):
     def prepare_children(self, obj):
-        children = []
+        children = super().prepare_children(obj)
         url = url_slash_join(
             settings.GISCUBE_URL, remove_app_url(reverse('geojsonlayer', kwargs={'name': obj.name})))
         children.append({
