@@ -9,6 +9,10 @@ class ResourcesIndexMixin:
                 'url': r.url,
                 'layers': r.layers,
                 'projection': r.projection,
-                'giscube': {'getfeatureinfo_support': r.getfeatureinfo_support, 'single_image': r.single_image}
+                'giscube': {
+                    'getfeatureinfo_support': r.getfeatureinfo_support,
+                    'single_image': r.single_image,
+                    'downloadable': r.downloadable
+                }
             })
         return children

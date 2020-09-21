@@ -3,7 +3,7 @@
 
   function field_type_change() {
     var fields = {
-      '': ['name', 'description', 'title'],
+      '': ['name', 'description', 'title', 'downloadable'],
       'TMS': ['name', 'description', 'title', 'path', 'url', 'layers', 'projection'],
       'WMS': ['name', 'description', 'title', 'path', 'url', 'layers', 'projection', 'getfeatureinfo_support', 'single_image'],
       'document': ['name', 'description', 'title', 'file'],

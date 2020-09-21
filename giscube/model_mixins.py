@@ -57,6 +57,7 @@ class ResourceModelMixin(models.Model):
     projection = models.IntegerField(_('projection'), null=True, blank=True, help_text='EPSG code')
     getfeatureinfo_support = models.BooleanField(_('WMS GetFeatureInfo support'), default=True)
     single_image = models.BooleanField(_('use single image'), default=False)
+    downloadable = models.BooleanField(_('downloadable'), default=False)
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
