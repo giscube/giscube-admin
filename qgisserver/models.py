@@ -5,7 +5,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
-from giscube.model_mixins import MetadataModelMixin
+from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category, Server
 from giscube.validators import validate_options_json_format
 from qgisserver.utils import deactivate_services, patch_qgis_project, unique_service_directory, update_external_service
@@ -151,6 +151,10 @@ def auto_dectivate_external_services(sender, **kwargs):
 
 class ServiceMetadata(MetadataModelMixin):
     parent = models.OneToOneField(Service, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
+
+
+class ServiceResource(ResourceModelMixin):
+    parent = models.ForeignKey(Service, related_name='resources', on_delete=models.CASCADE)
 
 
 class Project(models.Model):

@@ -12,9 +12,9 @@ from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
 from .admin_forms import DBConnectionForm
-from .admin_mixins import MetadataInlineMixin
-from .models import (Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetUserPermission, DBConnection,
-                     MetadataCategory, Resource, Server)
+from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
+from .models import (Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetResource,
+                     DatasetUserPermission, DBConnection, MetadataCategory, Server)
 
 
 admin.site.site_title = settings.ADMIN_SITE_TITLE
@@ -80,8 +80,8 @@ class ServerAdmin(admin.ModelAdmin):
     pass
 
 
-class ResourceInline(admin.StackedInline):
-    model = Resource
+class DatasetResourceInline(admin.StackedInline):
+    model = DatasetResource
     extra = 0
     classes = ('tab-resources',)
 
@@ -107,19 +107,19 @@ class DatasetUserPermissionInline(admin.TabularInline):
 
 
 @admin.register(Dataset)
-class DatasetAdmin(TabsMixin, admin.ModelAdmin):
+class DatasetAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title',)
-    inlines = (ResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)
+    inlines = (DatasetResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)
     list_filter = (('category', RelatedDropdownFilter), 'active')
 
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),
         (_('Design'), ('tab-design',)),
-        (_('Resources'), ('tab-resources',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('Metadata'), ('tab-metadata',)),
+        (_('Resources'), ('tab-resources',)),
     )
 
     fieldsets = [
@@ -149,12 +149,6 @@ class DatasetAdmin(TabsMixin, admin.ModelAdmin):
             'classes': ('tab-permissions',),
         }),
     ]
-
-    class Media:
-        js = [
-            'admin/js/jquery.init.js',
-            'admin/js/giscube/dataset/change_view.js'
-        ]
 
 
 @admin.register(MetadataCategory)

@@ -6,7 +6,7 @@ from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.core.validators import validate_comma_separated_integer_list
 from django.utils.translation import gettext as _
 
-from giscube.model_mixins import MetadataModelMixin
+from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category
 from giscube.validators import validate_options_json_format
 from imageserver.mapserver import MapserverMapWriter
@@ -83,6 +83,10 @@ class Service(models.Model):
 
 class ServiceMetadata(MetadataModelMixin):
     parent = models.OneToOneField(Service, on_delete=models.CASCADE, primary_key=True, related_name='metadata')
+
+
+class ServiceResource(ResourceModelMixin):
+    parent = models.ForeignKey(Service, related_name='resources', on_delete=models.CASCADE)
 
 
 def get_named_mask_upload_path(obj, filename):
