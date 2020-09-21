@@ -2,14 +2,16 @@ from django.conf import settings
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
 from giscube.indexes_mixin import VisibilityIndexMixin
+from giscube.giscube_search_indexes_mixins import ResourcesIndexMixin
 from giscube.utils import url_slash_join
+
 
 from .models import Service
 
 
-class ServiceIndex(VisibilityIndexMixin, GeoportalSearchIndexMixin):
+class ServiceIndex(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIndexMixin):
     def prepare_children(self, obj):
-        children = []
+        children = super().prepare_children(obj)
         url = url_slash_join(settings.GISCUBE_URL, 'imageserver/services/', obj.name)
 
         for sl in obj.servicelayer_set.all():

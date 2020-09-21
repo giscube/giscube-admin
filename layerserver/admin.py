@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
-from giscube.admin_mixins import MetadataInlineMixin
+from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.utils import unique_service_directory
 
 from .admin_actions import geojsonlayer_force_refresh_data
@@ -17,9 +17,9 @@ from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBas
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm,
                           GeoJsonLayerStyleRuleInlineForm)
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata, DataBaseLayerReference,
-                     DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup, DBLayerUser, GeoJsonLayer,
-                     GeoJsonLayerGroupPermission, GeoJsonLayerMetadata, GeoJsonLayerStyleRule,
-                     GeoJsonLayerUserPermission)
+                     DataBaseLayerResource, DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup,
+                     DBLayerUser, GeoJsonLayer, GeoJsonLayerGroupPermission, GeoJsonLayerMetadata,
+                     GeoJsonLayerResource, GeoJsonLayerStyleRule, GeoJsonLayerUserPermission)
 from .model_legacy import ModelFactory
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
@@ -56,13 +56,19 @@ class GeoJsonLayerMetadataInline(MetadataInlineMixin):
     model = GeoJsonLayerMetadata
 
 
+class GeoJsonLayerResourceInline(admin.StackedInline):
+    model = GeoJsonLayerResource
+    extra = 0
+    classes = ('tab-resources',)
+
+
 class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
     model = GeoJsonLayerStyleRule
     form = GeoJsonLayerStyleRuleInlineForm
 
 
 @admin.register(GeoJsonLayer)
-class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
+class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     add_form_template = 'admin/layerserver/geojson_layer/add_form.html'
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category', 'design_from',)
@@ -71,8 +77,8 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [
-        GeoJsonLayerStyleRuleInline, GeoJsonLayerMetadataInline, GeoJsonGroupPermissionsInline,
-        GeoJsonUserPermissionsInline
+        GeoJsonLayerResourceInline, GeoJsonLayerStyleRuleInline, GeoJsonLayerMetadataInline,
+        GeoJsonGroupPermissionsInline, GeoJsonUserPermissionsInline
     ]
     actions = admin.ModelAdmin.actions + [geojsonlayer_force_refresh_data]
     save_as = True
@@ -84,6 +90,7 @@ class GeoJsonLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Design'), ('tab-design',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('Metadata'), ('tab-metadata',)),
+        (_('Resources'), ('tab-resources',)),
     )
 
     tabs_edit = (
@@ -328,13 +335,19 @@ class DataBaseLayerReferencesInline(admin.TabularInline):
     classes = ('tab-references',)
 
 
+class DataBaseLayerResourceInline(admin.StackedInline):
+    model = DataBaseLayerResource
+    extra = 0
+    classes = ('tab-resources',)
+
+
 class DataBaseLayerStyleRuleInline(StyleRuleInlineMixin):
     model = DataBaseLayerStyleRule
     form = DataBaseLayerStyleRuleInlineForm
 
 
 @admin.register(DataBaseLayer)
-class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
+class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     add_form_template = 'admin/layerserver/database_layer/add_form.html'
     change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
@@ -363,6 +376,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('Design'), ('tab-design',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('Metadata'), ('tab-metadata',)),
+        (_('Resources'), ('tab-resources',)),
     )
 
     edit_geom_tabs = (
@@ -375,6 +389,7 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
         (_('References'), ('tab-references',)),
         (_('Permissions'), ('tab-permissions',)),
         (_('Metadata'), ('tab-metadata',)),
+        (_('Resources'), ('tab-resources',)),
     )
 
     edit_fieldsets = [
@@ -506,12 +521,14 @@ class DataBaseLayerAdmin(TabsMixin, admin.ModelAdmin):
             self.fieldsets = self.edit_geom_fieldsets
             self.inlines = [DataBaseLayerFieldsInline, DataBaseLayerVirtualFieldsInline,
                             DBLayerUserInline, DBLayerGroupInline, DataBaseLayerReferencesInline,
-                            DataBaseLayerStyleRuleInline, DBLayerMetadataInline]
+                            DataBaseLayerStyleRuleInline, DBLayerMetadataInline,
+                            DataBaseLayerResourceInline]
         else:
             self.tabs = self.edit_tabs
             self.fieldsets = self.edit_fieldsets
             self.inlines = [DataBaseLayerFieldsInline, DataBaseLayerVirtualFieldsInline, DBLayerUserInline,
-                            DBLayerGroupInline, DBLayerMetadataInline, DBLayerMetadataInline]
+                            DBLayerGroupInline, DBLayerMetadataInline, DBLayerMetadataInline,
+                            DataBaseLayerResourceInline]
         conn_status = obj.db_connection.check_connection()
         if not conn_status:
             msg = 'ERROR: There was an error when connecting to: %s' % obj.db_connection
