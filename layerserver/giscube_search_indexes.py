@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
-from giscube.indexes_mixin import PermissionIndexMixin
 from giscube.giscube_search_indexes_mixins import ResourcesIndexMixin
+from giscube.indexes_mixin import PermissionIndexMixin
 from giscube.utils import remove_app_url, url_slash_join
 from layerserver.models import DataBaseLayer, GeoJsonLayer
 

@@ -60,8 +60,8 @@ class WMSProxy(object):
             if wms_service == 'wms' and wms_request == 'getmap' and \
                     len(bbox) == 4 and size_matches:
 
-                from TileCache.Layers.WMS import WMS
                 from TileCache.Caches.Test import Test as NoCache
+                from TileCache.Layers.WMS import WMS
 
                 url = self.build_url(request)
                 wms = WMS(layers, url=url, srs=srs, levels=30, spherical_mercator='true')

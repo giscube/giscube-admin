@@ -51,8 +51,8 @@ class Relation1NWidget(BaseJSONWidget):
 
     @staticmethod
     def get_queryset(qs, field, request):
-        from layerserver.models import DataBaseLayer
         from layerserver.model_legacy import create_dblayer_model
+        from layerserver.models import DataBaseLayer
         if field.config.get('count') is True:
             dblayer = field.config['dblayer']
             related_layer = DataBaseLayer.objects.filter(name=dblayer).first()

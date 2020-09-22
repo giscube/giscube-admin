@@ -11,6 +11,7 @@ class DataBaseLayerBulkIDAPITestCase(BaseTest):
     """
     Use normal id as pk_field
     """
+
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()

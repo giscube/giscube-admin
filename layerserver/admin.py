@@ -16,11 +16,11 @@ from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBas
                           DataBaseLayerReferencesInlineForm, DataBaseLayerStyleRuleInlineForm,
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm,
                           GeoJsonLayerStyleRuleInlineForm)
+from .model_legacy import ModelFactory
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata, DataBaseLayerReference,
                      DataBaseLayerResource, DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup,
                      DBLayerUser, GeoJsonLayer, GeoJsonLayerGroupPermission, GeoJsonLayerMetadata,
                      GeoJsonLayerResource, GeoJsonLayerStyleRule, GeoJsonLayerUserPermission)
-from .model_legacy import ModelFactory
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -191,7 +191,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     def add_view(self, request, form_url='', extra_context=None):
         self.tabs = self.tabs_add
         self.fieldsets = self.add_fieldsets
-        extra_context = extra_context or {}
+        extra_context = {} if extra_context is None else extra_context
         extra_context['can_apply_style'] = True
         return super().add_view(request, form_url, extra_context)
 
@@ -199,7 +199,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         self.tabs = self.tabs_edit
         self.fieldsets = self.edit_fieldsets
         obj = self.model.objects.filter(pk=object_id).first()
-        extra_context = extra_context or {}
+        extra_context = {} if extra_context is None else extra_context
         extra_context['view_layer'] = self.view_layer(obj)
         extra_context['can_apply_style'] = True
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
@@ -533,7 +533,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         if not conn_status:
             msg = 'ERROR: There was an error when connecting to: %s' % obj.db_connection
             messages.add_message(request, messages.ERROR, msg)
-        extra_context = extra_context or {}
+        extra_context = {} if extra_context is None else extra_context
         widgets_templates = {}
         for k, v in list(widgets_types.items()):
             widgets_templates[k] = mark_safe(v.TEMPLATE.replace('\n', '\\n').replace('"', r'\"'))

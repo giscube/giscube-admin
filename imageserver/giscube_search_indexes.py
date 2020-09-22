@@ -1,10 +1,9 @@
 from django.conf import settings
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
-from giscube.indexes_mixin import VisibilityIndexMixin
 from giscube.giscube_search_indexes_mixins import ResourcesIndexMixin
+from giscube.indexes_mixin import VisibilityIndexMixin
 from giscube.utils import url_slash_join
-
 
 from .models import Service
 

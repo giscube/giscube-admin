@@ -80,27 +80,24 @@ class ImageWidget(BaseJSONWidget):
         return ImageWithThumbnailField(**fixed_kwargs)
 
     @staticmethod
-    def is_valid(cleaned_data):  # noqa: C901
-        value = cleaned_data['widget_options']
-        try:
-            data = json.loads(value)
-        except Exception:
-            return ImageWidget.ERROR_INVALID_JSON
-
-        if 'upload_root' not in data:
-            return ImageWidget.ERROR_UPLOAD_ROOT_REQUIRED
-
+    def get_storage_class_instance(data):
         base_url = data.get('base_url', None)
         thumbnail_root = data.get('thumbnail_root', None)
         thumbnail_base_url = data.get('thumbnail_base_url', None)
         StorageClass = get_image_with_thumbnail_storage_class()
+        return StorageClass(
+            location=data['upload_root'],
+            base_url=base_url,
+            thumbnail_location=thumbnail_root,
+            thumbnail_base_url=thumbnail_base_url)
+
+    @staticmethod
+    def validate_upload_root(data):
+        if 'upload_root' not in data:
+            return ImageWidget.ERROR_UPLOAD_ROOT_REQUIRED
+        StorageClass = get_image_with_thumbnail_storage_class()
         if data['upload_root'] != '<auto>':
-            storage = StorageClass(
-                location=data['upload_root'],
-                base_url=base_url,
-                thumbnail_location=thumbnail_root,
-                thumbnail_base_url=thumbnail_base_url
-            )
+            storage = ImageWidget.get_storage_class_instance(data)
             try:
                 storage.listdir('.')
             except OSError:
@@ -111,6 +108,9 @@ class ImageWidget(BaseJSONWidget):
                 if not os.access(path, os.W_OK):
                     return ImageWidget.ERROR_UPLOAD_ROOT_NOT_WRITABLE
 
+    @staticmethod
+    def validate_base_url(data):
+        base_url = data.get('base_url', None)
         if base_url is not None and base_url != '<auto>':
             val = URLValidator()
             try:
@@ -118,7 +118,11 @@ class ImageWidget(BaseJSONWidget):
             except ValidationError:
                 return ImageWidget.ERROR_BASE_URL
 
+    @staticmethod
+    def validate_thumbnail_root(data):
+        thumbnail_root = data.get('thumbnail_root', None)
         if thumbnail_root is not None and thumbnail_root != '<auto>':
+            storage = ImageWidget.get_storage_class_instance(data)
             thumbnail_storage = storage.get_thumbnail_storage()
             try:
                 thumbnail_storage.listdir('.')
@@ -130,12 +134,30 @@ class ImageWidget(BaseJSONWidget):
                 if not os.access(path, os.W_OK):
                     return ImageWidget.ERROR_THUMBNAIL_ROOT_NOT_WRITABLE
 
+    @staticmethod
+    def validate_thumbnail_base_url(data):
+        thumbnail_base_url = data.get('thumbnail_base_url', None)
         if thumbnail_base_url is not None and thumbnail_base_url != '<auto>':
             val = URLValidator()
             try:
                 val(thumbnail_base_url)
             except ValidationError:
                 return ImageWidget.ERROR_THUMBNAIL_BASE_URL
+
+    @staticmethod
+    def is_valid(cleaned_data):  # noqa C901
+        value = cleaned_data['widget_options']
+        try:
+            data = json.loads(value)
+        except Exception:
+            return ImageWidget.ERROR_INVALID_JSON
+
+        result = ImageWidget.validate_upload_root(data) or \
+            ImageWidget.validate_base_url(data) or \
+            ImageWidget.validate_thumbnail_root(data) or \
+            ImageWidget.validate_thumbnail_base_url(data)
+        if result:
+            return result
 
     @staticmethod
     def serialize_widget_options(obj):

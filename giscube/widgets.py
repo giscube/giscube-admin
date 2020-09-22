@@ -4,7 +4,8 @@ from django.utils.translation import get_language
 
 
 class ColorWidget(widgets.TextInput):
-    def __init__(self, attrs={}):
+    def __init__(self, attrs=None):
+        attrs = {} if attrs is None else attrs
         attrs.update({'class': 'color-widget'})
         super().__init__(attrs)
 
@@ -22,7 +23,8 @@ class ColorWidget(widgets.TextInput):
 
 
 class TagsWidget(widgets.Textarea):
-    def __init__(self, attrs={}):
+    def __init__(self, attrs=None):
+        attrs = {} if attrs is None else attrs
         attrs.update({'class': 'tags-widget'})
         super().__init__(attrs)
 

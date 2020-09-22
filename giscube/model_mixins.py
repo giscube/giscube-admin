@@ -1,8 +1,8 @@
 import os
 import textwrap
 
-from django.db import models
 from django.core.files.storage import FileSystemStorage
+from django.db import models
 from django.utils.translation import gettext as _
 
 from .languages import iso_639_choices

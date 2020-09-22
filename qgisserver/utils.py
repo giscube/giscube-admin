@@ -1,6 +1,7 @@
 import os
 import tempfile
-import xml.etree.ElementTree as ET
+
+from xml.etree import ElementTree as ET
 
 import requests
 
@@ -60,6 +61,7 @@ def unique_service_directory(instance, filename):
 @shared_task
 def update_external_service(service_pk):
     from giscube.utils import get_or_create_category
+
     from .models import Service
     from .serializers import ServiceSerializer
 

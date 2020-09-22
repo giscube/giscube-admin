@@ -33,7 +33,6 @@ class DataBaseLayerAPIReadonlyFieldTestCase(BaseTest):
         layer.save()
         self.layer = layer
 
-
     def create_model(self, readonly_fields=None):
         readonly_fields = readonly_fields or ['address']
         self.layer.fields.filter(name__in=readonly_fields).update(readonly=True)
