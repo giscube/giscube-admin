@@ -8,7 +8,7 @@ from django.db.models import TextField, Value
 from django.forms.models import model_to_dict
 from django.utils.encoding import force_str
 
-import giscube.settings as custom_settings
+from giscube import settings as custom_settings
 
 from .base_index import BaseGeomIndexMixin
 from .model_utils import DocumentIndexEditor

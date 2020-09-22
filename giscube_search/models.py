@@ -9,7 +9,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db.models import Case, F, Q, When
 
-import giscube.settings as custom_settings
+from giscube import settings as custom_settings
 
 from .utils import remove_accents
 

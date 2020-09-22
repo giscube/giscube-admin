@@ -229,7 +229,7 @@ class JSONSerializerFactory(object):
         self.model = model
         self.fields = fields
         self.id_field = 'id' if id_field is None or id_field == '' else id_field
-        self.virtual_fields = virtual_fields or {}
+        self.virtual_fields = {} if virtual_fields is None else virtual_fields
 
     def to_image_field(self, field_name, field):
         field_kwargs = serializers.get_field_kwargs(field_name, field)
@@ -323,6 +323,7 @@ class Geom4326SerializerFactory(JSONSerializerFactory):
         del meta_attrs['list_serializer_class']
         meta_attrs['geo_field'] = self.geo_field
         return meta_attrs
+
 
 def create_dblayer_serializer(model, fields, id_field, virtual_fields=None):
     geom_field = model._giscube_dblayer_schema.get('geom_field', None)

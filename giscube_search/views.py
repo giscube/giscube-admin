@@ -6,7 +6,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-import giscube.settings as custom_settings
+from giscube import settings as custom_settings
 
 
 class SearchException(Exception):

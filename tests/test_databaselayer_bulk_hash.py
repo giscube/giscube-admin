@@ -110,5 +110,5 @@ class DataBaseLayerBulkHashAPITestCase(BaseTest):
         self.assertEqual(transactions.count(), 2)
         first = transactions.first()
         last = transactions.last()
-        self.assertEqual(first.hash, first.hash)
+        self.assertEqual(first.hash, last.hash)
         self.assertEqual(transactions.first().error, 'Test')

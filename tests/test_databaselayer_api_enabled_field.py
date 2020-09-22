@@ -75,7 +75,6 @@ class DataBaseLayerAPIEnabledFieldTestCase(BaseTest):
             ],
             'DELETE': []
         }
-        address = self.locations[2].address
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         result = response.json()

@@ -2,6 +2,7 @@ from django.db.models.functions import Concat
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
 from giscube_search.base_index import BaseModelIndex
+
 from .giscube_search_indexes_mixins import ResourcesIndexMixin
 from .indexes_mixin import PermissionIndexMixin
 from .models import Category, Dataset

@@ -105,7 +105,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         with ModelFactory(layer) as Model:
             primary_key = None
             for f in Model._meta.fields:
-                if getattr(f, 'primary_key'):
+                if getattr(f, 'primary_key', None):
                     primary_key = f.name
                     break
             self.assertEqual(primary_key, 'id')
@@ -140,7 +140,7 @@ class DataBaseLayerPrimaryKeyCase(BaseTest, TransactionTestCase):
         with ModelFactory(layer) as Model:
             primary_key = None
             for f in Model._meta.fields:
-                if getattr(f, 'primary_key'):
+                if getattr(f, 'primary_key', None):
                     primary_key = f.name
                     break
             self.assertEqual(primary_key, 'code')

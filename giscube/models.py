@@ -45,7 +45,7 @@ class Category(models.Model):
         try:
             check_recursion('parent', self)
         except RecursionException as e:
-            raise ValidationError(e.message)
+            raise ValidationError(str(e))
 
     def save(self, *args, **kwargs):
         self.full_clean()

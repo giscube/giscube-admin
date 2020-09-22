@@ -7,7 +7,6 @@ https://docs.djangoproject.com/en/1.7/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
-
 import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -55,27 +54,27 @@ GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
 
 # Application definition
 INSTALLED_APPS = [
-    'app_admin',
+    'app_admin.apps.AppAdminConfig',
     # app
-    'giscube',
-    'giscube_search',
+    'giscube.apps.GiscubeConfig',
+    'giscube_search.apps.GiscubeSearchConfig',
     'geoportal',
     'corsheaders',
-    'giscube.apps_titles.GiscubeOauth2ProviderConfig', # 'oauth2_provider',
+    'giscube.apps_titles.GiscubeOauth2ProviderConfig',  # 'oauth2_provider',
     'rest_framework',
     'loginas',
-    'giscube.apps_titles.GiscubeCeleryResultConfig', # 'django_celery_results',
+    'giscube.apps_titles.GiscubeCeleryResultConfig',  # 'django_celery_results',
     'django_admin_listfilter_dropdown',
     'django_db_logger',
 ]
 
 
-INSTALLED_APPS += ['imageserver']
+INSTALLED_APPS += ['imageserver.apps.ImageServerConfig']
 GISCUBE_IMAGE_SERVER_URL = 'http://localhost/fcgis/giscube_imageserver/'
 GISCUBE_IMAGE_SERVER_URL = os.environ.get('GISCUBE_IMAGE_SERVER_URL', GISCUBE_IMAGE_SERVER_URL)
 
 
-INSTALLED_APPS += ['qgisserver']
+INSTALLED_APPS += ['qgisserver.apps.QGisServerConfig']
 if not GISCUBE_GIS_SERVER_DISABLED:
     GISCUBE_QGIS_SERVER_URL = 'http://localhost/fcgis/giscube_qgisserver/'
     GISCUBE_QGIS_SERVER_URL = os.environ.get(
@@ -83,7 +82,7 @@ if not GISCUBE_GIS_SERVER_DISABLED:
 
 
 if not GISCUBE_LAYERSERVER_DISABLED:
-    INSTALLED_APPS += ['colorfield', 'layerserver', 'layerserver_databaselayer']
+    INSTALLED_APPS += ['colorfield', 'layerserver.apps.LayerServerConfig', 'layerserver_databaselayer']
 
 
 INSTALLED_APPS += [
@@ -224,14 +223,6 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 GISCUBE_IMAGESERVER = {
     'DATA_ROOT': os.environ.get('GISCUBE_IMAGESERVER_DATA_ROOT', os.path.join(APP_ROOT, 'imageserver')).split(',')
 }
-
-# try:
-#     import tilescache
-#     if tilescache.giscube:
-#         INSTALLED_APPS += ('tilescache',)
-# except Exception, e:
-#     print "[settings.py] tilescache not available: %s" % e
-#     logger.exception(e)
 
 USE_CAS = os.getenv('USE_CAS', 'False').lower() == 'true'
 
@@ -427,6 +418,7 @@ SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 SENTRY_DSN = os.getenv('SENTRY_DSN', None)
 if SENTRY_DSN is not None:
     import sentry_sdk
+
     from sentry_sdk.integrations.django import DjangoIntegration
 
     sentry_sdk.init(

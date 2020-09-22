@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from giscube.models import DBConnection
-from layerserver.model_legacy import ModelFactory, create_dblayer_model
+from layerserver.model_legacy import ModelFactory
 from layerserver.models import DataBaseLayer
 from tests.common import BaseTest
 
@@ -85,7 +85,6 @@ class DataBaseLayerBulkPermissionsTestCase(BaseTest):
         url = reverse('content-bulk', kwargs={'name': self.layer.name})
         response = self.client.post(url, data, format='json')
         return response.status_code
-
 
     def test_anonymous_permission_denied(self):
         status_code = self.send_data()
