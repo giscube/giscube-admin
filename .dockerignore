@@ -1,2 +1,0 @@
-docker_data/*
-!docker_data/django

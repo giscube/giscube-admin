@@ -1,102 +1,109 @@
-version: "3.3"
+# Docker compose of the project
+#
+# Change {project} to your project's name and {client} for the client's name
+# Comment or remove entries not used for your project
+# You may remove this comments
+#
+
+version: "3.7"
 services:
+
   requirements:
-    container_name: giscube_admin_requirements
+    container_name: giscube_giscube-admin_requirements
     build:
       context: .
-      dockerfile: docker/django/Dockerfile
+      dockerfile: docker/django/ubuntu-18.04/Dockerfile
       args:
-        - EXTRA_REQUIREMENTS=${ENVIRONMENT_NAME}
-        - USER_UID=${USER_UID}
-        - DOCKER_USER=${DOCKER_USER}
-    image: giscube_admin_requirements
-    entrypoint:
-      - /bin/bash
+        - EXTRA_REQUIREMENTS=devel
+    image: giscube_giscube-admin_requirements
+    entrypoint: /bin/bash -c "chown -v www-data:www-data /app_data"
     command: []
+    volumes:
+      - app_data:/app_data
 
   db:
-    container_name: giscube_admin_db
-    build:
-      context: docker/db/
-      dockerfile: Dockerfile
-    image: giscube_admin_db
+    image: mdillon/postgis:11
     env_file:
-     - .env
      - app.env
-    command: ["/bin/bash", "/app/docker/db/postgresql10.sh"]
     volumes:
       - .:/app
-      - postgresql_data:/var/lib/postgresql/
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "6432:5432"
+    networks:
+      default:
+        aliases:
+          - giscube-admin-db.giscube
 
   django:
-    container_name: giscube_admin_django
+    container_name: giscube_giscube-admin_django
     depends_on:
+      - requirements
       - db
-    image: giscube_admin_requirements
+    image: giscube_giscube-admin_requirements
     env_file:
-     - .env
      - app.env
-    command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/runserver.sh"]
-    # command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/uwsgi.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker/django/runserver.sh"]
     volumes:
-      - .:/app
-      - ./docker_data/django:/docker_data
-    ports:
-      - "8000:8000"
+      - .:/app:cached
+      - app_data:/app_data
+    networks:
+      default:
+        aliases:
+          - giscube-admin.giscube
 
   celery:
-    container_name: giscube_admin_celery
-    hostname: celery
     depends_on:
+      - requirements
       - redis
       - db
-    image: giscube_admin_requirements
+    image: giscube_giscube-admin_requirements
     env_file:
-     - .env
      - app.env
-    command: ["/bin/bash", "/app/docker/wait-for.sh", "db:5432", "--",  "/bin/bash", "/app/docker/django/celery_devel.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--",  "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
     volumes:
-      - .:/app
-      - ./docker_data/django:/docker_data
+      - .:/app:cached
+      - app_data:/app_data
 
   redis:
-    container_name: giscube_admin_redis
-    hostname: giscube_admin_redis
     image: redis:latest
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
 
   nginx:
-    container_name: giscube_admin_nginx
     build:
-      context: docker/nginx/
+      context: docker-custom/nginx/
       dockerfile: Dockerfile
-    image: giscube_admin_nginx
     ports:
       - "8080:8080"
+    volumes:
+      - ./docker-custom/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker-custom/nginx/default.conf:/etc/nginx/conf.d/default.conf
 
   qgisserver:
-    container_name: giscube_admin_qgisserver
     build:
-      context: docker/qgisserver/
+      context: docker-custom/qgisserver/
       dockerfile: Dockerfile
     image: giscube_admin_qgisserver
     volumes:
-      - ./docker_data/django:/docker_data
+      - app_data:/app_data
 
   imageserver:
-    container_name: giscube_admin_imageserver
     build:
-      context: docker/imageserver/
+      context: docker-custom/imageserver/
       dockerfile: Dockerfile
-    image: giscube_admin_imageserver
     environment:
         - MS_DEBUGLEVEL=5
-        - MS_ERRORFILE=/docker_data/ms_error.txt
     volumes:
-      - ./docker_data/django:/docker_data
+      - app_data:/app_data
 
 volumes:
-  postgresql_data:
+  app_data:
+  pg_data:
   redis_data:
+
+networks:
+  default:
+    external:
+      name: giscube
