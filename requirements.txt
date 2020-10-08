@@ -6,7 +6,10 @@ django-cas-ng==3.6.0
 django-celery-results==1.2.1
 django-colorfield==0.3.2
 django-cors-headers==3.5.0
+django-extensions==3.0.9
 psycopg2==2.8.6 --no-binary psycopg2
+pydot==1.4.1
+pyparsing==2.4.7
 django-groupadmin-users==0.3.3
 django-loginas==0.3.9
 django-model-utils==4.0.0

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'giscube.apps_titles.GiscubeCeleryResultConfig',  # 'django_celery_results',
     'django_admin_listfilter_dropdown',
     'django_db_logger',
+    'django_extensions',
 ]
 
 
@@ -412,6 +413,13 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 # From address for error messages
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
+
+
+# graph models
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+}
 
 # sentry
 
