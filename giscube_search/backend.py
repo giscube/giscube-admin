@@ -29,21 +29,29 @@ class PostgresSearchIndex:
         self.language = self.config.get_context().get('language', custom_settings.GISCUBE_SEARCH_DEFAULT_DICTIONARY)
         logger.info('Indexing [%s]' % self.config.get_content_type())
 
-    def add_items(self):
+    def get_obj_pk(self, obj):
+        return force_str(self.config.prepare_object_id(obj))
+
+    def add_items(self, objs=None):
         DocumentIndexEditorModel = DocumentIndexEditor(name=self.config.get_index()).get_model()
         content_type = self.config.get_content_type()
+        filter = {'indexing': True, 'content_type': content_type}
+        if objs is not None:
+            pks = [self.get_obj_pk(obj) for obj in objs]
+            filter['object_id__in'] = pks
+        else:
+            objs = self.config.get_items()
 
-        documents = DocumentIndexEditorModel.objects_default.filter(indexing=True, content_type=content_type)
+        documents = DocumentIndexEditorModel.objects_default.filter(**filter)
         documents._raw_delete(documents.db)
 
         is_geom = isinstance(self.config, BaseGeomIndexMixin)
-        objs = self.config.get_items()
         for obj in objs:
             try:
                 body = ' '.join(self.config.prepare_body(obj))
                 attrs = {
                     'content_type': content_type,
-                    'object_id': force_str(self.config.prepare_object_id(obj)),
+                    'object_id': self.get_obj_pk(obj),
                     'body': SearchVector(Value(body, output_field=TextField()), config=self.language),
                     'output_data': self.config.prepare_output_data(obj),
                     'search_data': self.config.prepare_search_data(obj),
@@ -71,6 +79,8 @@ class PostgresSearchIndex:
             DocumentIndexEditorModel.objects_default.create(**attrs)
 
         with transaction.atomic():
-            documents = DocumentIndexEditorModel.objects_default.filter(indexing=False, content_type=content_type)
+            filter['indexing'] = False
+            documents = DocumentIndexEditorModel.objects_default.filter(**filter)
             documents._raw_delete(documents.db)
-            DocumentIndexEditorModel.objects_default.filter(content_type=content_type).update(indexing=False)
+            filter['indexing'] = True
+            DocumentIndexEditorModel.objects_default.filter(**filter).update(indexing=False)

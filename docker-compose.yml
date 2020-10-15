@@ -47,10 +47,44 @@ services:
     volumes:
       - .:/app:cached
       - app_data:/app_data
+      - ../giscube-admin-ee-plugins:/giscube-admin-ee-plugins
+    environment:
+      - PYTHONPATH=${PYTONPATH}:/giscube-admin-ee-plugins
+      - GISCUBE_PLUGINS_PATH=/giscube-admin-ee-plugins
+      - GISCUBE_PLUGINS=geoportal_search_autoupdate
+
     networks:
       default:
         aliases:
           - giscube-admin.giscube
+
+  uwsgi:
+    container_name: giscube_giscube-admin_uwsgi
+    depends_on:
+      - requirements
+      - db
+    image: giscube_giscube-admin_requirements
+    env_file:
+     - app.env
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/uwsgi/runserver.sh"]
+    volumes:
+      - .:/app:cached
+      - app_data:/app_data
+      - ../giscube-admin-ee-plugins:/giscube-admin-ee-plugins
+      - static:/static
+    environment:
+      - DEBUG=False
+      - STATIC_ROOT=/static
+      - PYTHONPATH=${PYTONPATH}:/giscube-admin-ee-plugins
+      - GISCUBE_PLUGINS_PATH=/giscube-admin-ee-plugins
+      - GISCUBE_PLUGINS=geoportal_search_autoupdate
+    ports:
+    - "8002:8000"
+
+    # networks:
+    #   default:
+    #     aliases:
+    #       - giscube-admin.giscube
 
   celery:
     depends_on:
@@ -80,6 +114,7 @@ services:
     volumes:
       - ./docker-custom/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./docker-custom/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - static:/static
 
   qgisserver:
     build:
@@ -102,6 +137,7 @@ volumes:
   app_data:
   pg_data:
   redis_data:
+  static:
 
 networks:
   default:
