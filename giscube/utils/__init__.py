@@ -3,7 +3,7 @@ from .django import (AdminEmailHandler, RecursionException, check_recursion, get
                      unique_service_directory)
 from .giscube import get_giscube_id
 from .string import env_string_parse
-from .url import remove_app_url, url_slash_join
+from .url import full_url, remove_app_url, url_slash_join
 
 
 __all__ = [
@@ -11,5 +11,5 @@ __all__ = [
     'AdminEmailHandler', 'RecursionException', 'check_recursion', 'get_cls', 'get_version', 'unique_service_directory',
     'get_giscube_id',
     'env_string_parse',
-    'remove_app_url', 'url_slash_join'
+    'full_url', 'remove_app_url', 'url_slash_join'
 ]

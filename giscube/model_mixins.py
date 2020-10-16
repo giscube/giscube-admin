@@ -1,6 +1,8 @@
 import os
 import textwrap
 
+from model_utils import Choices
+
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.utils.translation import gettext as _
@@ -30,12 +32,12 @@ class MetadataModelMixin(models.Model):
         abstract = True
 
 
-RESOURCE_TYPE_CHOICES = [
+RESOURCE_TYPE_CHOICES = Choices(
     ('TMS', 'TMS'),
     ('WMS', 'WMS'),
     ('document', 'Document'),
     ('url', 'URL'),
-]
+)
 
 
 def resource_upload_to(instance, filename):

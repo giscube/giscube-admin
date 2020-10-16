@@ -37,7 +37,8 @@ urlpatterns = [
     path('admin/app_admin/', include('app_admin.urls')),
     path('admin/', admin.site.urls),
     path('admin/', include('loginas.urls')),
-    re_path(r'^media/(?P<path>.*)$', views.private_serve, {'document_root': settings.MEDIA_ROOT}),
+    path('media/<str:module>/<str:model>/<int:pk>/resource/<str:file>', views.ResourceFileServer.as_view()),
+    re_path(r'^media/(?P<path>.*)$', views.private_serve),
 ]
 
 # Additional modules

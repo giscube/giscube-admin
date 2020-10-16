@@ -1,10 +1,18 @@
 import mimetypes
+import os
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import FileResponse, Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
+from django.utils.encoding import force_str
 from django.views.static import serve
+
+from rest_framework.views import APIView
+
+from geoportal.views import GeoportalMixin
+from giscube.api_search_views import FilterByUserMixin
 
 from .models import UserAsset
 
@@ -25,7 +33,33 @@ def media_user_asset(request, user_id, filename):
     raise Http404
 
 
-def private_serve(request, path, document_root=None, show_indexes=False):
+def private_serve(request, path):
+    document_root = settings.MEDIA_ROOT
+    show_indexes = False
     if request.user and request.user.is_superuser:
         return serve(request, path, document_root, show_indexes)
     return HttpResponseForbidden()
+
+
+class ResourceFileServer(GeoportalMixin, FilterByUserMixin, APIView):
+
+    def get(self, request, module, model, pk, file):
+        allowed = {
+            'giscube': ['dataset'],
+            'imageserver': ['service'],
+            'qgisserver': ['service'],
+            'layerserver': ['databaselayer', 'geojsonlayer'],
+        }
+        if not(model in allowed.get(module, [])):
+            return HttpResponseForbidden()
+
+        qs = self.get_model().objects
+        qs = qs.filter(content_type='%s.%s' % (module, model), object_id=force_str(pk))
+        qs = self.filter_by_user(request, qs)
+        if not qs.exists():
+            return HttpResponseForbidden()
+
+        document_root = settings.MEDIA_ROOT
+        show_indexes = False
+        path = os.path.join(module, model, force_str(pk), 'resource', file)
+        return serve(request, path, document_root, show_indexes)

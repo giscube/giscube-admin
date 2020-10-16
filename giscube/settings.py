@@ -25,9 +25,6 @@ logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.abspath(os.path.dirname(BASE_DIR))
 
-APP_URL = ''
-APP_URL = os.getenv('APP_URL', APP_URL)
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
@@ -184,6 +181,8 @@ APP_NAME = os.getenv('APP_NAME', APP_NAME)
 APP_URL = '/%s/' % APP_NAME
 APP_URL = os.getenv('APP_URL', APP_URL)
 APP_ROOT = os.getenv('APP_PATH', BASE_DIR)
+
+SITE_URL = os.getenv('SITE_URL', 'http://localhost')
 
 LOGIN_URL = '%s/admin/login/' % APP_URL
 LOGIN_REDIRECT_URL = '%s/admin/' % APP_URL
