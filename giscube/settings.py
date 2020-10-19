@@ -182,7 +182,11 @@ APP_URL = '/%s/' % APP_NAME
 APP_URL = os.getenv('APP_URL', APP_URL)
 APP_ROOT = os.getenv('APP_PATH', BASE_DIR)
 
-SITE_URL = os.getenv('SITE_URL', 'http://localhost')
+SITE_URL = os.getenv('SITE_URL', None)
+if len(ALLOWED_HOSTS) > 0:
+    SITE_URL = ALLOWED_HOSTS[0]
+else:
+    SITE_URL = 'http://localhost'
 
 LOGIN_URL = '%s/admin/login/' % APP_URL
 LOGIN_REDIRECT_URL = '%s/admin/' % APP_URL
