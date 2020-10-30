@@ -9,10 +9,10 @@ from .models import Service
 
 
 class ServiceIndex(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIndexMixin):
-    def prepare_children(self, obj):
-        children = super().prepare_children(obj)
-        url = url_slash_join(settings.GISCUBE_URL, 'imageserver/services/', obj.name)
 
+    def prepare_children(self, obj):
+        children = []
+        url = url_slash_join(settings.GISCUBE_URL, 'imageserver/services/', obj.name)
         for sl in obj.servicelayer_set.all():
             layer = sl.layer
             children.append({
@@ -23,7 +23,7 @@ class ServiceIndex(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchInd
                 'layers': layer.name,
                 'projection': layer.projection,
             })
-        return children
+        return children + super().prepare_children(obj)
 
 
 index_config = [

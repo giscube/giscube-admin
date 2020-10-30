@@ -9,8 +9,9 @@ from .models import Service
 
 
 class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIndexMixin):
+
     def prepare_children(self, obj):
-        children = super().prepare_children(obj)
+        children = []
         url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
         children.append({
             'title': obj.title,
@@ -20,7 +21,7 @@ class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIn
             'layers': obj.default_layer or '',
             'projection': '3857',
         })
-        return children
+        return children + super().prepare_children(obj)
 
 
 index_config = [

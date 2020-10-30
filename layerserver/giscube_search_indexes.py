@@ -10,8 +10,9 @@ from layerserver.models import DataBaseLayer, GeoJsonLayer
 
 
 class DataBaseLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIndexMixin):
+
     def prepare_children(self, obj):
-        children = super().prepare_children(obj)
+        children = []
         url = url_slash_join(settings.GISCUBE_URL, '/layerserver/databaselayers/%s/' % obj.name)
         if obj.geom_field is not None:
             references = []
@@ -40,12 +41,13 @@ class DataBaseLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSea
                 'format': 'JSON',
                 'url': url
             })
-        return children
+        return children + super().prepare_children(obj)
 
 
 class GeoJsonLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIndexMixin):
+
     def prepare_children(self, obj):
-        children = super().prepare_children(obj)
+        children = []
         url = url_slash_join(
             settings.GISCUBE_URL, remove_app_url(reverse('geojsonlayer', kwargs={'name': obj.name})))
         children.append({
@@ -55,7 +57,7 @@ class GeoJsonLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSear
             'url': url,
             'projection': '4326',
         })
-        return children
+        return children + super().prepare_children(obj)
 
 
 index_config = [
