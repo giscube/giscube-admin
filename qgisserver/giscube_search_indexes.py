@@ -15,6 +15,7 @@ class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIn
         url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
         children.append({
             'title': obj.title,
+            'description': obj.description,
             'group': False,
             'type': 'WMS',
             'url': url,
