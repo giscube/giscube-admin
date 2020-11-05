@@ -21,11 +21,13 @@ class DataBaseLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSea
                 service_url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s/' % service.name)
                 references.append({
                     'title': service.title or service.name,
+                    'description': service.description,
                     'url': service_url,
                     'projection': '3857'
                 })
             children.append({
                 'title': _('DataBase Layer'),
+                'description': None,
                 'group': False,
                 'type': 'DataBaseLayer',
                 'format': 'GeoJSON',
@@ -36,6 +38,7 @@ class DataBaseLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSea
         else:
             children.append({
                 'title': _('DataBase Layer'),
+                'description': None,
                 'group': False,
                 'type': 'DataBaseLayer',
                 'format': 'JSON',
@@ -52,6 +55,7 @@ class GeoJsonLayerIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSear
             settings.GISCUBE_URL, remove_app_url(reverse('geojsonlayer', kwargs={'name': obj.name})))
         children.append({
             'title': _('GeoJSON Layer'),
+            'description': None,
             'group': False,
             'type': 'GeoJSON',
             'url': url,

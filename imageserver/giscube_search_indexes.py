@@ -17,6 +17,7 @@ class ServiceIndex(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchInd
             layer = sl.layer
             children.append({
                 'title': layer.title or layer.name,
+                'description': None,
                 'group': False,
                 'type': 'WMS',
                 'url': url,

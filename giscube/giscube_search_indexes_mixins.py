@@ -14,6 +14,7 @@ class ResourcesIndexMixin:
                 url = url_slash_join(settings.SITE_URL, r.file.url)
             children.append({
                 'title': r.title or r.name,
+                'description': r.description,
                 'group': False,
                 'type': r.type,
                 'url': url,
