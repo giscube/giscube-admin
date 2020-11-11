@@ -23,7 +23,8 @@ class ResourcesIndexMixin:
                 'giscube': {
                     'getfeatureinfo_support': r.getfeatureinfo_support,
                     'single_image': r.single_image,
-                    'downloadable': r.downloadable
+                    'downloadable': r.downloadable,
+                    'content_type': r.content_type,
                 }
             })
         return children

@@ -55,6 +55,7 @@ class ResourceModelMixin(models.Model):
     url = models.CharField(_('url'), max_length=255, null=True, blank=True)
     file = models.FileField(_('file'), max_length=255, null=True, blank=True, upload_to=resource_upload_to,
                             storage=OverwriteStorage())
+    content_type = models.CharField(_('format'), max_length=255, null=True, blank=True)
     layers = models.CharField(_('layers'), max_length=255, null=True, blank=True)
     projection = models.IntegerField(_('projection'), null=True, blank=True, help_text='EPSG code')
     getfeatureinfo_support = models.BooleanField(_('WMS GetFeatureInfo support'), default=True)

@@ -1,13 +1,13 @@
 (function ($){
-  var all_fields = ['name', 'description', 'title', 'path', 'url', 'file', 'layers', 'projection', 'getfeatureinfo_support', 'single_image'];
+  var all_fields = ['name', 'description', 'title', 'path', 'url', 'file', 'layers', 'projection', 'getfeatureinfo_support', 'single_image', 'content_type'];
 
   function field_type_change() {
     var fields = {
       '': ['name', 'description', 'title', 'downloadable'],
-      'TMS': ['name', 'description', 'title', 'path', 'url', 'layers', 'projection'],
-      'WMS': ['name', 'description', 'title', 'path', 'url', 'layers', 'projection', 'getfeatureinfo_support', 'single_image'],
+      'TMS': ['name', 'description', 'title', 'url', 'layers', 'projection'],
+      'WMS': ['name', 'description', 'title', 'url', 'layers', 'projection', 'getfeatureinfo_support', 'single_image'],
       'document': ['name', 'description', 'title', 'file'],
-      'url': ['name', 'description', 'title', 'url']
+      'url': ['name', 'description', 'title', 'url', 'projection', 'content_type']
     };
 
     var item = $(this);
