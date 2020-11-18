@@ -4,6 +4,7 @@ from .django import (AdminEmailHandler, RecursionException, check_recursion, get
 from .giscube import get_giscube_id
 from .string import env_string_parse
 from .url import full_url, remove_app_url, url_slash_join
+from .wms import get_service_wms_bbox
 
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     'AdminEmailHandler', 'RecursionException', 'check_recursion', 'get_cls', 'get_version', 'unique_service_directory',
     'get_giscube_id',
     'env_string_parse',
-    'full_url', 'remove_app_url', 'url_slash_join'
+    'full_url', 'remove_app_url', 'url_slash_join',
+    'get_service_wms_bbox'
 ]

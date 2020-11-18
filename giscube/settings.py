@@ -86,6 +86,8 @@ INSTALLED_APPS += [
     'theme_giscube',
     'django_vue_tabs',
 
+    'leaflet',
+
     # django
     'django.contrib.gis',
     'django.contrib.admin',
@@ -183,6 +185,7 @@ APP_URL = os.getenv('APP_URL', APP_URL)
 APP_ROOT = os.getenv('APP_PATH', BASE_DIR)
 
 SITE_URL = os.getenv('SITE_URL', 'http://localhost')
+SITE_INTERNAL_URL = os.getenv('SITE_INTERNAL_URL', SITE_URL)
 
 LOGIN_URL = '%s/admin/login/' % APP_URL
 LOGIN_REDIRECT_URL = '%s/admin/' % APP_URL
