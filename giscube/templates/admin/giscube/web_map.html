@@ -1,0 +1,45 @@
+{% load leaflet_tags %}
+<html>
+  <head>
+    <title>{{ title }}</title>
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <style>
+      .leaflet-container { height: 100%; }
+    </style>
+    <script>
+    function map_init_basic(map, options){
+      {% if bbox %}
+      var bbox = {{ bbox }};
+      map.fitBounds([
+        [bbox[1], bbox[0]],
+        [bbox[3], bbox[2]]
+      ]);
+      {% endif %}
+      var baseLayers = {}
+      var layer;
+      {% for layer in layers %}
+          {% if layer.type == 'tile' %}
+          layer = L.tileLayer('{{ layer.url }}').addTo(map);
+          baseLayers['{{ layer.name }}'] = layer;
+          {% endif %}
+          {% if layer.type == 'wms' %}
+          layer = L.tileLayer.wms('{{ layer.url }}', {
+            {% if layer.transparent %}
+            transparent: true,
+            {% endif %}
+            layers: '{{ layer.layers }}'
+          }).addTo(map);
+          baseLayers['{{ layer.name }}'] = layer;
+          {% endif %}
+      {% endfor %}
+      L.control.layers(baseLayers, {}).addTo(map);
+    };
+    </script>
+
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    {% leaflet_map "main"  callback="window.map_init_basic" %}
+  </body>
+</html>

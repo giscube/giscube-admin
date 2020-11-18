@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.dispatch import receiver
@@ -7,8 +8,10 @@ from django.utils.translation import gettext as _
 
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category, Server
+from giscube.tilecache.models_mixins import TileCacheModelMixin
 from giscube.validators import validate_options_json_format
-from qgisserver.utils import deactivate_services, patch_qgis_project, unique_service_directory, update_external_service
+from qgisserver.utils import (deactivate_services, patch_qgis_project, unique_service_directory,
+                              update_external_service, url_slash_join)
 
 
 SERVICE_VISIBILITY_CHOICES = [
@@ -37,7 +40,7 @@ def validate_integer_pair_list(value):
         validate_integer_pair(line)
 
 
-class Service(models.Model):
+class Service(TileCacheModelMixin, models.Model):
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='qgisserver_services')
@@ -76,6 +79,21 @@ class Service(models.Model):
             project_file = os.path.basename(self.project_file.url)
             filename, _ = os.path.splitext(project_file)
             return filename
+
+    @property
+    def service_url(self):
+        return url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % self.name)
+
+    @property
+    def service_internal_url(self):
+        server_url = settings.GISCUBE_QGIS_SERVER_URL
+        mapfile = "map=%s" % self.project_file.path
+        if '?' not in server_url:
+            server_url = '%s?' % server_url
+        if not server_url.endswith('?'):
+            server_url = '%s&' % server_url
+        url = "%s%s" % (server_url, mapfile)
+        return url
 
     def save(self, *args, **kwargs):
         super(Service, self).save(*args, **kwargs)

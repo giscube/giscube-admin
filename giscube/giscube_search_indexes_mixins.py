@@ -1,8 +1,7 @@
 from django.conf import settings
 
-
+from .model_mixins import RESOURCE_TYPE_CHOICES
 from .utils import url_slash_join
-from . model_mixins import RESOURCE_TYPE_CHOICES
 
 
 class ResourcesIndexMixin:
