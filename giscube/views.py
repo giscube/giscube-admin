@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import FileResponse, Http404, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.views.static import serve
@@ -39,6 +39,23 @@ def private_serve(request, path):
     if request.user and request.user.is_superuser:
         return serve(request, path, document_root, show_indexes)
     return HttpResponseForbidden()
+
+
+def web_map_view(request, extra_context):
+    """
+    Context requires:
+    layer_url
+    layer_type: tile | wms
+    bbox
+    base_layer as LEAFLET_CONFIG.TILES
+    title
+    """
+
+    context = {
+        'LEAFLET_CONFIG': {'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}
+    }
+    context.update(extra_context)
+    return render(request, 'admin/giscube/web_map.html', context)
 
 
 class ResourceFileServer(GeoportalMixin, FilterByUserMixin, APIView):

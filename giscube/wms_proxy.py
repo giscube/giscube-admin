@@ -12,6 +12,7 @@ def param_get(data, param, default=None):
     return data.get(param.lower(), data.get(param.upper(), default))
 
 
+# TODO: refactor with giscube views_mixins
 class WMSProxy(object):
     def __init__(self, service):
         self.service = service

@@ -1,5 +1,5 @@
 celery==4.3.1
-Django==2.2.16
+Django==2.2.17
 django-admin-list-filter-dropdown==1.0.3
 django-db-logger==0.1.10
 django-cas-ng==3.6.0
@@ -8,6 +8,7 @@ django-colorfield==0.3.2
 django-cors-headers==3.5.0
 psycopg2==2.8.6 --no-binary psycopg2
 django-groupadmin-users==0.3.3
+django-leaflet==0.27.1
 django-loginas==0.3.9
 django-model-utils==4.0.0
 django-oauth-toolkit==1.2.0
@@ -20,8 +21,9 @@ GDAL==2.2.3
 requests==2.24.0
 ujson==3.2.0
 drf-ujson2==1.6.1
+OWSLib==0.20.0
 Pillow==7.2.0
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
-redis==3.5.3
-pdf2image==1.14.0
-sentry-sdk==0.17.7
+redis==3.3.11
+pdf2image==1.11.0
+sentry-sdk==0.14.0
