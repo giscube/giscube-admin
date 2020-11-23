@@ -26,6 +26,11 @@ class ServiceIndex(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchInd
             })
         return children + super().prepare_children(obj)
 
+    def prepare_output_data(self, obj):
+        output_data = super().prepare_output_data(obj)
+        output_data['options']['single_image'] = obj.wms_single_image
+        return output_data
+
 
 index_config = [
     ServiceIndex({
