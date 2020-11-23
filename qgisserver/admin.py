@@ -67,7 +67,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         }),
         (None, {
             'fields': [
-                'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes', 'options'
+                'wms_single_image', 'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes', 'options'
             ],
             'classes': ('tab-options',),
         }),

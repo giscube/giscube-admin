@@ -53,7 +53,7 @@ class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         }),
         (None, {
             'fields': [
-                'projection', 'supported_srs', 'extent', 'options'
+                'wms_single_image', 'projection', 'supported_srs', 'extent', 'options'
             ],
             'classes': ('tab-options',),
         }),

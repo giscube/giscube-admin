@@ -15,8 +15,8 @@ class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
         wms_single_image = self.cleaned_data['wms_single_image']
 
         if (wms_buffer_enabled or tilecache_enabled) and wms_single_image:
-            msg = _("Is no possible have enabled 'WMS buffer enabled' or 'tilecache enabled' with"
-                    " 'WMS single image' at the same time")
+            msg = _("'WMS single image' is not compatible with these options:"
+                    " 'WMS buffer enabled', 'Tilecache enabled'")
             self.add_error('wms_single_image', msg)
 
     class Meta:

@@ -48,6 +48,8 @@ class Service(models.Model):
                                validators=[validate_options_json_format])
     legend = models.TextField(_('legend'), null=True, blank=True)
 
+    wms_single_image = models.BooleanField(_('prefer single image'), default=False)
+
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':
             self.service_path = unique_service_directory(self)

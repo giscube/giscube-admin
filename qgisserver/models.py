@@ -73,6 +73,8 @@ class Service(TileCacheModelMixin, models.Model):
                                validators=[validate_options_json_format])
     legend = models.TextField(_('legend'), null=True, blank=True)
 
+    wms_single_image = models.BooleanField(_('prefer single image'), default=False)
+
     @property
     def default_layer(self):
         if self.project_file:
