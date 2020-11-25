@@ -8,10 +8,11 @@ from django.utils.translation import gettext as _
 
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category
+from giscube.utils import extract_zipfile
 from giscube.validators import validate_options_json_format
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import LayerStorage, NamedMaskStorage
-from imageserver.utils import extract_zipfile, find_shapefile, unique_layer_directory, unique_service_directory
+from imageserver.utils import find_shapefile, unique_layer_directory, unique_service_directory
 
 from .gdal_utils import get_image_dir_info, get_image_file_info
 

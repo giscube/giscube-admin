@@ -1,5 +1,4 @@
 import os
-import tempfile
 
 from xml.etree import ElementTree as ET
 
@@ -12,6 +11,7 @@ from django.urls import reverse
 
 from rest_framework import status
 
+from giscube.utils import unique_service_directory as giscube_unique_service_directory
 from giscube.utils import url_slash_join
 
 
@@ -46,16 +46,8 @@ def patch_qgis_project(service):
     tree.write(file_path)
 
 
-def unique_service_directory(instance, filename):
-    if not instance.service_path:
-        path = os.path.join(settings.MEDIA_ROOT, instance._meta.app_label)
-        path = os.path.abspath(path)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        pathname = tempfile.mkdtemp(prefix='%s_' % instance.name, dir=path)
-        pathname = os.path.relpath(pathname, settings.MEDIA_ROOT)
-        instance.service_path = pathname
-    return os.path.join(instance.service_path, filename)
+def unique_service_directory(instance, filename=None):
+    return giscube_unique_service_directory(instance, filename, append_object_name=False)
 
 
 @shared_task
