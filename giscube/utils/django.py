@@ -56,9 +56,11 @@ def get_version(version=None):
     return django_get_version(version)
 
 
-def unique_service_directory(instance, filename=None):
+def unique_service_directory(instance, filename=None, append_object_name=True):
     if not instance.service_path:
-        path = os.path.join(settings.MEDIA_ROOT, instance._meta.app_label, instance._meta.object_name.lower())
+        path = os.path.join(settings.MEDIA_ROOT, instance._meta.app_label)
+        if append_object_name:
+            path = os.path.join(path, instance._meta.object_name.lower())
         path = os.path.abspath(path)
         if not os.path.exists(path):
             os.makedirs(path)
