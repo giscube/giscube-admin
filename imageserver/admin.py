@@ -7,14 +7,17 @@ from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
+from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
 from giscube.utils import url_slash_join
-from imageserver.models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata, ServiceResource
+from .admin_forms import ServiceChangeForm
+from .models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata, ServiceResource
 
 
 class ServiceLayerInline(admin.TabularInline):
     model = ServiceLayer
     extra = 0
     classes = ('tab-layers',)
+
 
 class ServiceMetadataInline(MetadataInlineMixin):
     model = ServiceMetadata
@@ -26,7 +29,9 @@ class ServiceResourceInline(admin.StackedInline):
     classes = ('tab-resources',)
 
 
-class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
+class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
+    change_form_template = 'admin/imageserver/change_form.html'
+    form = ServiceChangeForm
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
     list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal')
@@ -41,6 +46,7 @@ class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (_('Design'), ('tab-design',)),
         (_('Metadata'), ('tab-metadata',)),
         (_('Resources'), ('tab-resources',)),
+        (_('Tile Cache'), ('tab-tilecache',)),
     )
 
     fieldsets = [
@@ -66,7 +72,7 @@ class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     ]
 
     def url_wms(self, obj):
-        url = url_slash_join(settings.GISCUBE_URL, '/imageserver/services/%s' % obj.name)
+        url = '%s?service=WMS&version=1.1.1&request=GetCapabilities' % obj.service_url
         return format_html('<a target="_blank" href="{0}">WMS URL {1}</a>', url, obj.name)
     url_wms.short_description = 'WMS URL'
 
