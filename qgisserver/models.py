@@ -10,8 +10,9 @@ from django.utils.translation import gettext as _
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category, Server
 from giscube.tilecache.models_mixins import TileCacheModelMixin
+from giscube.utils import url_slash_join
 from giscube.validators import validate_options_json_format
-from qgisserver.utils import deactivate_services, unique_service_directory, update_external_service, url_slash_join
+from qgisserver.utils import deactivate_services, unique_service_directory
 
 
 SERVICE_VISIBILITY_CHOICES = [
@@ -79,6 +80,7 @@ class Service(TileCacheModelMixin, models.Model):
                                validators=[validate_options_json_format])
     legend = models.TextField(_('legend'), null=True, blank=True)
 
+    tilecache_transparent = models.BooleanField(_('force transparent'), default=True)
     wms_single_image = models.BooleanField(_('prefer single image'), default=False)
 
     @property
