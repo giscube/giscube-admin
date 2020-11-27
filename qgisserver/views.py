@@ -3,7 +3,6 @@ import os
 
 import requests
 
-from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -75,14 +74,12 @@ class QGISServerTileCacheView(View):
 class QGISServerTileCacheTilesView(View):
 
     def build_url(self, service):
-        server_url = settings.GISCUBE_QGIS_SERVER_URL
-        mapfile = "map=%s" % service.project_file.path
-        url = "%s?%s" % (server_url, mapfile)
+        url = service.service_internal_url
         if service.tilecache_transparent:
             url = '%s&transparent=True' % url
         return url
 
-    def get(self, request, service_name, z, x, y, image_format='.png'):
+    def get(self, request, service_name, z, x, y, image_format='png'):
         service = get_object_or_404(Service, name=service_name, active=True)
         if service.visibility == 'private' and not request.user.is_authenticated:
             return HttpResponseForbidden()
@@ -108,7 +105,7 @@ class QGISServerTileCacheTilesView(View):
             buffer = list(map(int, service.wms_buffer_size.split(',')))
         cache = GiscubeServiceCache(service)
         image = tile_cache_image(tile_options, buffer, cache)
-        response = HttpResponse(image, content_type='image/png')
+        response = HttpResponse(image, content_type='image/%s' % image_format)
         patch_response_headers(response, cache_timeout=60 * 60 * 24 * 7)
         response.status_code = 200
         return response

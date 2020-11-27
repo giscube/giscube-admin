@@ -24,7 +24,6 @@ class TileCacheModelMixin(models.Model):
         default=22,
         validators=[MaxValueValidator(30), MinValueValidator(0)]
     )
-    tilecache_transparent = models.BooleanField(_('force transparent'), default=True)
 
     class Meta:
         abstract = True

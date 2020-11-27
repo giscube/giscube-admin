@@ -40,9 +40,7 @@ class ServiceResourceInline(admin.StackedInline):
 
 class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/qgisserver/service/change_form.html'
-
     form = ServiceChangeForm
-
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms', 'visibility', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visibility',
