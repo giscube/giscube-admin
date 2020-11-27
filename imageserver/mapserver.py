@@ -3,6 +3,8 @@ import os
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 
+from giscube.utils import url_slash_join
+
 
 class MapserverLayerWriter(object):
     def write(self, layer, supported_srs):
@@ -126,7 +128,8 @@ class MapserverMapWriter(object):
         a.append('      "wms_title" "%s"' % service.title)
         a.append('      "wms_srs" "%s"' % srss)
         a.append('      "wms_enable_request" "GetCapabilities GetMap"')
-        a.append('      "wms_onlineresource" "%s/imageserver/services/%s/?"' % (server, service.name))
+        a.append('      "wms_onlineresource" "%s"' % url_slash_join(
+            server, 'imageserver/services/%s/?' % service.name))
         a.append('      "wms_bbox_extended" "true"')
         a.append('    END')
         a.append('  END')
