@@ -130,7 +130,7 @@ class QGISServerMapViewerView(View):
             {
                 'name': '%s (WMS)' % (service.title or service.name),
                 'type': 'wms',
-                'layers': service.name,
+                'layers': service.default_layer,
                 'url': reverse('qgisserver', args=(service.name, '',)),
                 'transparent': service.tilecache_enabled and service.tilecache_transparent
             }
