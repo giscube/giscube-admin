@@ -38,7 +38,7 @@ class Service(models.Model):
     supported_srs = models.CharField(
         _('supported srs'), max_length=400, help_text=_('Comma separated list of supported EPSG codes'),
         validators=[validate_comma_separated_integer_list])
-    extent = models.PolygonField(_('name'), null=True, blank=True)
+    extent = models.PolygonField(_('bbox'), null=True, blank=True)
     service_path = models.CharField(_('extent'), max_length=255)
     active = models.BooleanField(_('active'), default=True, help_text='Enable/disable usage')
     visibility = models.CharField(_('visibility'), max_length=10, default='private',
@@ -78,6 +78,9 @@ class Service(models.Model):
     @property
     def anonymous_view(self):
         return not (self.visibility == 'private')
+
+    def __str__(self):
+        return str(self.title or self.name)
 
     class Meta:
         verbose_name = _('Service')
