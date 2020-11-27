@@ -14,7 +14,7 @@ from imageserver.models import Layer, NamedMask, Service, ServiceLayer, ServiceM
 class ServiceLayerInline(admin.TabularInline):
     model = ServiceLayer
     extra = 0
-
+    classes = ('tab-layers',)
 
 class ServiceMetadataInline(MetadataInlineMixin):
     model = ServiceMetadata
@@ -31,13 +31,13 @@ class ServiceAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     list_display = ('title', 'url_wms')
     list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal')
     search_fields = ('title',)
-    exclude = ('service_path',)
     readonly_fields = ('extent',)
     inlines = (ServiceLayerInline, ServiceMetadataInline, ServiceResourceInline,)
 
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),
+        (_('Layers'), ('tab-layers',)),
         (_('Design'), ('tab-design',)),
         (_('Metadata'), ('tab-metadata',)),
         (_('Resources'), ('tab-resources',)),
