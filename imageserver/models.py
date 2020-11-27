@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import MultiPolygon, Polygon
@@ -9,6 +10,8 @@ from django.utils.translation import gettext as _
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category
 from giscube.utils import extract_zipfile
+from giscube.tilecache.models_mixins import TileCacheModelMixin
+from giscube.utils import url_slash_join
 from giscube.validators import validate_options_json_format
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import LayerStorage, NamedMaskStorage
@@ -26,7 +29,7 @@ layerStorage = LayerStorage()
 namedMaskStorage = NamedMaskStorage()
 
 
-class Service(models.Model):
+class Service(TileCacheModelMixin, models.Model):
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='imageserver_services')
@@ -78,6 +81,25 @@ class Service(models.Model):
     @property
     def anonymous_view(self):
         return not (self.visibility == 'private')
+
+    @property
+    def default_layer(self):
+        return self.name
+
+    @property
+    def service_url(self):
+        return url_slash_join(settings.GISCUBE_URL, '/imageserver/services/%s' % self.name)
+
+    @property
+    def service_internal_url(self):
+        server_url = settings.GISCUBE_IMAGE_SERVER_URL
+        mapfile = "map=%s" % self.mapfile_path
+        if '?' not in server_url:
+            server_url = '%s?' % server_url
+        if not server_url.endswith('?'):
+            server_url = '%s&' % server_url
+        url = "%s%s" % (server_url, mapfile)
+        return url
 
     def __str__(self):
         return str(self.title or self.name)
@@ -178,7 +200,7 @@ class Layer(models.Model):
             serviceLayer.service.save()
 
     def __str__(self):
-        return '%s' % self.title
+        return str(self.title or self.name)
 
     class Meta:
         verbose_name = _('Layer')
@@ -189,6 +211,9 @@ class ServiceLayer(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     layer = models.ForeignKey(
         Layer, related_name="services", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.layer)
 
     class Meta:
         verbose_name = _('Service Layer')

@@ -1,0 +1,10 @@
+{% extends "django_vue_tabs/change_form.html" %}
+{% load i18n %}
+{% block object-tools-items %}
+
+  <li>
+      <a href="{% url 'imageserver-map-view' original.name %}" target="_blank">{% trans 'View map' %}</a>
+  </li>
+
+  {{ block.super }}
+{% endblock %}
