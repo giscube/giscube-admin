@@ -1,28 +1,29 @@
-celery==4.3.0
-Django==2.2.11
+celery==4.3.1
+Django==2.2.17
 django-admin-list-filter-dropdown==1.0.3
+django-db-logger==0.1.10
 django-cas-ng==3.6.0
 django-celery-results==1.1.2
-django-colorfield==0.1.15
-django-cors-headers==3.2.1
-psycopg2==2.8.4 --no-binary psycopg2
+django-colorfield==0.3.2
+django-cors-headers==3.5.0
+psycopg2==2.8.6 --no-binary psycopg2
 django-groupadmin-users==0.3.3
-django-haystack==2.8.1
-django-loginas==0.3.6
+django-leaflet==0.27.1
+django-loginas==0.3.9
 django-model-utils==4.0.0
 django-oauth-toolkit==1.2.0
-django-vue-tabs==0.0.11
-djangorestframework==3.10.3
-djangorestframework-gis==0.15
+django-vue-tabs==0.0.12
+djangorestframework==3.11.1
+djangorestframework-gis==0.16
 django-url-filter==0.3.15
 GDAL==1.10.0
--e git+https://github.com/giscube/django-theme-giscube.git#egg=django_theme_giscube
-requests==2.22.0
-ujson==1.35
-drf-ujson2==1.4.1
-Pillow==7.0.0
+-e git+https://github.com/giscube/django-theme-giscube.git@django3#egg=django_theme_giscube
+requests==2.24.0
+ujson==3.2.0
+drf-ujson2==1.6.1
+OWSLib==0.20.0
+Pillow==7.2.0
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
-Whoosh==2.7.4
 redis==3.3.11
 pdf2image==1.11.0
 sentry-sdk==0.14.0
