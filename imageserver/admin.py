@@ -8,7 +8,6 @@ from django_vue_tabs.admin import TabsMixin
 
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
-from giscube.utils import url_slash_join
 from .admin_forms import ServiceChangeForm
 from .models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata, ServiceResource
 
@@ -30,7 +29,7 @@ class ServiceResourceInline(admin.StackedInline):
 
 
 class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
-    change_form_template = 'admin/imageserver/change_form.html'
+    change_form_template = 'admin/imageserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
