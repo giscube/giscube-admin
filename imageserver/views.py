@@ -90,7 +90,7 @@ class ImageServerTileCacheTilesView(View):
         bbox = self.tile2bbox(z, x, y)
         tile_options = {
             'url': self.build_url(service),
-            'layers': service.name,
+            'layers': ','.join(service.servicelayer_set.all().values_list('layer__name', flat=True)),
             'xyz': [z, x, y],
             'bbox': bbox,
             'srs': 'EPSG:3857'
