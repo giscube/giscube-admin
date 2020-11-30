@@ -2,12 +2,12 @@ import glob
 import os
 import shutil
 
-from zipfile import ZipFile
+import zipfile
 
 
 def extract_zipfile(name, subdir='files'):
-    if os.path.isfile(name) and ZipFile.is_zipfile(name):
-        zf = ZipFile(name, 'r')
+    if os.path.isfile(name) and zipfile.is_zipfile(name):
+        zf = zipfile.ZipFile(name, 'r')
         target_path = os.path.join(os.path.dirname(name), subdir)
         # clean directory
         abs_path = os.path.abspath(target_path)
@@ -19,7 +19,7 @@ def extract_zipfile(name, subdir='files'):
 
 
 def zipfile_find_file(file, ext):
-    with ZipFile(file, 'r') as zipObj:
+    with zipfile.ZipFile(file, 'r') as zipObj:
         for elem in zipObj.namelist():
             if elem.endswith('.%s' % ext):
                 return elem
