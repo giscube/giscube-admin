@@ -11,4 +11,5 @@ tests/media/*
 app.env
 .env
 example-data/
--docker-dev/
+__pycache__
+.pytest_cache
