@@ -253,7 +253,7 @@ class StyleLayer(object):
         """.format(
             name=name.replace('"', '\"'),
             shape_radius=style['shape_radius'],
-            stroke_color=self.add_alpha(style['stroke_color'], style['stroke_opacity']),
+            stroke_color=self.add_alpha(style['stroke_color'], style.get('stroke_opacity', 1)),
             stroke_width=style['stroke_width'],
             fill_color=fill_color,
             expression=expression)
