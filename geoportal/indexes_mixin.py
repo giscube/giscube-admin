@@ -37,6 +37,7 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
         data['has_children'] = True
         data['children'] = self.prepare_children(obj)
         data['legend'] = getattr(obj, 'legend', None)
+        data['visible_on_geoportal'] = getattr(obj, 'visible_on_geoportal', False)
         data['options'] = json.loads(getattr(obj, 'options', '{}') or '{}')
         data['catalog'] = (obj.category.title or '').split(Category.SEPARATOR) if obj.category else []
         metadata_data = [
