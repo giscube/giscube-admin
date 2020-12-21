@@ -8,6 +8,7 @@ from django_vue_tabs.admin import TabsMixin
 
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
+
 from .admin_forms import ServiceChangeForm
 from .models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata, ServiceResource
 
