@@ -9,9 +9,8 @@ from django.utils.translation import gettext as _
 
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category
-from giscube.utils import extract_zipfile
 from giscube.tilecache.models_mixins import TileCacheModelMixin
-from giscube.utils import url_slash_join
+from giscube.utils import extract_zipfile, url_slash_join
 from giscube.validators import validate_options_json_format
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import LayerStorage, NamedMaskStorage

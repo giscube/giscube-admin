@@ -3,7 +3,8 @@ from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 
 from .admin_views import RasterOptimizerView
-from .views import ImageServerMapViewerView, ImageServerTileCacheView, ImageServerTileCacheTilesView, ImageServerWMSView
+from .views import (ImageServerMapViewerView, ImageServerTileCacheTilesView, ImageServerTileCacheView,
+                    ImageServerWMSView)
 
 
 if not settings.GISCUBE_IMAGE_SERVER_DISABLED:
@@ -14,7 +15,8 @@ if not settings.GISCUBE_IMAGE_SERVER_DISABLED:
              ImageServerTileCacheView.as_view(), name='imageserver-tilecache'),
         path('services/<str:service_name>/tilecache/<int:z>/<int:x>/<int:y>.<str:image_format>',
              ImageServerTileCacheTilesView.as_view(), name='imageserver-tilecache-tiles'),
-        re_path(r'^services/(?P<service_name>[^/]+)(.*)', csrf_exempt(ImageServerWMSView.as_view()), name='imageserver'),
+        re_path(r'^services/(?P<service_name>[^/]+)(.*)',
+                csrf_exempt(ImageServerWMSView.as_view()), name='imageserver'),
         path('raster_optimizer/', RasterOptimizerView.as_view(), name='raster_optimizer'),
 
     ]
