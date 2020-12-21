@@ -27,7 +27,7 @@ from giscube.models import UserAsset
 
 from ..filters import filterset_factory
 from ..model_legacy import create_dblayer_model
-from ..models import DataBaseLayer
+from ..models import DataBaseLayer, DBLayerGroup
 from ..pagination import create_geojson_pagination_class, create_json_pagination_class
 from ..permissions import BulkDBLayerIsValidUser, DBLayerIsValidUser
 from ..serializers import create_dblayer_serializer
@@ -64,6 +64,28 @@ class DBLayerContentViewSetMixin(object):
     @cached_property
     def _virtual_fields(self):
         return {field.name: field for field in self.layer.virtual_fields.filter(enabled=True)}
+
+    def filter_queryset_by_group_data_filter(self, qs):
+        actions = {
+            'get': 'view',
+            'options': 'view',
+            'head': 'view',
+            'post': 'add',
+            'put': 'update',
+            'patch': 'update',
+            'delete': 'delete'
+        }
+        permission = actions.get(self.request.method.lower())
+        layer_groups = DBLayerGroup.objects.filter(
+            **{
+                'layer': self.layer,
+                'group__in': self.request.user.groups.all(),
+                'can_%s' % permission: True
+            }
+        ).exclude(data_filter={}, data_filter_status='disabled')
+        for layer_group in layer_groups:
+            qs = qs.filter(**layer_group.data_filter)
+        return qs
 
 
 class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
@@ -174,6 +196,7 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         model_filter = filterset_factory(self.model, self.filter_fields, self._virtual_fields)
         qs = model_filter(data=self.request.query_params, queryset=qs)
         qs = qs.filter()
+        qs = self.filter_queryset_by_group_data_filter(qs)
         return qs
 
     def get_queryset(self):
@@ -182,6 +205,7 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
             qs = self._get_queryset()
         except Exception:
             qs = self.model.objects_default.none()
+            raise
         return qs
 
     def get_pagination_class(self, layer):
@@ -273,6 +297,7 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
 
     def get_queryset(self):
         qs = self.model.objects.all()
+        qs = self.filter_queryset_by_group_data_filter(qs)
         return qs
 
     def to_image(self, field, path):
