@@ -1,16 +1,17 @@
 {% extends "admin/layerserver/change_form.html" %}
 {% block extrahead %}{{ block.super }}
 <style>
-.tab-fields .vLargeTextField {
+.tab-fields .vLargeTextField,
+.tab-permissions .vLargeTextField,
+.tab-virtual-fields .vLargeTextField
+{
   width: auto !important;
-  min-width: 24px;
+  min-width: 72px;
   min-height: 36px;
-  height: 0;
+  height: auto;
   padding-bottom: 0;
   overflow-y: hidden;
   white-space: pre;
-  overflow-wrap: normal;
-  overflow-x: auto;
 }
 
 </style>
@@ -26,7 +27,15 @@
 
   function resize_all() {
     $('.tab-fields .vLargeTextField').each(resize);
+    $('.tab-permissions textarea').each(resize);
+    $('.tab-virtual-fields textarea').each(resize);
   }
+
+  $(document).on('formset:added', function () {
+    $('.tab-fields .vLargeTextField').each(resize);
+    $('.tab-permissions textarea').each(resize);
+    $('.tab-virtual-fields textarea').each(resize);
+  });
 
   var widgets_templates = {};
   {% for k,v in widgets_templates.items %}

@@ -12,7 +12,7 @@ from giscube.widgets import ColorWidget, TagsWidget
 
 from .model_legacy import get_fields, get_klass
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
-                     DataBaseLayerVirtualField, GeoJsonLayer, GeoJsonLayerStyleRule)
+                     DataBaseLayerVirtualField, DBLayerGroup, GeoJsonLayer, GeoJsonLayerStyleRule)
 from .widgets import widgets_types
 
 
@@ -26,7 +26,15 @@ class ClusterFormMixin(forms.ModelForm):
             return json.dumps(data, indent=4)
 
 
-class DataBaseLayerFormMixin(ClusterFormMixin, forms.ModelForm):
+class CleanDataFilterMixin:
+    def clean_data_filter(self):
+        data_filter = self.cleaned_data['data_filter']
+        if data_filter is None:
+            data_filter = {}
+        return data_filter
+
+
+class DataBaseLayerFormMixin(CleanDataFilterMixin, ClusterFormMixin, forms.ModelForm):
     def validate_pk_field(self, db_connection, table_name):
         table_parts = get_table_parts(table_name)
         table_schema = table_parts['table_schema']
@@ -60,12 +68,6 @@ class DataBaseLayerFormMixin(ClusterFormMixin, forms.ModelForm):
 
     def clean_name(self):
         return slugify(self.cleaned_data['name'])
-
-    def clean_data_filter(self):
-        data_filter = self.cleaned_data['data_filter']
-        if data_filter is None:
-            data_filter = {}
-        return data_filter
 
 
 class DataBaseLayerAddForm(DataBaseLayerFormMixin, forms.ModelForm):
@@ -263,6 +265,13 @@ class DataBaseLayerVirtualFieldsInlineForm(forms.ModelForm):
 
     class Meta:
         model = DataBaseLayerVirtualField
+        fields = '__all__'
+
+
+class DBLayerGroupInlineForm(CleanDataFilterMixin, forms.ModelForm):
+
+    class Meta:
+        model = DBLayerGroup
         fields = '__all__'
 
 

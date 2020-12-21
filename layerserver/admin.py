@@ -17,9 +17,9 @@ from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBas
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm,
                           GeoJsonLayerStyleRuleInlineForm)
 from .model_legacy import ModelFactory
-from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata, DataBaseLayerReference,
-                     DataBaseLayerResource, DataBaseLayerStyleRule, DataBaseLayerVirtualField, DBLayerGroup,
-                     DBLayerUser, GeoJsonLayer, GeoJsonLayerGroupPermission, GeoJsonLayerMetadata,
+from .models import (DATA_FILTER_STATUS_CHOICES, DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata,
+                     DataBaseLayerReference, DataBaseLayerResource, DataBaseLayerStyleRule, DataBaseLayerVirtualField,
+                     DBLayerGroup, DBLayerUser, GeoJsonLayer, GeoJsonLayerGroupPermission, GeoJsonLayerMetadata,
                      GeoJsonLayerResource, GeoJsonLayerStyleRule, GeoJsonLayerUserPermission)
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
@@ -271,6 +271,7 @@ class DBLayerGroupInline(admin.TabularInline):
     classes = ('tab-permissions',)
     verbose_name = _('Group')
     verbose_name_plural = _('Groups')
+    readonly_fields = ('data_filter_status', 'data_filter_error',)
 
 
 class DBLayerUserInline(admin.TabularInline):
@@ -566,18 +567,49 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             request.POST['_continue'] = 1
         return super().response_add(request, obj, post_url_continue)
 
+    def _check_data_filter(self, instance, filter=None):
+        if instance.data_filter:
+            with ModelFactory(instance) as Model:
+                try:
+                    Model.objects_default.filter(**filter).none()
+                except Exception as e:
+                    return str(e)
+
+    def get_parent_object_from_request(self, request):
+        resolved = resolve(request.path_info)
+        if resolved.kwargs:
+            return self.model.objects.get(pk=resolved.kwargs['object_id'])
+        return None
+
+    def save_formset(self, request, form, formset, change):
+        parent = None
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            if hasattr(instance, 'data_filter'):
+                if not parent:
+                    parent = self.get_parent_object_from_request(request)
+                instance.data_filter_status = None
+                instance.data_filter_error = None
+                error = self._check_data_filter(parent, instance.data_filter)
+                if error:
+                    instance.data_filter_status = DATA_FILTER_STATUS_CHOICES.disabled
+                    instance.data_filter_error = error
+                else:
+                    instance.data_filter_status = DATA_FILTER_STATUS_CHOICES.enabled
+            instance.save()
+        formset.save_m2m()
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if change and 'data_filter' in form.changed_data:
             obj.data_filter_status = None
             obj.data_filter_error = None
-            if obj.data_filter:
-                with ModelFactory(obj) as Model:
-                    try:
-                        Model.objects.none()
-                    except Exception as e:
-                        obj.data_filter_status = DataBaseLayer.DATA_FILTER_STATUS_CHOICES.disabled
-                        obj.data_filter_error = str(e)
-                    else:
-                        obj.data_filter_status = DataBaseLayer.DATA_FILTER_STATUS_CHOICES.enabled
+            error = self._check_data_filter(obj, obj.data_filter)
+            if error:
+                obj.data_filter_status = DATA_FILTER_STATUS_CHOICES.disabled
+                obj.data_filter_error = error
+            else:
+                obj.data_filter_status = DATA_FILTER_STATUS_CHOICES.enabled
             obj.save()

@@ -236,11 +236,13 @@ def databaselayer_mapfile_upload_path(instance, filename):
     return unique_service_directory(instance, 'wms.map')
 
 
+DATA_FILTER_STATUS_CHOICES = Choices(
+    ('enabled', _('Enabled'),),
+    ('disabled', _('Error misconfigured'),),
+)
+
+
 class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, ClusterMixin, models.Model):
-    DATA_FILTER_STATUS_CHOICES = Choices(
-        ('enabled', _('Enabled'),),
-        ('disabled', _('Error misconfigured'),),
-    )
     db_connection = models.ForeignKey(
         DBConnection, null=False, blank=False, on_delete=models.PROTECT,
         related_name='layers', verbose_name='Database connection')
@@ -622,6 +624,10 @@ class DBLayerGroup(models.Model):
     can_add = models.BooleanField(_('Can add'), default=True)
     can_update = models.BooleanField(_('Can update'), default=True)
     can_delete = models.BooleanField(_('Can delete'), default=True)
+    data_filter = JSONField(_('data filter'), blank=True, null=True, default=dict)
+    data_filter_status = models.CharField(choices=DATA_FILTER_STATUS_CHOICES,
+                                          max_length=50, null=True, blank=True, editable=False)
+    data_filter_error = models.TextField(null=True, blank=True, editable=False)
 
     def __str__(self):
         return self.group.name
