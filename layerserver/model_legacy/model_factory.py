@@ -9,12 +9,13 @@ from giscube.db.utils import get_table_parts
 from ..widgets import widgets_types
 from .model_table import get_fields
 from .model_table_helpers import random_string
+from .sql_compiler_patch import PostgresCompilerManager
 
 
 models_module = None
 
 
-class FilterDataManager(models.Manager):
+class FilterDataManager(PostgresCompilerManager):
     def __init__(self, *args, **kwargs):
         self.data_filter = kwargs.pop('data_filter')
         super().__init__(*args, **kwargs)

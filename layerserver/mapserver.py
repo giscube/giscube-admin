@@ -49,8 +49,12 @@ class MapserverLayer(WMSProxy):
         service = self.service
         Layer = create_dblayer_model(service)
 
-        qs = Layer.objects.all().aggregate(Extent(service.geom_field))
-        extent = ' '.join(map(str, qs['%s__extent' % service.geom_field]))
+        extent = ''
+        qs = Layer.objects.all()
+        if qs.count() > 0:
+            qs = qs.aggregate(Extent(service.geom_field))
+            extent = ' '.join(map(str, qs['%s__extent' % service.geom_field]))
+            extent = 'EXTENT %s' % extent
 
         suported_srids = ['4326', '3857']
         if service.srid not in suported_srids:
@@ -74,13 +78,20 @@ class MapserverLayer(WMSProxy):
         if geom_type == 'LINESTRING':
             geom_type = 'LINE'
 
+        executable_query = Layer.objects.all().only(service.geom_field, service.geom_field).executable_query
+        executable_query = executable_query.decode('utf8')
+        executable_query = executable_query.replace("'", "\\'")
+        title = (service.title or service.name)
+        title = title.replace("'", "\\'")
+
         vars = {
             'extent': extent,
             'srid': service.srid,
             'name': service.name,
-            'title': (service.title or service.name).replace("'", "\'"),
+            'title': title,
             'pk_field': service.pk_field,
             'table_name': service.table,
+            'qs': executable_query,
             'geom_type': geom_type,
             'geom_field': service.geom_field,
             'wms_srs': ' '.join('EPSG:%s' % x for x in suported_srids),
@@ -98,7 +109,7 @@ class MapserverLayer(WMSProxy):
         MAP
             NAME '{name}'
             UNITS METERS
-            EXTENT  {extent}
+            {extent}
 
             WEB
               TEMPPATH "{temppath}"
@@ -167,7 +178,7 @@ class MapserverLayer(WMSProxy):
                 TYPE {geom_type}
                 CONNECTIONTYPE {connection_type}
                 CONNECTION "{connection_str}"
-                DATA '{geom_field} from {table_name} using unique {pk_field} using srid={srid}'
+                DATA '{geom_field} from ({qs}) AS query using unique {pk_field} using srid={srid}'
                 METADATA
                     "wms_name" '{name}'
                     "wms_title" '{title}'
