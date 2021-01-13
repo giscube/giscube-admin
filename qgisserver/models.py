@@ -96,14 +96,15 @@ class Service(TileCacheModelMixin, models.Model):
 
     @property
     def service_internal_url(self):
-        server_url = settings.GISCUBE_QGIS_SERVER_URL
-        mapfile = "map=%s" % self.project_file.path
-        if '?' not in server_url:
-            server_url = '%s?' % server_url
-        if not server_url.endswith('?'):
-            server_url = '%s&' % server_url
-        url = "%s%s" % (server_url, mapfile)
-        return url
+        if self.project_file:
+            server_url = settings.GISCUBE_QGIS_SERVER_URL
+            mapfile = "map=%s" % self.project_file.path
+            if '?' not in server_url:
+                server_url = '%s?' % server_url
+            if not server_url.endswith('?'):
+                server_url = '%s&' % server_url
+            url = "%s%s" % (server_url, mapfile)
+            return url
 
     @property
     def anonymous_view(self):
@@ -142,7 +143,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
     new_file = instance.project_file
     if not old_file == new_file:
-        if os.path.exists(old_file.path) and os.path.isfile(old_file.path):
+        if old_file and os.path.exists(old_file.path) and os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
 
