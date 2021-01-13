@@ -87,6 +87,7 @@ INSTALLED_APPS += [
     'django_vue_tabs',
 
     'leaflet',
+    'sql_compiler',
 
     # django
     'django.contrib.gis',
