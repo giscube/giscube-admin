@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import zipfile
@@ -21,6 +22,9 @@ from .admin_forms import ServiceChangeForm
 from .models import Project, Service, ServiceMetadata, ServiceResource, project_unique_service_directory
 from .signals import service_project_updated, service_updated
 from .utils import unique_service_directory
+
+
+db_logger = logging.getLogger('db')
 
 
 class ServiceMetadataInline(MetadataInlineMixin):
@@ -135,7 +139,8 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                     name = form.cleaned_data['project'].name
                     file = ContentFile(form.cleaned_data['project'].file.getvalue())
                     obj.project_file.save(name, file, save=True)
-            except Exception:
+            except Exception as e:
+                db_logger.exception(e)
                 messages.error(request, _('Is not possible to save %s' % form.cleaned_data['project'].name))
             else:
                 service_project_updated.send(sender=self.__class__, service=self)
