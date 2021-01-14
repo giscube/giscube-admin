@@ -143,10 +143,12 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                 db_logger.exception(e)
                 messages.error(request, _('Is not possible to save %s' % form.cleaned_data['project'].name))
             else:
-                service_project_updated.send(sender=self.__class__, service=self)
+                # FIXME: remove signals usage
+                service_project_updated.send(sender=self.__class__, obj=obj)
 
         if form.is_valid():
-            service_updated.send(sender=self.__class__, service=self)
+            # FIXME: remove signals usage
+            service_updated.send(sender=self.__class__, obj=obj)
 
 
 if not settings.GISCUBE_GIS_SERVER_DISABLED:

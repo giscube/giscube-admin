@@ -7,4 +7,4 @@ class QGisServerConfig(AppConfig):
     verbose_name = _('QGIS Projects Manager')
 
     def ready(self):
-        from . import signals  # noqa
+        from . import handlers  # noqa
