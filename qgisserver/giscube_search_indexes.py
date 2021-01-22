@@ -32,14 +32,15 @@ class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIn
                 'url': url,
                 'layers': obj.default_layer or '',
                 'projection': '3857',
+                'giscube': {
+                    'single_image': obj.wms_single_image,
+                }
             })
         children.append(service)
         return children + super().prepare_children(obj)
 
     def prepare_output_data(self, obj):
         output_data = super().prepare_output_data(obj)
-        if not obj.tilecache_enabled:
-            output_data['options']['single_image'] = obj.wms_single_image
         return output_data
 
 
