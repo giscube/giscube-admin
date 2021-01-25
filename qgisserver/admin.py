@@ -123,8 +123,9 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
             try:
                 if not obj.service_path:
                     unique_service_directory(obj)
-                mapdata_dir = os.path.join(settings.MEDIA_ROOT, obj.service_path, 'mapdata')
-                if obj.project_file and obj.project_file.name and not obj.project_file.name.startswith(mapdata_dir):
+                mapdata_path = os.path.join(obj.service_path, 'mapdata')
+                mapdata_dir = os.path.join(settings.MEDIA_ROOT, mapdata_path)
+                if obj.project_file and obj.project_file.name and not obj.project_file.name.startswith(mapdata_path):
                     os.remove(os.path.join(settings.MEDIA_ROOT, obj.project_file.name))
                 if os.path.exists(mapdata_dir):
                     shutil.rmtree(mapdata_dir)
