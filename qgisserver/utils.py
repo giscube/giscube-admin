@@ -1,5 +1,8 @@
+import base64
+import json
 import os
 
+from pathlib import Path
 from xml.etree import ElementTree as ET
 
 import requests
@@ -66,9 +69,7 @@ def update_external_service(service_pk):
     data = dict(ServiceSerializer(service).data)
     data['active'] = True
 
-    headers = {}
-    project_file = None
-    files = None
+    headers = {'Content-type': 'application/json'}
 
     file_name = os.path.basename(service.project_file.name)
     file_path = os.path.join(settings.MEDIA_ROOT, service.project_file.name)
@@ -84,25 +85,23 @@ def update_external_service(service_pk):
         data['category'] = get_or_create_category(server.url, headers, service.category)
 
         # Service
-        project_file = open(file_path, 'rb')
-        files = {'project_file': (file_name, project_file, "text/xml")}
+        file_name = Path(file_path).name
+        with open(file_path, 'rb') as project_file:
+            project_content = base64.b64encode(project_file.read()).decode('utf-8')
+            data['project_file'] = f'data:text/xml;charset=utf8-8;name={file_name};base64,{project_content}'
+
         # Update or create server
         response = requests.put(
             '%s%s' % (server.url, api_put_url),
-            data=data,
-            headers=headers,
-            files=files
+            data=json.dumps(data),
+            headers=headers
         )
-        project_file.close()
 
         if response.status_code == 404:
-            project_file = open(file_path, 'rb')
-            files = {'project_file': (file_name, project_file, "text/xml")}
             response = requests.post(
                 '%s%s' % (server.url, api_post_url),
-                data=data,
-                headers=headers,
-                files=files
+                data=json.dumps(data),
+                headers=headers
             )
             project_file.close()
             if response.status_code != status.HTTP_201_CREATED:
