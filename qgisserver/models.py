@@ -2,6 +2,7 @@ import os
 import shutil
 
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.dispatch import receiver
@@ -58,9 +59,6 @@ class Service(TileCacheModelMixin, models.Model):
         _('project file'), upload_to=project_unique_service_directory)
     service_path = models.CharField(_('service path'), max_length=255)
     active = models.BooleanField(_('active'), default=True, help_text='Enable/disable usage')
-    visibility = models.CharField(_('visibility'), max_length=10, default='private',
-                                  help_text='visibility=\'Private\' restricts usage to authenticated users',
-                                  choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(_('visible on geoportal'), default=False)
     wms_getfeatureinfo_enabled = models.BooleanField(
         _('WMS GetFeatureInfo enabled'), default=True
@@ -86,6 +84,9 @@ class Service(TileCacheModelMixin, models.Model):
     tilecache_transparent = models.BooleanField(_('force transparent'), default=True)
     wms_single_image = models.BooleanField(_('prefer single image'), default=False)
 
+    anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
+    authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
+
     @property
     def default_layer(self):
         if self.project_file:
@@ -108,10 +109,6 @@ class Service(TileCacheModelMixin, models.Model):
                 server_url = '%s&' % server_url
             url = "%s%s" % (server_url, mapfile)
             return url
-
-    @property
-    def anonymous_view(self):
-        return not (self.visibility == 'private')
 
     def __str__(self):
         return str(self.title or self.name)
@@ -182,6 +179,34 @@ class ServiceMetadata(MetadataModelMixin):
 
 class ServiceResource(ResourceModelMixin):
     parent = models.ForeignKey(Service, related_name='resources', on_delete=models.CASCADE)
+
+
+class ServiceGroupPermission(models.Model):
+    layer = models.ForeignKey(Service, related_name='group_permissions', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, verbose_name=_('Group'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+    can_write = models.BooleanField(_('Can write'), default=True)
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
+
+
+class ServiceUserPermission(models.Model):
+    layer = models.ForeignKey(Service, related_name='user_permissions', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+    can_write = models.BooleanField(_('Can write'), default=True)
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
 
 
 class Project(models.Model):

@@ -304,6 +304,7 @@ REST_FRAMEWORK = {
         'drf_ujson.parsers.UJSONParser',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'URL_FORMAT_OVERRIDE': '_format',
 }
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2621440 * 10

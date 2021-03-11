@@ -3,17 +3,22 @@ import os
 
 import requests
 
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.cache import patch_response_headers
-from django.views.generic import View
+
+import oauth2_provider
+import rest_framework.authentication
+
+from rest_framework.views import APIView
 
 from giscube.tilecache.caches import GiscubeServiceCache
 from giscube.tilecache.image import tile_cache_image
 from giscube.tilecache.proj import GoogleProjection
 from giscube.utils import get_service_wms_bbox
-from giscube.views_mixins import WMSProxyBufferViewMixin
+from giscube.views_mixins import WMSProxyBufferMixin
 from giscube.views_utils import web_map_view
 
 from .models import Service
@@ -22,8 +27,54 @@ from .models import Service
 logger = logging.getLogger(__name__)
 
 
-class QGISServerWMSView(WMSProxyBufferViewMixin):
+class View(APIView):
+    authentication_classes = (
+        rest_framework.authentication.SessionAuthentication,
+        oauth2_provider.contrib.rest_framework.OAuth2Authentication
+    )
+    permission_classes = ()
+    model = Service
 
+
+class ServiceMixin:
+    def get_queryset(self, *args, **kwargs):
+        qs = self.model.objects.filter(active=True)
+        filter_anonymous = Q(anonymous_view=True)
+
+        if self.request.user.is_anonymous:
+            qs = qs.filter(filter_anonymous)
+        else:
+            self.user_groups = self.request.user.groups.values_list('name', flat=True)
+            filter_authenticated_user_view = Q(authenticated_user_view=True)
+            filter_group = (
+                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_view=True))
+            filter_user = Q(user_permissions__user=self.request.user) & Q(
+                user_permissions__can_view=True)
+            qs = qs.filter(
+                filter_anonymous | filter_authenticated_user_view | filter_user | filter_group).distinct()
+
+        return qs
+
+    def get_queryset_can_write(self, *args, **kwargs):
+        qs = self.model.objects.filter(active=True)
+        filter_anonymous = Q(anonymous_write=True)
+
+        if self.request.user.is_anonymous:
+            qs = qs.filter(filter_anonymous)
+        else:
+            self.user_groups = self.request.user.groups.values_list('name', flat=True)
+            filter_authenticated_user_view = Q(authenticated_user_write=True)
+            filter_group = (
+                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_write=True))
+            filter_user = Q(user_permissions__user=self.request.user) & Q(
+                user_permissions__can_write=True)
+            qs = qs.filter(
+                filter_anonymous | filter_authenticated_user_view | filter_user | filter_group).distinct()
+
+        return qs
+
+
+class QGISServerWMSView(ServiceMixin, WMSProxyBufferMixin, View):
     def get_wms_buffer_enabled(self):
         return self.service.wms_buffer_enabled
 
@@ -40,20 +91,19 @@ class QGISServerWMSView(WMSProxyBufferViewMixin):
         return True
 
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        self.service = service
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        self.service = get_object_or_404(self.get_queryset(), name=service_name)
+
         if not self.is_request_parameter_allowed(request.GET):
             return HttpResponseForbidden()
+
         return super().get(request)
 
     def do_post(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        get_object_or_404(self.get_queryset_can_write(), name=service_name)
+
         if not self.is_request_parameter_allowed(request.POST):
             return HttpResponseForbidden()
+
         url = self.build_url(request)
         return requests.post(url, data=request.body)
 
@@ -63,14 +113,11 @@ class QGISServerWMSView(WMSProxyBufferViewMixin):
         return url
 
 
-class QGISServerTileCacheView(View):
-
+class QGISServerTileCacheView(ServiceMixin, View):
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        service = get_object_or_404(self.get_queryset(), name=service_name)
         data = {}
-        if service.tilecache_enabled:
+        if self.service.tilecache_enabled:
             data.update(
                 {
                     'bbox': service.tilecache_bbox,
@@ -81,8 +128,7 @@ class QGISServerTileCacheView(View):
         return JsonResponse(data)
 
 
-class QGISServerTileCacheTilesView(View):
-
+class QGISServerTileCacheTilesView(ServiceMixin, View):
     def build_url(self, service):
         url = service.service_internal_url
         if service.tilecache_transparent:
@@ -90,12 +136,7 @@ class QGISServerTileCacheTilesView(View):
         return url
 
     def get(self, request, service_name, z, x, y, image_format='png'):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
-
-        if not service.tilecache_enabled:
-            raise Http404
+        service = get_object_or_404(self.get_queryset(), name=service_name, tilecache_enabled=True)
 
         if z < service.tilecache_minzoom_level or z > service.tilecache_maxzoom_level:
             return HttpResponseBadRequest()
@@ -126,12 +167,10 @@ class QGISServerTileCacheTilesView(View):
         return proj.project(bbox[:2]) + proj.project(bbox[2:])
 
 
-class QGISServerMapViewerView(View):
-
+class QGISServerMapViewerView(ServiceMixin, View):
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        service = get_object_or_404(self.get_queryset(), name=service_name)
+
         layers = []
         layers.append(
             {

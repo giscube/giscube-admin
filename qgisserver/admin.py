@@ -19,7 +19,8 @@ from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
 
 from .admin_forms import ServiceChangeForm
-from .models import Project, Service, ServiceMetadata, ServiceResource, project_unique_service_directory
+from .models import (Project, Service, ServiceGroupPermission, ServiceMetadata, ServiceResource, ServiceUserPermission,
+                     project_unique_service_directory)
 from .signals import service_project_updated, service_updated
 from .utils import unique_service_directory
 
@@ -42,23 +43,45 @@ class ServiceResourceInline(admin.StackedInline):
     classes = ('tab-resources',)
 
 
+class ServiceGroupPermissionsInline(admin.TabularInline):
+    model = ServiceGroupPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('Group')
+    verbose_name_plural = _('Groups')
+
+
+class ServiceUserPermissionsInline(admin.TabularInline):
+    model = ServiceUserPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('User')
+    verbose_name_plural = _('Users')
+
+
 class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
-    list_display = ('title', 'url_wms', 'visibility', 'visible_on_geoportal',)
-    list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visibility',
+    list_display = ('title', 'url_wms', 'visible_on_geoportal',)
+    list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visible_on_geoportal',
                    'visible_on_geoportal')
-    exclude = ('service_path', 'active')
+    exclude = ('service_path',)
     search_fields = ('name', 'title', 'keywords')
     filter_horizontal = ('servers',)
-    inlines = (ServiceMetadataInline, ServiceResourceInline,)
+    inlines = (
+        ServiceMetadataInline,
+        ServiceResourceInline,
+        ServiceGroupPermissionsInline,
+        ServiceUserPermissionsInline
+    )
     readonly_fields = ('project_file',)
 
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),
         (_('Design'), ('tab-design',)),
+        (_('Permissions'), ('tab-permissions',)),
         (_('Metadata'), ('tab-metadata',)),
         (_('Resources'), ('tab-resources',)),
 
@@ -70,7 +93,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'visibility', 'visible_on_geoportal',
+                'description', 'keywords', 'active', 'visible_on_geoportal',
                 'project',
                 'project_file'
             ],
@@ -95,7 +118,13 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                 'servers',
             ],
             'classes': ('tab-servers',),
-        })
+        }),
+        (_('Basic permissions'), {
+            'fields': [
+                'anonymous_view', 'authenticated_user_view',
+            ],
+            'classes': ('tab-permissions',),
+        }),
     ]
 
     def get_search_results(self, request, queryset, search_term):
@@ -144,7 +173,8 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                     obj.project_file.save(name, file, save=True)
             except Exception as e:
                 db_logger.exception(e)
-                messages.error(request, _('Is not possible to save %s' % form.cleaned_data['project'].name))
+                messages.error(request, _('Is not possible to save %s' %
+                                          form.cleaned_data['project'].name))
             else:
                 # FIXME: remove signals usage
                 service_project_updated.send(sender=self.__class__, obj=obj)
