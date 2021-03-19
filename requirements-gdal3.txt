@@ -15,7 +15,7 @@ django-sql-compiler==0.0.5a0
 -e git+https://github.com/giscube/django-theme-giscube.git@django3#egg=django_theme_giscube
 django-url-filter==0.3.15
 django-vue-tabs==0.0.12
-djangorestframework==3.11.1
+djangorestframework==3.11.2
 djangorestframework-gis==0.16
 drf-ujson2==1.6.1
 GDAL==3.0.4
