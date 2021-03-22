@@ -33,16 +33,26 @@ class QGISServerWMSView(WMSProxyBufferViewMixin):
     def get_wms_tile_sizes(self):
         return (self.service.wms_tile_sizes or '').splitlines()
 
+    def is_request_parameter_allowed(self, parameters):
+        fixed = {key.upper(): value.upper() for key, value in parameters.items()}
+        if fixed.get('REQUEST') == 'GETFEATUREINFO' and not self.service.wms_getfeatureinfo_enabled:
+            return False
+        return True
+
     def get(self, request, service_name):
         service = get_object_or_404(Service, name=service_name, active=True)
         self.service = service
         if service.visibility == 'private' and not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        if not self.is_request_parameter_allowed(request.GET):
             return HttpResponseForbidden()
         return super().get(request)
 
     def do_post(self, request, service_name):
         service = get_object_or_404(Service, name=service_name, active=True)
         if service.visibility == 'private' and not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        if not self.is_request_parameter_allowed(request.POST):
             return HttpResponseForbidden()
         url = self.build_url(request)
         return requests.post(url, data=request.body)

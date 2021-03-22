@@ -34,6 +34,7 @@ class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIn
                 'projection': '3857',
                 'giscube': {
                     'single_image': obj.wms_single_image,
+                    'getfeatureinfo_support': obj.wms_getfeatureinfo_enabled,
                 }
             })
         children.append(service)
@@ -41,6 +42,8 @@ class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIn
 
     def prepare_output_data(self, obj):
         output_data = super().prepare_output_data(obj)
+        output_data['options']['single_image'] = getattr(obj, 'wms_single_image', False)
+        output_data['options']['getfeatureinfo_support'] = getattr(obj, 'wms_getfeatureinfo_enabled', False)
         return output_data
 
 

@@ -62,6 +62,9 @@ class Service(TileCacheModelMixin, models.Model):
                                   help_text='visibility=\'Private\' restricts usage to authenticated users',
                                   choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(_('visible on geoportal'), default=False)
+    wms_getfeatureinfo_enabled = models.BooleanField(
+        _('WMS GetFeatureInfo enabled'), default=True
+    )
     wms_buffer_enabled = models.BooleanField(
         _('buffer enabled'), default=False
     )
