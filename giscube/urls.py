@@ -67,6 +67,11 @@ if not settings.GISCUBE_LAYERSERVER_DISABLED:
         path('admin/api/v1/layerserver/', include('layerserver.admin_api_urls'))
     ]
 
+if not settings.IS_AUTHENTICATED_DISABLED:
+    urlpatterns += [
+        path('is_authenticated', views.is_authenticated),
+    ]
+
 # try:
 #     import tilescache
 #     if tilescache.giscube:
