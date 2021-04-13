@@ -3,10 +3,11 @@ import os
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import FileResponse, Http404, HttpResponseForbidden
+from django.http import FileResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
+from django.views.decorators.cache import never_cache
 from django.views.static import serve
 
 from rest_framework.views import APIView
@@ -80,3 +81,12 @@ class ResourceFileServer(GeoportalMixin, FilterByUserMixin, APIView):
         show_indexes = False
         path = os.path.join(module, model, force_str(pk), 'resource', file)
         return serve(request, path, document_root, show_indexes)
+
+
+@never_cache
+def is_authenticated(request):
+    success = request.user.is_authenticated
+    if success:
+        return HttpResponse('true')
+    else:
+        return HttpResponseForbidden()
