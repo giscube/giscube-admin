@@ -209,6 +209,8 @@ VAR_ROOT = os.environ.get('VAR_ROOT', VAR_ROOT)
 SESSION_COOKIE_NAME = 'sessionid_%s' % APP_URL.replace('/', '_')
 SESSION_COOKIE_PATH = '%s/' % APP_URL
 
+IS_AUTHENTICATED_DISABLED = os.environ.get('IS_AUTHENTICATED_DISABLED', 'False').lower() == 'true'
+
 # corsheaders
 CORS_ORIGIN_ALLOW_ALL = os.getenv('CORS_ORIGIN_ALLOW_ALL',
                                   'False').lower() == 'true'
