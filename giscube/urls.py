@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 
 from oauth2_provider import views as oauth2_views
+from django.contrib.auth import views as auth_views
 from rest_framework import routers
 
 from giscube import api
@@ -32,6 +33,11 @@ urlpatterns = [
     # url(r'^$', 'giscube.views.home', name='home'),
     # url(r'^$', RedirectView.as_view(url='admin'), name='go-to-admin'),
     path('', include('giscube_search.urls')),
+    path('accounts/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),
+         name='password_reset_confirm'),
+    path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('api/v2/giscube/', include('giscube.api_urls_v2')),
     re_path(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
     path('admin/app_admin/', include('app_admin.urls')),

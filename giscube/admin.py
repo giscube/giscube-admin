@@ -1,15 +1,23 @@
 from functools import update_wrapper
+from tablib import Dataset as TablibDataset
 
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.db.models.functions import Concat
-from django.http import JsonResponse
+from django.urls import reverse
+from django.http import JsonResponse, HttpResponse
 from django.urls import re_path
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
+
 
 from .admin_forms import DBConnectionForm
 from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
@@ -20,6 +28,43 @@ from .models import (Category, Dataset, DatasetGroupPermission, DatasetMetadata,
 admin.site.site_title = settings.ADMIN_SITE_TITLE
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 admin.site.index_title = settings.ADMIN_INDEX_TITLE
+
+
+def get_reset_password_link(request, user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk)),
+    token = default_token_generator.make_token(user)
+    url = reverse('password_reset_confirm', kwargs={'uidb64': uid[0], 'token': token})
+    url = request.build_absolute_uri(url)
+    return url
+
+
+def recover_password(modeladmin, request, queryset):
+    headers = ('username', 'first_name', 'last_name', 'reset_password_link')
+    data = TablibDataset(headers=headers)
+
+    for user in queryset:
+        data.append([
+            user.username,
+            user.first_name,
+            user.last_name,
+            get_reset_password_link(request, user)
+        ])
+
+    response = HttpResponse(data.export('csv'), 'text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users.csv"'
+    return response
+
+
+recover_password.short_description = 'CSV per recuperació de contrassenyes'
+
+
+class UserAdmin(BaseUserAdmin):
+    actions = list(BaseUserAdmin.actions) + [recover_password]
+
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 
 
 @admin.register(Category)

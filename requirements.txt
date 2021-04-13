@@ -26,5 +26,6 @@ psycopg2==2.8.6 --no-binary psycopg2
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
 redis==3.3.11
 requests==2.24.0
+tablib==3.0.0
 sentry-sdk==0.14.0
 ujson==3.2.0
