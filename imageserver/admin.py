@@ -10,7 +10,8 @@ from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
 
 from .admin_forms import ServiceChangeForm
-from .models import Layer, NamedMask, Service, ServiceLayer, ServiceMetadata, ServiceResource
+from .models import (Layer, NamedMask, Service, ServiceGroupPermission, ServiceLayer, ServiceMetadata, ServiceResource,
+                     ServiceUserPermission)
 
 
 class ServiceLayerInline(admin.TabularInline):
@@ -29,21 +30,41 @@ class ServiceResourceInline(admin.StackedInline):
     classes = ('tab-resources',)
 
 
+class ServiceGroupPermissionsInline(admin.TabularInline):
+    model = ServiceGroupPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('Group')
+    verbose_name_plural = _('Groups')
+
+
+class ServiceUserPermissionsInline(admin.TabularInline):
+    model = ServiceUserPermission
+    extra = 0
+    classes = ('tab-permissions',)
+    verbose_name = _('User')
+    verbose_name_plural = _('Users')
+
+
 class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/imageserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
-    list_filter = (('category', RelatedDropdownFilter), 'visibility', 'visible_on_geoportal')
+    list_filter = (('category', RelatedDropdownFilter), 'visible_on_geoportal')
     search_fields = ('title',)
     readonly_fields = ('extent',)
-    inlines = (ServiceLayerInline, ServiceMetadataInline, ServiceResourceInline,)
-
+    inlines = (
+        ServiceLayerInline, ServiceMetadataInline, ServiceResourceInline,
+        ServiceGroupPermissionsInline,
+        ServiceUserPermissionsInline
+    )
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),
         (_('Layers'), ('tab-layers',)),
         (_('Design'), ('tab-design',)),
+        (_('Permissions'), ('tab-permissions',)),
         (_('Metadata'), ('tab-metadata',)),
         (_('Resources'), ('tab-resources',)),
         (_('Tile Cache'), ('tab-tilecache',)),
@@ -53,7 +74,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visibility', 'visible_on_geoportal'
+                'description', 'keywords', 'active', 'visible_on_geoportal'
             ],
             'classes': ('tab-information',),
         }),
@@ -68,6 +89,12 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                 'legend',
             ],
             'classes': ('tab-design',),
+        }),
+        (_('Basic permissions'), {
+            'fields': [
+                'anonymous_view', 'authenticated_user_view',
+            ],
+            'classes': ('tab-permissions',),
         }),
     ]
 

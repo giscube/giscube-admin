@@ -3,13 +3,13 @@ from django.urls import reverse
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
 from giscube.giscube_search_indexes_mixins import ResourcesIndexMixin
-from giscube.indexes_mixin import VisibilityIndexMixin
+from giscube.indexes_mixin import PermissionIndexMixin
 from giscube.utils import url_slash_join
 
 from .models import Service
 
 
-class ServiceSearch(ResourcesIndexMixin, VisibilityIndexMixin, GeoportalSearchIndexMixin):
+class ServiceSearch(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIndexMixin):
 
     def prepare_children(self, obj):
         children = []
