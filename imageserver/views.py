@@ -72,7 +72,7 @@ class ImageServerWMSView(ServiceMixin, WMSProxyMixin, View):
         return response
 
     def do_post(self, request, service_name):
-        get_object_or_404(self.get_queryset(), name=service_name)
+        self.service = get_object_or_404(self.get_queryset(), name=service_name)
         url = self.build_url(request)
         return requests.post(url, data=request.body)
 

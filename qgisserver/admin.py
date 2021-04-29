@@ -173,8 +173,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                     obj.project_file.save(name, file, save=True)
             except Exception as e:
                 db_logger.exception(e)
-                messages.error(request, _('Is not possible to save %s' %
-                                          form.cleaned_data['project'].name))
+                messages.error(request, _('Is not possible to save %s' % form.cleaned_data['project'].name))
             else:
                 # FIXME: remove signals usage
                 service_project_updated.send(sender=self.__class__, obj=obj)

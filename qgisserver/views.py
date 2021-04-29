@@ -63,13 +63,13 @@ class ServiceMixin:
             qs = qs.filter(filter_anonymous)
         else:
             self.user_groups = self.request.user.groups.values_list('name', flat=True)
-            filter_authenticated_user_view = Q(authenticated_user_write=True)
+            filter_authenticated_user_write = Q(authenticated_user_write=True)
             filter_group = (
                 Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_write=True))
             filter_user = Q(user_permissions__user=self.request.user) & Q(
                 user_permissions__can_write=True)
             qs = qs.filter(
-                filter_anonymous | filter_authenticated_user_view | filter_user | filter_group).distinct()
+                filter_anonymous | filter_authenticated_user_write | filter_user | filter_group).distinct()
 
         return qs
 
@@ -99,7 +99,7 @@ class QGISServerWMSView(ServiceMixin, WMSProxyBufferMixin, View):
         return super().get(request)
 
     def do_post(self, request, service_name):
-        get_object_or_404(self.get_queryset_can_write(), name=service_name)
+        self.service = get_object_or_404(self.get_queryset_can_write(), name=service_name)
 
         if not self.is_request_parameter_allowed(request.POST):
             return HttpResponseForbidden()
@@ -117,7 +117,7 @@ class QGISServerTileCacheView(ServiceMixin, View):
     def get(self, request, service_name):
         service = get_object_or_404(self.get_queryset(), name=service_name)
         data = {}
-        if self.service.tilecache_enabled:
+        if service.tilecache_enabled:
             data.update(
                 {
                     'bbox': service.tilecache_bbox,
