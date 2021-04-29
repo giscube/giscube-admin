@@ -29,6 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('can_view', models.BooleanField(default=True, verbose_name='Can view')),
+                ('can_write', models.BooleanField(default=True, verbose_name='Can write')),
                 ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_permissions', to='qgisserver.Service')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
@@ -42,6 +43,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('can_view', models.BooleanField(default=True, verbose_name='Can view')),
+                ('can_write', models.BooleanField(default=True, verbose_name='Can write')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.Group', verbose_name='Group')),
                 ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='qgisserver.Service')),
             ],
