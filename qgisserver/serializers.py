@@ -25,6 +25,11 @@ class Base64Field(serializers.FileField):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if not self.instance and 'username' in data and data['username']:
+            self.instance = User.objects.filter(username=data['username']).first()
+        return super().to_internal_value(data)
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -32,6 +37,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ServiceUserPermissionSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+
+    def to_internal_value_(self, data):
+        if not self.instance and 'user' in data and 'username' in data and data['username']:
+            self.instance = ServiceUserPermission.objects.filter(user__username=data['user']['username']).first()
+        return super().to_internal_value(data)
 
     class Meta:
         model = ServiceUserPermission
@@ -90,12 +100,12 @@ class ServiceSerializer(serializers.ModelSerializer):
         usernames = []
         for permission in user_permissions:
             permission_user = permission['user']
-            user, _ = User.objects.get_or_create(
+            user, _ = User.objects.update_or_create(
                 username=permission_user['username'],
                 defaults={'email': permission_user['email']}
             )
             usernames.append(user.username)
-            ServiceUserPermission.objects.get_or_create(
+            ServiceUserPermission.objects.update_or_create(
                 layer=instance,
                 user=user,
                 defaults={'can_view': permission['can_view'], 'can_write': permission['can_write']}
@@ -103,17 +113,17 @@ class ServiceSerializer(serializers.ModelSerializer):
 
         group_names = []
         for permission in group_permissions:
-            group, _ = Group.objects.get_or_create(
+            group, _ = Group.objects.update_or_create(
                 name=permission['group']['name']
             )
-            ServiceGroupPermission.objects.get_or_create(
+            group_names.append(group.name)
+            ServiceGroupPermission.objects.update_or_create(
                 layer=instance,
                 group=group,
                 defaults={'can_view': permission['can_view'], 'can_write': permission['can_write']}
             )
         instance.user_permissions.exclude(user__username__in=(usernames)).delete()
         instance.group_permissions.exclude(group__name__in=(group_names)).delete()
-
         return super().update(instance, validated_data)
 
     class Meta:
