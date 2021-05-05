@@ -38,17 +38,17 @@ class UserSerializer(serializers.ModelSerializer):
 class ServiceUserPermissionSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
-    def to_internal_value_(self, data):
-        if not self.instance and 'user' in data and 'username' in data and data['username']:
-            self.instance = ServiceUserPermission.objects.filter(user__username=data['user']['username']).first()
-        return super().to_internal_value(data)
-
     class Meta:
         model = ServiceUserPermission
         fields = ('user', 'can_view', 'can_write')
 
 
 class GroupSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if not self.instance and 'name' in data and data['name']:
+            self.instance = Group.objects.filter(name=data['name']).first()
+        return super().to_internal_value(data)
+
     class Meta:
         model = Group
         fields = ('name',)
@@ -69,8 +69,8 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        user_permissions = validated_data.pop('user_permissions')
-        group_permissions = validated_data.pop('group_permissions')
+        user_permissions = validated_data.pop('user_permissions', [])
+        group_permissions = validated_data.pop('group_permissions', [])
         service = super().create(validated_data)
         for permission in user_permissions:
             permission_user = permission['user']
@@ -95,8 +95,8 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        user_permissions = validated_data.pop('user_permissions')
-        group_permissions = validated_data.pop('group_permissions')
+        user_permissions = validated_data.pop('user_permissions', [])
+        group_permissions = validated_data.pop('group_permissions', [])
         usernames = []
         for permission in user_permissions:
             permission_user = permission['user']
@@ -113,7 +113,7 @@ class ServiceSerializer(serializers.ModelSerializer):
 
         group_names = []
         for permission in group_permissions:
-            group, _ = Group.objects.update_or_create(
+            group, _ = Group.objects.get_or_create(
                 name=permission['group']['name']
             )
             group_names.append(group.name)
