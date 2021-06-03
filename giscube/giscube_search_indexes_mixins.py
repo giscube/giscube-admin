@@ -24,6 +24,8 @@ class ResourcesIndexMixin:
                     'single_image': r.single_image,
                     'downloadable': r.downloadable,
                     'content_type': r.content_type,
+                    'separate_layers': r.separate_layers,
+                    'layer_list': r.layer_list,
                 }
             })
         return children
