@@ -2,8 +2,11 @@ import os
 import textwrap
 
 from model_utils import Choices
+from owslib.wms import WebMapService
 
+from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
+from django.core.validators import URLValidator
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -61,6 +64,31 @@ class ResourceModelMixin(models.Model):
     getfeatureinfo_support = models.BooleanField(_('WMS GetFeatureInfo support'), default=True)
     single_image = models.BooleanField(_('use single image'), default=False)
     downloadable = models.BooleanField(_('downloadable'), default=False)
+    separate_layers = models.BooleanField(_('use separate layers'), default=False)
+    layer_list = models.TextField(_('layer_list'), null=True, blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_url = self.url
+        self.__original_separate_layers = self.separate_layers
+
+    def clean(self):
+        url_validator = URLValidator()
+        if self.url:
+            try:
+                url_validator(self.url)
+            except ValidationError:
+                raise ValidationError({'url': _('This URL is not valid.')})
+        if self.separate_layers and self.url:
+            if (self.url != self.__original_url or self.__original_separate_layers != self.separate_layers or
+                    self.layer_list is None):
+                try:
+                    wms = WebMapService(self.url)
+                    self.layer_list = ','.join(list(wms.contents))
+                except Exception:
+                    raise ValidationError({'url': _('This URL is not a valid WMS endpoint.')})
+        else:
+            self.layer_list = None
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
