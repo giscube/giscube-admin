@@ -311,7 +311,7 @@ class MetadataCategory(models.Model):
 
 class BaseLayer(models.Model):
     name = models.CharField(_('name'), max_length=255)
-    properties = JSONField(_('properties'), null=True, blank=True)
+    properties = JSONField(_('properties'), default=dict)
 
     def __str__(self):
         return self.name
