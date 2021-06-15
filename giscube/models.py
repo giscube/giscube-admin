@@ -307,3 +307,34 @@ class MetadataCategory(models.Model):
     class Meta:
         verbose_name = _('metadata category')
         verbose_name_plural = _('metadata categories')
+
+
+class BaseLayer(models.Model):
+    name = models.CharField(_('name'), max_length=255)
+    properties = JSONField(_('properties'), null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class MapConfig(models.Model):
+    name = models.CharField(_('name'), max_length=50, unique=True)
+    center_lat = models.DecimalField(_('center latitude'), max_digits=8, decimal_places=6)
+    center_lng = models.DecimalField(_('center longitude'), max_digits=9, decimal_places=6)
+    initial_zoom = models.PositiveIntegerField(_('initial zoom'))
+
+    def __str__(self):
+        return self.name
+
+
+class MapConfigBaseLayer(models.Model):
+    map_config = models.ForeignKey(MapConfig, on_delete=models.CASCADE, related_name='baselayers',
+                                   verbose_name=_('map configuration'))
+    base_layer = models.ForeignKey(BaseLayer, on_delete=models.CASCADE, verbose_name=_('base layer'))
+    order = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.map_config.name
+
+    class Meta:
+        ordering = ['order']
