@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('layerserver', '0041_auto_20190612_1532'),
+        ('layerserver', '0030_auto_20201221_1431'),
     ]
 
     operations = [
