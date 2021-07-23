@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('giscube', '0023_auto_20201119_0610'),
+        ('giscube', '0024_auto_20210610_1311'),
     ]
 
     operations = [
