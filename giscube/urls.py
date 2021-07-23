@@ -64,8 +64,9 @@ if not settings.GISCUBE_GIS_SERVER_DISABLED:
 
 if not settings.GISCUBE_GEOPORTAL_DISABLED:
     urlpatterns += [
-        path('geoportal/', include('geoportal.urls'))
+        path('geoportal/', include('geoportal.urls')),
     ]
+    router.register(r'mapconfig', api.MapConfigViewSet, basename='map_config')
 
 if not settings.GISCUBE_LAYERSERVER_DISABLED:
     urlpatterns += [

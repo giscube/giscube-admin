@@ -21,8 +21,8 @@ from django_vue_tabs.admin import TabsMixin
 
 from .admin_forms import DBConnectionForm
 from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
-from .models import (Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetResource,
-                     DatasetUserPermission, DBConnection, MetadataCategory, Server)
+from .models import (BaseLayer, Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetResource,
+                     DatasetUserPermission, DBConnection, MapConfig, MapConfigBaseLayer, MetadataCategory, Server)
 
 
 admin.site.site_title = settings.ADMIN_SITE_TITLE
@@ -237,3 +237,33 @@ class LogEntryAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
+
+
+class MapConfigBaseLayerInline(admin.TabularInline):
+    model = MapConfigBaseLayer
+    extra = 0
+    verbose_name = _('Base layer')
+    verbose_name_plural = _('Base layers')
+
+
+@admin.register(MapConfig)
+class MapConfigAdmin(admin.ModelAdmin):
+    list_display = ('name', 'center_lat', 'center_lng', 'initial_zoom',)
+    inlines = (MapConfigBaseLayerInline, )
+
+    fieldsets = [
+        (None, {
+            'fields': ['name'],
+        }),
+        (_('Initial view'), {
+            'fields': [
+                ('center_lat', 'center_lng'), 'initial_zoom'
+            ],
+        }),
+    ]
+
+
+@admin.register(BaseLayer)
+class BaseLayerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'properties')
+    list_editable = ('name', 'properties')

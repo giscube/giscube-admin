@@ -5,8 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from giscube.notifications import notify_deprecated
 
-from .models import Category, UserAsset
-from .serializers import CategorySerializer, UserAssetSerializer
+from .models import Category, MapConfig, UserAsset
+from .serializers import CategorySerializer, MapConfigSerializer, UserAssetSerializer
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -42,3 +42,10 @@ class UserAssetViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixin
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class MapConfigViewSet(viewsets.ModelViewSet):
+    queryset = MapConfig.objects.all()
+    serializer_class = MapConfigSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'name'
