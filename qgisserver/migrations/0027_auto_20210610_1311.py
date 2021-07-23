@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('qgisserver', '0025_auto_20201127_1450'),
+        ('qgisserver', '0026_service_wms_getfeatureinfo_enabled'),
     ]
 
     operations = [
