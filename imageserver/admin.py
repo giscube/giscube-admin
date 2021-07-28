@@ -30,7 +30,7 @@ class ServiceResourceInline(admin.StackedInline):
     classes = ('tab-resources',)
 
 
-class ServiceGroupPermissionsInline(admin.TabularInline):
+class ServiceGroupPermissionInline(admin.TabularInline):
     model = ServiceGroupPermission
     extra = 0
     classes = ('tab-permissions',)
@@ -38,7 +38,7 @@ class ServiceGroupPermissionsInline(admin.TabularInline):
     verbose_name_plural = _('Groups')
 
 
-class ServiceUserPermissionsInline(admin.TabularInline):
+class ServiceUserPermissionInline(admin.TabularInline):
     model = ServiceUserPermission
     extra = 0
     classes = ('tab-permissions',)
@@ -56,8 +56,8 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     readonly_fields = ('extent',)
     inlines = (
         ServiceLayerInline, ServiceMetadataInline, ServiceResourceInline,
-        ServiceGroupPermissionsInline,
-        ServiceUserPermissionsInline
+        ServiceGroupPermissionInline,
+        ServiceUserPermissionInline
     )
     tabs = (
         (_('Information'), ('tab-information',)),
