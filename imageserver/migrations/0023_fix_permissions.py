@@ -5,20 +5,20 @@ from django.db import migrations
 
 def migrate_to_anonymous_view(apps, schema_editor):
     Service = apps.get_model('imageserver', 'Service')
-    for layer in Service.objects.all():
-        layer.anonymous_view = layer.visibility == 'public'
-        layer.authenticated_user_view = layer.visibility == 'private'
-        layer.save()
+    for service in Service.objects.all():
+        service.anonymous_view = service.visibility == 'public'
+        service.authenticated_user_view = service.visibility == 'private'
+        service.save()
 
 
 def undo_migrate_to_anonymous_view(apps, schema_editor):
     Service = apps.get_model('imageserver', 'Service')
-    for layer in Service.objects.all():
-        if layer.anonymous_view:
-            layer.visibility == 'public'
+    for service in Service.objects.all():
+        if service.anonymous_view:
+            service.visibility == 'public'
         else:
-            layer.visibility == 'private'
-        layer.save()
+            service.visibility == 'private'
+        service.save()
 
 
 class Migration(migrations.Migration):

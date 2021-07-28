@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('can_view', models.BooleanField(default=True, verbose_name='Can view')),
-                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_permissions', to='imageserver.Service')),
+                ('service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_permissions', to='imageserver.Service')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='service_user_permissions', to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
             options={
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('can_view', models.BooleanField(default=True, verbose_name='Can view')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='auth.Group', verbose_name='Group')),
-                ('layer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='imageserver.Service')),
+                ('service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='imageserver.Service')),
             ],
             options={
                 'verbose_name': 'Group',

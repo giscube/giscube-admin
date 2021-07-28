@@ -109,7 +109,7 @@ class ServiceResource(ResourceModelMixin):
 
 
 class ServiceGroupPermission(models.Model):
-    layer = models.ForeignKey(Service, related_name='group_permissions', on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, related_name='group_permissions', on_delete=models.CASCADE)
     group = models.ForeignKey(Group, related_name='group_permissions',
                               verbose_name=_('Group'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
@@ -123,7 +123,7 @@ class ServiceGroupPermission(models.Model):
 
 
 class ServiceUserPermission(models.Model):
-    layer = models.ForeignKey(Service, related_name='user_permissions', on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, related_name='user_permissions', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='service_user_permissions',
                              verbose_name=_('User'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)

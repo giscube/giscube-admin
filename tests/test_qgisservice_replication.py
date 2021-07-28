@@ -146,7 +146,7 @@ class QGISServiceReplicationTestCase(BaseTest):
                     email=f'user{i}@mail.com'
                 )
                 ServiceUserPermission.objects.create(
-                    layer=service,
+                    service=service,
                     user=user,
                     can_view=True,
                     can_write=True
@@ -209,7 +209,7 @@ class QGISServiceReplicationTestCase(BaseTest):
                     name=f'group{i}'
                 )
                 ServiceGroupPermission.objects.create(
-                    layer=service,
+                    service=service,
                     group=group,
                     can_view=True,
                     can_write=True

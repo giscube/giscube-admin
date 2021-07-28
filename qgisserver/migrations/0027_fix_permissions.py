@@ -4,21 +4,21 @@ from django.db import migrations
 
 
 def migrate_to_anonymous_view(apps, schema_editor):
-    ModelLayer = apps.get_model('qgisserver', 'Service')
-    for layer in ModelLayer.objects.all():
-        layer.anonymous_view = layer.visibility == 'public'
-        layer.authenticated_user_view = layer.visibility == 'private'
-        layer.save()
+    Service = apps.get_model('qgisserver', 'Service')
+    for service in Service.objects.all():
+        service.anonymous_view = service.visibility == 'public'
+        service.authenticated_user_view = service.visibility == 'private'
+        service.save()
 
 
 def undo_migrate_to_anonymous_view(apps, schema_editor):
-    ModelLayer = apps.get_model('qgisserver', 'Service')
-    for layer in ModelLayer.objects.all():
-        if layer.anonymous_view:
-            layer.visibility == 'public'
+    Service = apps.get_model('qgisserver', 'Service')
+    for service in Service.objects.all():
+        if service.anonymous_view:
+            service.visibility == 'public'
         else:
-            layer.visibility == 'private'
-        layer.save()
+            service.visibility == 'private'
+        service.save()
 
 
 class Migration(migrations.Migration):

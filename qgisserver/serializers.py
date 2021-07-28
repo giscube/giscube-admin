@@ -79,7 +79,7 @@ class ServiceSerializer(serializers.ModelSerializer):
                 defaults={'email': permission_user['email']}
             )
             ServiceUserPermission.objects.create(
-                layer=service,
+                service=service,
                 user=user,
                 can_view=permission['can_view'],
                 can_write=permission['can_write']
@@ -89,7 +89,7 @@ class ServiceSerializer(serializers.ModelSerializer):
                 name=permission['group']['name']
             )
             ServiceGroupPermission.objects.create(
-                layer=service, group=group, can_view=permission['can_view'])
+                service=service, group=group, can_view=permission['can_view'])
 
         return service
 
@@ -106,7 +106,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             )
             usernames.append(user.username)
             ServiceUserPermission.objects.update_or_create(
-                layer=instance,
+                service=instance,
                 user=user,
                 defaults={'can_view': permission['can_view'], 'can_write': permission['can_write']}
             )
@@ -118,7 +118,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             )
             group_names.append(group.name)
             ServiceGroupPermission.objects.update_or_create(
-                layer=instance,
+                service=instance,
                 group=group,
                 defaults={'can_view': permission['can_view'], 'can_write': permission['can_write']}
             )
