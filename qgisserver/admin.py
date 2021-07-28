@@ -64,7 +64,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms', 'visible_on_geoportal',)
-    list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter), 'visible_on_geoportal',
+    list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter),
                    'visible_on_geoportal')
     exclude = ('service_path',)
     search_fields = ('name', 'title', 'keywords')
