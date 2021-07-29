@@ -89,8 +89,8 @@ class ImageServerWMSView(ServiceMixin, WMSProxyMixin, View):
                 response['Content-Type'] = 'text/xml; charset=UTF-8'
         return response
 
-    def do_post(self, request, service_name):
-        self.service = get_object_or_404(self.get_queryset(), name=service_name)
+    def post(self, request, service_name):
+        self.service = get_object_or_404(self.get_queryset_can_write(), name=service_name)
         url = self.build_url(request)
         return requests.post(url, data=request.body)
 

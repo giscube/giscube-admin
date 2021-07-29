@@ -98,7 +98,7 @@ class QGISServerWMSView(ServiceMixin, WMSProxyBufferMixin, View):
 
         return super().get(request)
 
-    def do_post(self, request, service_name):
+    def post(self, request, service_name):
         self.service = get_object_or_404(self.get_queryset_can_write(), name=service_name)
 
         if not self.is_request_parameter_allowed(request.POST):
