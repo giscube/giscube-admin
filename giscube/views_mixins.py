@@ -81,6 +81,10 @@ class WMSProxyMixin(ProxyMixin):
         return HttpResponseBadRequest()
 
 
+class WMSProxyView(WMSProxyMixin, View):
+    pass
+
+
 class WMSProxyBufferMixin(WMSProxyMixin):
     def get_wms_buffer_enabled(self):
         raise NotImplementedError('To be implemented')

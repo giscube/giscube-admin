@@ -8,17 +8,13 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.cache import patch_response_headers
-
-import oauth2_provider
-import rest_framework.authentication
-
-from rest_framework.views import APIView
+from django.views.generic import View
 
 from giscube.tilecache.caches import GiscubeServiceCache
 from giscube.tilecache.image import tile_cache_image
 from giscube.tilecache.proj import GoogleProjection
 from giscube.utils import get_service_wms_bbox
-from giscube.views_mixins import WMSProxyBufferMixin
+from giscube.views_mixins import WMSProxyBufferView
 from giscube.views_utils import web_map_view
 
 from .models import Service
@@ -27,16 +23,9 @@ from .models import Service
 logger = logging.getLogger(__name__)
 
 
-class View(APIView):
-    authentication_classes = (
-        rest_framework.authentication.SessionAuthentication,
-        oauth2_provider.contrib.rest_framework.OAuth2Authentication
-    )
-    permission_classes = ()
+class ServiceMixin:
     model = Service
 
-
-class ServiceMixin:
     def get_queryset(self, *args, **kwargs):
         qs = self.model.objects.filter(active=True)
         filter_anonymous = Q(anonymous_view=True)
@@ -74,7 +63,7 @@ class ServiceMixin:
         return qs
 
 
-class QGISServerWMSView(ServiceMixin, WMSProxyBufferMixin, View):
+class QGISServerWMSView(ServiceMixin, WMSProxyBufferView):
     def get_wms_buffer_enabled(self):
         return self.service.wms_buffer_enabled
 
