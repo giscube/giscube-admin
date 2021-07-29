@@ -63,11 +63,5 @@ class ServiceViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     permission_classes = (FixedDjangoModelPermissions,)
 
-    def get_object(self):
-        if not self.detail and not self.kwargs.get(self.lookup_url_kwarg):
-            name = self.request.data.get('name')
-            return Service.objects.get(name=name)
-        return super().get_object()
-
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)

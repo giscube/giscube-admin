@@ -66,14 +66,14 @@ class QGISServiceReplicationTestCase(BaseTest):
 
     def test_update_status_ok(self):
         with open('tests/files/project1.qgs', 'rb') as f:
-            Service.objects.create(
+            service = Service.objects.create(
                 name='project-1',
                 active=False,
                 project_file=File(f, name='project1.qgs')
             )
 
         self.login_superuser()
-        url = reverse('qgisserver_service-list')
+        url = reverse('qgisserver_service-detail', args=(service.name,))
         project_file_path = 'tests/files/project2.qgs'
         file_name = Path(project_file_path).name
         with open(project_file_path, 'rb') as project_file:
@@ -107,14 +107,14 @@ class QGISServiceReplicationTestCase(BaseTest):
 
     def test_update_project(self):
         with open('tests/files/project1.qgs', 'rb') as f:
-            Service.objects.create(
+            service = Service.objects.create(
                 name='project-1',
                 active=False,
                 project_file=File(f, name='project1.qgs')
             )
 
         self.login_superuser()
-        url = reverse('qgisserver_service-list')
+        url = reverse('qgisserver_service-detail', args=(service.name,))
         project_file_path = 'tests/files/project2.qgs'
         file_name = Path(project_file_path).name
         with open(project_file_path, 'rb') as project_file:
@@ -153,7 +153,7 @@ class QGISServiceReplicationTestCase(BaseTest):
                 )
 
         self.login_superuser()
-        url = reverse('qgisserver_service-list')
+        url = reverse('qgisserver_service-detail', args=(service.name,))
         project_file_path = 'tests/files/project2.qgs'
         file_name = Path(project_file_path).name
         with open(project_file_path, 'rb') as project_file:
@@ -216,7 +216,7 @@ class QGISServiceReplicationTestCase(BaseTest):
                 )
 
         self.login_superuser()
-        url = reverse('qgisserver_service-list')
+        url = reverse('qgisserver_service-detail', args=(service.name,))
         project_file_path = 'tests/files/project2.qgs'
         file_name = Path(project_file_path).name
         with open(project_file_path, 'rb') as project_file:
