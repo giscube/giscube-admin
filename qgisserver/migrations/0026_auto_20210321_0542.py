@@ -21,8 +21,18 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='service',
+            name='anonymous_write',
+            field=models.BooleanField(default=False, verbose_name='anonymous users can write'),
+        ),
+        migrations.AddField(
+            model_name='service',
             name='authenticated_user_view',
             field=models.BooleanField(default=False, verbose_name='authenticated users can view'),
+        ),
+        migrations.AddField(
+            model_name='service',
+            name='authenticated_user_write',
+            field=models.BooleanField(default=False, verbose_name='authenticated users can write'),
         ),
         migrations.CreateModel(
             name='ServiceUserPermission',

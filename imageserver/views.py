@@ -54,6 +54,24 @@ class ServiceMixin:
 
         return qs
 
+    def get_queryset_can_write(self, *args, **kwargs):
+        qs = self.model.objects.filter(active=True)
+        filter_anonymous = Q(anonymous_write=True)
+
+        if self.request.user.is_anonymous:
+            qs = qs.filter(filter_anonymous)
+        else:
+            self.user_groups = self.request.user.groups.values_list('name', flat=True)
+            filter_authenticated_user_write = Q(authenticated_user_write=True)
+            filter_group = (
+                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_write=True))
+            filter_user = Q(user_permissions__user=self.request.user) & Q(
+                user_permissions__can_write=True)
+            qs = qs.filter(
+                filter_anonymous | filter_authenticated_user_write | filter_user | filter_group).distinct()
+
+        return qs
+
 
 class ImageServerWMSView(ServiceMixin, WMSProxyMixin, View):
     def get(self, request, service_name):

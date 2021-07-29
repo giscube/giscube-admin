@@ -21,14 +21,25 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='service',
+            name='anonymous_write',
+            field=models.BooleanField(default=False, verbose_name='anonymous users can write'),
+        ),
+        migrations.AddField(
+            model_name='service',
             name='authenticated_user_view',
             field=models.BooleanField(default=False, verbose_name='authenticated users can view'),
+        ),
+        migrations.AddField(
+            model_name='service',
+            name='authenticated_user_write',
+            field=models.BooleanField(default=False, verbose_name='authenticated users can write'),
         ),
         migrations.CreateModel(
             name='ServiceUserPermission',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('can_view', models.BooleanField(default=True, verbose_name='Can view')),
+                ('can_write', models.BooleanField(default=True, verbose_name='Can write')),
                 ('service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_permissions', to='imageserver.Service')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='service_user_permissions', to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
@@ -42,6 +53,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('can_view', models.BooleanField(default=True, verbose_name='Can view')),
+                ('can_write', models.BooleanField(default=True, verbose_name='Can write')),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='auth.Group', verbose_name='Group')),
                 ('service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_permissions', to='imageserver.Service')),
             ],

@@ -47,7 +47,9 @@ class Service(TileCacheModelMixin, models.Model):
     wms_single_image = models.BooleanField(_('prefer single image'), default=False)
 
     anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
+    anonymous_write = models.BooleanField(_('anonymous users can write'), default=False)
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
+    authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':
@@ -113,6 +115,7 @@ class ServiceGroupPermission(models.Model):
     group = models.ForeignKey(Group, related_name='group_permissions',
                               verbose_name=_('Group'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
+    can_write = models.BooleanField(_('Can write'), default=True)
 
     def __str__(self):
         return self.group.name
@@ -127,6 +130,7 @@ class ServiceUserPermission(models.Model):
     user = models.ForeignKey(User, related_name='service_user_permissions',
                              verbose_name=_('User'), on_delete=models.CASCADE)
     can_view = models.BooleanField(_('Can view'), default=True)
+    can_write = models.BooleanField(_('Can write'), default=True)
 
     def __str__(self):
         return self.user.username

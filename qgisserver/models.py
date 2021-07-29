@@ -85,7 +85,9 @@ class Service(TileCacheModelMixin, models.Model):
     wms_single_image = models.BooleanField(_('prefer single image'), default=False)
 
     anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
+    anonymous_write = models.BooleanField(_('anonymous users can write'), default=False)
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
+    authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
     @property
     def default_layer(self):

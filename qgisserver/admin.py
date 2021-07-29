@@ -121,7 +121,10 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         }),
         (_('Basic permissions'), {
             'fields': [
-                'anonymous_view', 'authenticated_user_view',
+                'anonymous_view',
+                'anonymous_write',
+                'authenticated_user_view',
+                'authenticated_user_write',
             ],
             'classes': ('tab-permissions',),
         }),
