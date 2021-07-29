@@ -2,13 +2,13 @@ import logging
 
 import requests
 
-from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.cache import patch_response_headers
 from django.views.generic import View
 
+from giscube.permissions import PermissionQuerysetMixin
 from giscube.tilecache.caches import GiscubeServiceCache
 from giscube.tilecache.image import tile_cache_image
 from giscube.tilecache.proj import GoogleProjection
@@ -22,44 +22,8 @@ from .models import Service
 logger = logging.getLogger(__name__)
 
 
-class ServiceMixin:
+class ServiceMixin(PermissionQuerysetMixin):
     model = Service
-
-    def get_queryset(self, *args, **kwargs):
-        qs = self.model.objects.filter(active=True)
-        filter_anonymous = Q(anonymous_view=True)
-
-        if self.request.user.is_anonymous:
-            qs = qs.filter(filter_anonymous)
-        else:
-            self.user_groups = self.request.user.groups.values_list('name', flat=True)
-            filter_authenticated_user_view = Q(authenticated_user_view=True)
-            filter_group = (
-                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_view=True))
-            filter_user = Q(user_permissions__user=self.request.user) & Q(
-                user_permissions__can_view=True)
-            qs = qs.filter(
-                filter_anonymous | filter_authenticated_user_view | filter_user | filter_group).distinct()
-
-        return qs
-
-    def get_queryset_can_write(self, *args, **kwargs):
-        qs = self.model.objects.filter(active=True)
-        filter_anonymous = Q(anonymous_write=True)
-
-        if self.request.user.is_anonymous:
-            qs = qs.filter(filter_anonymous)
-        else:
-            self.user_groups = self.request.user.groups.values_list('name', flat=True)
-            filter_authenticated_user_write = Q(authenticated_user_write=True)
-            filter_group = (
-                Q(group_permissions__group__name__in=self.user_groups) & Q(group_permissions__can_write=True))
-            filter_user = Q(user_permissions__user=self.request.user) & Q(
-                user_permissions__can_write=True)
-            qs = qs.filter(
-                filter_anonymous | filter_authenticated_user_write | filter_user | filter_group).distinct()
-
-        return qs
 
 
 class ImageServerWMSView(ServiceMixin, WMSProxyView):
