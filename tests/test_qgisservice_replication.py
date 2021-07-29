@@ -126,7 +126,7 @@ class QGISServiceReplicationTestCase(BaseTest):
                 'group_permissions': [],
                 'project_file': f'data:text/xml;charset=utf8-8;name={file_name};base64,{project_content}'
             }
-            response = self.client.put(url, data=json.dumps(data), content_type='application/json')
+            self.client.put(url, data=json.dumps(data), content_type='application/json')
         service = Service.objects.get(name='project-1')
         file = service.project_file.file
         with file.open(mode='r') as f:
