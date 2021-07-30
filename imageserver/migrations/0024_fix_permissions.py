@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def migrate_to_anonymous_view(apps, schema_editor):
-    Service = apps.get_model('qgisserver', 'Service')
+    Service = apps.get_model('imageserver', 'Service')
     for service in Service.objects.all():
         service.anonymous_view = service.visibility == 'public'
         service.authenticated_user_view = service.visibility == 'private'
@@ -12,7 +12,7 @@ def migrate_to_anonymous_view(apps, schema_editor):
 
 
 def undo_migrate_to_anonymous_view(apps, schema_editor):
-    Service = apps.get_model('qgisserver', 'Service')
+    Service = apps.get_model('imageserver', 'Service')
     for service in Service.objects.all():
         if service.anonymous_view:
             service.visibility == 'public'
@@ -24,7 +24,7 @@ def undo_migrate_to_anonymous_view(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('qgisserver', '0026_auto_20210321_0542'),
+        ('imageserver', '0023_permissions'),
     ]
     operations = [
         migrations.RunPython(migrate_to_anonymous_view, undo_migrate_to_anonymous_view),

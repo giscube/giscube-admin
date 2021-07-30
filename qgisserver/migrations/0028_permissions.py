@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0011_update_proxy_permissions'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('qgisserver', '0025_auto_20201127_1450'),
+        ('qgisserver', '0027_auto_20210610_1311'),
     ]
 
     operations = [

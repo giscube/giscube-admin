@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0011_update_proxy_permissions'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('imageserver', '0021_auto_20201127_1450'),
+        ('imageserver', '0022_auto_20210610_1311'),
     ]
 
     operations = [
