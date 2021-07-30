@@ -62,6 +62,3 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = (FixedDjangoModelPermissions,)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
