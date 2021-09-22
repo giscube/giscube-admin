@@ -8,7 +8,7 @@ from operator import __or__ as OR
 
 from django.conf import settings
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
-from django.contrib.gis.geos import GEOSGeometry, Polygon
+from django.contrib.gis.geos import GEOSGeometry, LinearRing
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.db.models import Q
@@ -155,7 +155,7 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
         else:
             coordinates = list(map(float, intersects.split(',')))
             pairs = list(zip(coordinates[0::2], coordinates[1::2]))
-            geom = Polygon(pairs, srid=4326)
+            geom = LinearRing(pairs, srid=4326)
         if srid != 4326:
             srs_to = SpatialReference(srid)
             srs_4326 = SpatialReference(4326)
