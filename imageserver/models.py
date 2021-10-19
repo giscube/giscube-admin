@@ -1,6 +1,7 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import MultiPolygon, Polygon
@@ -18,11 +19,6 @@ from imageserver.utils import find_shapefile, unique_layer_directory, unique_ser
 
 from .gdal_utils import get_image_dir_info, get_image_file_info
 
-
-SERVICE_VISIBILITY_CHOICES = [
-    ('private', _('Private')),
-    ('public', _('Public')),
-]
 
 layerStorage = LayerStorage()
 namedMaskStorage = NamedMaskStorage()
@@ -43,15 +39,17 @@ class Service(TileCacheModelMixin, models.Model):
     extent = models.PolygonField(_('bbox'), null=True, blank=True)
     service_path = models.CharField(_('extent'), max_length=255)
     active = models.BooleanField(_('active'), default=True, help_text='Enable/disable usage')
-    visibility = models.CharField(_('visibility'), max_length=10, default='private',
-                                  help_text=_('visibility=\'Private\' restricts usage to authenticated users'),
-                                  choices=SERVICE_VISIBILITY_CHOICES)
     visible_on_geoportal = models.BooleanField(_('visible on geoportal'), default=False)
     options = models.TextField(_('options'), null=True, blank=True, help_text=_('json format. Ex: {"maxZoom": 20}'),
                                validators=[validate_options_json_format])
     legend = models.TextField(_('legend'), null=True, blank=True)
 
     wms_single_image = models.BooleanField(_('prefer single image'), default=False)
+
+    anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
+    anonymous_write = models.BooleanField(_('anonymous users can write'), default=False)
+    authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
+    authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':
@@ -76,10 +74,6 @@ class Service(TileCacheModelMixin, models.Model):
     @property
     def mapfile_path(self):
         return os.path.join(self.service_path, 'mapfile.map')
-
-    @property
-    def anonymous_view(self):
-        return not (self.visibility == 'private')
 
     @property
     def default_layer(self):
@@ -114,6 +108,36 @@ class ServiceMetadata(MetadataModelMixin):
 
 class ServiceResource(ResourceModelMixin):
     parent = models.ForeignKey(Service, related_name='resources', on_delete=models.CASCADE)
+
+
+class ServiceGroupPermission(models.Model):
+    service = models.ForeignKey(Service, related_name='group_permissions', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, related_name='group_permissions',
+                              verbose_name=_('Group'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+    can_write = models.BooleanField(_('Can write'), default=True)
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
+
+
+class ServiceUserPermission(models.Model):
+    service = models.ForeignKey(Service, related_name='user_permissions', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='service_user_permissions',
+                             verbose_name=_('User'), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_('Can view'), default=True)
+    can_write = models.BooleanField(_('Can write'), default=True)
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
 
 
 def get_named_mask_upload_path(obj, filename):

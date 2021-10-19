@@ -119,7 +119,7 @@ class GoogleProjection(object):
         ll0 = (xmin, ymax)  # left top
         ll1 = (xmax, ymin)  # right bottom
 
-        l = []
+        tiles_list = []
         for z in self.levels:
             px0 = self.project_pixels(ll0, z)
             px1 = self.project_pixels(ll1, z)
@@ -134,5 +134,5 @@ class GoogleProjection(object):
                         continue
                     if self.scheme == 'tms':
                         y = ((2**z - 1) - y)
-                    l.append((z, x, y))
-        return l
+                    tiles_list.append((z, x, y))
+        return tiles_list
