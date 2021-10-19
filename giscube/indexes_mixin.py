@@ -18,13 +18,3 @@ class PermissionIndexMixin(object):
         if len(list(permissions.keys())) > 0:
             data['permissions'] = permissions
         return data
-
-
-class VisibilityIndexMixin(object):
-    def prepare_search_data(self, obj):
-        data = super().prepare_search_data(obj)
-        if obj.visibility == 'public':
-            data['permissions'] = {'user': {'': 'v'}}
-        else:
-            data['permissions'] = {'authenticated_user': 'v'}
-        return data
