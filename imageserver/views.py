@@ -2,17 +2,18 @@ import logging
 
 import requests
 
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.cache import patch_response_headers
 from django.views.generic import View
 
+from giscube.permissions import PermissionQuerysetMixin
 from giscube.tilecache.caches import GiscubeServiceCache
 from giscube.tilecache.image import tile_cache_image
 from giscube.tilecache.proj import GoogleProjection
 from giscube.utils import get_service_wms_bbox
-from giscube.views_mixins import WMSProxyViewMixin
+from giscube.views_mixins import WMSProxyView
 from giscube.views_utils import web_map_view
 
 from .models import Service
@@ -21,13 +22,14 @@ from .models import Service
 logger = logging.getLogger(__name__)
 
 
-class ImageServerWMSView(WMSProxyViewMixin):
+class ServiceMixin(PermissionQuerysetMixin):
+    model = Service
 
+
+class ImageServerWMSView(ServiceMixin, WMSProxyView):
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        self.service = service
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        self.service = get_object_or_404(self.get_queryset(), name=service_name)
+
         response = super().get(request)
         headers = getattr(response, '_headers', {})
         if 'content-type' in headers:
@@ -40,10 +42,8 @@ class ImageServerWMSView(WMSProxyViewMixin):
                 response['Content-Type'] = 'text/xml; charset=UTF-8'
         return response
 
-    def do_post(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+    def post(self, request, service_name):
+        self.service = get_object_or_404(self.get_queryset_can_write(), name=service_name)
         url = self.build_url(request)
         return requests.post(url, data=request.body)
 
@@ -53,12 +53,9 @@ class ImageServerWMSView(WMSProxyViewMixin):
         return url
 
 
-class ImageServerTileCacheView(View):
-
+class ImageServerTileCacheView(ServiceMixin, View):
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        service = get_object_or_404(self.get_queryset(), name=service_name)
         data = {}
         if service.tilecache_enabled:
             data.update(
@@ -71,18 +68,12 @@ class ImageServerTileCacheView(View):
         return JsonResponse(data)
 
 
-class ImageServerTileCacheTilesView(View):
-
+class ImageServerTileCacheTilesView(ServiceMixin, View):
     def build_url(self, service):
         return service.service_internal_url
 
     def get(self, request, service_name, z, x, y, image_format='png'):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
-
-        if not service.tilecache_enabled:
-            raise Http404
+        service = get_object_or_404(self.get_queryset(), name=service_name, tilecache_enabled=True)
 
         if z < service.tilecache_minzoom_level or z > service.tilecache_maxzoom_level:
             return HttpResponseBadRequest()
@@ -110,12 +101,10 @@ class ImageServerTileCacheTilesView(View):
         return proj.project(bbox[:2]) + proj.project(bbox[2:])
 
 
-class ImageServerMapViewerView(View):
-
+class ImageServerMapViewerView(ServiceMixin, View):
     def get(self, request, service_name):
-        service = get_object_or_404(Service, name=service_name, active=True)
-        if service.visibility == 'private' and not request.user.is_authenticated:
-            return HttpResponseForbidden()
+        service = get_object_or_404(self.get_queryset(), name=service_name)
+
         layers = []
         layers.append(
             {

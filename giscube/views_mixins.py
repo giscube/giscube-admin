@@ -81,7 +81,7 @@ class WMSProxyMixin(ProxyMixin):
         return HttpResponseBadRequest()
 
 
-class WMSProxyViewMixin(WMSProxyMixin, View):
+class WMSProxyView(WMSProxyMixin, View):
     pass
 
 
@@ -151,5 +151,5 @@ class WMSProxyBufferMixin(WMSProxyMixin):
         return response
 
 
-class WMSProxyBufferViewMixin(WMSProxyBufferMixin, View):
+class WMSProxyBufferView(WMSProxyBufferMixin, View):
     pass

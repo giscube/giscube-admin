@@ -1,4 +1,5 @@
 from functools import update_wrapper
+
 from tablib import Dataset as TablibDataset
 
 from django.conf import settings
@@ -8,16 +9,14 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models.functions import Concat
-from django.urls import reverse
-from django.http import JsonResponse, HttpResponse
-from django.urls import re_path
+from django.http import HttpResponse, JsonResponse
+from django.urls import re_path, reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
-
 
 from .admin_forms import DBConnectionForm
 from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
