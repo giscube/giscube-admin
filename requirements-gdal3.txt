@@ -21,7 +21,7 @@ drf-ujson2==1.6.1
 GDAL==3.0.4
 OWSLib==0.20.0
 pdf2image==1.11.0
-Pillow==7.2.0
+Pillow==9.0.0
 psycopg2==2.8.6 --no-binary psycopg2
 -e git+https://github.com/giscube/tilecache.git@python3#egg=TileCache&subdirectory=tilecache
 redis==3.3.11
