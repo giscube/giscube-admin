@@ -3,6 +3,7 @@ import os
 
 import requests
 
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -62,6 +63,12 @@ class QGISServerWMSView(ServiceMixin, WMSProxyBufferView):
 
     def build_url(self, request):
         meta = request.META.get('QUERY_STRING', '')
+        version = request.GET.get('version')
+        if version is None:
+            querydict = QueryDict(meta, mutable=True)
+            querydict['version'] = settings.GIS_SERVER_DEFAULT_WMS_VERSION
+            meta = querydict.urlencode()
+
         url = "%s&%s" % (self.service.service_internal_url, meta)
         return url
 
