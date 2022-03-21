@@ -1,0 +1,60 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a> ›
+  <a href="{% url 'admin:app_list' 'auth' %}">{% trans 'Authentication and Authorization' %}</a> ›
+  <a href="{% url 'admin:auth_user_changelist' %}">{% trans 'User' %}</a> ›
+  Recover password
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<h1>{% trans 'Recover password' %}</h1>
+
+<form method="post" action="{% url 'admin:send_recover_password' %}">
+  {% csrf_token %}
+  <div style="max-width: 800px">
+  <label for="context">{% trans 'Subject:' %}</label>
+  <input type="text" id="subject" name="subject" style="width: 100%" value="{{ subject }}"><br><br>
+  <label for="context">{% trans 'Message:' %}</label>
+  <textarea type="text" id="message" name="message" rows="5" cols="33" style="width: 100%; height: 300px">{{ message }}</textarea><br><br>
+   {% for user in users %}
+     <input type="hidden" name="users" value="{{ user.id }}">
+   {% endfor %}
+  <input type="submit" value="Submit" style="float: right;">
+  </div>
+<br></br>
+  <table id="data" class="table">
+    <thead>
+      <th>{% trans 'Username' %}</th>
+      <th>{% trans 'Email' %}</th>
+      <th>{% trans 'Name' %}</th>
+      <th>{% trans 'Surnames' %}</th>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.username }}</td>
+        {% if user.email %}
+          <td>{{ user.email }}</td>
+        {% else %}
+          <td style="color: red">This user doesn't have a valid email</td>
+        {% endif %}
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
+
+{% endblock %}

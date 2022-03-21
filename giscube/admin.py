@@ -8,9 +8,12 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
 from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
-from django.urls import re_path, reverse
+from django.shortcuts import render
+from django.template import Context, Template
+from django.urls import path, re_path, reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
@@ -37,7 +40,7 @@ def get_reset_password_link(request, user):
     return url
 
 
-def recover_password(modeladmin, request, queryset):
+def csv_recover_password(modeladmin, request, queryset):
     headers = ('username', 'first_name', 'last_name', 'reset_password_link')
     data = TablibDataset(headers=headers)
 
@@ -54,11 +57,55 @@ def recover_password(modeladmin, request, queryset):
     return response
 
 
-recover_password.short_description = 'CSV per recuperació de contrassenyes'
+csv_recover_password.short_description = 'CSV per recuperació de contrasenyes'
+
+
+def email_recover_password(modeladmin, request, queryset):
+    context = {
+        'users': queryset,
+        'subject': settings.GISCUBE['password_recovery_email_subject'],
+        'message': settings.GISCUBE['password_recovery_email_body']
+    }
+
+    return render(request, 'admin/giscube/recover_password/form.html', context)
+
+
+email_recover_password.short_description = 'Email per recuperació de contrasenyes'
 
 
 class UserAdmin(BaseUserAdmin):
-    actions = list(BaseUserAdmin.actions) + [recover_password]
+    actions = list(BaseUserAdmin.actions) + [csv_recover_password, email_recover_password]
+
+    def get_urls(self):
+        urls = super().get_urls()
+
+        my_urls = [
+            path('send_recover_password', self.send_recover_password, name='send_recover_password'),
+        ]
+
+        return my_urls + urls
+
+    def send_recover_password(self, request):
+        users = request.POST.getlist('users')
+        subject = request.POST['subject']
+        email_from = settings.DEFAULT_FROM_EMAIL
+        message = request.POST['message']
+        template = Template(message)
+        for user_id in users:
+            user = User.objects.get(id=user_id)
+            if user.email:
+                activation_link = get_reset_password_link(request, user)
+                context = {
+                    'site_url': settings.SITE_URL,
+                    'username': user.username,
+                    'activation_link': activation_link,
+                }
+                render_context = Context(context)
+                body = template.render(render_context)
+                email = EmailMessage(subject, body, email_from, [user.email])
+                email.send(fail_silently=False)
+
+        return render(request, 'admin/giscube/recover_password/result.html', request.POST)
 
 
 # Re-register UserAdmin

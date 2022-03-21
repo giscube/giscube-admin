@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-30 16:21+0200\n"
+"POT-Creation-Date: 2022-03-31 10:21+0200\n"
 "PO-Revision-Date: 2020-11-24 06:45+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -23,6 +23,7 @@ msgid "Applications administrator and tester"
 msgstr "Administrador i provador d'aplicacions"
 
 #: app_admin/templates/app_admin.html:5
+#: giscube/templates/admin/giscube/recover_password/form.html:11
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:15
 msgid "Home"
 msgstr "Inici"
@@ -43,7 +44,7 @@ msgstr "Configuració"
 msgid "Email sent from mail_admins of app_admin"
 msgstr "Email enviat des de mail_admins per app_admin"
 
-#: giscube/admin.py:141 giscube/models.py:272 giscube/models.py:279
+#: giscube/admin.py:187 giscube/models.py:272 giscube/models.py:279
 #: imageserver/admin.py:37 imageserver/models.py:116 imageserver/models.py:124
 #: layerserver/admin.py:43 layerserver/admin.py:272 layerserver/models.py:177
 #: layerserver/models.py:184 layerserver/models.py:622
@@ -52,80 +53,82 @@ msgstr "Email enviat des de mail_admins per app_admin"
 msgid "Group"
 msgstr "Grup"
 
-#: giscube/admin.py:142 giscube/models.py:280 imageserver/admin.py:38
+#: giscube/admin.py:188 giscube/models.py:280 imageserver/admin.py:38
 #: imageserver/models.py:125 layerserver/admin.py:44 layerserver/admin.py:273
 #: layerserver/models.py:185 layerserver/models.py:637 qgisserver/admin.py:51
 #: qgisserver/models.py:197
 msgid "Groups"
 msgstr "Grups"
 
-#: giscube/admin.py:149 giscube/models.py:224 giscube/models.py:285
-#: giscube/models.py:292 imageserver/admin.py:45 imageserver/models.py:131
-#: imageserver/models.py:139 layerserver/admin.py:51 layerserver/admin.py:281
-#: layerserver/models.py:190 layerserver/models.py:197
-#: layerserver/models.py:642 layerserver/models.py:652 qgisserver/admin.py:58
-#: qgisserver/models.py:202 qgisserver/models.py:210
+#: giscube/admin.py:195 giscube/models.py:224 giscube/models.py:285
+#: giscube/models.py:292
+#: giscube/templates/admin/giscube/recover_password/form.html:13
+#: imageserver/admin.py:45 imageserver/models.py:131 imageserver/models.py:139
+#: layerserver/admin.py:51 layerserver/admin.py:281 layerserver/models.py:190
+#: layerserver/models.py:197 layerserver/models.py:642
+#: layerserver/models.py:652 qgisserver/admin.py:58 qgisserver/models.py:202
+#: qgisserver/models.py:210
 msgid "User"
 msgstr "Usuari"
 
-#: giscube/admin.py:150 giscube/models.py:293 imageserver/admin.py:46
+#: giscube/admin.py:196 giscube/models.py:293 imageserver/admin.py:46
 #: imageserver/models.py:140 layerserver/admin.py:52 layerserver/admin.py:282
 #: layerserver/models.py:198 layerserver/models.py:653 qgisserver/admin.py:59
 #: qgisserver/models.py:211
 msgid "Users"
 msgstr "Usuaris"
 
-#: giscube/admin.py:161 imageserver/admin.py:63 layerserver/admin.py:87
+#: giscube/admin.py:207 imageserver/admin.py:63 layerserver/admin.py:87
 #: layerserver/admin.py:97 layerserver/admin.py:373 layerserver/admin.py:384
 #: qgisserver/admin.py:81
 msgid "Information"
 msgstr "Informació"
 
-#: giscube/admin.py:162 imageserver/admin.py:64 qgisserver/admin.py:82
+#: giscube/admin.py:208 imageserver/admin.py:64 qgisserver/admin.py:82
 #, fuzzy
 #| msgid "options"
 msgid "Options"
 msgstr "opcions"
 
-#: giscube/admin.py:163 imageserver/admin.py:66 layerserver/admin.py:90
+#: giscube/admin.py:209 imageserver/admin.py:66 layerserver/admin.py:90
 #: layerserver/admin.py:100 layerserver/admin.py:377 layerserver/admin.py:389
 #: qgisserver/admin.py:83
 msgid "Design"
 msgstr "Disseny"
 
-#: giscube/admin.py:164 imageserver/admin.py:67 layerserver/admin.py:91
+#: giscube/admin.py:210 imageserver/admin.py:67 layerserver/admin.py:91
 #: layerserver/admin.py:101 layerserver/admin.py:378 layerserver/admin.py:391
 #: qgisserver/admin.py:84
 msgid "Permissions"
 msgstr "Permisos"
 
-#: giscube/admin.py:165 giscube/admin_mixins.py:7 giscube/admin_mixins.py:8
+#: giscube/admin.py:211 giscube/admin_mixins.py:7 giscube/admin_mixins.py:8
 #: imageserver/admin.py:68 layerserver/admin.py:92 layerserver/admin.py:102
 #: layerserver/admin.py:379 layerserver/admin.py:392 qgisserver/admin.py:85
 msgid "Metadata"
 msgstr "Metadades"
 
-#: giscube/admin.py:166 imageserver/admin.py:69 layerserver/admin.py:93
+#: giscube/admin.py:212 imageserver/admin.py:69 layerserver/admin.py:93
 #: layerserver/admin.py:380 layerserver/admin.py:393 qgisserver/admin.py:86
 #, fuzzy
 #| msgid "Resource"
 msgid "Resources"
 msgstr "Recurs"
 
-#: giscube/admin.py:189 imageserver/admin.py:93 layerserver/admin.py:140
+#: giscube/admin.py:235 imageserver/admin.py:93 layerserver/admin.py:140
 #: layerserver/admin.py:182 qgisserver/admin.py:122
 msgid "Basic permissions"
 msgstr "Permisos bàsics"
 
-#: giscube/admin.py:244
+#: giscube/admin.py:290
 msgid "Base layer"
 msgstr "Capa base"
 
-#: giscube/admin.py:245
+#: giscube/admin.py:291
 msgid "Base layers"
 msgstr "Capes base"
 
-#: giscube/admin.py:257
+#: giscube/admin.py:303
 msgid "Initial view"
 msgstr "Vista inicial"
 
@@ -1205,10 +1208,50 @@ msgstr "Configuració del mapa"
 msgid "base layer"
 msgstr "Capa base"
 
-#: giscube/settings.py:396
+#: giscube/settings.py:400
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:16
 msgid "Rebuild Giscube Search cache"
 msgstr "Refer index de cerca"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:12
+msgid "Authentication and Authorization"
+msgstr "Autentificació i autorització"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:21
+#, fuzzy
+#| msgid "password"
+msgid "Recover password"
+msgstr "Recuperació de contrasenya"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:26
+msgid "Message:"
+msgstr "Missatge:"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:36
+#, fuzzy
+#| msgid "User"
+msgid "Username"
+msgstr "Usuari"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:37
+msgid "Email"
+msgstr "Correu"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:38
+msgid "Name"
+msgstr "Nom"
+
+#: giscube/templates/admin/giscube/recover_password/form.html:39
+#, fuzzy
+#| msgid "name"
+msgid "Surnames"
+msgstr "Cognoms"
+
+#: giscube/templates/admin/giscube/recover_password/result.html:12
+#, fuzzy
+#| msgid "Email"
+msgid "Emails sent"
+msgstr "Correus enviats"
 
 #: giscube/templates/giscube/tags/admin_tasks_menu.html:6
 msgid "tasks"
