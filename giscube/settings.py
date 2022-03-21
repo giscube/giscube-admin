@@ -412,6 +412,18 @@ GISCUBE_SEARCH_MAX_RESULTS = os.getenv('GISCUBE_SEARCH_MAX_RESULTS', None)
 PURGE_GISCUBETRANSACTIONS_UNIT = os.getenv('PURGE_GISCUBETRANSACTIONS_UNIT', 'days')
 PURGE_GISCUBETRANSACTIONS_VALUE = int(os.getenv('PURGE_GISCUBETRANSACTIONS_VALUE', '30'))
 
+# Giscube email message
+GISCUBE = {
+    'password_recovery_email_subject': os.getenv('GISCUBE_PASSWORD_RECOVERY_EMAIL_SUBJECT', 'Giscube password recovery'),
+    'password_recovery_email_body': os.getenv('GISCUBE_PASSWORD_RECOVERY_EMAIL_BODY', 'Hi there,\n\n'
+                                              'Your Giscube access is ready.\n\n'
+                                              'Please enter this website: {{ site_url }}\n\n'
+                                              'Your username is {{ username }}\n'
+                                              'Your password can be set using this link: {{ activation_link }}\n\n'
+                                              'Kind Regards,\n\n'
+                                              'Your Giscube administrator')
+}
+
 # Email
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
