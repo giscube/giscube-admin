@@ -59,6 +59,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         ServiceGroupPermissionInline,
         ServiceUserPermissionInline
     )
+    save_as = True
     tabs = (
         (_('Information'), ('tab-information',)),
         (_('Options'), ('tab-options',)),

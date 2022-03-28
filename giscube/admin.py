@@ -156,6 +156,7 @@ class DatasetAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     list_display = ('title',)
     inlines = (DatasetResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)
     list_filter = (('category', RelatedDropdownFilter), 'active')
+    save_as = True
 
     tabs = (
         (_('Information'), ('tab-information',)),
