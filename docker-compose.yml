@@ -5,9 +5,12 @@ services:
     container_name: giscube_giscube-admin_requirements
     build:
       context: .
-      dockerfile: docker/django/ubuntu-18.04/Dockerfile
+      dockerfile: docker/django/ubuntu-20.04/Dockerfile
       args:
         - EXTRA_REQUIREMENTS=devel
+        - PIP_PACKAGES=setuptools==57.5.0
+        - APT_PACKAGES=
+        - APT_PACKAGES_BUILD=
     image: giscube_giscube-admin_requirements
     entrypoint: /bin/bash -c "chown -v www-data:www-data /app_data"
     command: []

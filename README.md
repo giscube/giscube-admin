@@ -6,6 +6,9 @@ Giscube admin Applications:
 - qgisserver
 - geoportal
 
+# Requirements.txt
+ln -s requirements-gdal3.txt requirements.txt
+ln -s requirements-gdal2.txt requirements.txt
 
 ## Observations
 
