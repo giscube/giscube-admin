@@ -4,7 +4,7 @@ import os
 import requests
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.cache import patch_response_headers
