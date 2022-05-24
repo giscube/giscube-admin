@@ -2,6 +2,7 @@ import logging
 import os
 
 import requests
+from requests.structures import CaseInsensitiveDict
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse, QueryDict
@@ -63,7 +64,7 @@ class QGISServerWMSView(ServiceMixin, WMSProxyBufferView):
 
     def build_url(self, request):
         meta = request.META.get('QUERY_STRING', '')
-        version = request.GET.get('version')
+        version = CaseInsensitiveDict(request.GET).get('version')
         if version is None:
             querydict = QueryDict(meta, mutable=True)
             querydict['version'] = settings.GIS_SERVER_DEFAULT_WMS_VERSION
