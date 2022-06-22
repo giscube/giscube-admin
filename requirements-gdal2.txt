@@ -18,7 +18,7 @@ django-vue-tabs==0.0.12
 djangorestframework==3.12.4
 djangorestframework-gis==0.17
 drf-ujson2==1.6.1
-numpy==1.19.5
+numpy==1.22.0
 GDAL==2.2.3
 OWSLib==0.20.0
 pdf2image==1.11.0
