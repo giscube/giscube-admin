@@ -121,6 +121,14 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
                 fields[field] = field
         return self.get_default_popup_content(fields)
 
+    def get_filters(self):
+        from .serializers import GeoJSONFilterSerializer
+        filters = []
+        for filter in self.filters.all():
+            serializer = GeoJSONFilterSerializer(filter)
+            filters.append(serializer.data)
+        return filters
+
     def clean(self):
         try:
             check_recursion('design_from', self, [])
@@ -170,6 +178,16 @@ def geojsonlayer_delete(sender, instance, **kwargs):
         path = os.path.join(settings.MEDIA_ROOT, instance.service_path)
         if os.path.exists(path):
             shutil.rmtree(path)
+
+
+class GeoJsonFilter(models.Model):
+    title = models.CharField(_('title'), max_length=100, null=True, blank=True)
+    description = models.TextField(_('description'), null=True, blank=True)
+    filter = models.CharField(_('filter'), max_length=255, null=True, blank=True)
+    layer = models.ForeignKey(GeoJsonLayer, related_name='filters', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title or ''
 
 
 class GeoJsonLayerGroupPermission(models.Model):
