@@ -19,8 +19,8 @@ from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBas
 from .model_legacy import ModelFactory
 from .models import (DATA_FILTER_STATUS_CHOICES, DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata,
                      DataBaseLayerReference, DataBaseLayerResource, DataBaseLayerStyleRule, DataBaseLayerVirtualField,
-                     DBLayerGroup, DBLayerUser, GeoJsonLayer, GeoJsonLayerGroupPermission, GeoJsonLayerMetadata,
-                     GeoJsonLayerResource, GeoJsonLayerStyleRule, GeoJsonLayerUserPermission)
+                     DBLayerGroup, DBLayerUser, GeoJsonFilter, GeoJsonLayer, GeoJsonLayerGroupPermission,
+                     GeoJsonLayerMetadata, GeoJsonLayerResource, GeoJsonLayerStyleRule, GeoJsonLayerUserPermission)
 from .tasks import async_geojsonlayer_refresh
 from .widgets import widgets_types
 
@@ -67,6 +67,12 @@ class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
     form = GeoJsonLayerStyleRuleInlineForm
 
 
+class GeoJsonFilterInline(admin.StackedInline):
+    model = GeoJsonFilter
+    extra = 0
+    classes = ('tab-geojson',)
+
+
 @admin.register(GeoJsonLayer)
 class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     add_form_template = 'admin/layerserver/geojson_layer/add_form.html'
@@ -78,7 +84,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [
         GeoJsonLayerResourceInline, GeoJsonLayerStyleRuleInline, GeoJsonLayerMetadataInline,
-        GeoJsonGroupPermissionsInline, GeoJsonUserPermissionsInline
+        GeoJsonGroupPermissionsInline, GeoJsonUserPermissionsInline, GeoJsonFilterInline
     ]
     actions = admin.ModelAdmin.actions + [geojsonlayer_force_refresh_data]
     save_as = True
