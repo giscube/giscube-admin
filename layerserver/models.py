@@ -8,7 +8,6 @@ from model_utils import Choices
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -248,7 +247,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
         related_name='layers', verbose_name='Database connection')
     name = models.CharField(_('name'), max_length=255, blank=False, null=False, unique=True)
     table = models.CharField(_('table'), max_length=255, blank=False, null=False)
-    data_filter = JSONField(_('data filter'), blank=True, null=True, default=dict)
+    data_filter = models.JSONField(_('data filter'), blank=True, null=True, default=dict)
     data_filter_status = models.CharField(choices=DATA_FILTER_STATUS_CHOICES,
                                           max_length=50, null=True, blank=True, editable=False)
     data_filter_error = models.TextField(null=True, blank=True, editable=False)
@@ -624,7 +623,7 @@ class DBLayerGroup(models.Model):
     can_add = models.BooleanField(_('Can add'), default=True)
     can_update = models.BooleanField(_('Can update'), default=True)
     can_delete = models.BooleanField(_('Can delete'), default=True)
-    data_filter = JSONField(_('data filter'), blank=True, null=True, default=dict)
+    data_filter = models.JSONField(_('data filter'), blank=True, null=True, default=dict)
     data_filter_status = models.CharField(choices=DATA_FILTER_STATUS_CHOICES,
                                           max_length=50, null=True, blank=True, editable=False)
     data_filter_error = models.TextField(null=True, blank=True, editable=False)

@@ -16,7 +16,7 @@ import sys
 from corsheaders.defaults import default_headers
 from kombu import Exchange, Queue
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 logger = logging.getLogger(__name__)
@@ -150,6 +150,8 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT'),
     },
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

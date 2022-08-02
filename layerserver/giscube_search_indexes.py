@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from geoportal.indexes_mixin import GeoportalSearchIndexMixin
 from giscube.giscube_search_indexes_mixins import ResourcesIndexMixin

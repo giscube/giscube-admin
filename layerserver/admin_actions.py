@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from .tasks import async_geojsonlayer_refresh
 

@@ -4,7 +4,6 @@ from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance, GeoFunc, PointOnSurface
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db.models import Case, F, Q, When
@@ -97,9 +96,9 @@ class BaseDocumentIndex(models.Model):
     content_type = models.CharField(max_length=255, db_index=True)
     object_id = models.CharField(max_length=255)
     body = SearchVectorField()
-    output_data = JSONField(null=True, blank=True)
-    search_data = JSONField(null=True, blank=True)
-    metadata = JSONField(null=True, blank=True)
+    output_data = models.JSONField(null=True, blank=True)
+    search_data = models.JSONField(null=True, blank=True)
+    metadata = models.JSONField(null=True, blank=True)
     geom_point = models.MultiPointField(null=True, blank=True)
     geom_linestring = models.MultiLineStringField(null=True, blank=True)
     geom_polygon = models.MultiPolygonField(null=True, blank=True)

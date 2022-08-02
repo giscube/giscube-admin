@@ -5,7 +5,6 @@ import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import connections, models
@@ -223,9 +222,9 @@ class GiscubeTransaction(models.Model):
     created = models.DateTimeField(_('Access timestamp'), auto_now_add=True, editable=False, null=False, blank=False)
     user = models.CharField(_('User'), max_length=255, null=False, blank=False)
     url = models.CharField(_('URL'), max_length=255, null=False, blank=False)
-    request_headers = JSONField(_('request headers'), default=dict)
+    request_headers = models.JSONField(_('request headers'), default=dict)
     request_body = models.TextField(_('request body'), null=True, blank=True)
-    response_headers = JSONField(_('request headers'), default=dict)
+    response_headers = models.JSONField(_('request headers'), default=dict)
     response_status_code = models.IntegerField(_('response status code'), null=True, blank=True)
     response_body = models.TextField(_('response body'), null=True, blank=True)
     error = models.TextField(_('error'), null=True, blank=True)
@@ -311,7 +310,7 @@ class MetadataCategory(models.Model):
 
 class BaseLayer(models.Model):
     name = models.CharField(_('name'), max_length=255)
-    properties = JSONField(_('properties'), default=dict)
+    properties = models.JSONField(_('properties'), default=dict)
 
     def __str__(self):
         return self.name
