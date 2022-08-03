@@ -41,7 +41,6 @@ urlpatterns = [
     path('api/v2/giscube/', include('giscube.api_urls_v2')),
     re_path(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
     path('admin/app_admin/', include('app_admin.urls')),
-    path('admin/', admin.site.urls),
     path('admin/', include('loginas.urls')),
     path('media/<str:module>/<str:model>/<int:pk>/resource/<str:file>', views.ResourceFileServer.as_view()),
     re_path(r'^media/(?P<path>.*)$', views.private_serve),
@@ -103,3 +102,7 @@ for plugin in settings.GISCUBE_PLUGINS:
     plugins_url_path = '%s/%s/src/%s/urls.py' % (settings.GISCUBE_PLUGINS_PATH, plugin, plugin)
     if os.path.isfile(plugins_url_path):
         urlpatterns.append(path('plugins/%s/' % plugin, include('%s.urls' % plugin)))
+
+urlpatterns += [
+    path('admin/', admin.site.urls),
+]
