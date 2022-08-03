@@ -37,7 +37,7 @@ class GiscubeTransactionCacheResponse:
             'request_body': request.body
         }
         if response:
-            response_headers = response._headers.copy()
+            response_headers = dict(response.headers.items())
             response_body = None
 
             if hasattr(response, 'rendered_content'):
