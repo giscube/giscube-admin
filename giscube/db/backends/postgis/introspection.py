@@ -1,9 +1,13 @@
+from collections import namedtuple
+
 from django.contrib.gis.db.backends.postgis.introspection import PostGISIntrospection as OriginalPostGISIntrospection
 from django.contrib.gis.gdal import OGRGeomType
+from django.db.backends.base.introspection import FieldInfo as BaseFieldInfo
 from django.db.backends.postgresql.introspection import DatabaseIntrospection as OriginalDatabaseIntrospection
-from django.db.backends.postgresql.introspection import FieldInfo
 
 from giscube.db.utils import get_table_parts
+
+FieldInfo = namedtuple("FieldInfo", BaseFieldInfo._fields + ("is_autofield",))
 
 
 class DatabaseIntrospection(OriginalDatabaseIntrospection):
@@ -38,8 +42,8 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
                                    (table_name, geo_col))
                 row = cursor.fetchone()
                 if not row:
-                    raise GeoIntrospectionError
-            except GeoIntrospectionError:
+                    raise Exception
+            except Exception:
                 if table_schema:
                     cursor.execute('SELECT "coord_dimension", "srid", "type" '
                                    'FROM "geography_columns" '
@@ -86,19 +90,27 @@ class PostGISIntrospection(OriginalPostGISIntrospection):
         # Query the pg_catalog tables as cursor.description does not reliably
         # return the nullable property and information_schema.columns does not
         # contain details of materialized views.
-        # Query from https://dataedo.com/kb/query/postgresql/list-table-columns-in-database
-
-        cursor.execute("""
-            select
-                   column_name as column_name,
-                   is_nullable,
-                   column_default
-            from information_schema.columns
-            where table_schema = %s and table_name = %s
-            order by table_schema,
-                 table_name,
-                 ordinal_position
-        """, [table_schema, table_name])
+        cursor.execute(
+            """
+            SELECT
+                a.attname AS column_name,
+                NOT (a.attnotnull OR (t.typtype = 'd' AND t.typnotnull)) AS is_nullable,
+                pg_get_expr(ad.adbin, ad.adrelid) AS column_default,
+                CASE WHEN collname = 'default' THEN NULL ELSE collname END AS collation,
+                a.attidentity != '' AS is_autofield
+            FROM pg_attribute a
+            LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+            LEFT JOIN pg_collation co ON a.attcollation = co.oid
+            JOIN pg_type t ON a.atttypid = t.oid
+            JOIN pg_class c ON a.attrelid = c.oid
+            JOIN pg_namespace n ON c.relnamespace = n.oid
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname = %s
+                AND c.relname = %s
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        """,
+            [table_schema, table_name],
+        )
         field_map = {line[0]: line[1:] for line in cursor.fetchall()}
 
         sql = "SELECT * FROM %s.%s LIMIT 1" % (
