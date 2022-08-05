@@ -128,5 +128,5 @@ class ApiUserAssetsTests(BaseTest):
         self.client.logout()
 
         self.login_dev_user()
-        response = self.client.get(url_file)
+        response = self.client.get(url_detail)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
