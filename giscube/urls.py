@@ -42,6 +42,7 @@ urlpatterns = [
     re_path(r'^media/user/assets/(?P<user_id>\d+)/(?P<filename>.*)$', views.media_user_asset),
     path('admin/app_admin/', include('app_admin.urls')),
     path('admin/', include('loginas.urls')),
+    path('users_tracking/', include('users_tracking.urls')),
     path('media/<str:module>/<str:model>/<int:pk>/resource/<str:file>', views.ResourceFileServer.as_view()),
     re_path(r'^media/(?P<path>.*)$', views.private_serve),
 ]
