@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'loginas',
     'giscube.apps_titles.GiscubeCeleryResultConfig',  # 'django_celery_results',
+    'users_tracking.apps.UsersTrackingConfig',
     'django_admin_listfilter_dropdown',
     'django_db_logger',
 ]
@@ -92,6 +93,7 @@ INSTALLED_APPS += [
 
     'leaflet',
     'sql_compiler',
+    'rangefilter',
 
     # django
     'django.contrib.gis',
