@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('giscube', '0025_baselayer_mapconfig_mapconfigbaselayer'),
+        ('giscube', '0026_auto_20220513_0952'),
     ]
 
     operations = [
