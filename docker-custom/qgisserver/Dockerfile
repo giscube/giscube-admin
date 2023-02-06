@@ -1,10 +1,10 @@
-FROM microdisseny/py3-development:ubuntu-18.04
+FROM microdisseny/py3-development:ubuntu-20.04
 
 MAINTAINER MICRODISSENY GISCUBE SL <tech@microdisseny.com>
 
 ADD qgis.list /etc/apt/sources.list.d/
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key 46B5721DBBD2996A
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key D155B8E6A419C5BE
 
 RUN apt update && apt install -y nginx supervisor uwsgi qgis-server
 
