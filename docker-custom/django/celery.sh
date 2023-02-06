@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-celery worker -E -A giscube -l info -Q sequential_queue --concurrency=1 &
-celery worker -E -A giscube -l info -Q default --concurrency=3
+celery -A giscube worker -E -l info -Q sequential_queue --concurrency=1 &
+celery -A giscube worker -E -l info -Q default --concurrency=3
