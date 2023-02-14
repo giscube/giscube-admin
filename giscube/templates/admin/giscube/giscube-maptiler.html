@@ -1,0 +1,309 @@
+{% load static %}
+
+<fieldset class="module aligned tab-tilecache">
+  <div class="giscube-maptiler">
+    <h2>Giscube maptiler</h2>
+    <div class="form-row">
+      <div>
+        <label class="required">Bounding box</label>
+        <input type="text" v-model="boundingBox" class="vTextField boundix-box" required="">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label class="required">Zoom level start:</label>
+        <input type="number" v-model="zoomStart" class="vIntegerField zoom-start" required="">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label class="required">Zoom level end:</label>
+        <input type="number" v-model="zoomEnd" class="vIntegerField zoom-end" required="">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label class="required">Workers:</label>
+        <input type="number" v-model="workers" class="vIntegerField workers" required="">
+      </div>
+    </div>
+
+    <div class="giscube-maptiler-buttons">
+      <div @click="start()" :class="{disabled: stop === false}">START</div>
+      <div @click="pause()" :class="{disabled: stop === true || paused === true}">PAUSE</div>
+      <div @click="resume()" :class="{disabled: paused === false}">RESUME</div>
+      <div @click="cancel()" :class="{disabled: stop === true}">CANCEL</div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label class="required">Zoom:</label>
+        <input type="number" v-model="zoom" readonly="readonly" class="vIntegerField" required="">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label class="required">Tile count:</label>
+        <input type="number" v-model="tileCount" readonly="readonly" class="vIntegerField" required="">
+      </div>
+    </div>
+
+    <div class="images">
+      <img ref="images" v-for="image in images" :key="image" />
+    </div>
+  </div>
+</fieldset>
+
+<script src="{% static 'vendors/mapbox/tilebelt-1.0.2.js' %}"></script>
+<script>
+const urlBase = django.jQuery('.field-tilecache_url div.readonly').text()
+
+new Vue({
+  el: '.giscube-maptiler',
+  data: () => {
+    return {
+      boundingBox: "",
+      images: [],
+      queue: [],
+      loadingCount: 0,
+      paused: false,
+      stop: true,
+      tileCount: 0,
+      tileCurrent: null,
+      tileEnd: null,
+      tileStart: null,
+      tileXsum: 0,
+      tileYsum: 0,
+      version: 0,
+      workers: 0,
+      zoom: null,
+      zoomStart: 9,
+      zoomEnd: 15,
+    }
+  },
+  computed: {
+    bbox () {
+      return this.boundingBox.split(',')
+    }
+  },
+  watch: {
+    workers (val) {
+      if (val < 1) {
+        this.workers = 1
+        return
+      }
+      while (this.workers > this.images.length) {
+        this.images.push({})
+      }
+      if (this.stop === true) {
+        while (this.workers < this.images.length) {
+          this.images.shift()
+        }
+      }
+    },
+    zoomEnd (val) {
+      val = parseInt(val)
+      if (val < 0) {
+        this.zoomEnd = 0
+        return
+      }
+      if (val < this.zoomStart) {
+        this.zoomStart = val
+      }
+      this.zoomEnd = val
+    },
+    zoomStart (val) {
+      val = parseInt(val)
+      if (val < 0) {
+        this.zoomStart = 0
+        return
+      }
+      if (val > this.zoomEnd) {
+        this.zoomEnd = val
+      }
+      this.zoomStart = val
+    }
+  },
+  mounted () {
+    this.workers = 2
+    this.boundingBox = django.jQuery('#id_tilecache_bbox').val()
+    this.zoomStart = django.jQuery('#id_tilecache_minzoom_level').val()
+    this.zoomEnd = django.jQuery('#id_tilecache_maxzoom_level').val()
+  },
+  methods: {
+    calculateNextTile({ x, y, z }) {
+      if (y > this.endTile.y) {
+        y--
+      } else {
+        if (x < this.endTile.x) {
+          x++
+          y = this.startTile.y
+        } else {
+          return undefined
+        }
+      }
+      return { x, y, z }
+    },
+    pause () {
+      if (this.paused === true || this.stop === true) {
+        return
+      }
+      console.debug("PAUSE")
+      this.paused = true
+    },
+    newUrl (urlBase, z, x, y) {
+      return urlBase.replace('{z}', z).replace('{x}', x).replace('{y}', y).concat("?version=" + this.version);
+    },
+    queueImage (url, resolve, index) {
+      const time = new Date()
+      const image = this.$refs.images[index]
+      image.onload = null
+      image.onload = (e) => {
+        this.loadingCount--
+        this.queue.shift()
+
+        if (index === 0 && this.workers < this.images.length) {
+          this.images.shift()
+        }
+
+        if (this.paused) {
+          return
+        }
+
+        const elapsed = new Date() - time
+        setTimeout(() => {
+          resolve()
+        }, 1000 - elapsed)
+      }
+      image.src = url
+    },
+    resume () {
+      if (this.paused === false) {
+        return
+      }
+      console.debug("RESUME")
+      this.paused = false
+      this.nextTile()
+    },
+    async start () {
+      if (this.stop === false) {
+        return
+      }
+      console.debug("START")
+      this.stop = false
+      this.queue = []
+      this.version = + new Date()
+      this.tileCount = 0
+      this.loadingCount = 0
+
+      this.zoom = this.zoomStart
+      this.startLevel()
+      this.useTile({...this.tileCurrent}).then(() => {
+        this.nextTile()
+      })
+      this.nextTile()
+    },
+    cancel () {
+      if (this.stop === true) {
+        return
+      }
+      console.debug("CANCEL")
+      this.stop = true
+      this.paused = false
+    },
+    nextTile () {
+      data = this.calculateNextTile(this.tileCurrent)
+      if (data === undefined && this.zoom < this.zoomEnd) {
+        this.zoom++
+        this.startLevel()
+        data = this.calculateNextTile(this.tileCurrent)
+      }
+      if (data) {
+        this.tileCurrent = data
+        this.useTile({...this.tileCurrent}).then(() => {
+          this.nextTile()
+        })
+      } else {
+        this.stop = true
+        this.paused = false
+        console.debug("COMPLETE")
+      }
+    },
+    startLevel () {
+      const startTile = tilebelt.pointToTile(this.bbox[0], this.bbox[1], this.zoom)
+      this.startTile = {
+        x: startTile[0],
+        y: startTile[1],
+        z: startTile[2]
+      }
+      console.debug("startTile", ...startTile)
+      const endTile = tilebelt.pointToTile(this.bbox[2], this.bbox[3], this.zoom)
+      this.endTile = {
+        x: endTile[0],
+        y: endTile[1],
+        z: endTile[2]
+      }
+      console.debug("endTile", ...endTile)
+      this.tileCurrent = {
+        x: startTile[0],
+        y: startTile[1],
+        z: startTile[2]
+      }
+    },
+    useTile ({ x, y, z }) {
+      return new Promise( (resolve, reject) => {
+        console.debug("useTile", z, x, y)
+
+        if (this.stop) {
+          throw Error("Cancelled by user")
+        }
+
+        let url = this.newUrl(urlBase, z, x, y)
+        this.queueImage(url, resolve, this.tileCount % this.workers)
+        this.queue.push(url)
+        this.tileCount++
+
+        if (this.paused) {
+          return
+        }
+
+        if (this.queue.length < this.workers ) {
+          setTimeout(() => {
+            resolve()
+          }, 1000 / this.workers)
+        }
+
+        this.loadingCount++
+      })
+    }
+  }
+});
+</script>
+
+<style>
+.giscube-maptiler-buttons {
+  display: flex;
+  padding: 15px;
+}
+.giscube-maptiler-buttons div {
+  margin: 5px;
+  padding: 8px 16px;
+  background-color: #62afda;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+.giscube-maptiler-buttons div.disabled {
+  background-color: #bbb;
+}
+.giscube-maptiler .images {
+  margin-top: 6px;
+}
+.giscube-maptiler .images img {
+  border: 1px solid #ddd;
+  background-color: #ddd;
+  height: 128px;
+  width: 128px;
+  margin: 0px 5px 1px 0;
+}
+</style>
