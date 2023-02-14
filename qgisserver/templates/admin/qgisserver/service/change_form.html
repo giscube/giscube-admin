@@ -8,3 +8,10 @@
 
   {{ block.super }}
 {% endblock %}
+
+{% block content %}
+  {{ block.super }}
+  {% if original.pk %}
+    {% include 'admin/giscube/giscube-maptiler.html' %}
+  {% endif %}
+{% endblock %}

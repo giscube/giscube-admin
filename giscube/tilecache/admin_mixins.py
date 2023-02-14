@@ -1,15 +1,22 @@
+from django.conf import settings
+from django.urls import reverse
+
 from giscube.tilecache.caches import GiscubeServiceCache
-from giscube.utils import get_service_wms_bbox
+from giscube.utils import get_service_wms_bbox, remove_app_url, url_slash_join
 
 
 class TileCacheModelAdminMixin:
     def get_fieldsets(self, request, obj=None):
+        if obj:
+            obj._request = request
+
         fieldsets = list(self.fieldsets)
         if obj:
             fieldsets.append(
                 (None, {
                     'fields': [
                         'tilecache_enabled',
+                        'tilecache_url',
                         ('tilecache_bbox', 'get_bbox_from_project'),
                         'tilecache_minzoom_level',
                         'tilecache_maxzoom_level',
@@ -32,6 +39,10 @@ class TileCacheModelAdminMixin:
             )
         return fieldsets
 
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request)
+        return list(readonly_fields) + ['tilecache_url']
+
     def save_model(self, request, obj, form, change):
         pk = obj.pk
         super().save_model(request, obj, form, change)
@@ -46,3 +57,8 @@ class TileCacheModelAdminMixin:
             cache_clear_cache = form.cleaned_data.get('tilecache_clear_cache', False)
             if cache_clear_cache:
                 GiscubeServiceCache(obj).clear_all()
+
+    def tilecache_url(self, obj):
+        relative_url = reverse("qgisserver-tilecache", args=(obj.name,))
+        relative_url = remove_app_url(relative_url) + "{z}/{x}/{y}.png"
+        return url_slash_join(settings.GISCUBE_URL, relative_url)
