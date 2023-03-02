@@ -460,9 +460,12 @@ GISCUBE_PLUGINS_PATH = os.environ.get('GISCUBE_PLUGINS_PATH', None)
 GISCUBE_PLUGINS = list(filter(None, os.environ.get('GISCUBE_PLUGINS', '').split(',')))
 
 if GISCUBE_PLUGINS_PATH:
+    print("Loading Giscube Plugins")
     for plugin in GISCUBE_PLUGINS:
+        print(f"* Loading Giscube Plugin {plugin}")
         path = os.path.join(GISCUBE_PLUGINS_PATH, plugin, 'src')
         sys.path.append(path)
+        print(f"* Added {path} to sys.path")
         INSTALLED_APPS.append(plugin)
         settings_plugin_path = os.path.join(path, plugin, 'settings.py')
         if os.path.isfile(settings_plugin_path):
