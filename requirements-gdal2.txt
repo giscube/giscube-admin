@@ -21,7 +21,7 @@ djangorestframework-gis==0.17
 drf-ujson2==1.6.1
 numpy==1.19.5
 GDAL==2.2.3
-OWSLib==0.20.0
+OWSLib==0.28.1
 pdf2image==1.11.0
 Pillow==8.4.0
 psycopg2==2.8.6 --no-binary psycopg2
