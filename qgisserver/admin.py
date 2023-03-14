@@ -110,6 +110,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         }),
         (None, {
             'fields': [
+                'popup',
                 'legend',
             ],
             'classes': ('tab-design',),

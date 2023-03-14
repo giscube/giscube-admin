@@ -1,4 +1,4 @@
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 from oauth2_provider.middleware import OAuth2TokenMiddleware
 

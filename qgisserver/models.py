@@ -89,6 +89,9 @@ class Service(TileCacheModelMixin, models.Model):
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
+    help_text = '%s %s' % (_('Field between curly braces. e.g.'), '{%s}' % _('street'))
+    popup = models.TextField(_('popup'), blank=True, null=True, help_text=help_text)
+
     @property
     def default_layer(self):
         if self.project_file:

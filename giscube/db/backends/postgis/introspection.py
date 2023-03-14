@@ -7,6 +7,7 @@ from django.db.backends.postgresql.introspection import DatabaseIntrospection as
 
 from giscube.db.utils import get_table_parts
 
+
 FieldInfo = namedtuple("FieldInfo", BaseFieldInfo._fields + ("is_autofield",))
 
 
