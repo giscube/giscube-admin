@@ -1,6 +1,7 @@
 import logging
 
 import requests
+
 from requests.structures import CaseInsensitiveDict
 
 from django.conf import settings

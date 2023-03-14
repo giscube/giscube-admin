@@ -23,7 +23,7 @@ class ServiceSearch(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIn
             url = url_slash_join(settings.GISCUBE_URL, url)
             service.update({
                 'type': 'TMS',
-                'url': url
+                'url': url,
             })
         else:
             url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
@@ -35,7 +35,7 @@ class ServiceSearch(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIn
                 'giscube': {
                     'single_image': obj.wms_single_image,
                     'getfeatureinfo_support': obj.wms_getfeatureinfo_enabled,
-                }
+                },
             })
         children.append(service)
         return children + super().prepare_children(obj)
@@ -44,6 +44,8 @@ class ServiceSearch(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIn
         output_data = super().prepare_output_data(obj)
         output_data['options']['single_image'] = getattr(obj, 'wms_single_image', False)
         output_data['options']['getfeatureinfo_support'] = getattr(obj, 'wms_getfeatureinfo_enabled', False)
+        if obj.popup:
+            output_data["options"]["popup"] = obj.popup
         return output_data
 
 
