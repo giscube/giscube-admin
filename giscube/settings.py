@@ -104,6 +104,9 @@ INSTALLED_APPS += [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # incidences
+    'incidences',
 ]
 
 MIDDLEWARE = [
@@ -439,6 +442,8 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 # From address for error messages
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
+
+INCIDENCE_EMAIL = os.getenv('INCIDENCE_EMAIL')
 
 # sentry
 
