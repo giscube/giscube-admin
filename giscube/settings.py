@@ -182,9 +182,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-ADMIN_SITE_HEADER = os.getenv('ADMIN_SITE_HEADER', 'GISCube')
-ADMIN_SITE_TITLE = os.getenv('ADMIN_SITE_TITLE', 'GISCube Admin')
-ADMIN_INDEX_TITLE = os.getenv('ADMIN_INDEX_TITLE', 'GISCube Admin')
+ADMIN_SITE_HEADER = os.getenv('ADMIN_SITE_HEADER', 'Mapia SERVER')
+ADMIN_SITE_TITLE = os.getenv('ADMIN_SITE_TITLE', 'Admin')
+ADMIN_INDEX_TITLE = os.getenv('ADMIN_INDEX_TITLE', 'Mapia SERVER Admin')
 
 APP_NAME = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = os.getenv('APP_NAME', APP_NAME)

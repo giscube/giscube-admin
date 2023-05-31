@@ -1,9 +1,119 @@
-{% extends "theme_giscube/base_site.html" %}
-{% load i18n static %}
-
+{% extends "admin/base.html" %} {% block title %}{{ title }} | {{ site_title|default:_('Mapia SERVER · admin') }}{% endblock %}
+{% load static %}
 {% block extrahead %}
-{{block.super}}
-<link rel="stylesheet" href="{% static 'admin.css' %}">
-{% endblock extrahead %}
+<style>
+    #header {
+        background: #d15454;
+        color: #fff;
+        height: 40px;
+    }
+    div.breadcrumbs {
+        background: #f8f8f8;
+        color: rgb(70, 70, 70);
+    }
+    div.breadcrumbs a {
+        color: rgb(70, 70, 70);
+        text-decoration: underline;
+    }
 
+    #header a:link,
+    #header a:visited {
+        color: lighter;
+    }
+
+    #branding h1,
+    #branding h1 a:link,
+    #branding h1 a:visited {
+        color: rgb(255, 255, 255);
+    }
+    
+    .mapia-footer {
+        font-weight: lighter!important;
+        font-size: 12px;
+        color: rgb(115, 115, 115);
+        text-align: center;
+    }
+
+    #nav-sidebar a:link,
+    #nav-sidebar a:visited {
+        color:rgb(100, 100, 100);
+    }
+
+    #user-tools strong,
+    #user-tools a {
+        color: #fff!important;
+    }
+
+    .module h2,
+    .module caption,
+    .inline-group h2 {
+        background: rgb(150, 150, 150);
+    }
+    #toggle-nav-sidebar {
+        border: 0px!important;
+    }
+    #nav-sidebar {
+        margin-top: 20px;
+        border-right: 0px;
+    }
+    #nav-sidebar .module table {
+        border-color: #fff!important;
+    }
+    #nav-sidebar .module tbody tr {
+        background: #fff;
+    }
+    #nav-sidebar .module tbody td {
+        border-bottom: 0px;
+    }
+    #nav-sidebar .module tbody td a {
+        font-style: italic;
+    }
+    #nav-sidebar .module tbody th {
+        border-bottom: 0px;
+        font-weight: lighter;
+    }
+    #nav-sidebar caption a {
+        font-weight: normal!important;
+        color: rgb(255, 255, 255)!important;
+    }
+    .current-model {
+        background: #eee!important;
+    }
+    .current-model a{
+        font-weight: normal!important;
+        color: rgb(100, 100, 100)!important;
+    }
+
+
+    .button,
+    input[type=submit],
+    input[type=button],
+    .submit-row input,
+    a.button {
+        background: rgb(150, 150, 150);
+    }
+
+    .button.default,
+    input[type=submit].default,
+    .submit-row input.default {
+        background: rgb(115, 115, 115);
+    }
+
+    .submit-row a.deletelink {
+        background: #d15454;
+    }
+
+</style>
+{% endblock %} 
+{% block branding %}
+    <h1 id="site-name">
+        <img src="{% static 'images/mapia_server_icon.png' %}" style="height: 40px"/>
+        <a href="{% url 'admin:index' %}">&nbsp; Mapia<sup style="font-size: 12px;">&#174;</sup> <span style="font-weight: 800;">SERVER</span> </a>
+    </h1>
+{% endblock %}
 {% block nav-global %}{% endblock %}
+{% block footer %}
+    <br/><br/><br/>
+    <p class="mapia-footer"><strong>&copy; MapiaTechnologies </strong></p>
+    <br/>
+{% endblock %}
