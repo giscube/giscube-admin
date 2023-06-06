@@ -7,7 +7,8 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
-from django.db import connections, models
+from django.db import connections
+from django.contrib.gis.db import models
 from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -321,6 +322,24 @@ class MapConfig(models.Model):
     center_lat = models.DecimalField(_('center latitude'), max_digits=8, decimal_places=6)
     center_lng = models.DecimalField(_('center longitude'), max_digits=9, decimal_places=6)
     initial_zoom = models.PositiveIntegerField(_('initial zoom'))
+
+    TITLE_CHOICES = (
+        ('standard', 'Standard'),
+        ('url', 'URL'),
+        ('tool', 'Tool'),
+    )
+    
+    title = models.CharField(max_length=255, verbose_name='Títol del mapa', null=True, blank=True)
+    description = models.TextField(verbose_name='Descripció del mapa', null=True, blank=True)
+    base_maps = models.TextField(verbose_name='Mapes base disponibles pel mapa temàtic', null=True, blank=True)
+    layers = models.TextField(verbose_name='Capes que se carregarran al seleccionar el mapa', null=True, blank=True)
+    image = models.ImageField(upload_to='maps/', verbose_name='Imatge miniatura', null=True, blank=True)
+    configurations = models.TextField(verbose_name='Configuracions específiques del temàtic', null=True, blank=True)
+    url = models.URLField(verbose_name='URL extra', null=True, blank=True)
+    visible = models.BooleanField(default=True, verbose_name='Indica si el mapa és visible a l\'iniciar la aplicació', null=True, blank=True)
+    active = models.BooleanField(default=True, verbose_name='Si el mapa està actiu o no', null=True, blank=True)
+    start = models.BooleanField(default=True, verbose_name='Si el temàtic apareix al formulari inicial o no', null=True, blank=True)
+    type = models.CharField(max_length=255, choices=TITLE_CHOICES, verbose_name='Tipus de mapa temàtic', null=True, blank=True)
 
     def __str__(self):
         return self.name

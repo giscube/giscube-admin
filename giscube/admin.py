@@ -300,11 +300,18 @@ class MapConfigAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (None, {
-            'fields': ['name'],
+            'fields': ['name', 'title', 'description'],
         }),
         (_('Initial view'), {
             'fields': [
-                ('center_lat', 'center_lng'), 'initial_zoom'
+                ('center_lat', 'center_lng'), 'initial_zoom',
+                'image',
+                'configurations',
+                'url',
+                'visible',
+                'active',
+                'start',
+                'type',
             ],
         }),
     ]
