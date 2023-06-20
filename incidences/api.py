@@ -4,8 +4,6 @@ from django.urls import reverse
 
 from rest_framework import mixins, permissions, viewsets
 
-from giscube.utils import url_slash_join
-
 from .models import Incidence
 from .serializers import IncidenceSerializer
 
@@ -18,15 +16,16 @@ class IncidenceViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         response = super().create(request)
 
-        if settings.INCIDENCE_EMAIL:
+        if settings.DEFAULT_FROM_EMAIL and settings.INCIDENCE_EMAIL:
             try:
                 object = response.data
                 url = reverse('admin:incidences_incidence_change', args=[object.get('id')])
-                url = url_slash_join(settings.GISCUBE_URL, url)
+                url = request.build_absolute_uri(url) 
 
                 send_mail(
                     'Nova incidència creada',
                     f'S\'ha creat una nova incidència: \n\n{url}',
+                    settings.DEFAULT_FROM_EMAIL,
                     [settings.INCIDENCE_EMAIL],
                     fail_silently=False,
                 )
