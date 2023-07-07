@@ -53,8 +53,26 @@ GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
 GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
                                               'False').lower() == 'true'
 
+INSTALLED_APPS = []
+
+# Theme plugin
+GISCUBE_PLUGINS_PATH = os.environ.get('GISCUBE_PLUGINS_PATH', None)
+THEME_PLUGIN = os.environ.get('THEME_PLUGINS', '')
+
+if GISCUBE_PLUGINS_PATH and THEME_PLUGIN:
+    print(f"* Loading Giscube Theme Plugin {THEME_PLUGIN}")
+    path = os.path.join(GISCUBE_PLUGINS_PATH, THEME_PLUGIN, 'src')
+    sys.path.append(path)
+    print(f"* Added {path} to sys.path")
+    INSTALLED_APPS.append(THEME_PLUGIN)
+    settings_plugin_path = os.path.join(path, THEME_PLUGIN, 'settings.py')
+    if os.path.isfile(settings_plugin_path):
+        with open(settings_plugin_path, 'rb') as f:
+            exec(compile(f.read(), settings_plugin_path, 'exec'), globals())
+
+
 # Application definition
-INSTALLED_APPS = [
+INSTALLED_APPS += [
     'app_admin.apps.AppAdminConfig',
     # app
     'giscube.apps.GiscubeConfig',
@@ -461,10 +479,9 @@ if SENTRY_DSN is not None:
     )
 
 # Plugins
-GISCUBE_PLUGINS_PATH = os.environ.get('GISCUBE_PLUGINS_PATH', None)
 GISCUBE_PLUGINS = list(filter(None, os.environ.get('GISCUBE_PLUGINS', '').split(',')))
 
-if GISCUBE_PLUGINS_PATH:
+if GISCUBE_PLUGINS_PATH and GISCUBE_PLUGINS:
     print("Loading Giscube Plugins")
     for plugin in GISCUBE_PLUGINS:
         print(f"* Loading Giscube Plugin {plugin}")
