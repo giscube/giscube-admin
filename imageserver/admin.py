@@ -81,7 +81,8 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         }),
         (None, {
             'fields': [
-                'wms_single_image', 'projection', 'supported_srs', 'extent', 'options'
+                'wms_single_image', 'projection', 'supported_srs', 'extent', 'options',
+                "choose_individual_layers", "read_layers_automatically", "layers"
             ],
             'classes': ('tab-options',),
         }),

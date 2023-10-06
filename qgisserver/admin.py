@@ -104,7 +104,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
             'fields': [
                 'wms_single_image', 'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes',
                 'wms_getfeatureinfo_enabled',
-                'options'
+                'options', "choose_individual_layers", "read_layers_automatically", "layers"
             ],
             'classes': ('tab-options',),
         }),

@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category
 from giscube.tilecache.models_mixins import TileCacheModelMixin
-from giscube.utils import extract_zipfile, url_slash_join
+from giscube.utils import extract_zipfile, get_wms_layers, url_slash_join
 from giscube.validators import validate_options_json_format
 from imageserver.mapserver import MapserverMapWriter
 from imageserver.storage import LayerStorage, NamedMaskStorage
@@ -51,6 +51,10 @@ class Service(TileCacheModelMixin, models.Model):
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
+    choose_individual_layers = models.BooleanField(_("choose individual layers"), default=False)
+    read_layers_automatically = models.BooleanField(_("read layers automatically"), default=False)
+    layers = models.TextField(_('layers'), null=True, blank=True)
+
     def save(self, *args, **kwargs):
         if self.service_path is None or self.service_path == '':
             self.service_path = unique_service_directory(self)
@@ -61,6 +65,9 @@ class Service(TileCacheModelMixin, models.Model):
             extent = MultiPolygon(extents)
             extent = Polygon.from_bbox(extent.extent)
         self.extent = extent
+
+        if self.read_layers_automatically and self.wms_url:
+            self.layers = get_wms_layers(self.wms_url)
 
         super(Service, self).save(*args, **kwargs)
 
@@ -82,6 +89,10 @@ class Service(TileCacheModelMixin, models.Model):
     @property
     def service_url(self):
         return url_slash_join(settings.GISCUBE_URL, '/imageserver/services/%s' % self.name)
+
+    @property
+    def wms_url(self):
+        return '%s?service=WMS&version=1.1.1&request=GetCapabilities' % self.service_url
 
     @property
     def service_internal_url(self):

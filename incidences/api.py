@@ -20,7 +20,7 @@ class IncidenceViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             try:
                 object = response.data
                 url = reverse('admin:incidences_incidence_change', args=[object.get('id')])
-                url = request.build_absolute_uri(url) 
+                url = request.build_absolute_uri(url)
 
                 send_mail(
                     'Nova incidència creada',

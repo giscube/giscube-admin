@@ -16,7 +16,9 @@ class ServiceIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchInd
         service = {
             'title': obj.title or obj.name,
             'description': obj.description,
-            'group': False
+            'group': False,
+            'choose_individual_layers': obj.choose_individual_layers,
+            'layers': obj.layers
         }
         if obj.tilecache_enabled:
             url = '%s{z}/{x}/{y}.png' % reverse('imageserver-tilecache', args=(obj.name,))
