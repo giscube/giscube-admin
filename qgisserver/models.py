@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category, Server
 from giscube.tilecache.models_mixins import TileCacheModelMixin
-from giscube.utils import url_slash_join
+from giscube.utils import get_wms_layers, url_slash_join
 from giscube.validators import validate_options_json_format
 from qgisserver.utils import deactivate_services, unique_service_directory
 
@@ -89,8 +89,17 @@ class Service(TileCacheModelMixin, models.Model):
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
+    choose_individual_layers = models.BooleanField(_("choose individual layers"), default=False)
+    read_layers_automatically = models.BooleanField(_("read layers automatically"), default=False)
+    layers = models.TextField(_('layers'), null=True, blank=True)
+
     help_text = '%s %s' % (_('Field between curly braces. e.g.'), '{%s}' % _('street'))
     popup = models.TextField(_('popup'), blank=True, null=True, help_text=help_text)
+
+    def save(self, *args, **kwargs):
+        if self.read_layers_automatically and self.wms_url:
+            self.layers = get_wms_layers(self.wms_url)
+        super().save(*args, **kwargs)
 
     @property
     def default_layer(self):
@@ -102,6 +111,10 @@ class Service(TileCacheModelMixin, models.Model):
     @property
     def service_url(self):
         return url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % self.name)
+
+    @property
+    def wms_url(self):
+        return '%s?service=WMS&version=1.1.1&request=GetCapabilities' % self.service_url
 
     @property
     def service_internal_url(self):

@@ -1,6 +1,6 @@
-from django.contrib import admin
-
 from leaflet.admin import LeafletGeoAdminMixin
+
+from django.contrib import admin
 
 from .models import Incidence
 
