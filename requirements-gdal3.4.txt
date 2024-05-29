@@ -34,7 +34,6 @@ djangorestframework==3.12.4
 djangorestframework-gis==1.0
 drf-ujson2==1.6.1
 enum-compat==0.0.3
-GDAL==3.4.3
 idna==2.10
 jmespath==0.10.0
 jwcrypto==1.5.6
@@ -47,7 +46,6 @@ Pillow==9.0.1
 prompt-toolkit==3.0.43
 psycopg2==2.8.6
 pycparser==2.21
-pyproj==3.4.1
 python-cas==1.6.0
 python-dateutil==2.9.0.post0
 pytz==2024.1
@@ -65,3 +63,5 @@ ujson==5.2.0
 urllib3==1.25.11
 vine==5.1.0
 wcwidth==0.2.13
+pyproj==3.4.1
+GDAL==3.4.3
