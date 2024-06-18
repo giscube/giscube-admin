@@ -411,7 +411,7 @@ LOGGING = {
             'level': 'ERROR'
         },
         'django.request': {
-            'handlers': ['mail_admins', 'mail_admins', 'db_log'],
+            'handlers': ['db_log'],
             'level': 'ERROR',
             'propagate': False,
         },
