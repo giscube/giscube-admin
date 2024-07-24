@@ -1212,7 +1212,7 @@ msgstr "Capa base"
 #: giscube/settings.py:402
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:16
 msgid "Rebuild Giscube Search cache"
-msgstr "Refer index de cerca"
+msgstr "Actualitzar informació del catàleg"
 
 #: giscube/templates/admin/giscube/recover_password/form.html:12
 msgid "Authentication and Authorization"
@@ -1306,11 +1306,11 @@ msgstr "Hi ha un problema de recursivitats amb [%s]"
 
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:25
 msgid "Rebuild Giscube Search cache task has been queued"
-msgstr "La tasca de refer l'index de cerca s'ha posat en cua"
+msgstr "La tasca d'actualitzar informació del catàleg s'ha posat en cua"
 
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:27
 msgid "Error trying to rebuild Giscube Search cache"
-msgstr "Error al intentar refer l'index de cerca"
+msgstr "Error al intentar actualitzar informació del catàleg"
 
 #: imageserver/admin.py:66 imageserver/models.py:230
 msgid "Layers"
@@ -2213,7 +2213,7 @@ msgstr "Resgistre accessos visor"
 #~ msgstr "fer servir una sola imatge"
 
 #~ msgid "Rebuild Geoportal Search cache"
-#~ msgstr "Refer index de cerca"
+#~ msgstr "Actualitzar informació del catàleg"
 
 #~ msgid "ERROR getting geometry columns"
 #~ msgstr "Error a l'obtenir les columnes de geometria"
