@@ -37,6 +37,12 @@
       }else{
         $('div.field-' + field).show();
       }
+      if (element.val() === 'image') {
+        $('div.field-icon').show()
+        $('div.field-icon label').css('text-align', 'left')
+        $('.fieldBox.field-icon_type').hide()
+        $('.fieldBox.field-icon_type').hide()
+      }
     }
   }
 
