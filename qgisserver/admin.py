@@ -63,7 +63,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
-    list_display = ('title', 'url_wms', 'visible_on_geoportal',)
+    list_display = ('name', 'title', 'url_wms', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter),
                    'visible_on_geoportal')
     exclude = ('service_path',)
