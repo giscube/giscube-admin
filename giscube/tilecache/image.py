@@ -3,7 +3,9 @@ from TileCache.Layers.WMS import WMS
 
 
 class GiscubeTileCacheWMS(WMS):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scale = kwargs.get('scale', 1)
 
 
 def tile_cache_image(wms_options, buffer, cache_obj=None):
@@ -12,6 +14,7 @@ def tile_cache_image(wms_options, buffer, cache_obj=None):
     url = wms_options.get('url')
     layers = wms_options.get('layers')
     bbox = wms_options.get('bbox')
+    scale = wms_options.get('scale', 1)
     width = wms_options.get('width', 256)
     height = wms_options.get('height', 256)
     size = list(map(int, [width, height]))
@@ -23,8 +26,10 @@ def tile_cache_image(wms_options, buffer, cache_obj=None):
                               srs=srs,
                               levels=30,
                               spherical_mercator='true',
-                              size=size
+                              size=size,
+                              scale=scale
                               )
+    setattr(cache_obj, 'scale', scale)
     wms.cache = cache_obj
     wms.metaSize = (1, 1)
 
