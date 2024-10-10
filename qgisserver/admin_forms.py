@@ -17,10 +17,22 @@ class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
         wms_buffer_enabled = self.cleaned_data['wms_buffer_enabled']
         tilecache_enabled = self.cleaned_data['tilecache_enabled']
         wms_single_image = self.cleaned_data['wms_single_image']
+        tilecache_minzoom_level = self.cleaned_data['tilecache_minzoom_level']
+        tilecache_maxzoom_level = self.cleaned_data['tilecache_maxzoom_level']
+        tilecache_minZoom_level_chached = self.cleaned_data['tilecache_minZoom_level_chached']
+        tilecache_maxZoom_level_chached = self.cleaned_data['tilecache_maxZoom_level_chached']
 
         if (wms_buffer_enabled or tilecache_enabled) and wms_single_image:
             msg = _("WMS single image' is not compatible with these options: 'WMS buffer enabled', 'Tilecache enabled")
             self.add_error('wms_single_image', msg)
+
+        if tilecache_minzoom_level > tilecache_maxzoom_level:
+            self.add_error('tilecache_minzoom_level', 'This field must be lower or equal than Maximum zoom level')
+            self.add_error('tilecache_maxzoom_level', 'This field must be bigger or equal than Minimum zoom leve')
+
+        if tilecache_minZoom_level_chached > tilecache_maxZoom_level_chached:
+            self.add_error('tilecache_minZoom_level_chached', 'This field must be lower or equal than Max zoom level cached')
+            self.add_error('tilecache_maxZoom_level_chached', 'This field must be bigger or equal than Min zoom level cached')
 
         project = self.cleaned_data['project']
 
