@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.urls import reverse
+from django.utils.translation import gettext as _
+
 
 from giscube.tilecache.caches import GiscubeServiceCache
 from giscube.utils import get_service_wms_bbox, remove_app_url, url_slash_join
@@ -37,6 +39,17 @@ class TileCacheModelAdminMixin:
                     'classes': ('tab-tilecache',),
                 })
             )
+
+        fieldsets.append(
+            (_('Tile cache config'), {
+                'fields': [
+                    'tilecache_minZoom_level_chached',
+                    'tilecache_maxZoom_level_chached',
+                    'tilecache_expiration_time',
+                ],
+                'classes': ('tab-tilecache',),
+            })
+        )
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):

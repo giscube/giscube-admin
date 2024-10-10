@@ -1,6 +1,6 @@
 import logging
 import os
-
+import re
 import requests
 
 from requests.structures import CaseInsensitiveDict
@@ -103,6 +103,8 @@ class QGISServerTileCacheTilesView(ServiceMixin, View):
         if z < service.tilecache_minzoom_level or z > service.tilecache_maxzoom_level:
             return HttpResponseBadRequest()
 
+        scale = self.get_tile_scale(y)
+        y = self.get_y_coords(y)
         bbox = self.tile2bbox(z, x, y)
         layers = os.path.splitext(os.path.basename(service.project_file.name))[0]
         tile_options = {
@@ -110,16 +112,21 @@ class QGISServerTileCacheTilesView(ServiceMixin, View):
             'layers': layers,
             'xyz': [z, x, y],
             'bbox': bbox,
-            'srs': 'EPSG:3857'
+            'srs': 'EPSG:3857',
+            'scale': scale
         }
 
         buffer = [0, 0]
         if service.wms_buffer_enabled:
             buffer = list(map(int, service.wms_buffer_size.split(',')))
-        cache = GiscubeServiceCache(service)
+
+        cache = None
+        if z >= service.tilecache_minZoom_level_chached and z <= service.tilecache_maxZoom_level_chached:
+            cache = GiscubeServiceCache(service)
+
         image = tile_cache_image(tile_options, buffer, cache)
         response = HttpResponse(image, content_type='image/%s' % image_format)
-        patch_response_headers(response, cache_timeout=60 * 60 * 24 * 7)
+        patch_response_headers(response, cache_timeout=service.tilecache_expiration_time)
         response.status_code = 200
         return response
 
@@ -128,6 +135,17 @@ class QGISServerTileCacheTilesView(ServiceMixin, View):
         bbox = proj.tile_bbox((z, x, y))
         return proj.project(bbox[:2]) + proj.project(bbox[2:])
 
+    def get_tile_scale(self, string):
+        # Get Numbers between @x exp @2x = 2
+        patron = r'@(\d+)x'
+        match = re.findall(patron, string)
+        return int(match[0]) if match else 1
+
+    def get_y_coords(self, string):
+        # Get numbers before @ exp 342@2x = 342
+        patron = r'^(\d+)@'
+        match = re.search(patron, string)
+        return int(match.group(1)) if match else int(string)
 
 class QGISServerMapViewerView(ServiceMixin, View):
     def get(self, request, service_name):

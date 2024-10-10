@@ -50,10 +50,11 @@ class GiscubeServiceCache(Cache):
             zoom_level integer,
             tile_column integer,
             tile_row integer,
+            tile_scale integer,
             tile_id varchar(255),
             FOREIGN KEY (tile_id) REFERENCES images (tile_id)
                 ON DELETE CASCADE ON UPDATE NO ACTION,
-            UNIQUE(zoom_level, tile_column, tile_row)
+            UNIQUE(zoom_level, tile_column, tile_row, tile_scale)
           );
         """)
 
@@ -62,21 +63,28 @@ class GiscubeServiceCache(Cache):
             SELECT map.zoom_level AS zoom_level,
             map.tile_column AS tile_column,
             map.tile_row AS tile_row,
+            map.tile_scale AS tile_scale,
             images.tile_data AS tile_data FROM
             map JOIN images ON images.tile_id = map.tile_id;
             """)
         cur.execute("""vacuum;""")
         cur.execute("""analyze;""")
 
-    def get_by_tile(self, z, x, y):
+    def delete_tables(self, db, cur):
+        cur.execute("DROP VIEW  IF EXISTS tiles")
+        cur.execute("DROP TABLE IF EXISTS map")
+        cur.execute("DROP TABLE IF EXISTS images")
+
+    def get_by_tile(self, z, x, y, scale=1):
         db = self.get_db()
         cur = db.cursor()
         try:
             cur.execute(
-                'SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?',
-                (z, x, y)
+                'SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=? AND tile_scale=?',
+                (z, x, y, scale)
             )
         except sqlite3.OperationalError:
+            self.delete_tables(db, cur)
             self.create_tables(db, cur)
             return None
         return cur.fetchone()
@@ -86,13 +94,16 @@ class GiscubeServiceCache(Cache):
         return cur.fetchone()
 
     def save_map(self, db, cur, tile_id, z, x, y):
-        cur.execute('INSERT INTO map values(?, ?, ?, ?)', (z, x, y, tile_id))
+        cur.execute('INSERT INTO map values(?, ?, ?, ?, ?)', (z, x, y, self.scale, tile_id))
 
     def save_image(self, db, cur, tile_id, data):
         cur.execute('INSERT INTO images values(?, ?)', (tile_id, sqlite3.Binary(data)))
 
-    def get(self, tile):
-        result = self.get_by_tile(tile.z, tile.x, tile.y)
+    def get_with_scale(self, tile, scale=1):
+        return self.get(tile, scale=scale)
+
+    def get(self, tile, scale=1):
+        result = self.get_by_tile(tile.z, tile.x, tile.y, scale=scale)
         if result:
             tile.data = result[0]
             return tile.data
