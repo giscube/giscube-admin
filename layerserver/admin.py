@@ -136,7 +136,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             'classes': ('tab-design',),
         }),
         ('Design', {
-            'fields': ['interactive', 'tooltip', 'generate_popup', 'popup', 'legend'],
+            'fields': ['filtered_fields' ,'interactive', 'tooltip', 'generate_popup', 'popup', 'legend'],
             'classes': ('tab-design',),
         }),
         (_('Cluster'), {
@@ -178,7 +178,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             'classes': ('tab-design',),
         }),
         ('Design', {
-            'fields': ['interactive', 'tooltip', 'generate_popup', 'popup', 'legend'],
+            'fields': ['filtered_fields', 'interactive', 'tooltip', 'generate_popup', 'popup', 'legend'],
             'classes': ('tab-design',),
         }),
         (_('Cluster'), {
