@@ -161,3 +161,14 @@ def geojsonlayer_refresh_layer(layer, force_refresh_data_file, generate_popup):
             result['error'] = GEOJSONLAYER_ERROR_SAVING
             result['error_exception'] = format_exc()
     return result
+
+
+def get_list_fields(instance, fields, sort=True):
+    list_fields = list(fields.keys())
+    if sort:
+        list_fields.sort()
+    try:
+        list_fields.remove(instance.geom_field)
+    except Exception:
+        pass
+    return ','.join(list_fields)

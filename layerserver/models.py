@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import requests
 import shutil
 
 from model_utils import Choices
@@ -28,6 +29,7 @@ from .fields import ImageWithThumbnailField
 from .mapserver import SUPORTED_SHAPE_TYPES
 from .models_mixins import BaseLayerMixin, ClusterMixin, PopupMixin, ShapeStyleMixin, StyleMixin, TooltipMixin
 from .tasks import async_generate_mapfile
+from .utils import get_list_fields
 from .widgets import widgets_types
 
 
@@ -61,6 +63,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
         _('maximum outdated time'), blank=True, null=True, help_text=help_text)
     last_fetch_on = models.DateTimeField(_('last fetch on'), null=True, blank=True)
     generated_on = models.DateTimeField(_('generated on'), null=True, blank=True)
+    filtered_fields = models.TextField(_('filtered fields'), blank=True, null=True)
     anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     fields = models.TextField(blank=True, null=True)
@@ -253,6 +256,34 @@ def databaselayer_mapfile_upload_path(instance, filename):
     return unique_service_directory(instance, 'wms.map')
 
 
+@receiver(post_save, sender=GeoJsonLayer)
+def add_fields(sender, instance, created, **kwargs):
+    if hasattr(instance, '_disable_signal_add_fields'):
+        delattr(instance, '_disable_signal_add_fields')
+        return None
+
+    data = None
+    if instance.url:
+        response = requests.get(instance.url)
+        if response and response.status_code == 200:
+            data = response.json()
+
+    elif instance.data_file:
+        with open(instance.data_file.path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+    features = data.get('features', []) if data else []
+    fields = features[0]['properties'] if len(features) > 0 and 'properties' in features[0] else None
+
+    changes = 0
+    if (instance.filtered_fields is None or instance.filtered_fields.strip(' \t\n\r') == '') and fields:
+        instance.filtered_fields = get_list_fields(instance, fields, sort=False)
+        changes += 1
+    if changes > 0:
+        instance._disable_signal_add_fields = True
+        instance.save()
+
+
 DATA_FILTER_STATUS_CHOICES = Choices(
     ('enabled', _('Enabled'),),
     ('disabled', _('Error misconfigured'),),
@@ -370,22 +401,10 @@ def add_fields(sender, instance, created, **kwargs):
 
     changes = 0
     if instance.list_fields is None or instance.list_fields.strip(' \t\n\r') == '':
-        list_fields = list(fields.keys())
-        list_fields.sort()
-        try:
-            list_fields.remove(instance.geom_field)
-        except Exception:
-            pass
-        instance.list_fields = ','.join(list_fields)
+        instance.list_fields = get_list_fields(instance, fields)
         changes += 1
     if instance.form_fields is None or instance.form_fields.strip(' \t\n\r') == '':
-        form_fields = list(fields.keys())
-        form_fields.sort()
-        try:
-            form_fields.remove(instance.geom_field)
-        except Exception:
-            pass
-        instance.form_fields = ','.join(form_fields)
+        instance.form_fields = get_list_fields(instance, fields)
         changes += 1
     if instance.geom_field is not None and (instance.popup is None or instance.popup.strip(' \t\n\r') == ''):
         instance.popup = instance.get_default_popup()
