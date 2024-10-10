@@ -280,26 +280,15 @@ class GeoJsonLayerAddForm(ClusterFormMixin, forms.ModelForm):
     force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=True)
     generate_popup = forms.BooleanField(label=_('Generate popup from data'), required=False, initial=False)
 
-    def clean_name(self):
-        return slugify(self.cleaned_data['name'])
-
-    class Meta:
-        model = GeoJsonLayer
-        exclude = ()
-        widgets = {
-            'stroke_color': ColorWidget,
-            'fill_color': ColorWidget,
-            'marker_color': ColorWidget,
-            'icon_color': ColorWidget
-        }
-
-
-class GeoJsonLayerChangeForm(ClusterFormMixin, forms.ModelForm):
-    force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=False)
-    generate_popup = forms.BooleanField(label=_('Generate popup from data'), required=False, initial=False)
+    def _split_comma(self, value):
+        return list(filter(None, [x.strip() for x in value.split(',')]))
 
     def clean_name(self):
         return slugify(self.cleaned_data['name'])
+
+    def clean_filtered_fields(self):
+        values = self._split_comma(self.cleaned_data.get('filtered_fields', ''))
+        return ','.join(values)
 
     class Meta:
         model = GeoJsonLayer
@@ -309,6 +298,33 @@ class GeoJsonLayerChangeForm(ClusterFormMixin, forms.ModelForm):
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
             'icon_color': ColorWidget,
+            'filtered_fields': TagsWidget
+        }
+
+
+class GeoJsonLayerChangeForm(ClusterFormMixin, forms.ModelForm):
+    force_refresh_data_file = forms.BooleanField(label=_('Force refresh Data file'), required=False, initial=False)
+    generate_popup = forms.BooleanField(label=_('Generate popup from data'), required=False, initial=False)
+
+    def _split_comma(self, value):
+        return list(filter(None, [x.strip() for x in value.split(',')]))
+
+    def clean_name(self):
+        return slugify(self.cleaned_data['name'])
+    
+    def clean_filtered_fields(self):
+        values = self._split_comma(self.cleaned_data.get('filtered_fields', ''))
+        return ','.join(values)
+
+    class Meta:
+        model = GeoJsonLayer
+        exclude = ()
+        widgets = {
+            'stroke_color': ColorWidget,
+            'fill_color': ColorWidget,
+            'marker_color': ColorWidget,
+            'icon_color': ColorWidget,
+            'filtered_fields': TagsWidget
         }
 
 

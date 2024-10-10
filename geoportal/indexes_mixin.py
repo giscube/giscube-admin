@@ -40,6 +40,7 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
         data['visible_on_geoportal'] = getattr(obj, 'visible_on_geoportal', False)
         data['options'] = json.loads(getattr(obj, 'options', '{}') or '{}')
         data['catalog'] = (obj.category.title or '').split(Category.SEPARATOR) if obj.category else []
+        data['filtered_fields'] = [item.strip() for item in obj.filtered_fields.split(',')] if hasattr(obj, 'filtered_fields') else None
         if hasattr(obj, "get_filters"):
             data['filters'] = obj.get_filters()
         metadata_data = [

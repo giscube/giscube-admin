@@ -13,4 +13,36 @@
 {% if original and original.name %}
   {% include "admin/layerserver/geojson_layer/table-logtask.html" %}
 {% endif %}
+{% block admin_change_form_document_ready %}{{ block.super }}
+<script type="text/javascript">
+  (function ($){
+    // Tags
+    function update_tagify_whitelist(){
+      var value, filtered_fields = [];
+      {% for field in all_fields %}
+        value = '{{field}}'
+        if (value != '' && filtered_fields.indexOf(value) === -1){
+          filtered_fields.push(value);
+        }
+      {% endfor %}
+      $('textarea.tags-widget').each(function(_, el){
+          $(el).data('tagify').settings.whitelist = filtered_fields;
+      });
+    }
+  
+    $('.field-enabled input[type="checkbox"]').change(function(){
+      update_tagify_whitelist();
+    });
+  
+    $('fieldset.tab-virtual-fields td.field-name input').change(function(){
+      update_tagify_whitelist();
+    });
+  
+    $(document).ready(function(){
+        update_tagify_whitelist();
+    });
+  
+  })(django.jQuery);
+</script>
+{% endblock %}
 {% endblock %}
