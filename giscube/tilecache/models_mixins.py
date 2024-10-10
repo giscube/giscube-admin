@@ -24,6 +24,22 @@ class TileCacheModelMixin(models.Model):
         default=22,
         validators=[MaxValueValidator(30), MinValueValidator(0)]
     )
+    tilecache_expiration_time = models.IntegerField(_('cache expiration time'), help_text=_('Time in seconds'), default=604800)
+    tilecache_minZoom_level_chached =models.SmallIntegerField(
+        _('min zoom level cached'),
+        blank=False,
+        null=False,
+        default=4,
+        validators=[MinValueValidator(0)]
+    )
+    tilecache_maxZoom_level_chached =models.SmallIntegerField(
+        _('max zoom level cached'),
+        blank=False,
+        null=False,
+        default=22,
+        validators=[MinValueValidator(0)]
+    )
+
 
     class Meta:
         abstract = True
