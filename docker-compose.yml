@@ -23,9 +23,9 @@ services:
      - app.env
     volumes:
       - .:/app:cached
-      - ./docker-custom/postgres/dictionaries/dist/ca.affix:/usr/share/postgresql/11/tsearch_data/ca.affix
-      - ./docker-custom/postgres/dictionaries/dist/ca.dict:/usr/share/postgresql/11/tsearch_data/ca.dict
-      - ./docker-custom/postgres/dictionaries/dist/catalan.stop:/usr/share/postgresql/11/tsearch_data/catalan.stop
+      - ./docker-custom/postgres/dictionaries/dist/ca.affix:/usr/share/postgresql/12/tsearch_data/ca.affix
+      - ./docker-custom/postgres/dictionaries/dist/ca.dict:/usr/share/postgresql/12/tsearch_data/ca.dict
+      - ./docker-custom/postgres/dictionaries/dist/catalan.stop:/usr/share/postgresql/12/tsearch_data/catalan.stop
       - pg_data:/var/lib/postgresql/data
 
 
