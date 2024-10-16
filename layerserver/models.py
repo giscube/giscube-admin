@@ -62,6 +62,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
         _('maximum outdated time'), blank=True, null=True, help_text=help_text)
     last_fetch_on = models.DateTimeField(_('last fetch on'), null=True, blank=True)
     generated_on = models.DateTimeField(_('generated on'), null=True, blank=True)
+    all_fields = models.TextField(_('all fields'), blank=True, null=True)
     filtered_fields = models.TextField(_('filtered fields'), blank=True, null=True)
     anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
@@ -275,13 +276,14 @@ def add_fields(sender, instance, created, **kwargs):
     fields = features[0]['properties'] if len(features) > 0 and 'properties' in features[0] else None
 
     changes = 0
-    if instance.filtered_fields is None or instance.filtered_fields.strip(' \t\n\r') == '' and fields:
+    if (instance.filtered_fields is None or instance.filtered_fields.strip(' \t\n\r') == '') and fields:
         filtered_fields = list(fields.keys())
         try:
             filtered_fields.remove(instance.geom_field)
         except Exception:
             pass
         instance.filtered_fields = ','.join(filtered_fields)
+        instance.all_fields = instance.filtered_fields
         changes += 1
     if changes > 0:
         instance._disable_signal_add_fields = True
