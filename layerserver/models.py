@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import requests
 import shutil
 
 from model_utils import Choices
@@ -61,6 +62,8 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
         _('maximum outdated time'), blank=True, null=True, help_text=help_text)
     last_fetch_on = models.DateTimeField(_('last fetch on'), null=True, blank=True)
     generated_on = models.DateTimeField(_('generated on'), null=True, blank=True)
+    all_fields = models.TextField(_('all fields'), blank=True, null=True)
+    filtered_fields = models.TextField(_('filtered fields'), blank=True, null=True)
     anonymous_view = models.BooleanField(_('anonymous users can view'), default=False)
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     fields = models.TextField(blank=True, null=True)
@@ -251,6 +254,40 @@ class GeoJsonLayerStyleRule(StyleMixin, models.Model):
 
 def databaselayer_mapfile_upload_path(instance, filename):
     return unique_service_directory(instance, 'wms.map')
+
+
+@receiver(post_save, sender=GeoJsonLayer)
+def add_fields(sender, instance, created, **kwargs):
+    if hasattr(instance, '_disable_signal_add_fields'):
+        delattr(instance, '_disable_signal_add_fields')
+        return None
+
+    data = None
+    if instance.url:
+        response = requests.get(instance.url)
+        if response and response.status_code == 200:
+            data = response.json()
+
+    elif instance.data_file:
+        with open(instance.data_file.path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+    features = data.get('features', []) if data else []
+    fields = features[0]['properties'] if len(features) > 0 and 'properties' in features[0] else None
+
+    changes = 0
+    if (instance.filtered_fields is None or instance.filtered_fields.strip(' \t\n\r') == '') and fields:
+        filtered_fields = list(fields.keys())
+        try:
+            filtered_fields.remove(instance.geom_field)
+        except Exception:
+            pass
+        instance.filtered_fields = ','.join(filtered_fields)
+        instance.all_fields = instance.filtered_fields
+        changes += 1
+    if changes > 0:
+        instance._disable_signal_add_fields = True
+        instance.save()
 
 
 DATA_FILTER_STATUS_CHOICES = Choices(
