@@ -208,7 +208,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         extra_context = {} if extra_context is None else extra_context
         extra_context['view_layer'] = self.view_layer(obj)
         extra_context['can_apply_style'] = True
-        extra_context['all_fields'] = obj.fields.split(',')
+        extra_context['all_fields'] = obj.fields.split(',') if obj.fields else None
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_form(self, request, obj=None, **kwargs):

@@ -13,3 +13,23 @@ class VisorUserTrack(models.Model):
 
     def __str__(self):
         return f'{self.username} - {self.ip} - {self.datetime}'
+
+
+class LayerRegister(models.Model):
+    layer_name = models.CharField(_('layer name'), max_length=255, null=True, blank=True)
+    datetime = models.DateTimeField(_('updated date'), null=True, blank=True)
+    username = models.CharField(_("username"), max_length=150)
+
+    class Meta:
+        verbose_name = _('Layer register')
+        verbose_name_plural = _('Layers register')
+
+
+class ToolRegister(models.Model):
+    tool_name = models.CharField(_('tool name'), max_length=255, null=True, blank=True)
+    datetime = models.DateTimeField(_('updated date'), null=True, blank=True)
+    username = models.CharField(_("username"), max_length=150)
+
+    class Meta:
+        verbose_name = _('Tool register')
+        verbose_name_plural = _('Tools register')
