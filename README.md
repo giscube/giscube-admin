@@ -131,4 +131,4 @@ docker-compose exec db bash docker/db/db_init.sh giscube.sql
 
 Automatic script:
 
-docker-compose exec db bash docker/db/db_catalan_dictionary.sh
+docker-compose exec db bash app/docker-custom/postgres/db_catalan_dictionary.sh
