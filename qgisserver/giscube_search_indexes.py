@@ -27,6 +27,8 @@ class ServiceSearch(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIn
                 'type': 'TMS',
                 'url': url,
             })
+            if obj.tilecache_bbox:
+              service.update({ 'bbox': obj.tilecache_bbox })
         else:
             url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
             service.update({
