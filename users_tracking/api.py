@@ -10,7 +10,7 @@ class LayerRegisterViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     queryset = LayerRegister.objects.all()
     serializer_class = LayerRegisterSerializer
 
@@ -21,6 +21,6 @@ class ToolRegisterViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     queryset = ToolRegister.objects.all()
     serializer_class = ToolRegisterSerializer
