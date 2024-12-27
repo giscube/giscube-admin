@@ -12,5 +12,6 @@ def profile(request):
         'username': request.user.username,
         'admin_url': request.build_absolute_uri(reverse('admin:index')),
         'is_staff': request.user.is_staff,
+        'groups': list(request.user.groups.values_list('name', flat=True)),
     }
     return Response(data)
