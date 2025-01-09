@@ -71,13 +71,20 @@ class WMSProxyMixin(ProxyMixin):
     def getfeatureinfo(self, request):
         url = self.build_url(request)
         return super().get(request, url=url)
+    
+    def gettile(self, request):
+        url = self.build_url(request)
+        return super().get(request, url=url)
 
     def get(self, request):
-        wms_service = self.param_get(request.GET, 'service', '').lower()
-        wms_request = self.param_get(request.GET, 'request', '').lower()
-        if wms_service == 'wms':
-            if wms_request in ('getmap', 'getcapabilities', 'getlegendgraphic', 'getfeatureinfo'):
-                return getattr(self, wms_request)(request)
+        service_type = self.param_get(request.GET, 'service', '').lower()
+        service_request = self.param_get(request.GET, 'request', '').lower()
+        if service_type == 'wms':
+            if service_request in ('getmap', 'getcapabilities', 'getlegendgraphic', 'getfeatureinfo'):
+                return getattr(self, service_request)(request)
+        elif service_type == 'wmts':
+            if service_request in ('getcapabilities', 'gettile', 'getfeatureinfo'):
+                return getattr(self, service_request)(request)
         return HttpResponseBadRequest()
 
 

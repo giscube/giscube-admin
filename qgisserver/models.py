@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category, Server
 from giscube.tilecache.models_mixins import TileCacheModelMixin
-from giscube.utils import url_slash_join
+from giscube.utils import get_wms_layers, url_slash_join
 from giscube.validators import validate_options_json_format
 from qgisserver.model_mixins import WFSMixin
 from qgisserver.utils import deactivate_services, unique_service_directory
@@ -49,6 +49,11 @@ def project_unique_service_directory(instance, filename):
 
 
 class Service(WFSMixin, TileCacheModelMixin, models.Model):
+    TYPE_CHOICES = (
+        ('wms', 'WMS'),
+        ('wmts', 'WMTS')
+    )
+
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='qgisserver_services')
@@ -96,7 +101,13 @@ class Service(WFSMixin, TileCacheModelMixin, models.Model):
     help_text = '%s %s' % (_('Field between curly braces. e.g.'), '{%s}' % _('street'))
     popup = models.TextField(_('popup'), blank=True, null=True, help_text=help_text)
 
+    service_type = models.CharField(_('service type'), max_length=255, choices=TYPE_CHOICES, default='wms')
+
     def save(self, *args, **kwargs):
+        if self.read_layers_automatically and self.service_type == "wms" and self.wms_url:
+            self.layers = get_wms_layers(self.wms_url)
+        elif self.read_layers_automatically and self.service_type == "wmts" and self.wmts_url:
+            self.layers = get_wms_layers(self.wmts_url)
         super().save(*args, **kwargs)
 
     @property
@@ -113,6 +124,10 @@ class Service(WFSMixin, TileCacheModelMixin, models.Model):
     @property
     def wms_url(self):
         return '%s?service=WMS&version=1.1.1&request=GetCapabilities' % self.service_url
+    
+    @property
+    def wmts_url(self):
+        return '%s?service=WMTS&request=GetCapabilities' % self.service_url
 
     @property
     def service_internal_url(self):
