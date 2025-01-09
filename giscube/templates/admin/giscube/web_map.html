@@ -25,10 +25,9 @@
           {% endif %}
           {% if layer.type == 'wms' %}
           layer = L.tileLayer.wms('{{ layer.url }}', {
-            {% if layer.transparent %}
             transparent: true,
-            {% endif %}
-            layers: '{{ layer.layers }}'
+            layers: '{{ layer.layers }}',
+            format: 'image/png'
           }).addTo(map);
           baseLayers['{{ layer.name }}'] = layer;
           {% endif %}
