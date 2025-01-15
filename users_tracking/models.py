@@ -17,8 +17,9 @@ class VisorUserTrack(models.Model):
 
 class LayerRegister(models.Model):
     layer_name = models.CharField(_('layer name'), max_length=255, null=True, blank=True)
-    datetime = models.DateTimeField(_('updated date'), null=True, blank=True)
-    username = models.CharField(_("username"), max_length=150)
+    giscube_id = models.CharField(_('Giscube ID'), max_length=10, null=True, blank=True)
+    datetime = models.DateTimeField(_('datetime'), null=True, blank=True)
+    username = models.CharField(_("username"), max_length=150, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Layer register')
@@ -27,8 +28,8 @@ class LayerRegister(models.Model):
 
 class ToolRegister(models.Model):
     tool_name = models.CharField(_('tool name'), max_length=255, null=True, blank=True)
-    datetime = models.DateTimeField(_('updated date'), null=True, blank=True)
-    username = models.CharField(_("username"), max_length=150)
+    datetime = models.DateTimeField(_('datetime'), null=True, blank=True)
+    username = models.CharField(_("username"), max_length=150, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Tool register')

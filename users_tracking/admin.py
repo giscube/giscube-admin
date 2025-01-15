@@ -28,8 +28,8 @@ class VisorUserTrackAdmin(admin.ModelAdmin):
 
 @admin.register(LayerRegister)
 class LayerRegisterAdmin(admin.ModelAdmin):
-    list_display = ['layer_name', 'datetime', 'username']
-    readonly_fields = ['layer_name', 'datetime', 'username']
+    list_display = ['layer_name', 'giscube_id', 'datetime', 'username']
+    readonly_fields = ['layer_name', 'giscube_id', 'datetime', 'username']
     search_fields = ['username']
     list_filter = [
         ('datetime', DateRangeFilter),
