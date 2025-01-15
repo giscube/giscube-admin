@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-15 12:08+0100\n"
+"POT-Creation-Date: 2025-01-15 13:15+0100\n"
 "PO-Revision-Date: 2020-11-24 06:45+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2218,6 +2218,10 @@ msgstr "Projecte"
 #: qgisserver/models.py:241
 msgid "Projects"
 msgstr "Projectes"
+
+#: users_tracking/actions.py:7 users_tracking/actions.py:25
+msgid "Download selected registers (CSV)"
+msgstr "Descarrega registres seleccionats (CSV)"
 
 #: users_tracking/apps.py:7
 msgid "User tracks"
