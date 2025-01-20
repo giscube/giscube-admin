@@ -32,7 +32,7 @@ class ServiceSearch(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchIn
         else:
             url = url_slash_join(settings.GISCUBE_URL, '/qgisserver/services/%s' % obj.name)
             service.update({
-                'type': 'WMS',
+                'type': obj.service_type,
                 'url': url,
                 'layers': obj.default_layer or '',
                 'projection': '3857',
