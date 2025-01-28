@@ -1,5 +1,7 @@
 from collections import OrderedDict
+from urllib.parse import urljoin
 
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
@@ -119,7 +121,8 @@ class ImageWithThumbnailSerializerMixin(object):
         if value is None or value.name is None or value.name.strip() == '':
             return None
 
-        if 'base_url' in image_options and image_options['base_url'] is not None:
+        base_url = image_options.get("base_url")
+        if base_url is not None and base_url != "<auto>":
             if value:
                 res = {
                     'src': value.storage.url(value.name)
@@ -133,16 +136,16 @@ class ImageWithThumbnailSerializerMixin(object):
             kwargs = {'name': obj._giscube_dblayer_schema['name'], 'pk': pk, 'attribute': attribute,
                       'path': value.name}
             url = reverse('content-detail-file-value', kwargs=kwargs)
-            url = self.append_token(self.context['request'].build_absolute_uri(url))
+            url = urljoin(settings.GISCUBE_URL, url)
             res = {
-                'src': url
+                'src': self.append_token(url)
             }
             thumbnail = value.storage.get_thumbnail(value.name)
             if thumbnail:
                 kwargs = {'name': obj._giscube_dblayer_schema['name'], 'pk': pk, 'attribute': attribute,
                           'path': thumbnail['name']}
                 url = reverse('content-detail-thumbnail-value', kwargs=kwargs)
-                url = self.context['request'].build_absolute_uri(url)
+                url = urljoin(settings.GISCUBE_URL, url)
                 res['thumbnail'] = self.append_token(url)
             return res
 
