@@ -1,4 +1,8 @@
+from urllib.parse import urljoin
 
+from django.conf import settings
+
+from giscube.utils import url_slash_join
 
 from rest_framework import serializers
 
@@ -19,7 +23,8 @@ class UserAssetSerializer(serializers.ModelSerializer):
             token = self.context['request'].auth.token
         data = super(
             UserAssetSerializer, self).to_representation(obj)
-        data['url'] = data['file']
+        media_url = urljoin(settings.GISCUBE_URL, settings.MEDIA_URL)
+        data["url"] = url_slash_join(media_url, obj.file.name)
         if token:
             data['url'] = '%s?access_token=%s' % (data['url'], token)
         data['file'] = r'media://%s' % obj.file.name
