@@ -1,6 +1,7 @@
 import logging
 import mimetypes
 import os
+import re
 import warnings
 
 from functools import reduce
@@ -13,7 +14,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.http import FileResponse, Http404, HttpResponseBadRequest
+from django.http import FileResponse, Http404, HttpResponseBadRequest, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils.cache import patch_response_headers
 from django.utils.functional import cached_property
@@ -163,20 +164,20 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
             geom.transform(trans)
         return geom
 
-    def _geom_filters(self, qs):
-        in_bbox = self.request.query_params.get('in_bbox', None)
+    def _geom_filters(self, qs, query_params):
+        in_bbox = query_params.get('in_bbox', None)
         if in_bbox:
             poly__bboverlaps = '%s__bboverlaps' % self.layer.geom_field
             qs = qs.filter(**{poly__bboverlaps: self.bbox2wkt(
                 in_bbox, self.layer.srid)})
-        intersects = self.request.query_params.get('intersects', None)
+        intersects = query_params.get('intersects', None)
         if intersects:
             poly__intersects = '%s__intersects' % self.layer.geom_field
             qs = qs.filter(**{poly__intersects: self.geom_from_intersects_param(intersects, self.layer.srid)})
         return qs
 
-    def _fullsearch_filters(self, qs):
-        q = self.request.query_params.get('q', None)
+    def _fullsearch_filters(self, qs, query_params):
+        q = query_params.get('q', None)
         if q:
             lst = []
             for name, field in self._fields.items():
@@ -187,14 +188,100 @@ class DBLayerContentViewSet(DBLayerContentViewSetMixin, viewsets.ModelViewSet):
             if len(lst) > 0:
                 qs = qs.filter(reduce(OR, lst))  # noqa: E0602
         return qs
+    
+    def _advanced_filters(self):
+        query_params = QueryDict('', mutable=True)
+        query_params.update(self.request.query_params)
+
+        for field, value in self.request.query_params.items():
+            filters = re.split(r'\s+AND\s+', value, flags=re.IGNORECASE)
+
+            for filter_str in filters:
+                match = re.match(
+                    r'^\s*["\']?([\w.]+)["\']?\s*(>=|<=|>|<|=|CONTAINS|LIKE|EXACT)\s*["\']?(.*?)["\']?\s*$', 
+                    filter_str, re.IGNORECASE
+                )
+
+                if match:
+                    field_name, operator, val = match.groups()
+                    field_name = field_name.lower().strip()
+                    operator = operator.upper().strip()
+                    val = val.strip()
+
+                    if not field_name or not operator or not val:
+                        continue
+
+                    filter_data = self._get_operator_filter(field_name, operator, val)
+                    if filter_data:
+                        query_params.pop('q', None)
+                        query_params[filter_data['key']] = filter_data['val']
+
+                else:
+                    match_col = re.match(
+                        r'^\s*(>=|<=|>|<|=|CONTAINS|LIKE|EXACT)\s*["\']?(.*?)["\']?$',
+                        value, re.IGNORECASE
+                    )
+
+                    if match_col:
+                        operator, val = match_col.groups()
+                        operator = operator.lower().strip()
+                        val = val.strip()
+
+                        if not operator or not val:
+                            continue
+
+                        filter = self._get_operator_filter(field, operator, val)
+                        if filter:
+                            query_params.pop(field, None)
+                            query_params[filter['key']] = filter['val']
+        return query_params
+    
+    def _get_operator_filter(self, field, operator, val):
+        qs_operator_map = {
+            '>': 'gt',
+            '>=': 'gte',
+            '<': 'lt',
+            '<=': 'lte',
+            '=': 'exact',
+            'EXACT': 'exact',
+            'CONTAINS': 'icontains'
+        }
+
+        if operator == "LIKE":
+            if val.startswith("%") and val.endswith("%"):
+                qs_operator = "icontains"
+                val = val.strip("%")
+            elif val.startswith("%"): 
+                qs_operator = "endswith"
+                val = val.strip("%")
+            elif val.endswith("%"):
+                qs_operator = "startswith"
+                val = val.strip("%")
+            else:
+                qs_operator = "icontains"
+        else:
+            qs_operator = qs_operator_map.get(operator)
+
+        if qs_operator and val:
+            new_key = f"{field.strip('icontains')}"
+
+            if '__' in field:
+                base_field = field.split('__')[0]
+                new_key = f"{base_field}__{qs_operator}"
+            else:
+                new_key = f"{field}__{qs_operator}"
+            return {'key': new_key, 'val': val}
+        return None
+        
 
     def _get_queryset(self):
         qs = self.model.objects.all()
-        qs = self._fullsearch_filters(qs)
-        qs = self._geom_filters(qs)
+        query_params = self._advanced_filters()
+        qs = self._fullsearch_filters(qs, query_params)
+        qs = self._geom_filters(qs, query_params)
         qs = self._virtual_fields_get_queryset(qs)
         model_filter = filterset_factory(self.model, self.filter_fields, self._virtual_fields)
-        qs = model_filter(data=self.request.query_params, queryset=qs)
+        qs = model_filter(data=query_params, queryset=qs)
         qs = qs.filter()
         qs = self.filter_queryset_by_group_data_filter(qs)
         return qs
