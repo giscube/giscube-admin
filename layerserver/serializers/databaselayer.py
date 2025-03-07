@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from giscube.utils import remove_app_url, url_slash_join
 from layerserver.model_legacy import create_dblayer_model
-from layerserver.models import DataBaseLayer, DataBaseLayerReference
+from layerserver.models import DataBaseLayer, DataBaseLayerReference, DBLayerGroup
 
 from .dblayer_field import DBLayerFieldSerializer
 from .dblayer_virtualfield import DBLayerVirtualFieldSerializer
@@ -103,9 +103,41 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     fields = DBLayerFieldSerializer(many=True, read_only=True)
     virtual_fields = DBLayerVirtualFieldSerializer(many=True, read_only=True)
     references = DBLayerReferenceSerializer(many=True, read_only=True)
+    permissions = serializers.SerializerMethodField()
 
     def get_title(self, obj):
         return obj.title or obj.name
+    
+    def get_permissions(self, layer):
+        user = self.context['request'].user
+        permission = {
+            'add': layer.anonymous_add,
+            'update': layer.anonymous_update,
+            'delete': layer.anonymous_delete
+        }
+
+        if user.is_anonymous:
+            return permission
+
+        user_permission = layer.user_permissions.filter(user=user).first()
+        if user_permission:
+            if user_permission.can_add:
+                permission['add'] = user_permission.can_add
+            if user_permission.can_update:
+                permission['update'] = user_permission.can_update
+            if user_permission.can_delete:
+                permission['delete'] = user_permission.can_delete
+        else:
+            group_permissions = DBLayerGroup.objects.filter(layer=layer, group__in=user.groups.all())
+            for group_permission in group_permissions:
+                if group_permission.can_add:
+                    permission['add'] = group_permission.can_add
+                if group_permission.can_update:
+                    permission['update'] = group_permission.can_update
+                if group_permission.can_delete:
+                    permission['delete'] = group_permission.can_delete
+
+        return permission
 
     def format_options_json(self, obj, data):
         return data.update({
@@ -169,4 +201,4 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataBaseLayer
         fields = ['name', 'title', 'description', 'keywords', 'pk_field', 'geom_field', 'fields', 'virtual_fields',
-                  'references']
+                  'references', 'permissions']
