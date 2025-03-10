@@ -3,7 +3,7 @@ from django.contrib import admin
 from django_admin_listfilter_dropdown.filters import DropdownFilter
 from rangefilter.filter import DateRangeFilter
 
-from .actions import download_layers_csv, download_tools_csv
+from .actions import download_layers_csv, download_tools_csv, download_visor_csv
 from .models import LayerRegister, ToolRegister, VisorUserTrack
 
 
@@ -16,6 +16,7 @@ class VisorUserTrackAdmin(admin.ModelAdmin):
         ('datetime', DateRangeFilter),
         ('username', DropdownFilter)
     ]
+    actions = [download_visor_csv]
 
     def has_add_permission(self, request):
         return False
