@@ -14,4 +14,36 @@
   {% if original.pk %}
     {% include 'admin/giscube/giscube-maptiler.html' %}
   {% endif %}
+  {% block admin_change_form_document_ready %}{{ block.super }}
+  <script type="text/javascript">
+    (function ($){
+      // Tags
+      function update_tagify_whitelist(){
+        var value, layers = [];
+        {% for layer in all_layers %}
+          value = '{{layer}}'
+          if (value != '' && layers.indexOf(value) === -1){
+            layers.push(value);
+          }
+        {% endfor %}
+        $('textarea.tags-widget').each(function(_, el){
+            $(el).data('tagify').settings.whitelist = layers;
+        });
+      }
+    
+      $('.field-enabled input[type="checkbox"]').change(function(){
+        update_tagify_whitelist();
+      });
+    
+      $('fieldset.tab-virtual-fields td.field-name input').change(function(){
+        update_tagify_whitelist();
+      });
+    
+      $(document).ready(function(){
+          update_tagify_whitelist();
+      });
+    
+    })(django.jQuery);
+  </script>
+  {% endblock %}
 {% endblock %}
