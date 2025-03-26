@@ -5,6 +5,7 @@ import zipfile
 
 from django.conf import settings
 from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db.models import Value as V
 from django.db.models.functions import Coalesce, Concat
@@ -15,12 +16,13 @@ from django.utils.translation import gettext as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
+from giscube.utils import get_wms_layers
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
 
-from .admin_forms import ServiceChangeForm
+from .admin_forms import ServiceChangeForm, ServiceFilterForm
 from .models import (Project, Service, ServiceGroupPermission, ServiceMetadata, ServiceResource, ServiceUserPermission,
-                     project_unique_service_directory)
+                     ServiceFilter, project_unique_service_directory)
 from .signals import service_project_updated, service_updated
 from .utils import unique_service_directory
 
@@ -59,6 +61,14 @@ class ServiceUserPermissionInline(admin.TabularInline):
     verbose_name_plural = _('Users')
 
 
+class ServiceFilterInline(admin.StackedInline):
+    model = ServiceFilter
+    form = ServiceFilterForm
+    extra = 0
+    classes = ('tab-options',)
+    verbose_name = _('WMS Filter')
+    verbose_name_plural = _('WMS Filters')
+
 class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
@@ -73,7 +83,8 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         ServiceMetadataInline,
         ServiceResourceInline,
         ServiceGroupPermissionInline,
-        ServiceUserPermissionInline
+        ServiceUserPermissionInline,
+        ServiceFilterInline
     )
     readonly_fields = ('project_file',)
     save_as = True
@@ -104,7 +115,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
             'fields': [
                 'wms_single_image', 'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes',
                 'wms_getfeatureinfo_enabled',
-                'options', "choose_individual_layers", "read_layers_automatically", "layers"
+                'options', "layers"
             ],
             'classes': ('tab-options',),
         }),
@@ -132,6 +143,12 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         }),
     ]
 
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.model.objects.filter(pk=object_id).first()
+        extra_context = {} if extra_context is None else extra_context
+        extra_context['all_layers'] = obj.layers.split(',') if obj.layers else None
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)
         current_url = resolve(request.path_info).url_name
@@ -158,6 +175,16 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     anonymous_view_user.short_description = _('Anonymous view')
     anonymous_view_user.boolean = True
 
+    def update_layers(self, request, obj):
+        if obj.service_internal_url:
+            try:
+                obj.layers = get_wms_layers(obj.service_internal_url)
+                obj.save()
+            except ValidationError as e:
+                error_message = str(e)
+                
+                messages.error(request, error_message)
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if form.is_valid() and 'project' in form.changed_data:
@@ -176,11 +203,12 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                     zip_file.extractall(mapdata_dir)
                     name = '%s.qgs' % obj.name
                     obj.project_file.name = project_unique_service_directory(obj, name)
-                    obj.save()
                 else:
                     name = form.cleaned_data['project'].name
                     file = ContentFile(form.cleaned_data['project'].file.getvalue())
                     obj.project_file.save(name, file, save=True)
+                obj.save()
+                self.update_layers(request, obj)
             except Exception as e:
                 db_logger.exception(e)
                 messages.error(request, _('Is not possible to save %s' % form.cleaned_data['project'].name))

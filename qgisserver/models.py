@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from giscube.model_mixins import MetadataModelMixin, ResourceModelMixin
 from giscube.models import Category, Server
 from giscube.tilecache.models_mixins import TileCacheModelMixin
-from giscube.utils import get_wms_layers, url_slash_join
+from giscube.utils import url_slash_join
 from giscube.validators import validate_options_json_format
 from qgisserver.utils import deactivate_services, unique_service_directory
 
@@ -89,16 +89,12 @@ class Service(TileCacheModelMixin, models.Model):
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
-    choose_individual_layers = models.BooleanField(_("choose individual layers"), default=False)
-    read_layers_automatically = models.BooleanField(_("read layers automatically"), default=False)
     layers = models.TextField(_('layers'), null=True, blank=True)
 
     help_text = '%s %s' % (_('Field between curly braces. e.g.'), '{%s}' % _('street'))
     popup = models.TextField(_('popup'), blank=True, null=True, help_text=help_text)
 
     def save(self, *args, **kwargs):
-        if self.read_layers_automatically and self.wms_url:
-            self.layers = get_wms_layers(self.wms_url)
         super().save(*args, **kwargs)
 
     @property
@@ -127,6 +123,16 @@ class Service(TileCacheModelMixin, models.Model):
                 server_url = '%s&' % server_url
             url = "%s%s" % (server_url, mapfile)
             return url
+    
+
+    def get_filters(self):
+        from .serializers import ServiceFilterSerializer
+        filters = []
+        for filter in self.filters.all():
+            serializer = ServiceFilterSerializer(filter)
+            filters.append(serializer.data)
+        return filters
+
 
     def __str__(self):
         return str(self.title or self.name)
@@ -189,6 +195,13 @@ def auto_dectivate_external_services(sender, **kwargs):
 
     if action == 'post_remove' or action == 'post_clear':
         deactivate_services.delay(instance.name, list(pk_set))
+
+
+class ServiceFilter(models.Model):
+    service = models.ForeignKey(Service, related_name='filters', on_delete=models.CASCADE)
+    title = models.CharField(_('title'), max_length=50, null=True, blank=True)
+    layers = models.TextField(_('layers'), blank=True, null=True)
+    description = models.TextField(_('description'), null=True, blank=True)
 
 
 class ServiceMetadata(MetadataModelMixin):

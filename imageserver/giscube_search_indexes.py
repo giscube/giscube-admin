@@ -17,7 +17,7 @@ class ServiceIndex(ResourcesIndexMixin, PermissionIndexMixin, GeoportalSearchInd
             'title': obj.title or obj.name,
             'description': obj.description,
             'group': False,
-            'choose_individual_layers': obj.choose_individual_layers,
+            'choose_individual_layers': obj.choose_individual_layers if hasattr(obj, 'choose_individual_layers') else None,
             'layers': obj.layers
         }
         if obj.tilecache_enabled:

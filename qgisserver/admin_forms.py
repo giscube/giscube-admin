@@ -4,8 +4,9 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from giscube.tilecache.admin_forms_mixins import TileCacheChangeFormMixin
+from giscube.widgets import TagsWidget
 
-from .models import Service
+from .models import Service, ServiceFilter
 
 
 class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
@@ -57,3 +58,19 @@ class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
     class Meta:
         model = Service
         exclude = ()
+
+
+class ServiceFilterForm(forms.ModelForm):
+    def _split_comma(self, value):
+        return list(filter(None, [x.strip() for x in value.split(',')]))
+
+    def clean_layers(self):
+        values = self._split_comma(self.cleaned_data.get('layers', ''))
+        return ','.join(values)
+
+    class Meta:
+        model = ServiceFilter
+        fields = '__all__'
+        widgets = {
+            'layers': TagsWidget
+        }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-15 13:15+0100\n"
+"POT-Creation-Date: 2025-06-03 17:28+0200\n"
 "PO-Revision-Date: 2020-11-24 06:45+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -48,15 +48,15 @@ msgstr "Email enviat des de mail_admins per app_admin"
 #: imageserver/admin.py:37 imageserver/models.py:127 imageserver/models.py:135
 #: layerserver/admin.py:43 layerserver/admin.py:279 layerserver/models.py:197
 #: layerserver/models.py:204 layerserver/models.py:658
-#: layerserver/models.py:672 qgisserver/admin.py:50 qgisserver/models.py:204
-#: qgisserver/models.py:212
+#: layerserver/models.py:672 qgisserver/admin.py:52 qgisserver/models.py:217
+#: qgisserver/models.py:225
 msgid "Group"
 msgstr "Grup"
 
 #: giscube/admin.py:189 giscube/models.py:280 imageserver/admin.py:38
 #: imageserver/models.py:136 layerserver/admin.py:44 layerserver/admin.py:280
-#: layerserver/models.py:205 layerserver/models.py:673 qgisserver/admin.py:51
-#: qgisserver/models.py:213
+#: layerserver/models.py:205 layerserver/models.py:673 qgisserver/admin.py:53
+#: qgisserver/models.py:226
 msgid "Groups"
 msgstr "Grups"
 
@@ -66,25 +66,25 @@ msgstr "Grups"
 #: imageserver/admin.py:45 imageserver/models.py:142 imageserver/models.py:150
 #: layerserver/admin.py:51 layerserver/admin.py:288 layerserver/models.py:210
 #: layerserver/models.py:217 layerserver/models.py:678
-#: layerserver/models.py:688 qgisserver/admin.py:58 qgisserver/models.py:218
-#: qgisserver/models.py:226
+#: layerserver/models.py:688 qgisserver/admin.py:60 qgisserver/models.py:231
+#: qgisserver/models.py:239
 msgid "User"
 msgstr "Usuari"
 
 #: giscube/admin.py:197 giscube/models.py:293 imageserver/admin.py:46
 #: imageserver/models.py:151 layerserver/admin.py:52 layerserver/admin.py:289
-#: layerserver/models.py:218 layerserver/models.py:689 qgisserver/admin.py:59
-#: qgisserver/models.py:227
+#: layerserver/models.py:218 layerserver/models.py:689 qgisserver/admin.py:61
+#: qgisserver/models.py:240
 msgid "Users"
 msgstr "Usuaris"
 
 #: giscube/admin.py:209 imageserver/admin.py:64 layerserver/admin.py:93
 #: layerserver/admin.py:103 layerserver/admin.py:380 layerserver/admin.py:391
-#: qgisserver/admin.py:82
+#: qgisserver/admin.py:93
 msgid "Information"
 msgstr "Informació"
 
-#: giscube/admin.py:210 imageserver/admin.py:65 qgisserver/admin.py:83
+#: giscube/admin.py:210 imageserver/admin.py:65 qgisserver/admin.py:94
 #, fuzzy
 #| msgid "options"
 msgid "Options"
@@ -92,31 +92,31 @@ msgstr "opcions"
 
 #: giscube/admin.py:211 imageserver/admin.py:67 layerserver/admin.py:96
 #: layerserver/admin.py:106 layerserver/admin.py:384 layerserver/admin.py:396
-#: qgisserver/admin.py:84
+#: qgisserver/admin.py:95
 msgid "Design"
 msgstr "Disseny"
 
 #: giscube/admin.py:212 imageserver/admin.py:68 layerserver/admin.py:97
 #: layerserver/admin.py:107 layerserver/admin.py:385 layerserver/admin.py:398
-#: qgisserver/admin.py:85
+#: qgisserver/admin.py:96
 msgid "Permissions"
 msgstr "Permisos"
 
 #: giscube/admin.py:213 giscube/admin_mixins.py:7 giscube/admin_mixins.py:8
 #: imageserver/admin.py:69 layerserver/admin.py:98 layerserver/admin.py:108
-#: layerserver/admin.py:386 layerserver/admin.py:399 qgisserver/admin.py:86
+#: layerserver/admin.py:386 layerserver/admin.py:399 qgisserver/admin.py:97
 msgid "Metadata"
 msgstr "Metadades"
 
 #: giscube/admin.py:214 imageserver/admin.py:70 layerserver/admin.py:99
-#: layerserver/admin.py:387 layerserver/admin.py:400 qgisserver/admin.py:87
+#: layerserver/admin.py:387 layerserver/admin.py:400 qgisserver/admin.py:98
 #, fuzzy
 #| msgid "Resource"
 msgid "Resources"
 msgstr "Recurs"
 
 #: giscube/admin.py:237 imageserver/admin.py:95 layerserver/admin.py:146
-#: layerserver/admin.py:188 qgisserver/admin.py:124
+#: layerserver/admin.py:188 qgisserver/admin.py:135
 msgid "Basic permissions"
 msgstr "Permisos bàsics"
 
@@ -932,19 +932,20 @@ msgstr "tipus"
 #: imageserver/models.py:189 imageserver/models.py:198
 #: layerserver/models.py:297 layerserver/models.py:490
 #: layerserver/models.py:585 layerserver/models_mixins.py:22
-#: qgisserver/models.py:54 qgisserver/models.py:231
+#: qgisserver/models.py:54 qgisserver/models.py:244
 msgid "name"
 msgstr "nom"
 
 #: giscube/model_mixins.py:55 giscube/models.py:251 imageserver/models.py:33
 #: layerserver/models.py:187 layerserver/models_mixins.py:24
-#: qgisserver/models.py:56
+#: qgisserver/models.py:56 qgisserver/models.py:204
 msgid "description"
 msgstr "descripció"
 
 #: giscube/model_mixins.py:56 giscube/models.py:250 imageserver/models.py:32
 #: imageserver/models.py:190 layerserver/models.py:186
 #: layerserver/models_mixins.py:23 qgisserver/models.py:55
+#: qgisserver/models.py:202
 msgid "title"
 msgstr "títol"
 
@@ -964,7 +965,8 @@ msgstr "fitxer"
 msgid "format"
 msgstr "format"
 
-#: giscube/model_mixins.py:62 imageserver/models.py:56 qgisserver/models.py:94
+#: giscube/model_mixins.py:62 imageserver/models.py:56 qgisserver/models.py:92
+#: qgisserver/models.py:203
 msgid "layers"
 msgstr "capes"
 
@@ -993,11 +995,11 @@ msgstr "fer servir capes separades"
 msgid "layer_list"
 msgstr "llista de capes"
 
-#: giscube/model_mixins.py:81 giscube/utils/wms.py:20
+#: giscube/model_mixins.py:81
 msgid "This URL is not valid."
 msgstr "aquesta URL no és vàlida"
 
-#: giscube/model_mixins.py:89 giscube/utils/wms.py:25
+#: giscube/model_mixins.py:89
 msgid "This URL is not a valid WMS endpoint."
 msgstr "Aquesta URL no és una adreça WMS vàlida"
 
@@ -1168,8 +1170,8 @@ msgstr "els usuaris autenticats poden veure"
 #: giscube/models.py:273 giscube/models.py:286 imageserver/models.py:128
 #: imageserver/models.py:143 layerserver/models.py:198
 #: layerserver/models.py:211 layerserver/models.py:318
-#: layerserver/models.py:659 layerserver/models.py:679 qgisserver/models.py:205
-#: qgisserver/models.py:219
+#: layerserver/models.py:659 layerserver/models.py:679 qgisserver/models.py:218
+#: qgisserver/models.py:232
 msgid "Can view"
 msgstr "Permet veure"
 
@@ -1332,6 +1334,11 @@ msgstr ""
 msgid "There is a recursion problem with [%s]"
 msgstr "Hi ha un problema de recursivitats amb [%s]"
 
+#: giscube/utils/wms.py:19
+#, python-format
+msgid "This URL is not a valid WMS endpoint (%s)"
+msgstr "Aquesta URL no és una adreça WMS vàlida (%s)"
+
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:25
 msgid "Rebuild Giscube Search cache task has been queued"
 msgstr "La tasca d'actualitzar informació del catàleg s'ha posat en cua"
@@ -1344,7 +1351,7 @@ msgstr "Error al intentar actualitzar informació del catàleg"
 msgid "Layers"
 msgstr "Capes"
 
-#: imageserver/admin.py:71 qgisserver/admin.py:89
+#: imageserver/admin.py:71 qgisserver/admin.py:100
 msgid "Tile Cache"
 msgstr "Cache d'imatges"
 
@@ -1398,24 +1405,24 @@ msgstr "els usuaris anònims poden escriure"
 msgid "authenticated users can write"
 msgstr "els usuaris autenticats poden escriure"
 
-#: imageserver/models.py:54 qgisserver/models.py:92
+#: imageserver/models.py:54
 msgid "choose individual layers"
 msgstr ""
 
-#: imageserver/models.py:55 qgisserver/models.py:93
+#: imageserver/models.py:55
 msgid "read layers automatically"
 msgstr ""
 
-#: imageserver/models.py:112 qgisserver/models.py:135
+#: imageserver/models.py:112 qgisserver/models.py:141
 msgid "Service"
 msgstr "Servei"
 
-#: imageserver/models.py:113 qgisserver/models.py:136
+#: imageserver/models.py:113 qgisserver/models.py:142
 msgid "Services"
 msgstr "Serveis"
 
-#: imageserver/models.py:129 imageserver/models.py:144 qgisserver/models.py:206
-#: qgisserver/models.py:220
+#: imageserver/models.py:129 imageserver/models.py:144 qgisserver/models.py:219
+#: qgisserver/models.py:233
 msgid "Can write"
 msgstr "Permet escriure"
 
@@ -1982,16 +1989,16 @@ msgid "Shape Type"
 msgstr "Tipus element"
 
 #: layerserver/models_mixins.py:79 layerserver/models_mixins.py:101
-#: qgisserver/models.py:96
+#: qgisserver/models.py:94
 msgid "Field between curly braces. e.g."
 msgstr "Camp entre claus. Ex:"
 
 #: layerserver/models_mixins.py:79 layerserver/models_mixins.py:101
-#: qgisserver/models.py:96
+#: qgisserver/models.py:94
 msgid "street"
 msgstr "carrer"
 
-#: layerserver/models_mixins.py:80 qgisserver/models.py:97
+#: layerserver/models_mixins.py:80 qgisserver/models.py:95
 msgid "popup"
 msgstr "popup"
 
@@ -2132,16 +2139,26 @@ msgstr "Es requereix l'atribut 'dblayer_fk'"
 msgid "'query' attribute is required"
 msgstr "Es requereix l'atribut 'query'"
 
-#: qgisserver/admin.py:90
+#: qgisserver/admin.py:69
+#, fuzzy
+#| msgid "filter"
+msgid "WMS Filter"
+msgstr "filtre"
+
+#: qgisserver/admin.py:70
+msgid "WMS Filters"
+msgstr ""
+
+#: qgisserver/admin.py:101
 msgid "Servers"
 msgstr "Servidors"
 
-#: qgisserver/admin.py:181
+#: qgisserver/admin.py:209
 #, python-format
 msgid "Is not possible to save %s"
 msgstr "No es pot guardar %s"
 
-#: qgisserver/admin_forms.py:26
+#: qgisserver/admin_forms.py:27
 msgid ""
 "WMS single image' is not compatible with these options: 'WMS buffer "
 "enabled', 'Tilecache enabled"
@@ -2149,15 +2166,15 @@ msgstr ""
 "'WMS fer servir una sola imatge' no és compatible amb: 'WMS buffer actiu', "
 "'Cache d'imatges activa'"
 
-#: qgisserver/admin_forms.py:45
+#: qgisserver/admin_forms.py:46
 msgid "Only zip or qgs files are suported."
 msgstr "Només estan suportat els arxius zip or qgs"
 
-#: qgisserver/admin_forms.py:48
+#: qgisserver/admin_forms.py:49
 msgid "Invalid zipfile."
 msgstr "Arxiu zip invàlid"
 
-#: qgisserver/admin_forms.py:55
+#: qgisserver/admin_forms.py:56
 #, python-format
 msgid "There is not %s in %s"
 msgstr "No hi ha %s a %s"
@@ -2207,19 +2224,25 @@ msgstr "mida de les imatges (Tiles)"
 msgid "force transparent"
 msgstr "forçar transparent"
 
-#: qgisserver/models.py:232
+#: qgisserver/models.py:245
 msgid "data"
 msgstr "dades"
 
-#: qgisserver/models.py:240
+#: qgisserver/models.py:253
 msgid "Project"
 msgstr "Projecte"
 
-#: qgisserver/models.py:241
+#: qgisserver/models.py:254
 msgid "Projects"
 msgstr "Projectes"
 
-#: users_tracking/actions.py:7 users_tracking/actions.py:25
+#: users_tracking/actions.py:7
+#, fuzzy
+#| msgid "Download selected registers (CSV)"
+msgid "Download selected visor users (CSV)"
+msgstr "Descarrega registres seleccionats (CSV)"
+
+#: users_tracking/actions.py:24 users_tracking/actions.py:42
 msgid "Download selected registers (CSV)"
 msgstr "Descarrega registres seleccionats (CSV)"
 
@@ -2278,6 +2301,13 @@ msgstr "Resgistre eina utilitzada"
 #: users_tracking/models.py:36
 msgid "Tools register"
 msgstr "Resgistre eines utilitzades"
+
+#, fuzzy
+#~| msgid "This URL is not a valid WMS endpoint."
+#~ msgid "This URL is not a valid WMS endpoint:"
+#~ msgstr ""
+#~ "Aquesta URL no és una adreça WMS vàlida (comprova si el usuari té "
+#~ "permisos per llegir la informació del WMS a la pestanya Permisos)"
 
 #~ msgid "visibility"
 #~ msgstr "visibilitat"
