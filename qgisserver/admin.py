@@ -3,8 +3,10 @@ import os
 import shutil
 import zipfile
 
+from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db.models import Value as V
 from django.db.models.functions import Coalesce, Concat
@@ -15,12 +17,13 @@ from django.utils.translation import gettext as _
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
+from giscube.utils import get_wms_layers
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
 
-from .admin_forms import ServiceChangeForm
+from .admin_forms import ServiceChangeForm, ServiceFilterForm
 from .models import (Project, Service, ServiceGroupPermission, ServiceMetadata, ServiceResource, ServiceUserPermission,
-                     project_unique_service_directory)
+                     ServiceFilter, project_unique_service_directory)
 from .signals import service_project_updated, service_updated
 from .utils import unique_service_directory
 
@@ -59,6 +62,28 @@ class ServiceUserPermissionInline(admin.TabularInline):
     verbose_name_plural = _('Users')
 
 
+class ServiceFilterInline(admin.StackedInline):
+    model = ServiceFilter
+    form = ServiceFilterForm
+    extra = 0
+    classes = ('tab-options',)
+    verbose_name = _('WMS Filter')
+    verbose_name_plural = _('WMS Filters')
+
+    def get_formset(self, request, obj=None, **kwargs):
+        layers_choices = []
+        if obj is not None and obj.layers:
+            layers_choices = [l.strip() for l in obj.layers.split(',') if l.strip()]
+
+        class CustomFormSet(forms.BaseInlineFormSet):
+            def get_form_kwargs(self, index):
+                kwargs = super().get_form_kwargs(index)
+                kwargs.update({'layers_choices': layers_choices})
+                return kwargs
+
+        kwargs['formset'] = CustomFormSet
+        return super().get_formset(request, obj, **kwargs)
+
 class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
@@ -73,7 +98,8 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         ServiceMetadataInline,
         ServiceResourceInline,
         ServiceGroupPermissionInline,
-        ServiceUserPermissionInline
+        ServiceUserPermissionInline,
+        ServiceFilterInline
     )
     readonly_fields = ('project_file',)
     save_as = True
@@ -155,6 +181,14 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
+        if obj.wms_url and (obj.layers is None or obj.layers == ''):
+            try:
+                obj.layers = get_wms_layers(obj.wms_url)
+                obj.save()
+            except ValidationError as e:
+                error_message = str(e)
+                
+                messages.error(request, error_message)
         if form.is_valid() and 'project' in form.changed_data:
             try:
                 if not obj.service_path:

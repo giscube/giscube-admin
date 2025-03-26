@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 
 from giscube.tilecache.admin_forms_mixins import TileCacheChangeFormMixin
 
-from .models import Service
+from .models import Service, ServiceFilter
 
 
 class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
@@ -57,3 +57,16 @@ class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
     class Meta:
         model = Service
         exclude = ()
+
+
+class ServiceFilterForm(forms.ModelForm):
+    class Meta:
+        model = ServiceFilter
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        layers_choices = kwargs.pop('layers_choices', [])
+        super().__init__(*args, **kwargs)
+        self.fields['layer'].widget = forms.Select(
+            choices=[(l, l) for l in layers_choices]
+        )
