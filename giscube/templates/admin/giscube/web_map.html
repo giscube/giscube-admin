@@ -31,6 +31,13 @@
           }).addTo(map);
           baseLayers['{{ layer.name }}'] = layer;
           {% endif %}
+          {% if layer.type == 'wmts' %}
+          url = '{{ layer.url }}?SERVICE=WMTS&REQUEST=GetTile' + 
+            '&LAYER={{ layer.layers }}&FORMAT=image/png' + 
+            '&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}';
+          layer = L.tileLayer(url).addTo(map);
+          baseLayers['{{ layer.name }}'] = layer;
+          {% endif %}
       {% endfor %}
       L.control.layers(baseLayers, {}).addTo(map);
     };

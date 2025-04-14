@@ -154,8 +154,8 @@ class QGISServerMapViewerView(ServiceMixin, View):
         layers = []
         layers.append(
             {
-                'name': '%s (WMS)' % (service.title or service.name),
-                'type': 'wms',
+                'name': '%s (%s)' % (service.title or service.name, service.service_type),
+                'type': service.service_type,
                 'layers': service.default_layer,
                 'url': reverse('qgisserver', args=(service.name, '',)),
                 'transparent': service.tilecache_enabled and service.tilecache_transparent

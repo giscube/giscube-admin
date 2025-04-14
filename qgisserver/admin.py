@@ -63,9 +63,9 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
-    list_display = ('name', 'title', 'url_wms', 'visible_on_geoportal',)
+    list_display = ('name', 'title', 'service_type', 'tile_cache_enabled', 'service_url', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter),
-                   'visible_on_geoportal')
+                   'visible_on_geoportal', 'service_type', 'tilecache_enabled')
     exclude = ('service_path',)
     search_fields = ('name', 'title', 'keywords')
     filter_horizontal = ('servers',)
@@ -102,7 +102,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         }),
         (None, {
             'fields': [
-                'wms_single_image', 'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes',
+                'service_type', 'wms_single_image', 'wms_buffer_enabled', 'wms_buffer_size', 'wms_tile_sizes',
                 'wms_getfeatureinfo_enabled',
                 'options', "choose_individual_layers", "read_layers_automatically", "layers"
             ],
@@ -148,10 +148,20 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
             queryset = queryset.order_by('custom_order')
         return queryset
 
-    def url_wms(self, obj):
-        url = '%s?service=WMS&version=1.1.1&request=GetCapabilities' % obj.service_url
-        return format_html('<a target="_blank" href="{0}">WMS URL {1}</a>', url, obj.name)
-    url_wms.short_description = 'WMS URL'
+    def service_url(self, obj):
+        if obj.service_type == 'wms':
+            url = '%s?service=WMS&version=1.1.1&request=GetCapabilities' % obj.service_url
+            return format_html('<a target="_blank" href="{0}">WMS URL {1}</a>', url, obj.name)
+        elif obj.service_type == 'wmts':
+            url = '%s?service=WMTS&request=GetCapabilities' % obj.service_url
+            return format_html('<a target="_blank" href="{0}">WMTS URL {1}</a>', url, obj.name)
+        return ''
+    service_url.short_description = 'Service URL'
+
+    def tile_cache_enabled(self, obj):
+        return obj.tilecache_enabled
+    tile_cache_enabled.boolean = True
+    tile_cache_enabled.short_description = _('tile cache enabled')
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
