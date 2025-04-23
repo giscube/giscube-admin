@@ -5,7 +5,7 @@ from django.db import transaction
 
 from rest_framework import serializers
 
-from .models import Group, Project, Service, ServiceGroupPermission, ServiceUserPermission, User
+from .models import Group, Project, Service, ServiceFilter, ServiceGroupPermission, ServiceUserPermission, User
 
 
 class Base64Field(serializers.FileField):
@@ -62,9 +62,16 @@ class ServiceGroupPermissionSerializer(serializers.ModelSerializer):
         fields = ('group', 'can_view', 'can_write')
 
 
+class ServiceFilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ServiceFilter
+        fields = '__all__'
+
+
 class ServiceSerializer(serializers.ModelSerializer):
     user_permissions = ServiceUserPermissionSerializer(many=True)
     group_permissions = ServiceGroupPermissionSerializer(many=True)
+    service_filter = ServiceFilterSerializer(many=True, required=False)
     project_file = Base64Field()
 
     @transaction.atomic
@@ -140,6 +147,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             'project_file',
             'user_permissions',
             'group_permissions',
+            'service_filter'
         )
 
 
