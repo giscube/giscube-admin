@@ -78,7 +78,8 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     add_form_template = 'admin/layerserver/geojson_layer/add_form.html'
     change_form_template = 'admin/layerserver/geojson_layer/change_form.html'
     autocomplete_fields = ('category', 'design_from',)
-    list_display = ('name', 'title', 'view_layer', 'public_url')
+    list_display = ('name', 'title', 'view_layer', 'anonymous_view_user', 'visible_on_geoportal',
+                    'shapetype', 'public_url')
     list_filter = (('category', RelatedDropdownFilter), 'visible_on_geoportal', 'shapetype')
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
@@ -194,6 +195,11 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     ]
     ordering = ['name']
 
+    def anonymous_view_user(self, obj):
+       return obj.anonymous_view
+    anonymous_view_user.short_description = _('Anonymous view')
+    anonymous_view_user.boolean = True
+
     def add_view(self, request, form_url='', extra_context=None):
         self.tabs = self.tabs_add
         self.fieldsets = self.add_fieldsets
@@ -245,7 +251,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         except Exception:
             pass
         return text
-    view_layer.short_description = 'Layer'
+    view_layer.short_description = 'Layer URL'
 
     def save_model(self, request, obj, form, change):
         if not obj.service_path:
@@ -360,11 +366,11 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/layerserver/database_layer/change_form.html'
 
     autocomplete_fields = ['category']
-    list_display = ('has_geometry', 'name', 'title', 'table', 'db_connection', 'view_metadata', 'view_layer',
-                    'public_url')
+    list_display = ('name', 'title', 'view_layer', 'anonymous_view_user', 'visible_on_geoportal', 'shapetype',
+                    'public_url', 'table', 'db_connection', 'view_metadata', 'has_geometry')
     list_display_links = ('name', 'title', 'table')
     list_filter = (('category', RelatedDropdownFilter), 'db_connection', 'visible_on_geoportal',
-                   DataBaseLayerGeomNullFilter, 'shapetype')
+                   'shapetype', DataBaseLayerGeomNullFilter)
     search_fields = ('name', 'title', 'keywords')
     inlines = []
 
@@ -497,7 +503,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         except Exception:
             pass
         return text
-    view_layer.short_description = 'LAYER'
+    view_layer.short_description = 'Layer URL'
 
     def view_metadata(self, obj):
         text = '-'
@@ -508,6 +514,11 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             pass
         return text
     view_metadata.short_description = 'METADATA'
+
+    def anonymous_view_user(self, obj):
+       return obj.anonymous_view
+    anonymous_view_user.short_description = _('Anonymous view')
+    anonymous_view_user.boolean = True
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
