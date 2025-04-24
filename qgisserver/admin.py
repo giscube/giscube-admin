@@ -63,7 +63,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
-    list_display = ('name', 'title', 'url_wms', 'visible_on_geoportal',)
+    list_display = ('name', 'title', 'url_wms', 'anonymous_view_user', 'visible_on_geoportal',)
     list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter),
                    'visible_on_geoportal')
     exclude = ('service_path',)
@@ -150,8 +150,13 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
 
     def url_wms(self, obj):
         url = '%s?service=WMS&version=1.1.1&request=GetCapabilities' % obj.service_url
-        return format_html('<a target="_blank" href="{0}">WMS URL {1}</a>', url, obj.name)
+        return format_html('<a target="_blank" href="{0}">View WMS URL {1}</a>', url, obj.name)
     url_wms.short_description = 'WMS URL'
+
+    def anonymous_view_user(self, obj):
+       return obj.anonymous_view
+    anonymous_view_user.short_description = _('Anonymous view')
+    anonymous_view_user.boolean = True
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
