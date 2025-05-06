@@ -42,7 +42,19 @@ ln -s requirements-gdal2.txt requirements.txt
 
 ## Run with docker-compose
 
-Copy app.env-example to app.env and adjust values as necessary
+Copy app.env-example to app.env and adjust values as necessary.
+
+Update the git submodules:
+
+``` bash
+git submodule update --init --recursive
+```
+
+Create the giscube docker network:
+
+``` bash
+docker network create giscube
+```
 
 
 ### (optional) Build the images
