@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django_admin_listfilter_dropdown.filters import DropdownFilter
-from rangefilter.filter import DateRangeFilter
+from rangefilter.filters import DateRangeFilter
 
 from .actions import download_layers_csv, download_tools_csv, download_visor_csv
 from .models import LayerRegister, ToolRegister, VisorUserTrack

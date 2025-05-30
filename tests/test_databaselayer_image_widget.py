@@ -279,7 +279,6 @@ class DataBaseLayerImageWidgetTestCase(BaseTest, TransactionTestCase):
 
         dirs, files = Model._meta.get_field('image').storage.get_thumbnail_storage().listdir('.')
         self.assertEqual(len(files), 0)
-
         self.assertEqual(Model.objects.all().count(), 0)
 
         self.assertEqual(UserAsset.objects.all().count(), len(list(assets.keys())))

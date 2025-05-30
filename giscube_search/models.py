@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
-from django.db.models import Case, F, Q, When
+from django.db.models import Case, F, Index, Q, When
 
 from giscube import settings as custom_settings
 
@@ -116,8 +116,10 @@ class BaseDocumentIndex(models.Model):
     class Meta:
         abstract = True
         unique_together = ('content_type', 'object_id')
-        index_together = [['content_type', 'indexing']]
-        indexes = [GinIndex(fields=['body'])]
+        indexes = [
+            Index(fields=["content_type", "indexing"]),
+            GinIndex(fields=["body"]),
+        ]
 
     def __str__(self):
         return '%s: %s' % (self.content_type, self.object_id)

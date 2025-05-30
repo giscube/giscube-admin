@@ -11,7 +11,7 @@ class DataBaseLayerBulkAPITestCase(BaseTest):
     def setUp(self):
         super(self.__class__, self).setUp()
         conn = DBConnection()
-        conn.alias = 'test_connection'
+        conn.alias = "test"
         conn.engine = settings.DATABASES['default']['ENGINE']
         conn.name = settings.DATABASES['default']['NAME']
         conn.user = settings.DATABASES['default']['USER']

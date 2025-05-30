@@ -42,7 +42,7 @@ ln -s requirements-gdal2.txt requirements.txt
 
 ## Run with docker-compose
 
-Copy app.env-example to app.env and adjust values as necessary.
+Copy app.env-example to app.env and adjust values as necessary. On *production* environments, make sure to define the proper value for `CSRF_TRUSTED_ORIGINS`.
 
 Update the git submodules:
 

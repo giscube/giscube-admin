@@ -4,7 +4,7 @@
 # Downloads all the pip with the given ssh key. Allows to use private repos
 #  without the key
 #
-FROM microdisseny/py3-development:ubuntu-20.04 as build-system
+FROM microdisseny/py3-development:ubuntu-24.04 as build-system
 
 ADD docker/config/known_hosts /root/.ssh/known_hosts
 
