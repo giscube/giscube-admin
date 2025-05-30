@@ -85,9 +85,7 @@ class UndoSerializerMixin(object):
                     new_value = self.validated_data[k]
                     if old_value is not None and (
                             new_value is None or isinstance(new_value, UploadedFile)):
-                        transaction.on_commit(
-                            lambda: old_value.delete(save=False)
-                        )
+                        old_value.delete(save=False)
         return super().save(**kwargs)
 
 

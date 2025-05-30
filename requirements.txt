@@ -1,1 +1,1 @@
--r requirements-gdal3.txt
+-r requirements-django5.txt
