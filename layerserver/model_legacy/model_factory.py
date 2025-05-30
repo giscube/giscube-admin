@@ -124,6 +124,8 @@ class ModelFactory:
 
     @property
     def field_options(self):
+        if not self.layer.pk:
+            return []
         return self.layer.fields.all()
 
     @property

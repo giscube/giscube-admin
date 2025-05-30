@@ -5,7 +5,7 @@ services:
     container_name: giscube_giscube-admin_requirements
     build:
       context: .
-      dockerfile: docker/django/ubuntu-20.04/Dockerfile
+      dockerfile: docker/django/ubuntu-24.04/Dockerfile
       args:
         - EXTRA_REQUIREMENTS=devel
         - PIP_PACKAGES=setuptools==57.5.0
@@ -18,7 +18,7 @@ services:
       - app_data:/app_data
 
   db:
-    image: postgis/postgis:12-3.0
+    image: postgis/postgis:16-3.5
     env_file:
      - app.env
     volumes:

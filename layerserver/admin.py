@@ -86,7 +86,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         GeoJsonLayerResourceInline, GeoJsonLayerStyleRuleInline, GeoJsonLayerMetadataInline,
         GeoJsonGroupPermissionsInline, GeoJsonUserPermissionsInline, GeoJsonFilterInline
     ]
-    actions = admin.ModelAdmin.actions + [geojsonlayer_force_refresh_data]
+    actions = list(admin.ModelAdmin.actions) + [geojsonlayer_force_refresh_data]
     save_as = True
 
     tabs_add = (

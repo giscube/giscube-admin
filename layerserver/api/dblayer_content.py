@@ -21,6 +21,7 @@ from django.utils.functional import cached_property
 
 from rest_framework import filters, parsers, status, views, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from giscube.cache_utils import giscube_transaction_cache_response
@@ -546,39 +547,41 @@ class DBLayerContentBulkViewSet(DBLayerContentViewSetMixin, views.APIView):
         # TODO: schema
         self.layer.db_connection.get_connection()
         conn = self.layer.db_connection.connection_name()
-        autocommit = transaction.get_autocommit(using=conn)
-        transaction.set_autocommit(False, using=conn)
+        try:
+            with transaction.atomic(using=conn):
 
-        if 'ADD' in data and len(data['ADD']) > 0:
-            add_errors = self.add(data['ADD'])
-            if add_errors:
-                errors['ADD'] = add_errors
+                if 'ADD' in data and len(data['ADD']) > 0:
+                    add_errors = self.add(data['ADD'])
+                    if add_errors:
+                        errors['ADD'] = add_errors
 
-        if len(list(errors.keys())) == 0 and 'UPDATE' in data and len(data['UPDATE']) > 0:
-            update_errors = self.update(data['UPDATE'])
-            if update_errors:
-                errors['UPDATE'] = update_errors
+                if len(list(errors.keys())) == 0 and 'UPDATE' in data and len(data['UPDATE']) > 0:
+                    update_errors = self.update(data['UPDATE'])
+                    if update_errors:
+                        errors['UPDATE'] = update_errors
 
-        # TODO: catch and raise delete errors
-        if len(list(errors.keys())) == 0 and 'DELETE' in data and len(data['DELETE']) > 0:
-            try:
-                self.delete(data['DELETE'])
-            except Exception:
-                errors['DELETE'] = ['Unknown reason']
+                # TODO: catch and raise delete errors
+                if len(list(errors.keys())) == 0 and 'DELETE' in data and len(data['DELETE']) > 0:
+                    try:
+                        self.delete(data['DELETE'])
+                    except Exception:
+                        errors['DELETE'] = ['Unknown reason']
 
-        if len(list(errors.keys())) > 0:
+                if len(list(errors.keys())) > 0:
+                    raise ValidationError(errors)
+                else:
+                    response_status = status.HTTP_200_OK
+                    self.execute_to_do()
+                    self.delete_user_assets()
+                    self.add_result(result)
+        except ValidationError as ve:
+            self.undo()
+            response_status = status.HTTP_400_BAD_REQUEST
+            result = errors
+        except Exception as e:
             response_status = status.HTTP_400_BAD_REQUEST
             self.undo()
-            transaction.rollback(using=conn)
-            result = errors
-        else:
-            response_status = status.HTTP_200_OK
-            transaction.commit(using=conn)
-            self.execute_to_do()
-            self.delete_user_assets()
-            self.add_result(result)
-
-        transaction.set_autocommit(autocommit, using=conn)
+            result = {'error': str(e)}
 
         return Response(result, status=response_status)
 

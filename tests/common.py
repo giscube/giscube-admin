@@ -43,6 +43,7 @@ class BulkClient(APIClient):
 
 @override_settings(MEDIA_ROOT='/tmp/giscube')
 class BaseTest(APITransactionTestCase):
+    databases = {"default": True}
     def setUp(self):
         self.client = BulkClient()
         self.superuser = UserModel.objects.create_superuser(

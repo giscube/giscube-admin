@@ -94,6 +94,8 @@ class DBConnection(models.Model):
         return db
 
     def connection_name(self, schema=None):
+        if self.alias == 'test':
+            return 'default'
         if schema:
             return 'giscube_connection_schema_%s_%s' % (self.pk, schema)
         else:
