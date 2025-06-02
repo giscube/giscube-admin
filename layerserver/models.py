@@ -70,6 +70,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
     design_from = models.ForeignKey('self', related_name='design_from_childs', verbose_name=_('get design from'),
                                     blank=True, null=True, on_delete=models.SET_NULL)
     legend = models.TextField(_('legend'), null=True, blank=True)
+    catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
 
     def get_data_file_path(self):
         if self.service_path:
@@ -187,6 +188,7 @@ class GeoJsonFilter(models.Model):
     description = models.TextField(_('description'), null=True, blank=True)
     filter = models.CharField(_('filter'), max_length=255, null=True, blank=True)
     layer = models.ForeignKey(GeoJsonLayer, related_name='filters', on_delete=models.CASCADE)
+    catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.title or ''
@@ -326,6 +328,7 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
 
     wms_as_reference = models.BooleanField(_('Use generated WMS as reference'), default=False)
     legend = models.TextField(_('legend'), null=True, blank=True)
+    catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):

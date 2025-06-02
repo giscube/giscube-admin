@@ -12,7 +12,8 @@ from giscube.widgets import ColorWidget, TagsWidget
 
 from .model_legacy import get_fields, get_klass
 from .models import (DataBaseLayer, DataBaseLayerField, DataBaseLayerReference, DataBaseLayerStyleRule,
-                     DataBaseLayerVirtualField, DBLayerGroup, GeoJsonLayer, GeoJsonLayerStyleRule)
+                     DataBaseLayerVirtualField, DBLayerGroup, GeoJsonLayer, GeoJsonLayerStyleRule,
+                     GeoJsonFilter)
 from .widgets import widgets_types
 
 
@@ -201,6 +202,7 @@ class DataBaseLayerChangeForm(DataBaseLayerFormMixin, forms.ModelForm):
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
             'icon_color': ColorWidget,
+            'catalog_color': ColorWidget,
             'form_fields': TagsWidget,
             'list_fields': TagsWidget
         }
@@ -298,6 +300,7 @@ class GeoJsonLayerAddForm(ClusterFormMixin, forms.ModelForm):
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
             'icon_color': ColorWidget,
+            'catalog_color': ColorWidget,
             'filtered_fields': TagsWidget
         }
 
@@ -324,6 +327,7 @@ class GeoJsonLayerChangeForm(ClusterFormMixin, forms.ModelForm):
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
             'icon_color': ColorWidget,
+            'catalog_color': ColorWidget,
             'filtered_fields': TagsWidget
         }
 
@@ -337,4 +341,13 @@ class GeoJsonLayerStyleRuleInlineForm(forms.ModelForm):
             'fill_color': ColorWidget,
             'marker_color': ColorWidget,
             'icon_color': ColorWidget,
+        }
+
+class GeoJsonFilterInlineForm(forms.ModelForm):
+
+    class Meta:
+        model = GeoJsonFilter
+        fields = '__all__'
+        widgets = {
+            'catalog_color': ColorWidget
         }

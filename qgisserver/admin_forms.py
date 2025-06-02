@@ -4,7 +4,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from giscube.tilecache.admin_forms_mixins import TileCacheChangeFormMixin
-from giscube.widgets import TagsWidget
+from giscube.widgets import ColorWidget, TagsWidget
 
 from .models import Service, ServiceFilter
 
@@ -58,6 +58,9 @@ class ServiceChangeForm(TileCacheChangeFormMixin, forms.ModelForm):
     class Meta:
         model = Service
         exclude = ()
+        widgets = {
+            'catalog_color': ColorWidget
+        }
 
 
 class ServiceFilterForm(forms.ModelForm):
@@ -72,5 +75,6 @@ class ServiceFilterForm(forms.ModelForm):
         model = ServiceFilter
         fields = '__all__'
         widgets = {
+            'catalog_color': ColorWidget,
             'layers': TagsWidget
         }

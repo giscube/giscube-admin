@@ -106,7 +106,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
             'fields': [
                 'category', 'name', 'title',
                 'description', 'keywords', 'active', 'visible_on_geoportal',
-                'project',
+                'catalog_color', 'project',
                 'project_file'
             ],
             'classes': ('tab-information',),

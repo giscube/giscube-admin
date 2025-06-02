@@ -51,6 +51,7 @@ class Service(TileCacheModelMixin, models.Model):
     authenticated_user_view = models.BooleanField(_('authenticated users can view'), default=False)
     authenticated_user_write = models.BooleanField(_('authenticated users can write'), default=False)
 
+    catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
     choose_individual_layers = models.BooleanField(_("choose individual layers"), default=False)
     read_layers_automatically = models.BooleanField(_("read layers automatically"), default=False)
     layers = models.TextField(_('layers'), null=True, blank=True)

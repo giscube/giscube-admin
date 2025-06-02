@@ -15,7 +15,7 @@ from .admin_filters import DataBaseLayerGeomNullFilter
 from .admin_forms import (DataBaseLayerAddForm, DataBaseLayerChangeForm, DataBaseLayerFieldsInlineForm,
                           DataBaseLayerReferencesInlineForm, DataBaseLayerStyleRuleInlineForm,
                           DataBaseLayerVirtualFieldsInlineForm, GeoJsonLayerAddForm, GeoJsonLayerChangeForm,
-                          GeoJsonLayerStyleRuleInlineForm)
+                          GeoJsonLayerStyleRuleInlineForm, GeoJsonFilterInlineForm)
 from .model_legacy import ModelFactory
 from .models import (DATA_FILTER_STATUS_CHOICES, DataBaseLayer, DataBaseLayerField, DataBaseLayerMetadata,
                      DataBaseLayerReference, DataBaseLayerResource, DataBaseLayerStyleRule, DataBaseLayerVirtualField,
@@ -69,6 +69,7 @@ class GeoJsonLayerStyleRuleInline(StyleRuleInlineMixin):
 
 class GeoJsonFilterInline(admin.StackedInline):
     model = GeoJsonFilter
+    form = GeoJsonFilterInlineForm
     extra = 0
     classes = ('tab-geojson',)
 
@@ -114,7 +115,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visible_on_geoportal',
+                'description', 'keywords', 'active', 'visible_on_geoportal', 'catalog_color',
             ],
             'classes': ('tab-information',),
         }),
@@ -156,7 +157,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visible_on_geoportal',
+                'description', 'keywords', 'active', 'visible_on_geoportal', 'catalog_color',
             ],
             'classes': ('tab-information',),
         }),
@@ -412,6 +413,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
                 'category', 'name', 'title',
                 'description', 'keywords', 'active',
                 'visible_on_geoportal',
+                'catalog_color',
                 ('allow_page_size_0', 'page_size', 'max_page_size',),
             ],
             'classes': ('tab-information',),
@@ -443,6 +445,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
                 'category', 'name', 'title',
                 'description', 'keywords', 'active',
                 'visible_on_geoportal',
+                'catalog_color',
                 ('allow_page_size_0', 'page_size', 'max_page_size',),
             ],
             'classes': ('tab-information',),
