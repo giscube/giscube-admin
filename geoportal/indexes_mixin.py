@@ -40,6 +40,8 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
         data['visible_on_geoportal'] = getattr(obj, 'visible_on_geoportal', False)
         data['options'] = json.loads(getattr(obj, 'options', '{}') or '{}')
         data['catalog'] = (obj.category.title or '').split(Category.SEPARATOR) if obj.category else []
+        data['catalog_icon'] = self.get_catalog_icon(obj, data['children'])
+        data['catalog_color'] = obj.catalog_color if hasattr(obj, 'catalog_color') else None
         data['filtered_fields'] = [item.strip() for item in obj.filtered_fields.split(',')] if hasattr(obj, 'filtered_fields') and obj.filtered_fields else None
         if hasattr(obj, "get_filters"):
             data['filters'] = obj.get_filters()
@@ -70,3 +72,23 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
 
     def prepare_title(self, obj):
         return obj.title or obj.name
+
+    def get_catalog_icon(self, obj, children):
+        if (hasattr(obj, 'shapetype')):
+            if (obj.shapetype == 'marker' or obj.shapetype == 'image'):
+                return 'place'
+            if (obj.shapetype == 'line'):
+                return 'timeline'
+            if (obj.shapetype == 'polygon'):
+                return 'fas fa-draw-polygon'
+            if (obj.shapetype == 'circle'):
+                return 'far fa-dot-circle'
+            return ''
+        if (children and len(children) > 0):
+            type = children[0]['type'] if children[0] and 'type' in children[0] else None
+            if (type and type == 'TMS'):
+                return 'las la-table'
+            if (type and type == 'WMS'):
+                return 'las la-globe'
+            return type
+        return None

@@ -91,6 +91,7 @@ class Service(TileCacheModelMixin, models.Model):
 
     layers = models.TextField(_('layers'), null=True, blank=True)
 
+    catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
     help_text = '%s %s' % (_('Field between curly braces. e.g.'), '{%s}' % _('street'))
     popup = models.TextField(_('popup'), blank=True, null=True, help_text=help_text)
 
@@ -202,6 +203,7 @@ class ServiceFilter(models.Model):
     title = models.CharField(_('title'), max_length=50, null=True, blank=True)
     layers = models.TextField(_('layers'), blank=True, null=True)
     description = models.TextField(_('description'), null=True, blank=True)
+    catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
 
 
 class ServiceMetadata(MetadataModelMixin):
