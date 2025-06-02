@@ -86,7 +86,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         ServiceUserPermissionInline,
         ServiceFilterInline
     )
-    readonly_fields = ('project_file',)
+    readonly_fields = ('project_file', 'layers')
     save_as = True
 
     tabs = (

@@ -42,7 +42,22 @@
       $(document).ready(function(){
           update_tagify_whitelist();
       });
-    
+
+      function initTagsWidget () {
+        setTimeout(function() {
+          const lastFilter = $('.inline-related.last-related.dynamic-filters .field-layers div textarea.tags-widget')
+          lastFilter.each(initGiscubeTagify)
+          $('.inline-related.last-related.dynamic-filters').each(function () {
+            $(this).find('.field-layers div tags').slice(0, -1).remove()
+            $(this).find('.field-layers div input').slice(0, -1).remove()
+          })
+          update_tagify_whitelist()
+        }, 300)
+      }
+
+      setTimeout(function() {
+        $('fieldset.module.tab-options .add-row').click(initTagsWidget)
+      }, 100)
     })(django.jQuery);
   </script>
   {% endblock %}
