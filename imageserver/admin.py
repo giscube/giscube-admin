@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
+from leaflet.admin import LeafletGeoAdmin
 
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
@@ -109,7 +110,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     url_wms.short_description = 'WMS URL'
 
 
-class LayerAdmin(admin.ModelAdmin):
+class LayerAdmin(LeafletGeoAdmin):
     list_display = ('title',)
     search_fields = ('title',)
     exclude = ('layer_path', 'mask_path')
