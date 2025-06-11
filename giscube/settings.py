@@ -483,12 +483,18 @@ if SENTRY_DSN is not None:
 
 # Django leaflet
 LEAFLET_CONFIG = {
-    "DEFAULT_CENTER": (39.84178435710968, 0.0033089114303596827),
-    "DEFAULT_ZOOM": 6,
+    "DEFAULT_CENTER": tuple(
+        float(coord)
+        for coord in os.getenv(
+            'DEFAULT_MAP_CENTER',
+            '41.04178435710968, 0.0033089114303596827'
+        ).split(',')
+    ),
+    "DEFAULT_ZOOM": int(os.getenv('DEFAULT_MAP_ZOOM', '6')),
     "TILES": [
         [
             "OpenStreetMap",
-            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            os.getenv('DEFAULT_MAP_TMS', "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         ],
     ],
