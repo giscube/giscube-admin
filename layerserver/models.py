@@ -342,7 +342,10 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
         return self.get_default_popup_content(fields)
 
     def get_page_size(self):
-        return self.page_size if self.page_size else settings.LAYERSERVER_PAGE_SIZE
+        if self.page_size or (self.page_size == 0 and self.allow_page_size_0):
+            return self.page_size
+        else:
+            return settings.LAYERSERVER_PAGE_SIZE
 
     def get_max_page_size(self):
         return self.max_page_size if self.max_page_size else settings.LAYERSERVER_MAX_PAGE_SIZE
