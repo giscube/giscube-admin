@@ -82,7 +82,7 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
             if (obj.shapetype == 'polygon'):
                 return 'fas fa-draw-polygon'
             if (obj.shapetype == 'circle'):
-                return 'far fa-dot-circle'
+                return 'fas fa-solid fa-circle'
             return ''
         if (children and len(children) > 0):
             type = children[0]['type'] if children[0] and 'type' in children[0] else None
