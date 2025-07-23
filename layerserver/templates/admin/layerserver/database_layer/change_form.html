@@ -62,6 +62,23 @@
   $(document).ready(function(){
     $('.field-widget select').each(field_widget_init);
     $('.field-widget select').on('change', field_widget_change);
+    $.each($('#id_category'), function(i, element) {
+      $(element).select2({
+        ajax: {
+          data: function (params) {
+            var query = {
+              term: params.term,
+              page: params.page,
+              app_label: element.dataset.appLabel,
+              model_name: element.dataset.modelName,
+              field_name: element.dataset.fieldName,
+              category: $('#id_category').val()
+            }
+            return query
+          }
+        }
+      })
+    });
 
     resize_all();
     $('.tab-fields .vLargeTextField').on('input', resize);

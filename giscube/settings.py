@@ -86,6 +86,7 @@ INSTALLED_APPS += [
     'users_tracking.apps.UsersTrackingConfig',
     'django_admin_listfilter_dropdown',
     'django_db_logger',
+    'admin_auto_filters',
 ]
 
 

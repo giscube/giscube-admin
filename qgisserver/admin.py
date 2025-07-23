@@ -13,6 +13,7 @@ from django.urls import resolve
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
@@ -74,7 +75,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
     list_display = ('name', 'title', 'url_wms', 'anonymous_view_user', 'visible_on_geoportal',)
-    list_filter = (('category', RelatedDropdownFilter), ('project', RelatedDropdownFilter),
+    list_filter = (AutocompleteFilterFactory('Category', 'category'), ('project', RelatedDropdownFilter),
                    'visible_on_geoportal')
     exclude = ('service_path',)
     search_fields = ('name', 'title', 'keywords')

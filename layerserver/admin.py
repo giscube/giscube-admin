@@ -4,7 +4,7 @@ from django.urls import resolve, reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext as _
 
-from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django_vue_tabs.admin import TabsMixin
 
 from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
@@ -81,7 +81,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ('category', 'design_from',)
     list_display = ('name', 'title', 'view_layer', 'anonymous_view_user', 'visible_on_geoportal',
                     'shapetype', 'public_url')
-    list_filter = (('category', RelatedDropdownFilter), 'visible_on_geoportal', 'shapetype')
+    list_filter = (AutocompleteFilterFactory('Category', 'category'), 'visible_on_geoportal', 'shapetype')
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [
@@ -370,7 +370,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     list_display = ('name', 'title', 'view_layer', 'anonymous_view_user', 'visible_on_geoportal', 'shapetype',
                     'public_url', 'table', 'db_connection', 'view_metadata', 'has_geometry')
     list_display_links = ('name', 'title', 'table')
-    list_filter = (('category', RelatedDropdownFilter), 'db_connection', 'visible_on_geoportal',
+    list_filter = (AutocompleteFilterFactory('Category', 'category'), 'db_connection', 'visible_on_geoportal',
                    'shapetype', DataBaseLayerGeomNullFilter)
     search_fields = ('name', 'title', 'keywords')
     inlines = []

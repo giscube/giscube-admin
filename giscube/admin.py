@@ -18,6 +18,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
 
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 
@@ -124,13 +125,17 @@ class CategoryAdmin(admin.ModelAdmin):
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)
         queryset = queryset.prefetch_related('parent')
-        queryset = queryset.annotate(custom_order=Concat('parent__name', 'name'))
+        queryset = queryset.annotate(custom_order=Concat(
+            'parent__parent__parent__name', 'parent__parent__name', 'parent__name', 'name'
+        ))
         queryset = queryset.order_by('custom_order')
         return queryset, use_distinct
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request).prefetch_related('parent')
-        queryset = queryset.annotate(custom_order=Concat('parent__name', 'name'))
+        queryset = queryset.annotate(custom_order=Concat(
+            'parent__parent__parent__name', 'parent__parent__name', 'parent__name', 'name' 
+        ))
         queryset = queryset.order_by('custom_order')
         return queryset
 
@@ -202,7 +207,7 @@ class DatasetAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     autocomplete_fields = ('category',)
     list_display = ('title',)
     inlines = (DatasetResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)
-    list_filter = (('category', RelatedDropdownFilter), 'active')
+    list_filter = (AutocompleteFilterFactory('Category', 'category'), 'active')
     save_as = True
 
     tabs = (
