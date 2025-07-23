@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+from admin_auto_filters.filters import AutocompleteFilterFactory
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
 from django_vue_tabs.admin import TabsMixin
 from leaflet.admin import LeafletGeoAdmin
@@ -52,7 +53,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
-    list_filter = (('category', RelatedDropdownFilter), 'visible_on_geoportal')
+    list_filter = (AutocompleteFilterFactory('Category', 'category'), 'visible_on_geoportal')
     search_fields = ('title',)
     readonly_fields = ('extent',)
     inlines = (

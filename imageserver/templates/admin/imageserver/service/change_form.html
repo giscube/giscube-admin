@@ -7,6 +7,27 @@
   </li>
 
   {{ block.super }}
+  <script>
+    django.jQuery(document).ready(function($) {
+      $.each($('#id_category'), function(i, element) {
+        $(element).select2({
+          ajax: {
+            data: function (params) {
+              var query = {
+                term: params.term,
+                page: params.page,
+                app_label: element.dataset.appLabel,
+                model_name: element.dataset.modelName,
+                field_name: element.dataset.fieldName,
+                category: $('#id_category').val()
+              }
+              return query
+            }
+          }
+        })
+      });
+    });
+  </script>
 {% endblock %}
 
 {% block content %}
