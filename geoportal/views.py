@@ -1,6 +1,16 @@
-from rest_framework.response import Response
+from django.db.models import Q
+from django.shortcuts import redirect
+from django.urls import reverse
 
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from geoportal.data import PREDEFINED_MAP_TOOLS
 from giscube.api_search_views import FilterByUserMixin
+from giscube.models import MapTool
+from giscube.serializers import MapToolSerializer
 from giscube_search.model_utils import DocumentIndexEditor
 from giscube_search.views import SearchView
 
@@ -131,3 +141,47 @@ class GeoportalCategoryCatalogView(GeoportalCategoryView):
         data = [x for x in raw_data if category['id'] in with_content]
 
         return Response(data)
+
+
+class GeoportalMapToolsView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        tools = MapTool.objects.filter(visible_on_geoportal=True).order_by('order')
+        anonymous = Q(anonymous_view=True)
+        if request.user.is_anonymous:
+            tools = tools.filter(anonymous)
+        else:
+            authenticated = (
+                Q(authenticated_user_view=True)
+                | Q(user_permissions__user=request.user)
+                | Q(group_permissions__group__user=request.user)
+            )
+            tools = tools.filter(anonymous | authenticated)
+
+        serialized = MapToolSerializer(tools, many=True)
+        return Response({"tools": serialized.data})
+
+
+class LoadPredefinedMapTools(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        for order, tool_data in enumerate(PREDEFINED_MAP_TOOLS):
+            tool = {
+                "order": order + 1,
+                "visible_on_geoportal": True,
+                "anonymous_view": True,
+                "authenticated_user_view": False,
+            }
+            if not tool_data.get("action_type"):
+                tool['action_type'] = 'to'
+                tool['to'] = tool_data.get('to', tool_data['name'])
+            tool.update(tool_data)
+            MapTool.objects.update_or_create(
+                name=tool['name'],
+                defaults=tool,
+            )
+
+        changelist_url = reverse("admin:giscube_maptool_changelist")
+        return redirect(changelist_url)

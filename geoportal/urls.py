@@ -10,4 +10,6 @@ urlpatterns = [
     path('category/', views.GeoportalCategoryView.as_view(), name='geoportal-category'),
     path('giscube_id/<giscube_ids>', views.GeoportalGiscubeIdView.as_view(), name='geoportal-giscube_id'),
     path('api/v1/profile/', api.profile),
+    path('map-tools/', views.GeoportalMapToolsView.as_view(), name='geoportal-map-tools'),
+    path('admin/load-predefined-map-tools/', views.LoadPredefinedMapTools.as_view(), name='load-predefined-map-tools'),
 ]

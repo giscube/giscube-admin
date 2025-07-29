@@ -24,7 +24,7 @@ from django_vue_tabs.admin import TabsMixin
 from .admin_forms import DBConnectionForm
 from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from .models import (BaseLayer, Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetResource,
-                     DatasetUserPermission, DBConnection, MapConfig, MapConfigBaseLayer, MetadataCategory, Server)
+                     DatasetUserPermission, DBConnection, MapConfig, MapConfigBaseLayer, MapTool, MapToolGroupPermission, MapToolUserPermission, MetadataCategory, Server)
 
 
 admin.site.site_title = settings.ADMIN_SITE_TITLE
@@ -321,3 +321,100 @@ class MapConfigAdmin(admin.ModelAdmin):
 class BaseLayerAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'properties')
     list_editable = ('name', 'properties')
+
+
+class MapToolGroupPermissionInline(admin.TabularInline):
+    model = MapToolGroupPermission
+    extra = 0
+    classes = ("tab-permissions",)
+    verbose_name = _("Group")
+    verbose_name_plural = _("Groups")
+
+
+class MapToolUserPermissionInline(admin.TabularInline):
+    model = MapToolUserPermission
+    extra = 0
+    classes = ("tab-permissions",)
+    verbose_name = _("User")
+    verbose_name_plural = _("Users")
+
+
+@admin.register(MapTool)
+class MapToolAdmin(TabsMixin, admin.ModelAdmin):
+    list_display = ('name', 'order', 'title', 'action_type', 'visible_on_geoportal')
+    list_editable = ('title', 'order', 'visible_on_geoportal')
+    search_fields = ('name', 'title', 'description')
+    list_filter = ('action_type', 'visible_on_geoportal')
+    inlines = (
+        MapToolGroupPermissionInline,
+        MapToolUserPermissionInline,
+    )
+
+    field_dependencies = {
+        'action_type': {
+            'to': {
+                'fields': ['to'],
+            },
+            'url': {
+                'fields': ['url', 'target'],
+            },
+            'action': {},
+            'webhook': {
+                'fields': ['url', 'headers', 'params'],
+            },
+        }
+    }
+    depending_fields = ['to', 'url', 'target', 'headers', 'params']
+
+    tabs = (
+        (_('Information'), ('tab-information',)),
+        (_('Action'), ('tab-action',)),
+        (_('Permissions'), ('tab-permissions',)),
+    )
+
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": [
+                    "name",
+                    "title",
+                    "description",
+                    "icon",
+                    "visible_on_geoportal",
+                    "order",
+                ],
+                "classes": ("tab-information",),
+            },
+        ),
+        (
+            None,
+            {
+                "fields": ["action_type", "url", "target", "headers", "params", "to"],
+                "classes": ("tab-action",),
+            },
+        ),
+        (
+            _("Basic permissions"),
+            {
+                "fields": [
+                    "anonymous_view",
+                    "authenticated_user_view",
+                ],
+                "classes": ("tab-permissions",),
+            },
+        ),
+    ]
+
+    class Media:
+        js = ("giscube/js/map-tools.js",)
+
+    def save_model(self, request, obj, form, change):
+        field_dependencies = self.field_dependencies.get('action_type', {})
+        has_depending_fields = obj.action_type in field_dependencies.keys()
+        if has_depending_fields:
+            for field in self.depending_fields:
+                if field not in field_dependencies[obj.action_type].get('fields', []):
+                    setattr(obj, field, None)
+
+        super().save_model(request, obj, form, change)

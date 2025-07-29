@@ -6,7 +6,7 @@ from giscube.utils import url_slash_join
 
 from rest_framework import serializers
 
-from .models import Category, MapConfig, MapConfigBaseLayer, UserAsset
+from .models import Category, MapConfig, MapConfigBaseLayer, MapTool, UserAsset
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -52,3 +52,22 @@ class MapConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = MapConfig
         fields = ('id', 'name', 'center_lat', 'center_lng', 'initial_zoom', 'baselayers')
+
+
+class MapToolSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MapTool
+        fields = (
+            "id",
+            "name",
+            "title",
+            "description",
+            "icon",
+            "action_type",
+            "to",
+            "url",
+            "target",
+            "headers",
+            "params",
+        )
