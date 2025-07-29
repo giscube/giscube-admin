@@ -359,3 +359,98 @@ class MapConfigBaseLayer(models.Model):
 
     class Meta:
         ordering = ['order']
+
+
+class ActionTypes(models.TextChoices):
+    ACTION = 'action', _('Frontend Action')
+    URL = 'url', 'URL'
+    WEBHOOK = 'webhook', 'Webhook'
+    TO = 'to', _('Frontend Route')
+
+
+class TabChoices(models.TextChoices):
+    SELF = '_self', _('Same Tab')
+    BLANK = '_blank', _('New Tab')
+
+
+class MapTool(models.Model):
+    name = models.CharField(_('Name'), max_length=255, unique=True)
+    title = models.CharField(_('Title'), max_length=255)
+    description = models.TextField(_('Description'), null=True, blank=True)
+    icon = models.CharField(
+        max_length=100, verbose_name=_('Icon'),
+        help_text=_('Material Icon to be used on the frontend.'),
+    )
+    action_type = models.CharField(
+        _('Action Type'),
+        max_length=50,
+        choices=ActionTypes.choices,
+        default=ActionTypes.TO,
+        help_text=_('Type of action to be triggered when using this tool.'),
+    )
+    anonymous_view = models.BooleanField(_('Anonymous users can view'), default=False)
+    authenticated_user_view = models.BooleanField(_('Authenticated users can view'), default=False)
+    visible_on_geoportal = models.BooleanField(_('Visible on geoportal'), default=False)
+    url = models.URLField(null=True, blank=True,)
+    to = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text=_('Name of the route to redirect the user to when using this tool.'),
+    )
+    target = models.CharField(
+        _("Target"),
+        max_length=50,
+        choices=TabChoices.choices,
+        default=TabChoices.SELF,
+        null=True,
+        blank=True,
+        help_text=_("Tab to open the URL in."),
+    )
+    headers = models.JSONField(
+        _('Headers'), null=True, blank=True,
+        help_text=_('Headers to be sent to the webhook. In JSON format. Ex: {"Authorization": "Bearer token"}'),
+    )
+    params = models.JSONField(
+        _('Parameters'), null=True, blank=True,
+        help_text=_('Parameters to be sent in the webhook\'s body. In JSON format. Ex: {"param1": "value1", "param2": "value2"}'),
+    )
+    order = models.PositiveIntegerField('Ordre', default=0)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Map Tool')
+        verbose_name_plural = _('Map Tools')
+        ordering = ['order']
+
+
+class MapToolGroupPermission(models.Model):
+    maptool = models.ForeignKey(
+        MapTool, related_name="group_permissions", on_delete=models.CASCADE
+    )
+    group = models.ForeignKey(Group, verbose_name=_("Group"), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_("Can view"), default=True)
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name = _("Group")
+        verbose_name_plural = _("Groups")
+
+
+class MapToolUserPermission(models.Model):
+    maptool = models.ForeignKey(
+        MapTool, related_name="user_permissions", on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(User, verbose_name=_("User"), on_delete=models.CASCADE)
+    can_view = models.BooleanField(_("Can view"), default=True)
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
