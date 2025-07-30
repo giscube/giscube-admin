@@ -1,10 +1,13 @@
 import os
 import tempfile
 
+from datetime import timedelta
+
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.mail import get_connection
-from django.utils import log
+from django.utils import log, timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django.utils.version import get_version as django_get_version
@@ -71,3 +74,33 @@ def unique_service_directory(instance, filename=None, append_object_name=True):
         return os.path.join(instance.service_path, filename)
     else:
         return instance.service_path
+
+
+def clear_tokens_from_old_users(days):
+    from oauth2_provider.models import AccessToken, RefreshToken
+    User = get_user_model()
+
+    expiring_date = timezone.now() - timedelta(days=days)
+
+    inactive_users = User.objects.filter(
+        last_login__lte=expiring_date, is_active=True
+    )
+
+    deleted_access = AccessToken.objects.filter(user__in=inactive_users).delete()
+    deleted_refresh = RefreshToken.objects.filter(user__in=inactive_users).delete()
+
+    return inactive_users.count(), deleted_access, deleted_refresh
+
+
+def deactivate_old_users(days):
+    User = get_user_model()
+
+    deactivating_date = timezone.now() - timedelta(days=days)
+
+    long_inactive_users = User.objects.filter(
+        last_login__lte=deactivating_date, is_active=True
+    )
+
+    deactivated_count = long_inactive_users.update(is_active=False, is_staff=False)
+
+    return deactivated_count
