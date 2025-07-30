@@ -315,6 +315,8 @@ OAUTH2_PROVIDER = {
 
     'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 365 * 10,
 }
+MAX_REFRESH_TOKEN_DAYS = int(os.environ.get("MAX_REFRESH_TOKEN_DAYS", 182))
+MAX_INACTIVE_USER_DAYS = int(os.environ.get("MAX_INACTIVE_USER_DAYS", 365))
 
 # rest-framework
 REST_FRAMEWORK = {
@@ -500,6 +502,7 @@ LEAFLET_CONFIG = {
         ],
     ],
 }
+
 
 # Plugins
 GISCUBE_PLUGINS = list(filter(None, os.environ.get('GISCUBE_PLUGINS', '').split(',')))
