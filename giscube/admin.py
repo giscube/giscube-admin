@@ -8,15 +8,17 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.db.models.functions import Concat
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import Context, Template
+from django.template.loader import render_to_string
 from django.urls import path, re_path, reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
+from django.utils.text import format_lazy
 
 from admin_auto_filters.filters import AutocompleteFilterFactory
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
@@ -74,8 +76,35 @@ def email_recover_password(modeladmin, request, queryset):
 email_recover_password.short_description = 'Email per recuperació de contrasenyes'
 
 
+def email_recover_password_html(modeladmin, request, queryset):
+    context_message = {
+        'site_header': settings.SITE_HEADER,
+        'app_client_name': settings.APP_CLIENT_NAME,
+        'app_url': settings.APP_URL,
+        'app_logo': settings.APP_LOGO,
+        'first_name': "{{ first_name }}",
+        'activation_link': "{{ activation_link }}",
+        'username': "{{ username }}"
+    }
+    text_content = render_to_string(
+        settings.PASSWORD_RECOVERY_EMAIL_TEMPLATE,
+        context_message,
+    )
+
+    context = {
+        'users': queryset,
+        'subject': format_lazy(settings.PASSWORD_RECOVERY_EMAIL_SUBJECT),
+        'message': text_content
+    }
+
+    return render(request, 'admin/giscube/recover_password/form.html', context)
+
+
+email_recover_password_html.short_description = 'Email format HTML per recuperació de contrasenyes'
+
+
 class UserAdmin(BaseUserAdmin):
-    actions = list(BaseUserAdmin.actions) + [csv_recover_password, email_recover_password]
+    actions = list(BaseUserAdmin.actions) + [csv_recover_password, email_recover_password, email_recover_password_html]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -92,18 +121,29 @@ class UserAdmin(BaseUserAdmin):
         email_from = settings.DEFAULT_FROM_EMAIL
         message = request.POST['message']
         template = Template(message)
+
         for user_id in users:
             user = User.objects.get(id=user_id)
             if user.email:
                 activation_link = get_reset_password_link(request, user)
+                first_name = user.username
+                if (user.first_name):
+                    first_name = user.first_name
+
                 context = {
                     'site_url': settings.SITE_URL,
-                    'username': user.username,
+                    'first_name': first_name,
                     'activation_link': activation_link,
+                    'username': user.username
                 }
                 render_context = Context(context)
                 body = template.render(render_context)
-                email = EmailMessage(subject, body, email_from, [user.email])
+
+                email = EmailMultiAlternatives(subject, body, email_from, [user.email])
+
+                if '<html>' in body.lower() or '<img' in body.lower():
+                    email.attach_alternative(body, "text/html")
+
                 email.send(fail_silently=False)
 
         return render(request, 'admin/giscube/recover_password/result.html', request.POST)

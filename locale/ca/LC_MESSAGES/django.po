@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-29 12:08+0200\n"
+"POT-Creation-Date: 2025-08-25 17:02+0200\n"
 "PO-Revision-Date: 2020-11-24 06:45+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -193,97 +193,98 @@ msgstr "Ajuda"
 msgid "Help and documentation."
 msgstr "Ajuda i documentació."
 
-#: giscube/admin.py:188 giscube/admin.py:330 giscube/models.py:272
+#: giscube/admin.py:233 giscube/admin.py:375 giscube/models.py:272
 #: giscube/models.py:279 giscube/models.py:433 giscube/models.py:440
-#: imageserver/admin.py:38 imageserver/models.py:128 imageserver/models.py:136
+#: imageserver/admin.py:39 imageserver/models.py:128 imageserver/models.py:136
 #: layerserver/admin.py:43 layerserver/admin.py:286 layerserver/models.py:199
 #: layerserver/models.py:206 layerserver/models.py:664
-#: layerserver/models.py:678 qgisserver/admin.py:52 qgisserver/models.py:219
+#: layerserver/models.py:678 qgisserver/admin.py:53 qgisserver/models.py:219
 #: qgisserver/models.py:227
 msgid "Group"
 msgstr "Grup"
 
-#: giscube/admin.py:189 giscube/admin.py:331 giscube/models.py:280
-#: giscube/models.py:441 imageserver/admin.py:39 imageserver/models.py:137
+#: giscube/admin.py:234 giscube/admin.py:376 giscube/models.py:280
+#: giscube/models.py:441 imageserver/admin.py:40 imageserver/models.py:137
 #: layerserver/admin.py:44 layerserver/admin.py:287 layerserver/models.py:207
-#: layerserver/models.py:679 qgisserver/admin.py:53 qgisserver/models.py:228
+#: layerserver/models.py:679 qgisserver/admin.py:54 qgisserver/models.py:228
 msgid "Groups"
 msgstr "Grups"
 
-#: giscube/admin.py:196 giscube/admin.py:338 giscube/models.py:224
+#: giscube/admin.py:241 giscube/admin.py:383 giscube/models.py:224
 #: giscube/models.py:285 giscube/models.py:292 giscube/models.py:448
 #: giscube/models.py:455
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:24
 #: giscube/templates/admin/giscube/recover_password/form.html:13
-#: imageserver/admin.py:46 imageserver/models.py:143 imageserver/models.py:151
+#: imageserver/admin.py:47 imageserver/models.py:143 imageserver/models.py:151
 #: layerserver/admin.py:51 layerserver/admin.py:295 layerserver/models.py:212
 #: layerserver/models.py:219 layerserver/models.py:684
-#: layerserver/models.py:694 qgisserver/admin.py:60 qgisserver/models.py:233
+#: layerserver/models.py:694 qgisserver/admin.py:61 qgisserver/models.py:233
 #: qgisserver/models.py:241
 msgid "User"
 msgstr "Usuari"
 
-#: giscube/admin.py:197 giscube/admin.py:339 giscube/models.py:293
-#: giscube/models.py:456 imageserver/admin.py:47 imageserver/models.py:152
+#: giscube/admin.py:242 giscube/admin.py:384 giscube/models.py:293
+#: giscube/models.py:456 imageserver/admin.py:48 imageserver/models.py:152
 #: layerserver/admin.py:52 layerserver/admin.py:296 layerserver/models.py:220
-#: layerserver/models.py:695 qgisserver/admin.py:61 qgisserver/models.py:242
+#: layerserver/models.py:695 qgisserver/admin.py:62 qgisserver/models.py:242
 msgid "Users"
 msgstr "Usuaris"
 
-#: giscube/admin.py:209 giscube/admin.py:370 imageserver/admin.py:65
+#: giscube/admin.py:254 giscube/admin.py:415 imageserver/admin.py:66
 #: layerserver/admin.py:95 layerserver/admin.py:105 layerserver/admin.py:387
-#: layerserver/admin.py:398 qgisserver/admin.py:93
+#: layerserver/admin.py:398 qgisserver/admin.py:94
 msgid "Information"
 msgstr "Informació"
 
-#: giscube/admin.py:210 imageserver/admin.py:66 qgisserver/admin.py:94
+#: giscube/admin.py:255 imageserver/admin.py:67 qgisserver/admin.py:95
 #, fuzzy
 #| msgid "options"
 msgid "Options"
 msgstr "opcions"
 
-#: giscube/admin.py:211 imageserver/admin.py:68 layerserver/admin.py:98
+#: giscube/admin.py:256 imageserver/admin.py:69 layerserver/admin.py:98
 #: layerserver/admin.py:108 layerserver/admin.py:391 layerserver/admin.py:403
-#: qgisserver/admin.py:95
+#: qgisserver/admin.py:96
 msgid "Design"
 msgstr "Disseny"
 
-#: giscube/admin.py:212 giscube/admin.py:372 imageserver/admin.py:69
+#: giscube/admin.py:257 giscube/admin.py:417 imageserver/admin.py:70
 #: layerserver/admin.py:99 layerserver/admin.py:109 layerserver/admin.py:392
-#: layerserver/admin.py:405 qgisserver/admin.py:96
+#: layerserver/admin.py:405 qgisserver/admin.py:97
 msgid "Permissions"
 msgstr "Permisos"
 
-#: giscube/admin.py:213 giscube/admin_mixins.py:7 giscube/admin_mixins.py:8
-#: imageserver/admin.py:70 layerserver/admin.py:100 layerserver/admin.py:110
-#: layerserver/admin.py:393 layerserver/admin.py:406 qgisserver/admin.py:97
+#: giscube/admin.py:258 giscube/admin_mixins.py:7 giscube/admin_mixins.py:8
+#: imageserver/admin.py:71 layerserver/admin.py:100 layerserver/admin.py:110
+#: layerserver/admin.py:393 layerserver/admin.py:406 qgisserver/admin.py:98
 msgid "Metadata"
 msgstr "Metadades"
 
-#: giscube/admin.py:214 imageserver/admin.py:71 layerserver/admin.py:101
-#: layerserver/admin.py:394 layerserver/admin.py:407 qgisserver/admin.py:98
+#: giscube/admin.py:259 imageserver/admin.py:72 layerserver/admin.py:101
+#: layerserver/admin.py:394 layerserver/admin.py:407 qgisserver/admin.py:99
 #, fuzzy
 #| msgid "Resource"
 msgid "Resources"
 msgstr "Recurs"
 
-#: giscube/admin.py:237 giscube/admin.py:398 imageserver/admin.py:97
-#: layerserver/admin.py:148 layerserver/admin.py:190 qgisserver/admin.py:135
+#: giscube/admin.py:282 giscube/admin.py:443 imageserver/admin.py:98
+#: layerserver/admin.py:148 layerserver/admin.py:190 qgisserver/admin.py:136
 msgid "Basic permissions"
 msgstr "Permisos bàsics"
 
-#: giscube/admin.py:292
+#: giscube/admin.py:337
 msgid "Base layer"
 msgstr "Capa base"
 
-#: giscube/admin.py:293
+#: giscube/admin.py:338
 msgid "Base layers"
 msgstr "Capes base"
 
-#: giscube/admin.py:305
+#: giscube/admin.py:350
 msgid "Initial view"
 msgstr "Vista inicial"
 
-#: giscube/admin.py:371
+#: giscube/admin.py:416
 msgid "Action"
 msgstr "Acció"
 
@@ -1465,14 +1466,81 @@ msgstr "Eina visor"
 msgid "Map Tools"
 msgstr "Eines i processos visor"
 
-#: giscube/settings.py:426
+#: giscube/settings.py:437
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:16
 msgid "Rebuild Giscube Search cache"
 msgstr "Actualitzar informació del catàleg"
 
+#: giscube/settings.py:464
+msgid "Mapia Recovery password"
+msgstr "Mapia Recuperació de contrasenya"
+
 #: giscube/templates/admin/giscube/maptool/change_list.html:10
 msgid "Load predefined tools"
 msgstr "Carregar eines predefinides"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:5
+msgid "Hi"
+msgstr "Hola"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:7
+msgid "You have been registred to the application"
+msgstr "Has estat donat d'alta a l'aplicació"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:7
+msgid "of"
+msgstr "de"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:8
+msgid ""
+"To access the application, you need to create your password from the "
+"following one-time use link"
+msgstr ""
+"Per accedir a l'aplicació cal que creïs la teva contrasenya des del següent "
+"enllaç d'un sol ús"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:12
+msgid "Create my password"
+msgstr "Crear la meva contrasenya"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:16
+msgid ""
+"Once created the password you can access the application with the following "
+"data"
+msgstr ""
+"Una vegada creada la contrasenya podràs accedir a l'aplicació amb les "
+"següents dades"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:20
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:22
+msgid "Access"
+msgstr "Accés"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:22
+msgid "The link is not available at this time."
+msgstr "L'enllaç no està disponible en aquest moment."
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:25
+#, fuzzy
+#| msgid "password"
+msgid "Password"
+msgstr "Contrasenya"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:25
+msgid "Your password"
+msgstr "La teva contrasenya"
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:28
+msgid ""
+"For any questions and problems, please contact with the service "
+"administrator."
+msgstr ""
+"Per qualsevol dubte o problema posa't en contacte amb l'administrador del "
+"servei."
+
+#: giscube/templates/admin/giscube/recover_password/email_body.txt:30
+msgid "Thank you so much"
+msgstr "Moltes gràcies"
 
 #: giscube/templates/admin/giscube/recover_password/form.html:12
 msgid "Authentication and Authorization"
@@ -1583,7 +1651,7 @@ msgstr ""
 msgid "Bounding box format is (xmin, ymin, xmax, ymax)"
 msgstr ""
 
-#: giscube/utils/django.py:32
+#: giscube/utils/django.py:35
 #, python-format
 msgid "There is a recursion problem with [%s]"
 msgstr "Hi ha un problema de recursivitats amb [%s]"
@@ -1601,11 +1669,11 @@ msgstr "La tasca d'actualitzar informació del catàleg s'ha posat en cua"
 msgid "Error trying to rebuild Giscube Search cache"
 msgstr "Error al intentar actualitzar informació del catàleg"
 
-#: imageserver/admin.py:67 imageserver/models.py:242
+#: imageserver/admin.py:68 imageserver/models.py:242
 msgid "Layers"
 msgstr "Capes"
 
-#: imageserver/admin.py:72 qgisserver/admin.py:100
+#: imageserver/admin.py:73 qgisserver/admin.py:101
 msgid "Tile Cache"
 msgstr "Cache d'imatges"
 
@@ -1770,7 +1838,7 @@ msgstr "Registre de tasques"
 msgid "Cluster"
 msgstr "Clúster"
 
-#: layerserver/admin.py:201 layerserver/admin.py:523 qgisserver/admin.py:175
+#: layerserver/admin.py:201 layerserver/admin.py:523 qgisserver/admin.py:176
 msgid "Anonymous view"
 msgstr "Vista anònima"
 
@@ -2402,21 +2470,21 @@ msgstr "Es requereix l'atribut 'dblayer_fk'"
 msgid "'query' attribute is required"
 msgstr "Es requereix l'atribut 'query'"
 
-#: qgisserver/admin.py:69
+#: qgisserver/admin.py:70
 #, fuzzy
 #| msgid "filter"
 msgid "WMS Filter"
-msgstr "filtre"
+msgstr "Filtre WMS"
 
-#: qgisserver/admin.py:70
+#: qgisserver/admin.py:71
 msgid "WMS Filters"
-msgstr ""
+msgstr "Filtres WMS"
 
-#: qgisserver/admin.py:101
+#: qgisserver/admin.py:102
 msgid "Servers"
 msgstr "Servidors"
 
-#: qgisserver/admin.py:214
+#: qgisserver/admin.py:215
 #, python-format
 msgid "Is not possible to save %s"
 msgstr "No es pot guardar %s"

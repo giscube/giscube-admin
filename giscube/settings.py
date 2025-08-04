@@ -215,6 +215,14 @@ APP_URL = '/%s/' % APP_NAME
 APP_URL = os.getenv('APP_URL', APP_URL)
 APP_ROOT = os.getenv('APP_PATH', BASE_DIR)
 
+APP_CLIENT_NAME = os.getenv('APP_CLIENT_NAME', "Mapia")
+APP_LOGO = os.getenv(
+    'LOGO_MAPIA',
+    'https://www.mapia-technologies.com/wp-content/uploads/2023/06/cropped-logo_mapia.png'
+)
+
+SITE_HEADER = os.getenv('SITE_HEADER', 'Àrea clients')
+
 SITE_URL = os.getenv('SITE_URL', 'http://localhost')
 SITE_INTERNAL_URL = os.getenv('SITE_INTERNAL_URL', SITE_URL)
 
@@ -452,6 +460,10 @@ GISCUBE = {
                                               'Kind Regards,\n\n'
                                               'Your Giscube administrator')
 }
+
+PASSWORD_RECOVERY_EMAIL_SUBJECT = _('Mapia Recovery password')
+
+PASSWORD_RECOVERY_EMAIL_TEMPLATE = 'admin/giscube/recover_password/email_body.txt'
 
 # Email
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')

@@ -1,0 +1,37 @@
+{% load i18n %}
+<html>
+<body>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">  
+        <p>{% trans 'Hi' %} {{ first_name }},</p>
+        
+        <p>{% trans 'You have been registred to the application' %} {{ site_header }} {% trans 'of' %} {{ app_client_name }}. 
+        {% trans 'To access the application, you need to create your password from the following one-time use link' %}:</p>
+        
+        <p style="text-align: center; margin: 20px 0;">
+            <a href="{{ activation_link }}" style="background-color: #007cba; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                {% trans 'Create my password' %}
+            </a>
+        </p>
+        
+        <p>{% trans 'Once created the password you can access the application with the following data' %}:</p>
+        
+        <ul>
+            {% if app_url %}
+            <li><strong>{% trans 'Access' %}:</strong> <a href="{{ app_url }}">{{ app_url }}</a></li>
+            {% else %}
+            <li><strong>{% trans 'Access' %}:</strong>{% trans 'The link is not available at this time.' %}</li>
+            {% endif %}
+            <li><strong>{% trans 'User' %}:</strong> {{ username }}</li>
+            <li><strong>{% trans 'Password' %}:</strong> {% trans 'Your password' %}</li>
+        </ul>
+        
+        <p>{% trans 'For any questions and problems, please contact with the service administrator.' %}</p>
+        
+        <p>{% trans 'Thank you so much' %},</p>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <img src="{{ app_logo }}" alt="Logo Mapia" style="max-width: 100px; height: auto;" />
+        </div>
+    </div>
+</body>
+</html>
