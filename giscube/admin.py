@@ -26,8 +26,9 @@ from django_vue_tabs.admin import TabsMixin
 
 from .admin_forms import DBConnectionForm
 from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
-from .models import (BaseLayer, Category, Dataset, DatasetGroupPermission, DatasetMetadata, DatasetResource,
-                     DatasetUserPermission, DBConnection, MapConfig, MapConfigBaseLayer, MapTool, MapToolGroupPermission, MapToolUserPermission, MetadataCategory, Server)
+from .models import (AccessLog, BaseLayer, Category, Dataset, DatasetGroupPermission, DatasetMetadata,
+                     DatasetResource, DatasetUserPermission, DBConnection, MapConfig, MapConfigBaseLayer,
+                     MapTool, MapToolGroupPermission, MapToolUserPermission, MetadataCategory, Server, UsersLog)
 
 
 admin.site.site_title = settings.ADMIN_SITE_TITLE
@@ -465,3 +466,38 @@ class MapToolAdmin(TabsMixin, admin.ModelAdmin):
                     setattr(obj, field, None)
 
         super().save_model(request, obj, form, change)
+
+
+@admin.register(AccessLog)
+class AccessLogAdmin(admin.ModelAdmin):
+    list_display = ('ip_address', 'user', 'accessed_date')
+    fields = ('ip_address', 'user', 'accessed_date', 'details')
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+
+@admin.register(UsersLog)
+class UsersLogAdmin(admin.ModelAdmin):
+    list_display = ('date', 'num_users')
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False

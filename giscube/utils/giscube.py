@@ -17,3 +17,11 @@ def get_giscube_id(item):
 
     if content_type_id:
         return '%s.%s' % (content_type_id, item.pk)
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', '127.0.0.1')
+
