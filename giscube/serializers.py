@@ -6,7 +6,7 @@ from giscube.utils import url_slash_join
 
 from rest_framework import serializers
 
-from .models import Category, MapConfig, MapConfigBaseLayer, MapTool, UserAsset
+from .models import Category, MapConfig, MapConfigBaseLayer, MapTool, UserAsset, UsersLog
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -71,3 +71,9 @@ class MapToolSerializer(serializers.ModelSerializer):
             "headers",
             "params",
         )
+
+
+class UsersLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsersLog
+        fields = '__all__'

@@ -454,3 +454,29 @@ class MapToolUserPermission(models.Model):
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")
+
+
+class AccessLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    ip_address = models.GenericIPAddressField(_('IP Address'), null=True, blank=True)
+    accessed_date = models.DateField(_('Accessed date'), auto_now_add=True)
+    details = models.TextField(_('Details'), null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.accessed_date}" if self.user else f"{self.ip_address} - {self.accessed_date}"
+
+    class Meta:
+        verbose_name = _('Access Log')
+        verbose_name_plural = _('Access Logs')
+
+
+class UsersLog(models.Model):
+    date = models.DateField(_('Date'), null=False, blank=False)
+    num_users = models.PositiveIntegerField(_('Number of Users'), default=0)
+
+    def __str__(self):
+        return f"{self.date} - {self.num_users} users"
+
+    class Meta:
+        verbose_name = _('Users Log')
+        verbose_name_plural = _('Users Logs')
