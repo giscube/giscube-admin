@@ -30,3 +30,5 @@ requests==2.24.0
 sentry-sdk==0.14.0
 tablib==3.0.0
 ujson==5.2.0
+flower==2.0.1
+celery-progress==0.5

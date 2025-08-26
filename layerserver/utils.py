@@ -63,7 +63,7 @@ def geojsonlayer_check_cache(layer):
             return GENERATE_GEOJSON_LAYER_PENDING
 
         from .tasks import async_geojsonlayer_refresh
-        async_geojsonlayer_refresh.delay(layer.pk, True)
+        async_geojsonlayer_refresh.delay(layer.pk, True, False, layer_name=layer.name)
         return QUEUE_GENERATE_GEOJSON_LAYER
 
 

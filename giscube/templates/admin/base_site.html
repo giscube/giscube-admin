@@ -6,4 +6,11 @@
 <link rel="stylesheet" href="{% static 'admin.css' %}">
 {% endblock extrahead %}
 
+{% block messages %}
+<ul class="messagelist">
+    {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message|safe }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
 {% block nav-global %}{% endblock %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-25 16:46+0200\n"
+"POT-Creation-Date: 2025-08-28 10:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -299,7 +299,29 @@ msgstr ""
 
 #: giscube/apps_titles.py:12
 msgid "Internal Processes Results"
+msgstr "Resultados de procesos internos"
+
+#: giscube/celery.py:54
+#, python-format
+msgid ""
+"Error %(status_code)s fetching background tasks from Flower API at %(url)s."
 msgstr ""
+"Error %(status_code)s al recuperar tareas en segundo plano de la API de "
+"Flower en %(url)s."
+
+#: giscube/celery.py:66
+#, python-format
+msgid ""
+"Cannot connect to Flower API at %(url)s. Please check that Celery and Flower "
+"API are running."
+msgstr ""
+"No se puede conectar a la API de Flower en %(url)s. Por favor, verifica que "
+"Celery y la API de Flower estén en funcionamiento."
+
+#: giscube/celery.py:73
+#, python-format
+msgid "The Flower API at %(url)s is not returning a JSON response."
+msgstr "La API de Flower en %(url)s no está devolviendo una respuesta JSON."
 
 #: giscube/languages.py:5
 msgid "Abkhaz"
@@ -1037,6 +1059,36 @@ msgstr ""
 msgid "Zulu"
 msgstr ""
 
+#: giscube/middleware.py:82
+#, python-format
+msgid "%(running)d %(task_label)s running in the background."
+msgstr "%(running)d %(task_label)s en ejecución en segundo plano."
+
+#: giscube/middleware.py:85 giscube/middleware.py:94
+msgid "task"
+msgstr "tarea"
+
+#: giscube/middleware.py:85 giscube/middleware.py:94
+#: giscube/templates/giscube/tags/admin_tasks_menu.html:6
+msgid "tasks"
+msgstr "tareas"
+
+#: giscube/middleware.py:91
+#, python-format
+msgid "%(finished)d %(task_label)s finished (%(failed)d failed)."
+msgstr ""
+"%(finished)d %(task_label)s en estado finalizado (%(failed)d en estado "
+"fallido)."
+
+#: giscube/middleware.py:105
+#, python-format
+msgid "View %(more_details)s."
+msgstr "Ver %(more_details)s."
+
+#: giscube/middleware.py:107
+msgid "more details"
+msgstr "más detalles"
+
 #: giscube/model_mixins.py:18
 msgid "date"
 msgstr ""
@@ -1372,7 +1424,7 @@ msgstr "Misma pestaña"
 msgid "New Tab"
 msgstr "Nueva pestaña"
 
-#: giscube/models.py:377
+#: giscube/models.py:377 giscube/templates/admin/background_tasks.html:23
 #: giscube/templates/admin/giscube/recover_password/form.html:40
 msgid "Name"
 msgstr ""
@@ -1453,14 +1505,82 @@ msgstr ""
 msgid "Map Tools"
 msgstr ""
 
-#: giscube/settings.py:437
+#: giscube/settings.py:449
+msgid "View background tasks status"
+msgstr ""
+
+#: giscube/settings.py:454
 #: giscube_search/templates/admin/giscube_search/rebuild_giscube_search_index.html:16
 msgid "Rebuild Giscube Search cache"
 msgstr ""
 
-#: giscube/settings.py:464
+#: giscube/settings.py:481
 msgid "Mapia Recovery password"
 msgstr "Mapia Recuperación de contraseña"
+
+#: giscube/templates/admin/background_tasks.html:11
+msgid "Background Tasks"
+msgstr "Tareas en segundo plano"
+
+#: giscube/templates/admin/background_tasks.html:13
+msgid ""
+"List of background tasks being processed. Sorted by time of reception. "
+"Showing only last "
+msgstr ""
+"Lista de tareas en segundo plano en proceso. Ordenadas por hora de "
+"recepción. Mostrando solo las últimas "
+
+#: giscube/templates/admin/background_tasks.html:19
+msgid "hours"
+msgstr "horas"
+
+#: giscube/templates/admin/background_tasks.html:24
+msgid "Args/Kwargs"
+msgstr ""
+
+#: giscube/templates/admin/background_tasks.html:25
+msgid "Date Received"
+msgstr "Recibida"
+
+#: giscube/templates/admin/background_tasks.html:26
+msgid "Date Started"
+msgstr "Iniciada"
+
+#: giscube/templates/admin/background_tasks.html:27
+msgid "Date Finished"
+msgstr "Finalizada"
+
+#: giscube/templates/admin/background_tasks.html:28
+msgid "Runtime"
+msgstr "Duración"
+
+#: giscube/templates/admin/background_tasks.html:29
+msgid "Status"
+msgstr "Estado"
+
+#: giscube/templates/admin/background_tasks.html:30
+msgid "Result"
+msgstr "Resultado"
+
+#: giscube/templates/admin/background_tasks.html:35
+msgid "Args"
+msgstr ""
+
+#: giscube/templates/admin/background_tasks.html:35
+msgid "Kwargs"
+msgstr ""
+
+#: giscube/templates/admin/background_tasks.html:57
+msgid "Waiting..."
+msgstr "Esperando..."
+
+#: giscube/templates/admin/background_tasks.html:58
+msgid "Task started..."
+msgstr "Tarea iniciada..."
+
+#: giscube/templates/admin/background_tasks.html:74
+msgid "No background tasks in the last selected hours."
+msgstr "No hay tareas en segundo plano en las últimas horas seleccionadas."
 
 #: giscube/templates/admin/giscube/maptool/change_list.html:10
 msgid "Load predefined tools"
@@ -1483,8 +1603,8 @@ msgid ""
 "To access the application, you need to create your password from the "
 "following one-time use link"
 msgstr ""
-"Para acceder a la aplicación hace falta que cree una contraseña desde el siguiente "
-"enlace de un solo uso"
+"Para acceder a la aplicación hace falta que cree una contraseña desde el "
+"siguiente enlace de un solo uso"
 
 #: giscube/templates/admin/giscube/recover_password/email_body.txt:12
 msgid "Create my password"
@@ -1557,10 +1677,6 @@ msgstr ""
 
 #: giscube/templates/admin/giscube/recover_password/result.html:12
 msgid "Emails sent"
-msgstr ""
-
-#: giscube/templates/giscube/tags/admin_tasks_menu.html:6
-msgid "tasks"
 msgstr ""
 
 #: giscube/tilecache/admin_forms_mixins.py:7
