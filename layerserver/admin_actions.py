@@ -10,7 +10,7 @@ def geojsonlayer_force_refresh_data(modeladmin, request, queryset):
         raise PermissionDenied
 
     for obj in queryset.all():
-        async_geojsonlayer_refresh.delay(obj.pk, True)
+        async_geojsonlayer_refresh.delay(obj.pk, True, False, layer_name=obj.name)
     n = queryset.count()
     modeladmin.message_user(request, _('Forcing refresh of %s geojsonlayers') % n, messages.INFO)
 

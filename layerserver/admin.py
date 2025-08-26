@@ -271,7 +271,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             messages.info(request, _('GeoJsonLayer will be generated/updated in background.'))
 
         transaction.on_commit(
-            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file, generate_popup)
+            lambda: async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file, generate_popup, layer_name=obj.name)
         )
 
 

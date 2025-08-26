@@ -153,8 +153,8 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
 
 def refresh_childs(layer):
     from .tasks import async_geojsonlayer_refresh
-    for x in layer.design_from_childs.all():
-        async_geojsonlayer_refresh.delay(x.pk, force_refresh_data_file=False, generate_popup=False)
+    for obj in layer.design_from_childs.all():
+        async_geojsonlayer_refresh.delay(obj.pk, force_refresh_data_file=False, generate_popup=False, layer_name=obj.name)
 
 
 @receiver(post_save, sender=GeoJsonLayer)
@@ -422,7 +422,7 @@ def add_fields(sender, instance, created, **kwargs):
 
 def _generate_mapfile(obj):
     if obj.shapetype in SUPORTED_SHAPE_TYPES and obj.geom_field is not None:
-        async_generate_mapfile.delay(obj.pk)
+        async_generate_mapfile.delay(obj.pk, layer_name=obj.name)
 
 
 @receiver(post_save, sender=DataBaseLayer)

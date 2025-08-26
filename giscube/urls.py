@@ -104,6 +104,12 @@ for plugin in settings.GISCUBE_PLUGINS:
     if os.path.isfile(plugins_url_path):
         urlpatterns.append(path('plugins/%s/' % plugin, include('%s.urls' % plugin)))
 
+if settings.CELERY_FLOWER_API:
+    urlpatterns += [
+        path("admin/celery/", include('giscube.celery')),
+        path('celery-progress/', include('celery_progress.urls')),
+    ]
+
 urlpatterns += [
     path('admin/', admin.site.urls),
 ]

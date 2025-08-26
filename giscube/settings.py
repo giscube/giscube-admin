@@ -137,6 +137,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'giscube.middleware.CheckRunningCeleryTasksMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -371,6 +372,17 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_TASK_TRACK_STARTED = True
 
+CELERY_FLOWER_API = os.getenv('CELERY_FLOWER_API', None)
+FLOWER_USER = os.getenv('FLOWER_USER', None)
+FLOWER_PASSWORD = os.getenv('FLOWER_PASSWORD', None)
+try:
+    CELERY_REPORT_FINISHED_TASKS_TIME = os.getenv('CELERY_REPORT_FINISHED_TASKS_TIME', '1')  # hours
+    CELERY_REPORT_FINISHED_TASKS_TIME = int(CELERY_REPORT_FINISHED_TASKS_TIME)
+except ValueError:
+    CELERY_REPORT_FINISHED_TASKS_TIME = 1
+if CELERY_FLOWER_API:
+    INSTALLED_APPS += ['celery_progress']
+
 USER_ASSETS_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
 
 LAYERSERVER_FILE_STORAGE_CLASS = 'django.core.files.storage.FileSystemStorage'
@@ -432,10 +444,15 @@ LOGGING = {
 # Tasks menu
 ADMIN_TASKS_MENU = [
     {
+        'url': 'background_tasks_monitoring',
+        'reverse': True,
+        'title': _('View background tasks status'),
+    },
+    {
         'url': 'rebuild_giscube_search_index',
         'reverse': True,
-        'title': _('Rebuild Giscube Search cache')
-    }
+        'title': _('Rebuild Giscube Search cache'),
+    },
 ]
 # LogEntry
 

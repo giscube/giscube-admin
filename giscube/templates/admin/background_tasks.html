@@ -1,0 +1,97 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <h1>{% trans "Background Tasks" %}</h1>
+  <div>
+    <p>{% trans "List of background tasks being processed. Sorted by time of reception. Showing only last " %}
+      <select id="hours-filter">
+        {% for value, label in filter_options %}
+          <option value="{{ value }}"{% if value == hours %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% trans "hours" %}.
+    </p>
+    <table class="admin-table">
+        <tr>
+            <th>{% trans 'Name' %}</th>
+            <th>{% trans 'Args/Kwargs' %}</th>
+            <th>{% trans 'Date Received' %}</th>
+            <th>{% trans 'Date Started' %}</th>
+            <th>{% trans 'Date Finished' %}</th>
+            <th>{% trans 'Runtime' %}</th>
+            <th>{% trans 'Status' %}</th>
+            <th>{% trans 'Result' %}</th>
+        </tr>
+        {% for task_id, task in tasks.items %}
+        <tr>
+            <td>{{ task.name }}</td>
+            <td>{% trans 'Args' %}: {{ task.args }}<br>{% trans 'Kwargs' %}: {{ task.kwargs }}</td>
+            <td>{{ task.received|date:'Y-m-d H:i' }}</td>
+            <td>{{ task.started|date:'Y-m-d H:i' }}</td>
+            <td>{{ task.finished|date:'Y-m-d H:i' }}</td>
+            {% if task.runtime %}
+              <td>{{ task.runtime|floatformat:1 }}s</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+            {% if task.state == 'STARTED' or task.state == 'RECEIVED' %}
+              <td>
+                <div class='progress-wrapper'>
+                  <div id='progress-bar-{{ task_id }}' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+                </div>
+                <div id="progress-bar-message-{{ task_id }}"></div>
+                <script>
+                  document.addEventListener("DOMContentLoaded", function () {
+                    const progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+                    CeleryProgressBar.initProgressBar(progressUrl, {
+                      "progressBarId": "progress-bar-{{ task_id }}",
+                      "progressBarMessageId": "progress-bar-message-{{ task_id }}",
+                      "defaultMessages": {
+                        "waiting": '{% trans "Waiting..." %}',
+                        "started": '{% trans "Task started..." %}',
+                      },
+                      "onSuccess": function () {
+                        window.location.reload();
+                      }
+                    });
+                  });
+                </script>
+              </td>
+            {% else %}
+              <td>{{ task.state }}</td>
+            {% endif %}
+            <td>{{ task.result }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">{% trans "No background tasks in the last selected hours." %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+  </div>
+  <style>
+    .progress-wrapper {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const filter = document.getElementById("hours-filter");
+      filter.addEventListener("change", function () {
+        const selectedHours = filter.value;
+        const url = new URL(window.location);
+        url.searchParams.set("hours", selectedHours);
+        window.location = url;
+      });
+    });
+  </script>
+{% endblock %}
+
