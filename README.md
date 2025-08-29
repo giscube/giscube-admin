@@ -1,3 +1,6 @@
+# Install
+Check https://bitbucket.org/infraplan/mapiasantcugat-giscube-admin/src/master/ for instructions on how to install. *Replace all santcugat occurrences with vilafranca.*
+
 # giscube-admin
 
 Giscube admin Applications:
