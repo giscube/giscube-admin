@@ -421,7 +421,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'db_connection', 'table', 'pk_field', 'data_filter',
-                'data_filter_status', 'data_filter_error'
+                'data_filter_status', 'data_filter_error', 'additional_layer'
             ],
             'classes': ('tab-data-base',),
         }),
@@ -453,7 +453,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'db_connection', 'table', 'pk_field', 'geom_field', 'srid',
-                'data_filter', 'data_filter_status', 'data_filter_error'
+                'data_filter', 'data_filter_status', 'data_filter_error', 'additional_layer'
             ],
             'classes': ('tab-data-base',),
         }),

@@ -24,6 +24,8 @@ from giscube.models import DBConnection
 from giscube.storage import OverwriteStorage
 from giscube.utils import RecursionException, check_recursion, unique_service_directory
 
+from qgisserver.models import Service
+
 from . import model_legacy
 from .fields import ImageWithThumbnailField
 from .mapserver import SUPORTED_SHAPE_TYPES
@@ -329,6 +331,11 @@ class DataBaseLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, C
     wms_as_reference = models.BooleanField(_('Use generated WMS as reference'), default=False)
     legend = models.TextField(_('legend'), null=True, blank=True)
     catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
+
+    additional_layer = models.ForeignKey(
+        Service, null=True, blank=True, on_delete=models.PROTECT,
+        related_name='databaselayers', verbose_name='Additional layer'
+    )
 
     def get_model_field(self, field_name):
         if not hasattr(self, '_model_fields'):
