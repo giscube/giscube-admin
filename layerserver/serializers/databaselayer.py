@@ -5,7 +5,8 @@ from django.urls import reverse
 
 from rest_framework import serializers
 
-from giscube.utils import remove_app_url, url_slash_join
+from giscube.models import Category
+from giscube.utils import prepare_output_data, prepare_children, remove_app_url, url_slash_join
 from layerserver.model_legacy import create_dblayer_model
 from layerserver.models import DataBaseLayer, DataBaseLayerReference, DBLayerGroup
 
@@ -104,6 +105,7 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     virtual_fields = DBLayerVirtualFieldSerializer(many=True, read_only=True)
     references = DBLayerReferenceSerializer(many=True, read_only=True)
     permissions = serializers.SerializerMethodField()
+    additional_layer_data = serializers.SerializerMethodField()
 
     def get_title(self, obj):
         return obj.title or obj.name
@@ -138,6 +140,21 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
                     permission['delete'] = group_permission.can_delete
 
         return permission
+    
+    def prepare_additional_layer_children(self, obj):
+        children = prepare_children(obj)
+        return children
+    
+    def get_additional_layer_data(self, obj):
+        if obj.additional_layer:
+            data = prepare_output_data(obj.additional_layer)
+            data['children'] = self.prepare_additional_layer_children(obj.additional_layer)
+            data['catalog'] = (obj.additional_layer.category.title or '').split(Category.SEPARATOR) if obj.additional_layer.category else []
+            data['options']['single_image'] = getattr(obj.additional_layer, 'wms_single_image', False)
+            data['options']['getfeatureinfo_support'] = getattr(obj.additional_layer, 'wms_getfeatureinfo_enabled', False)
+            data['title'] = obj.additional_layer.title or obj.additional_layer.name
+            return data
+        return None
 
     def format_options_json(self, obj, data):
         return data.update({
@@ -201,4 +218,4 @@ class DBLayerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataBaseLayer
         fields = ['name', 'title', 'description', 'keywords', 'pk_field', 'geom_field', 'fields', 'virtual_fields',
-                  'references', 'permissions']
+                  'references', 'permissions', 'additional_layer_data']
