@@ -1,5 +1,5 @@
 celery==5.2.2
-Django==3.2.17
+Django==3.2.18
 django-admin-list-filter-dropdown==1.0.3
 django-admin-rangefilter==0.9.0
 django-cas-ng==3.6.0
