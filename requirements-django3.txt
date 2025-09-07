@@ -19,7 +19,7 @@ django-vue-tabs==0.0.12
 djangorestframework==3.12.4
 djangorestframework-gis==1.0
 drf-ujson2==1.6.1
-OWSLib==0.25.0
+OWSLib==0.28.1
 pdf2image==1.11.0
 Pillow==9.0.1
 psycopg2==2.8.6 --no-binary psycopg2
