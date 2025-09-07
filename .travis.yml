@@ -1,12 +1,6 @@
-services:
-  - docker
-
-before_install:
-  - make build
-
-script:
-  - make build
-  - make test
+dist: focal
+language: python
+cache: pip
 
 notifications:
   email:
@@ -14,3 +8,38 @@ notifications:
       - tech@microdisseny.com
     on_success: always # default: change
     on_failure: always # default: always
+
+addons:
+  postgresql: "12"
+  apt:
+    packages:
+      - postgresql-12-postgis-3
+
+services:
+  - postgresql
+
+matrix:
+  include:
+    - { python: "3.6", env: TOXENV=py36 }
+    - { python: "3.8", env: TOXENV=py38 }
+    - { python: "3.9", env: TOXENV=py39 }
+branches:
+  only:
+    - master
+
+env:
+  global:
+    - CPLUS_INCLUDE_PATH=/usr/include/gdal
+    - C_INCLUDE_PATH=/usr/include/gdal
+
+before_install:
+  - sudo apt-get update -q
+  - sudo apt-get install gdal-bin libgdal-dev -y
+  - sudo apt-get install poppler-utils -y
+  - pip install -U pip setuptools wheel
+
+install:
+  - pip install -U -r requirements-gdal3.txt
+
+script:
+  - python3 manage.py test
