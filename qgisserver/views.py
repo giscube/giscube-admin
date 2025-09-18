@@ -17,7 +17,7 @@ from giscube.tilecache.caches import GiscubeServiceCache
 from giscube.tilecache.image import tile_cache_image
 from giscube.tilecache.proj import GoogleProjection
 from giscube.utils import get_service_wms_bbox
-from giscube.views_mixins import WMSProxyBufferView
+from giscube.views_mixins import ProxyMixin, WMSProxyBufferView
 from giscube.views_utils import web_map_view
 
 from .models import Service
@@ -178,3 +178,99 @@ class QGISServerMapViewerView(ServiceMixin, View):
             extra_context['bbox'] = list(bbox)
 
         return web_map_view(request, extra_context)
+
+
+class QGISServerWFSView(ServiceMixin, ProxyMixin, View):
+    service_type = 'WFS'
+    allowed_request_types = ('getfeature', 'getcapabilities', 'describefeaturetype', 'transaction')
+
+    def is_request_parameter_allowed(self, parameters):
+        parameters = {key.lower(): value.lower() for key, value in parameters.items()}
+
+        if (
+            parameters.get('request') == 'transaction'
+            and not self.service.wfs_transaction_enabled
+        ):
+            return False
+
+        return True
+
+    def is_valid_wfs_request(self, params):
+        service = self.param_get(params, 'service', '').upper()
+        request = self.param_get(params, 'request', '').lower()
+        if service == self.service_type and request in self.allowed_request_types:
+            return True
+
+        return False
+
+    def request_is_valid(self, request):
+        if not self.is_request_parameter_allowed(request.GET):
+            return False, HttpResponseForbidden()
+
+        if not self.is_valid_wfs_request(request.GET):
+            return False, HttpResponseBadRequest()
+
+        return True, None
+
+    def getcapabilities(self, request):
+        """Fixes two problems in the response from QGIS Server.
+        1) QGIS returns the link to the layers using the internal path (bypassing Django).
+            - Replace the paths with paths going through Django.
+        2) QGIS automatically transforms the slug '/mapdata/' in the map query string argument to '/MAPdata/'
+            - Transform it back to lowercase.
+        """
+        url = self.build_url(request)
+        response = super().get(request, url=url)
+        content = response.content.decode('utf-8')
+        endpoint = reverse('qgisserver-wfs', args=(self.service.name,))
+        base_url = (
+            settings.GISCUBE_URL[:-1]
+            if settings.GISCUBE_URL.endswith('/')
+            else settings.GISCUBE_URL
+        )
+        content = content.replace(
+            settings.GISCUBE_QGIS_SERVER_URL, f"{base_url}{endpoint}"
+        )
+        content = content.replace('/MAPdata/', '/mapdata/')
+        fixed_response = HttpResponse(
+            content,
+            content_type=response.headers.get('content_type')
+        )
+        fixed_response.status_code = response.status_code
+        return fixed_response
+
+    def get(self, request, service_name):
+        self.service = get_object_or_404(self.get_queryset(), name=service_name)
+        is_valid, error_response = self.request_is_valid(request)
+        if is_valid is not True:
+            return error_response
+
+        request_type = self.param_get(request.GET, 'request', '').lower()
+        if custom_call := getattr(self, request_type, None):
+            return custom_call(request)
+
+        url = self.build_url(request)
+        return super().get(request, url=url)
+
+    def post(self, request, service_name):
+        self.service = get_object_or_404(self.get_queryset(), name=service_name)
+        is_valid, error_response = self.request_is_valid(request)
+        if is_valid is not True:
+            return error_response
+
+        url = self.build_url(request)
+        return super().post(request, url=url, data=request.body)
+
+    def param_get(self, data, param, default=None):
+        return data.get(param.lower(), data.get(param.upper(), default))
+
+    def build_url(self, request):
+        meta = request.META.get("QUERY_STRING", "")
+        version = CaseInsensitiveDict(request.GET).get("version")
+        if version is None:
+            querydict = QueryDict(meta, mutable=True)
+            querydict["version"] = settings.GIS_SERVER_DEFAULT_WFS_VERSION
+            meta = querydict.urlencode()
+
+        url = f"{self.service.service_internal_url}&{meta}"
+        return url

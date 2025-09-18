@@ -38,6 +38,8 @@ GIS_SERVER_DEFAULT_WMS_VERSION = os.environ.get('GIS_SERVER_DEFAULT_WMS_VERSION'
                                                 '1.3.0')
 IMAGE_SERVER_DEFAULT_WMS_VERSION = os.environ.get('IMAGE_SERVER_DEFAULT_WMS_VERSION',
                                                   '1.3.0')
+GIS_SERVER_DEFAULT_WFS_VERSION = os.environ.get('GIS_SERVER_DEFAULT_WFS_VERSION',
+                                                '1.3.0')
 
 GISCUBE_URL = os.environ.get('GISCUBE_URL',
                              'http://localhost:8080/apps/giscube-admin')
