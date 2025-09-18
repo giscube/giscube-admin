@@ -13,6 +13,7 @@ from giscube.models import Category, Server
 from giscube.tilecache.models_mixins import TileCacheModelMixin
 from giscube.utils import url_slash_join
 from giscube.validators import validate_options_json_format
+from qgisserver.model_mixins import WFSMixin
 from qgisserver.utils import deactivate_services, unique_service_directory
 
 
@@ -47,7 +48,7 @@ def project_unique_service_directory(instance, filename):
     return unique_service_directory(instance, filename)
 
 
-class Service(TileCacheModelMixin, models.Model):
+class Service(WFSMixin, TileCacheModelMixin, models.Model):
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='qgisserver_services')
@@ -124,7 +125,6 @@ class Service(TileCacheModelMixin, models.Model):
                 server_url = '%s&' % server_url
             url = "%s%s" % (server_url, mapfile)
             return url
-    
 
     def get_filters(self):
         from .serializers import ServiceFilterSerializer
@@ -133,7 +133,6 @@ class Service(TileCacheModelMixin, models.Model):
             serializer = ServiceFilterSerializer(filter)
             filters.append(serializer.data)
         return filters
-
 
     def __str__(self):
         return str(self.title or self.name)

@@ -22,6 +22,7 @@ from giscube.admin_mixins import MetadataInlineMixin, ResourceAdminMixin
 from giscube.tilecache.admin_mixins import TileCacheModelAdminMixin
 
 from .admin_forms import ServiceChangeForm, ServiceFilterForm
+from .admin_mixins import WFSModelAdminMixin
 from .models import (Project, Service, ServiceGroupPermission, ServiceMetadata, ServiceResource, ServiceUserPermission,
                      ServiceFilter, project_unique_service_directory)
 from .signals import service_project_updated, service_updated
@@ -70,7 +71,8 @@ class ServiceFilterInline(admin.StackedInline):
     verbose_name = _('WMS Filter')
     verbose_name_plural = _('WMS Filters')
 
-class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
+
+class ServiceAdmin(WFSModelAdminMixin, TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/qgisserver/service/change_form.html'
     form = ServiceChangeForm
     autocomplete_fields = ('category',)
@@ -99,6 +101,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
         (_('Resources'), ('tab-resources',)),
 
         (_('Tile Cache'), ('tab-tilecache',)),
+        (_('WFS'), ('tab-wfs',)),
         (_('Servers'), ('tab-servers',)),
     )
 
@@ -183,7 +186,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
                 obj.save()
             except ValidationError as e:
                 error_message = str(e)
-                
+
                 messages.error(request, error_message)
 
     def save_model(self, request, obj, form, change):

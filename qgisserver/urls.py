@@ -3,7 +3,7 @@ from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 
 from qgisserver.views import (QGISServerMapViewerView, QGISServerTileCacheTilesView, QGISServerTileCacheView,
-                              QGISServerWMSView)
+                              QGISServerWFSView, QGISServerWMSView)
 
 
 if not settings.GISCUBE_GIS_SERVER_DISABLED:
@@ -15,5 +15,6 @@ if not settings.GISCUBE_GIS_SERVER_DISABLED:
              QGISServerTileCacheView.as_view(), name='qgisserver-tilecache'),
         path('services/<str:service_name>/tilecache/<int:z>/<int:x>/<str:y>.<str:image_format>',
              QGISServerTileCacheTilesView.as_view(), name='qgisserver-tilecache-tiles'),
+        path('services/<str:service_name>/wfs/', csrf_exempt(QGISServerWFSView.as_view()), name='qgisserver-wfs'),
         re_path(r'^services/(?P<service_name>[^/]+)(.*)', csrf_exempt(QGISServerWMSView.as_view()), name='qgisserver'),
     ]
