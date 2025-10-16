@@ -444,18 +444,22 @@ LOGGING = {
 }
 
 # Tasks menu
-ADMIN_TASKS_MENU = [
-    {
-        'url': 'background_tasks_monitoring',
-        'reverse': True,
-        'title': _('View background tasks status'),
-    },
+ADMIN_TASKS_MENU = []
+if CELERY_FLOWER_API:
+    ADMIN_TASKS_MENU.append(
+        {
+            'url': 'background_tasks_monitoring',
+            'reverse': True,
+            'title': _('View background tasks status'),
+        }
+    )
+ADMIN_TASKS_MENU.append(
     {
         'url': 'rebuild_giscube_search_index',
         'reverse': True,
         'title': _('Rebuild Giscube Search cache'),
     },
-]
+)
 # LogEntry
 
 GISCUBE_ENABLE_LOGENTRY = os.getenv('GISCUBE_ENABLE_LOGENTRY', 'false').lower() == 'true'
