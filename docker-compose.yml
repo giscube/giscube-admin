@@ -1,19 +1,19 @@
-version: "3.7"
+# version: "3.7"
 services:
-
   requirements:
     container_name: giscube_giscube-admin_requirements
     build:
       context: .
-      dockerfile: docker/django/ubuntu-20.04/Dockerfile
+      dockerfile: docker-custom/plugins/Dockerfile
       args:
         - EXTRA_REQUIREMENTS=devel
         - PIP_PACKAGES=setuptools==57.5.0
         - APT_PACKAGES=
         - APT_PACKAGES_BUILD=
+        - SSH_PRIVATE_KEY=
+        - SSH_PUBLIC_KEY=
     image: giscube_giscube-admin_requirements
-    entrypoint: /bin/bash -c "chown -v www-data:www-data /app_data"
-    command: []
+    entrypoint: /bin/bash -c "chown -v www-data:www-data /app_data && ls /app"
     volumes:
       - app_data:/app_data
 
@@ -114,7 +114,7 @@ services:
       - ./docker-custom/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - static:/static
     ports:
-      - "8000:8000"
+    - "8000:8000"
     networks:
       default:
         aliases:
@@ -130,5 +130,5 @@ volumes:
 
 networks:
   default:
-    external:
-      name: giscube
+    name: giscube
+    external: true
