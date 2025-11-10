@@ -36,3 +36,4 @@ class WFSModelAdminMixin:
         relative_url = reverse("qgisserver-wfs", args=(obj.name,))
         relative_url = remove_app_url(relative_url)
         return url_slash_join(settings.GISCUBE_URL, relative_url)
+    wfs_url.short_description = _("WFS URL")

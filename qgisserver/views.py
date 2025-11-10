@@ -204,6 +204,9 @@ class QGISServerWFSView(ServiceMixin, ProxyMixin, View):
         return False
 
     def request_is_valid(self, request):
+        if not self.service.wfs_enabled:
+            return False, HttpResponseForbidden()
+
         if not self.is_request_parameter_allowed(request.GET):
             return False, HttpResponseForbidden()
 
@@ -266,11 +269,13 @@ class QGISServerWFSView(ServiceMixin, ProxyMixin, View):
 
     def build_url(self, request):
         meta = request.META.get("QUERY_STRING", "")
-        version = CaseInsensitiveDict(request.GET).get("version")
+        querydict = QueryDict(meta, mutable=True)
+        if querydict.get("MAP") is not None:
+            del querydict['MAP']
+        version = querydict.get("version", querydict.get("VERSION"))
         if version is None:
-            querydict = QueryDict(meta, mutable=True)
             querydict["version"] = settings.GIS_SERVER_DEFAULT_WFS_VERSION
-            meta = querydict.urlencode()
+        meta = querydict.urlencode()
 
         url = f"{self.service.service_internal_url}&{meta}"
         return url
