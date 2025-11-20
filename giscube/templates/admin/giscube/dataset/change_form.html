@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block extrahead %}{{ block.super }}
 <style>
-.select2-container--admin-autocomplete .select2-results > .select2-results__options{
+.select2-container--admin-autocomplete .select2-results > .select2-results__options {
     max-height: 450px;
     overflow-y: auto;
     color: var(--body-fg);
@@ -11,11 +11,6 @@
 </style>
 {% endblock %}
 {% block object-tools-items %}
-
-  <li>
-      <a href="{% url 'imageserver-map-view' original.name %}" target="_blank">{% trans 'View map' %}</a>
-  </li>
-
   {{ block.super }}
   <script>
     django.jQuery(document).ready(function($) {

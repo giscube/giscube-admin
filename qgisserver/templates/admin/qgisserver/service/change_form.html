@@ -1,5 +1,15 @@
 {% extends "django_vue_tabs/change_form.html" %}
 {% load i18n %}
+{% block extrahead %}{{ block.super }}
+<style>
+.select2-container--admin-autocomplete .select2-results > .select2-results__options{
+    max-height: 450px;
+    overflow-y: auto;
+    color: var(--body-fg);
+    background: var(--body-bg);
+}
+</style>
+{% endblock %}
 {% block object-tools-items %}
 
   <li>
