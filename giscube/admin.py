@@ -207,6 +207,7 @@ class DBConnectionAdmin(TabsMixin, admin.ModelAdmin):
         columns = self.model.objects.get(pk=id).geometry_columns()
         for column in columns:
             data.append(column)
+        data.sort(key=lambda x: x['label'])
         response = JsonResponse(data, safe=False)
         return response
 
@@ -244,6 +245,7 @@ class DatasetUserPermissionInline(admin.TabularInline):
 
 @admin.register(Dataset)
 class DatasetAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
+    change_form_template = 'admin/giscube/dataset/change_form.html'
     autocomplete_fields = ('category',)
     list_display = ('title',)
     inlines = (DatasetResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)

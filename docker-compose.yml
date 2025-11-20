@@ -17,7 +17,7 @@ services:
     volumes:
       - app_data:/app_data
 
-  db:
+  db_infraplan:
     image: postgis/postgis:12-3.0
     env_file:
      - app.env
@@ -26,17 +26,17 @@ services:
       - ./docker-custom/postgres/dictionaries/dist/ca.affix:/usr/share/postgresql/12/tsearch_data/ca.affix
       - ./docker-custom/postgres/dictionaries/dist/ca.dict:/usr/share/postgresql/12/tsearch_data/ca.dict
       - ./docker-custom/postgres/dictionaries/dist/catalan.stop:/usr/share/postgresql/12/tsearch_data/catalan.stop
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_infraplan:/var/lib/postgresql/data
 
 
   django:
     depends_on:
       - requirements
-      - db
+      - db_infraplan
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db_infraplan:5432", "--", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -45,11 +45,11 @@ services:
   uwsgi:
     depends_on:
       - requirements
-      - db
+      - db_infraplan
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/uwsgi/uwsgi.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db_infraplan:5432", "--", "/bin/bash", "/app/docker-custom/uwsgi/uwsgi.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -64,13 +64,13 @@ services:
     depends_on:
       - requirements
       - redis
-      - db
+      - db_infraplan
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
     ports:
       - "5555:5555"
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--",  "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db_infraplan:5432", "--",  "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -123,7 +123,7 @@ services:
 
 volumes:
   app_data:
-  pg_data:
+  pg_data_infraplan:
   redis_data:
   static:
 
