@@ -16,6 +16,8 @@ services:
     entrypoint: /bin/bash -c "chown -v www-data:www-data /app_data && ls /app"
     volumes:
       - app_data:/app_data
+      - plugins_src:/app/plugins_src
+      # - plugins_links:/app/plugins_links
 
   db:
     image: postgis/postgis:12-3.0
@@ -36,7 +38,9 @@ services:
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
+    ports:
+      - "3000:3000"
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -49,7 +53,7 @@ services:
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/uwsgi/uwsgi.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/uwsgi/uwsgi.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -70,7 +74,7 @@ services:
      - app.env
     ports:
       - "5555:5555"
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--",  "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--",  "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -123,6 +127,8 @@ services:
 
 volumes:
   app_data:
+  plugins_src:
+  plugins_links:
   pg_data:
   redis_data:
   static:
