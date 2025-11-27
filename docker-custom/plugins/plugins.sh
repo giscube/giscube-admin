@@ -26,15 +26,19 @@ echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
 echo "$SSH_PUBLIC_KEY" > ~/.ssh/id_rsa.pub
 chmod -R 600 ~/.ssh/
 
+rm -r /app/plugins_src/*
 mkdir -p /app/plugins_src
+
+echo "$GISCUBE_PLUGINS_REPOS"
 
 IFS=',' read -ra GISCUBE_PLUGINS_REPOS_LIST <<< "$GISCUBE_PLUGINS_REPOS"
 
 for repo in "${GISCUBE_PLUGINS_REPOS_LIST[@]}"; do
-    IFS='|' read -ra REPO_PARTS <<< "$repo"
+    IFS='#' read -ra REPO_PARTS <<< "$repo"
     REPO_URL="${REPO_PARTS[0]}"
     BRANCH="${REPO_PARTS[1]}"
     REPO_NAME=$(basename "$REPO_URL" .git)
+    echo "Doing $REPO_URL"
 
     if [ -d "/app/plugins_src/$REPO_NAME" ]; then
         if [ -n "$BRANCH" ]; then
