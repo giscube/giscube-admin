@@ -56,6 +56,9 @@ Create the giscube docker network:
 docker network create giscube
 ```
 
+### (optional) Theme & Plugins
+
+If you want to use Giscube plugins or a Giscube theme, you must define [additional environment variables](.docs/docker-setup-with-plugins.md).
 
 ### (optional) Build the images
 
