@@ -1,23 +1,24 @@
-# version: "3.7"
 services:
   requirements:
     container_name: giscube_giscube-admin_requirements
     build:
       context: .
       dockerfile: docker-custom/plugins/Dockerfile
+      ssh:
+        - default
       args:
         - EXTRA_REQUIREMENTS=devel
         - PIP_PACKAGES=setuptools==57.5.0
         - APT_PACKAGES=
         - APT_PACKAGES_BUILD=
-        - SSH_PRIVATE_KEY=
-        - SSH_PUBLIC_KEY=
     image: giscube_giscube-admin_requirements
-    entrypoint: /bin/bash -c "chown -v www-data:www-data /app_data && ls /app"
+    # Initialize plugins: copy from image to host mount and set permissions
+    entrypoint: /bin/bash /docker-custom/plugins/plugins_links.sh --init-requirements
+    env_file:
+     - app.env
     volumes:
       - app_data:/app_data
-      - plugins_src:/app/plugins_src
-      # - plugins_links:/app/plugins_links
+      - ./plugins:/var/lib/plugins_repos
 
   db:
     image: postgis/postgis:12-3.0
@@ -39,11 +40,10 @@ services:
     env_file:
      - app.env
     command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
-    ports:
-      - "3000:3000"
     volumes:
       - .:/app:cached
       - app_data:/app_data
+      - ./plugins:/var/lib/plugins_repos  # Mounted from host for live editing
 
 
   uwsgi:
@@ -59,6 +59,7 @@ services:
       - app_data:/app_data
       - ../giscube-admin-ee-plugins:/giscube-admin-ee-plugins
       - static:/static
+      - ./plugins:/var/lib/plugins_repos  # Mounted from host for live editing
     environment:
       - DEBUG=False
       - STATIC_ROOT=/static
@@ -79,6 +80,7 @@ services:
       - .:/app:cached
       - app_data:/app_data
       - ../giscube-admin-ee-plugins:/giscube-admin-ee-plugins
+      - ./plugins:/var/lib/plugins_repos  # Mounted from host for live editing
 
 
   redis:
@@ -118,7 +120,7 @@ services:
       - ./docker-custom/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - static:/static
     ports:
-    - "8000:8000"
+      - "8000:8000"
     networks:
       default:
         aliases:
@@ -127,8 +129,6 @@ services:
 
 volumes:
   app_data:
-  plugins_src:
-  plugins_links:
   pg_data:
   redis_data:
   static:

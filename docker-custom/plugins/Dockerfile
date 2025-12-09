@@ -48,7 +48,6 @@ RUN mkdir -p /app
 RUN mkdir -p /docker
 ADD docker/django/entrypoint.sh /docker/
 ADD docker/django/bash.sh /docker/
-RUN chmod +x /docker/*.sh
 
 # Install python requirements
 COPY --from=build-system /pip /pip
@@ -71,25 +70,30 @@ RUN rm -rf /pip
 
 # Configuración para plugins
 ADD docker-custom/plugins/plugins.sh /docker/
-ADD app-plugins.env /docker/
+# Copy app-plugins.env if it exists, otherwise create empty file
+COPY app-plugins.env* /tmp/
+RUN if [ -f /tmp/app-plugins.env ]; then \
+      cp /tmp/app-plugins.env /docker/app-plugins.env; \
+    else \
+      touch /docker/app-plugins.env; \
+    fi && \
+    rm -rf /tmp/app-plugins.env*
+RUN chmod +x /docker/*.sh
 
 # Script para clonar repos y configurar plugins
-RUN \
+RUN --mount=type=ssh \
+    --mount=type=cache,target=/tmp/plugins_clones \
+  set -e; \
   mkdir -p ~/.ssh && \
-  ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
+  chmod 700 ~/.ssh && \
+  ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts && \
+  ssh-keyscan github.com >> ~/.ssh/known_hosts && \
+  chmod 644 ~/.ssh/known_hosts && \
+  echo "Building Giscube plugins..." && \
+  bash /docker/plugins.sh
 
-VOLUME /app/plugins_src
-VOLUME /app/plugins_src
-
-ARG SSH_PRIVATE_KEY
-ARG SSH_PUBLIC_KEY
-RUN \
-  set -e; \
-  /bin/bash -c /docker/plugins.sh
-
-RUN \
-  set -e; \
-  /bin/bash -c ls /app/plugins_src
+# Create plugins_links directory with proper permissions
+RUN mkdir -p /var/lib/plugins_links && chmod 777 /var/lib/plugins_links
 
 WORKDIR /app
 ENTRYPOINT ["/docker/entrypoint.sh"]

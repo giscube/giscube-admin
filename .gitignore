@@ -8,12 +8,9 @@
 test.db
 docker-test/requirements.txt
 tests/media/*
-docker-compose.override.yml
 app.env
 app-plugins.env
 .env
 example-data/
 __pycache__
 .pytest_cache
-plugins_links
-plugins_src
