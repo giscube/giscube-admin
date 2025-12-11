@@ -13,7 +13,7 @@ services:
         - APT_PACKAGES_BUILD=
     image: giscube_giscube-admin_requirements
     # Initialize plugins: copy from image to host mount and set permissions
-    entrypoint: /bin/bash /docker-custom/plugins/plugins_links.sh --init-requirements
+    entrypoint: /bin/bash /docker/plugins_links.sh --init-requirements
     env_file:
      - app.env
     volumes:
@@ -39,7 +39,7 @@ services:
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/docker/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/runserver.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -53,7 +53,7 @@ services:
     image: giscube_giscube-admin_requirements
     env_file:
      - app.env
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/uwsgi/uwsgi.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--", "/bin/bash", "/docker/plugins_links.sh", "/bin/bash", "/app/docker-custom/uwsgi/uwsgi.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
@@ -75,7 +75,7 @@ services:
      - app.env
     ports:
       - "5555:5555"
-    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--",  "/bin/bash", "/app/docker-custom/plugins/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
+    command: ["/bin/bash", "/app/docker/scripts/wait-for-it.sh", "db:5432", "--",  "/bin/bash", "/docker/plugins_links.sh", "/bin/bash", "/app/docker-custom/django/celery_devel.sh"]
     volumes:
       - .:/app:cached
       - app_data:/app_data
