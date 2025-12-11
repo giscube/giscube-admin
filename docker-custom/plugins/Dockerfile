@@ -70,6 +70,7 @@ RUN rm -rf /pip
 
 # Configuración para plugins
 ADD docker-custom/plugins/plugins.sh /docker/
+ADD docker-custom/plugins/plugins_links.sh /docker/
 # Copy app-plugins.env if it exists, otherwise create empty file
 COPY app-plugins.env* /tmp/
 RUN if [ -f /tmp/app-plugins.env ]; then \
@@ -82,7 +83,6 @@ RUN chmod +x /docker/*.sh
 
 # Script para clonar repos y configurar plugins
 RUN --mount=type=ssh \
-    --mount=type=cache,target=/tmp/plugins_clones \
   set -e; \
   mkdir -p ~/.ssh && \
   chmod 700 ~/.ssh && \
@@ -90,7 +90,8 @@ RUN --mount=type=ssh \
   ssh-keyscan github.com >> ~/.ssh/known_hosts && \
   chmod 644 ~/.ssh/known_hosts && \
   echo "Building Giscube plugins..." && \
-  bash /docker/plugins.sh
+  bash /docker/plugins.sh && \
+  echo "Giscube plugins built."
 
 # Create plugins_links directory with proper permissions
 RUN mkdir -p /var/lib/plugins_links && chmod 777 /var/lib/plugins_links
