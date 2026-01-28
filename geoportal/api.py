@@ -13,5 +13,6 @@ def profile(request):
         'admin_url': request.build_absolute_uri(reverse('admin:index')),
         'is_staff': request.user.is_staff,
         'groups': list(request.user.groups.values_list('name', flat=True)),
+        'last_login': request.user.last_login.strftime('%d/%m/%Y'),
     }
     return Response(data)

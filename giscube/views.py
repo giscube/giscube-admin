@@ -1,3 +1,4 @@
+import json
 import mimetypes
 import os
 
@@ -10,12 +11,37 @@ from django.utils.encoding import force_str
 from django.views.decorators.cache import never_cache
 from django.views.static import serve
 
+from django.utils import timezone
+from oauth2_provider.views import TokenView
+from oauth2_provider.models import AccessToken
+
 from rest_framework.views import APIView
 
 from geoportal.views import GeoportalMixin
 from giscube.api_search_views import FilterByUserMixin
 
 from .models import UserAsset
+
+
+class CustomTokenView(TokenView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        if response.status_code == 200:
+            try:
+                response_data = json.loads(response.content.decode('utf-8'))
+                if 'access_token' in response_data:
+                    access_token = AccessToken.objects.get(
+                        token=response_data['access_token']
+                    )
+                    if access_token.user:
+                        access_token.user.last_login = timezone.now()
+                        access_token.user.save(update_fields=['last_login'])
+
+            except Exception as e:
+                print(f"Error update last_login: {e}")
+        
+        return response
 
 
 def media_user_asset(request, user_id, filename):
