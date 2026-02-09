@@ -15,7 +15,7 @@ services:
     # Initialize plugins: copy from image to host mount and set permissions
     entrypoint: /bin/bash /docker/plugins_links.sh --init-requirements
     env_file:
-     - app.env
+      - app.env
     volumes:
       - app_data:/app_data
       - ./plugins:/var/lib/plugins_repos
