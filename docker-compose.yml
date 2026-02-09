@@ -30,6 +30,8 @@ services:
       - ./docker-custom/postgres/dictionaries/dist/ca.dict:/usr/share/postgresql/12/tsearch_data/ca.dict
       - ./docker-custom/postgres/dictionaries/dist/catalan.stop:/usr/share/postgresql/12/tsearch_data/catalan.stop
       - pg_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
 
 
   django:
