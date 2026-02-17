@@ -53,6 +53,8 @@ def geojsonlayer_check_cache(layer):
                 if now > _get_layer_time(layer, cache_time + layer.max_outdated_time):
                     geojsonlayer_refresh_layer(layer, force_refresh_data_file=True, generate_popup=False)
                     return GENERATE_GEOJSON_LAYER
+            else:
+                return GET_DATA_FROM_CACHE
 
         qs = TaskResult.objects.filter(
             task_name='layerserver.tasks.async_geojsonlayer_refresh',
