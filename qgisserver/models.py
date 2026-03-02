@@ -104,9 +104,9 @@ class Service(WFSMixin, TileCacheModelMixin, models.Model):
     service_type = models.CharField(_('service type'), max_length=255, choices=TYPE_CHOICES, default='wms')
 
     def save(self, *args, **kwargs):
-        if self.read_layers_automatically and self.service_type == "wms" and self.wms_url:
+        if self.service_type == "wms" and self.wms_url:
             self.layers = get_wms_layers(self.wms_url)
-        elif self.read_layers_automatically and self.service_type == "wmts" and self.wmts_url:
+        elif self.service_type == "wmts" and self.wmts_url:
             self.layers = get_wms_layers(self.wmts_url)
         super().save(*args, **kwargs)
 
