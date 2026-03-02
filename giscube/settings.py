@@ -58,7 +58,7 @@ GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
 INSTALLED_APPS = []
 
 # Theme plugin
-GISCUBE_PLUGINS_PATH = '/var/lib/plugins_links'  # Internal container path (DO NOT CHANGE)
+GISCUBE_PLUGINS_PATH = os.environ.get('GISCUBE_PLUGINS_PATH', '/var/lib/plugins_links') # Internal container path (DO NOT CHANGE FOR DOCKER DEPLOYMENT)
 THEME_PLUGIN = os.environ.get('THEME_PLUGINS', '')
 
 if GISCUBE_PLUGINS_PATH and THEME_PLUGIN:
