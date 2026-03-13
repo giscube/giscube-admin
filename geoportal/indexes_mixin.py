@@ -62,7 +62,7 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
             type = children[0]['type'] if children[0] and 'type' in children[0] else None
             if (type and type == 'TMS'):
                 return 'las la-table'
-            if (type and type == 'WMS'):
+            if (type and (type == 'WMS' or type == 'WMTS')):
                 return 'las la-globe'
             return type
         return None
