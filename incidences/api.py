@@ -21,11 +21,12 @@ class IncidenceViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 object = response.data
                 url = reverse('admin:incidences_incidence_change', args=[object.get('id')])
                 url = request.build_absolute_uri(url)
-                title = object.get('title')
-
+                body = f"Remitent: {object.get('email')}\n\n"
+                body += f"Tipus d'incidència: {object.get('title')}\n\n"
+                body += f"Enllaç: {url}\n"
                 send_mail(
-                    'Nova incidència creada',
-                    f'S\'ha creat una nova incidència: "{title}"\n\n{url}',
+                    f'[{settings.ENVIRONMENT_NAME}] Nova incidència creada',
+                    body,
                     settings.DEFAULT_FROM_EMAIL,
                     [settings.INCIDENCE_EMAIL],
                     fail_silently=False,
