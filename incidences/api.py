@@ -23,6 +23,7 @@ class IncidenceViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 url = request.build_absolute_uri(url)
                 body = f"Remitent: {object.get('email')}\n\n"
                 body += f"Tipus d'incidència: {object.get('title')}\n\n"
+                body += f"Descripció: {object.get('description')}\n\n"
                 body += f"Enllaç: {url}\n"
                 send_mail(
                     f'[{settings.ENVIRONMENT_NAME}] Nova incidència creada',
