@@ -10,6 +10,8 @@ docker-test/requirements.txt
 tests/media/*
 app.env
 app-plugins.env
+plugins/
+media/
 .env
 example-data/
 __pycache__

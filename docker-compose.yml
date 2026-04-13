@@ -96,6 +96,7 @@ services:
       dockerfile: Dockerfile
     image: giscube_admin_qgisserver
     volumes:
+    - .:/app:cached
       - app_data:/app_data
 
   imageserver:
@@ -105,6 +106,7 @@ services:
     environment:
         - MS_DEBUGLEVEL=5
     volumes:
+      - .:/app:cached
       - app_data:/app_data
 
 
