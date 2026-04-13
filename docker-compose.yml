@@ -116,6 +116,7 @@ services:
       - qgisserver
       - imageserver
     volumes:
+      - .:/app:cached
       - ./docker-custom/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./docker-custom/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - static:/static
