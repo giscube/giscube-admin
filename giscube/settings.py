@@ -51,6 +51,9 @@ GISCUBE_GIS_SERVER_DISABLED = os.environ.get('GISCUBE_GIS_SERVER_DISABLED',
                                              'False').lower() == 'true'
 GISCUBE_GEOPORTAL_DISABLED = os.environ.get('GISCUBE_GEOPORTAL_DISABLED',
                                             'False').lower() == 'true'
+GISCUBE_GEOPORTAL_ORIGINS = list(
+    filter(None, os.getenv('GISCUBE_GEOPORTAL_ORIGINS', '').split(','))
+)
 
 GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
                                               'False').lower() == 'true'
@@ -89,6 +92,16 @@ INSTALLED_APPS += [
     'django_admin_listfilter_dropdown',
     'django_db_logger',
     'admin_auto_filters',
+
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_email',  # <- for email capability.
+    # 'otp_yubikey',  # <- for yubikey capability.
+    'two_factor',
+    # 'two_factor.plugins.phonenumber',  # <- for phone number capability.
+    'two_factor.plugins.email',  # <- for email capability.
+    # 'two_factor.plugins.yubikey',  # <- for yubikey capability.
 ]
 
 
@@ -138,6 +151,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'giscube.middleware.CheckRunningCeleryTasksMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -229,8 +243,9 @@ SITE_HEADER = os.getenv('SITE_HEADER', 'Àrea clients')
 SITE_URL = os.getenv('SITE_URL', 'http://localhost')
 SITE_INTERNAL_URL = os.getenv('SITE_INTERNAL_URL', SITE_URL)
 
-LOGIN_URL = '%s/admin/login/' % APP_URL
-LOGIN_REDIRECT_URL = '%s/admin/' % APP_URL
+LOGIN_URL = "two_factor:login"
+LOGIN_REDIRECT_URL = "%s/account/two_factor/" % APP_URL
+LOGOUT_REDIRECT_URL = LOGIN_URL
 
 MEDIA_URL = '%s/media/' % APP_URL
 MEDIA_URL = os.getenv('MEDIA_URL', MEDIA_URL)
@@ -328,6 +343,7 @@ OAUTH2_PROVIDER = {
 }
 MAX_REFRESH_TOKEN_DAYS = int(os.environ.get("MAX_REFRESH_TOKEN_DAYS", 182))
 MAX_INACTIVE_USER_DAYS = int(os.environ.get("MAX_INACTIVE_USER_DAYS", 365))
+OAUTH2_GEOPORTAL_APPLICATION_NAME = os.getenv('OAUTH2_GEOPORTAL_APPLICATION_NAME', 'Geoportal')
 
 # rest-framework
 REST_FRAMEWORK = {
@@ -505,6 +521,10 @@ EMAIL_SUBJECT_PREFIX = '[%s] ' % APP_NAME
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', '')
 
 INCIDENCE_EMAIL = os.getenv('INCIDENCE_EMAIL')
+
+if DEBUG:
+    EMAIL_USE_SSL = False
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # sentry
 

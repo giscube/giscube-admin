@@ -1,0 +1,9 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block userlinks %}
+    {{ block.super }}
+    {% if user.is_authenticated %}
+     / <a href="{% url 'two_factor:profile' %}">{% trans "Profile" %}</a>
+    {% endif %}
+{% endblock %}
