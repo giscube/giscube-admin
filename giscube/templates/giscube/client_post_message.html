@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <script>
+        function postData () {
+            const origins = {{ origins|safe }} || [window.location.origin];
+            let msg = {
+                type: '{{ type }}',
+                ...JSON.parse('{{ user_info|escapejs }}')
+            }
+            if (window.opener) {
+                origins.forEach(origin => {
+                    window.opener.postMessage(msg, origin);
+                });
+            }
+        }
+    </script>
+</head>
+<body onload="postData()">
+<div>
+    {{ message }}
+</div>
+</body>
+</html>

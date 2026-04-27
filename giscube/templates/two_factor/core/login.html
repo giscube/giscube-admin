@@ -1,0 +1,124 @@
+{% extends "two_factor/_base_focus.html" %}
+{% load i18n %}
+{% load two_factor_tags %}
+
+{% block extra_media %}
+  {{ form.media }}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+  <style>
+    form.form-signin {
+      padding: 4px 0;
+    }
+    p #id_auth-username, p #id_auth-password {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    form.form-signin label {
+        display: block;
+        line-height: 2em;
+    }
+    .password-reset { /* make italics */
+      font-style: italic;
+      font-size: 0.8em;
+    }
+    a.button {
+      padding: 10px 15px;
+    }
+    @media (max-width: 767px) {
+        div.submit-row > * {
+            width: auto;
+        }
+        div.submit-row {
+          display: block;
+        }
+        .login div.submit-row input {
+          text-transform: none;
+        }
+    }
+  </style>
+{% endblock extrastyle %}
+
+{% block centered_content %}
+  <div class="text-center">
+      {% if wizard.steps.current == 'auth' %}
+      {% elif wizard.steps.current == 'token' %}
+      <p>{{ device|as_verbose_action }}</p>
+      {% elif wizard.steps.current == 'backup' %}
+      <p>{% blocktrans trimmed %}Use this form for entering backup tokens for logging in.
+        These tokens have been generated for you to print and keep safe. Please
+        enter one of these backup tokens to login to your account.{% endblocktrans %}</p>
+        {% endif %}
+
+      <form method="post" action="" class="form-signin" id="twofactor-form">
+        {% block main_form_content %}
+        {% csrf_token %}
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
+        {% include "two_factor/_wizard_forms.html" %}
+
+        {# hidden submit button to enable [enter] key #}
+        <input type="submit" value="" hidden />
+
+        {% if other_devices %}
+          <p>{% trans "Or, alternatively, use one of your other authentication methods:" %}</p>
+          <p>
+            {% for other in other_devices %}
+            <button name="challenge_device" value="{{ other.persistent_id }}"
+                    class="button btn-secondary btn-block" type="submit">
+              {{ other|as_action }}
+            </button>
+          {% endfor %}</p>
+        {% endif %}
+
+        {% if wizard.steps.current == 'auth'%}
+        <div class="submit-row">
+            <input type="submit" value="Iniciar sessió">
+            {% if next %}
+              <input type="hidden" name="next" value="{{ next }}" />
+            {% endif %}
+        </div>
+        {% else %}
+        {% include "two_factor/_wizard_actions.html" %}
+        {% endif %}
+
+        {% endblock %}
+      </form>
+
+      {% if wizard.steps.current == 'auth' %}
+      <div class="submit-row password-reset">
+        <a href="{% url 'password_reset' %}"><i class="fa fa-unlock"></i> No recordo la meva contrasenya</a>
+      </div>
+      {% endif %}
+
+      <div style="background: #333;padding: 10px;display: block;color: grey;font-size: 12px;border-radius: 8px;margin: 10px 0;">
+        Aquest sistema està subjecte a auditoria i registre. Ha de custodiar les seves credencials,
+        mantenir-ne la confidencialitat i notificar immediatament qualsevol pèrdua o incident.
+        {% if security_policy_url %}
+        Les normes completes, la Política de Seguretat i el procediment de notificació estan disponibles a:
+        <a href="{{ security_policy_url }}" target="_blank" style="text-decoration: underline;">Consultar política de seguretat</a>
+        {% endif %}
+      </div>
+
+      {% block 'backup_tokens' %}
+        {% if backup_tokens %}
+          <hr>
+          <div class="backup_tokens_form">
+          <form action="" method="post">
+              {% csrf_token %}
+                <p>{% trans "As a last resort, you can use a backup token:" %}</p>
+                <p>
+                    <button name="wizard_goto_step" type="submit" value="backup"
+                        class="button">{% trans "Use Backup Token" %}</button>
+                </p>
+          </form>
+          </div>
+        {% endif %}
+      {% endblock %}
+    </div>
+{% endblock %}

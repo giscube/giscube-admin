@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h1>{% block title %}{% trans "Change Two-factor Authentication Method" %}{% endblock %}</h1>
+  <p>{% blocktrans trimmed %}You are about to change the two-factor authentication method.{% endblocktrans %}</p>
+  <p>{% blocktrans trimmed %}The old method will not be available any more and you will be redirected to the setup wizard.{% endblocktrans %}</p>
+  <p>{% blocktrans trimmed %}Are you sure?{% endblocktrans %}</p>
+  <form method="post">
+    {% csrf_token %}
+    <p>
+      <label for="id_understand">Sí, segur:</label>
+      <input type="checkbox" name="understand" required="" id="id_understand">
+    </p>
+    <div class="submit-row">
+      <button class="button"
+              type="submit">{% trans "Change" %}</button>
+    </div>
+  </form>
+  <br><br>
+{% endblock %}

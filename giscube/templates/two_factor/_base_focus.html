@@ -1,0 +1,14 @@
+{% extends "admin/login.html" %}
+{% load static %}
+{% load i18n %}
+{% block header_is_authenticated %}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-9 col-sm-12 text-left">
+        {% block centered_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}
