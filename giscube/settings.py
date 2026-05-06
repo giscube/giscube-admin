@@ -244,7 +244,7 @@ SITE_URL = os.getenv('SITE_URL', 'http://localhost')
 SITE_INTERNAL_URL = os.getenv('SITE_INTERNAL_URL', SITE_URL)
 
 LOGIN_URL = "two_factor:login"
-LOGIN_REDIRECT_URL = "%s/account/two_factor/" % APP_URL
+LOGIN_REDIRECT_URL = "%s/admin/" % APP_URL
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
 MEDIA_URL = '%s/media/' % APP_URL

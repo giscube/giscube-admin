@@ -9,7 +9,7 @@ from two_factor.views import DisableView, SetupView, LoginView
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import FileResponse, Http404, HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.template.response import SimpleTemplateResponse
 from django.urls import reverse
@@ -19,6 +19,7 @@ from django.utils.encoding import force_str
 from django.views.decorators.cache import never_cache
 from django.views.static import serve
 
+from django_otp import devices_for_user
 from oauth2_provider.models import AccessToken, Application
 from oauth2_provider.views import TokenView
 from rest_framework.authentication import SessionAuthentication
@@ -248,3 +249,9 @@ class CustomLoginView(LoginView):
         context = super().get_context_data(**kwargs)
         context["security_policy_url"] = os.environ.get("SECURITY_POLICY_URL")
         return context
+
+    def get_success_url(self):
+        if self.request.user.is_authenticated:
+            if not list(devices_for_user(self.request.user)):
+                return reverse('two_factor:setup')
+        return super().get_success_url()
