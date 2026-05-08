@@ -28,6 +28,9 @@ class Service(TileCacheModelMixin, models.Model):
     category = models.ForeignKey(
         Category, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='imageserver_services')
+    additional_categories = models.ManyToManyField(
+        Category, verbose_name=_('additional categories'), null=True, blank=True,
+        related_name='imageserver_services_categories')
     name = models.CharField(_('name'), max_length=50, unique=True)
     title = models.CharField(_('title'), max_length=100, null=True, blank=True)
     description = models.TextField(_('description'), null=True, blank=True)

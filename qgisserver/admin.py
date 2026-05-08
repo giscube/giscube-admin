@@ -81,7 +81,7 @@ class ServiceAdmin(WFSModelAdminMixin, TileCacheModelAdminMixin, ResourceAdminMi
                    'visible_on_geoportal', 'service_type', 'tilecache_enabled')
     exclude = ('service_path',)
     search_fields = ('name', 'title', 'keywords')
-    filter_horizontal = ('servers',)
+    filter_horizontal = ('additional_categories', 'servers',)
     inlines = (
         ServiceMetadataInline,
         ServiceResourceInline,
@@ -110,8 +110,8 @@ class ServiceAdmin(WFSModelAdminMixin, TileCacheModelAdminMixin, ResourceAdminMi
             'fields': [
                 'category', 'name', 'title',
                 'description', 'keywords', 'active', 'visible_on_geoportal',
-                'catalog_color', 'project',
-                'project_file'
+                'catalog_color', 'additional_categories',
+                'project', 'project_file'
             ],
             'classes': ('tab-information',),
         }),

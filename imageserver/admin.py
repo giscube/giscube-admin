@@ -54,6 +54,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
     autocomplete_fields = ('category',)
     list_display = ('title', 'url_wms')
     list_filter = (AutocompleteFilterFactory('Category', 'category'), 'visible_on_geoportal')
+    filter_horizontal = ('additional_categories',)
     search_fields = ('title',)
     readonly_fields = ('extent',)
     inlines = (
@@ -78,7 +79,7 @@ class ServiceAdmin(TileCacheModelAdminMixin, ResourceAdminMixin, TabsMixin, admi
             'fields': [
                 'category', 'name', 'title',
                 'description', 'keywords', 'active', 'visible_on_geoportal',
-                'catalog_color',
+                'catalog_color', 'additional_categories'
             ],
             'classes': ('tab-information',),
         }),

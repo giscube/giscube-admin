@@ -249,6 +249,7 @@ class DatasetAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     change_form_template = 'admin/giscube/dataset/change_form.html'
     autocomplete_fields = ('category',)
     list_display = ('title',)
+    filter_horizontal = ('additional_categories',)
     inlines = (DatasetResourceInline, DatasetGroupPermissionInline, DatasetUserPermissionInline, DatasetMetadataInline)
     list_filter = (AutocompleteFilterFactory('Category', 'category'), 'active')
     save_as = True
@@ -266,7 +267,8 @@ class DatasetAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'category', 'name', 'title',
-                'description', 'keywords', 'active', 'visible_on_geoportal'
+                'description', 'keywords', 'active', 'visible_on_geoportal',
+                'additional_categories'
             ],
             'classes': ('tab-information',),
         }),

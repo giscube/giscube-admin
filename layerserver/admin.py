@@ -82,6 +82,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     list_display = ('name', 'title', 'view_layer', 'anonymous_view_user', 'visible_on_geoportal',
                     'shapetype', 'public_url')
     list_filter = (AutocompleteFilterFactory('Category', 'category'), 'visible_on_geoportal', 'shapetype')
+    filter_horizontal = ('additional_categories',)
     search_fields = ('name', 'title', 'keywords')
     readonly_fields = ('last_fetch_on', 'generated_on', 'view_layer', 'public_url')
     inlines = [
@@ -116,6 +117,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             'fields': [
                 'category', 'name', 'title',
                 'description', 'keywords', 'active', 'visible_on_geoportal', 'catalog_color',
+                'additional_categories'
             ],
             'classes': ('tab-information',),
         }),
@@ -158,6 +160,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
             'fields': [
                 'category', 'name', 'title',
                 'description', 'keywords', 'active', 'visible_on_geoportal', 'catalog_color',
+                'additional_categories'
             ],
             'classes': ('tab-information',),
         }),
@@ -372,6 +375,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
     list_display_links = ('name', 'title', 'table')
     list_filter = (AutocompleteFilterFactory('Category', 'category'), 'db_connection', 'visible_on_geoportal',
                    'shapetype', DataBaseLayerGeomNullFilter)
+    filter_horizontal = ('additional_categories',)
     search_fields = ('name', 'title', 'keywords')
     inlines = []
 
@@ -414,6 +418,7 @@ class DataBaseLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
                 'description', 'keywords', 'active',
                 'visible_on_geoportal',
                 'catalog_color',
+                'additional_categories',
                 ('allow_page_size_0', 'page_size', 'max_page_size',),
             ],
             'classes': ('tab-information',),
