@@ -18,7 +18,11 @@ class BaseLayerMixin(models.Model):
     BaseLayer mixin.
     """
     category = models.ForeignKey(
-        Category, verbose_name=_('category'), null=True, blank=True, on_delete=models.SET_NULL)
+        Category, verbose_name=_('category'), null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='%(app_label)s_%(class)s_category')
+    additional_categories = models.ManyToManyField(
+        Category, verbose_name=_('additional categories'), blank=True,
+        related_name='%(app_label)s_%(class)s_categories')
     name = models.CharField(_('name'), max_length=50, unique=True)
     title = models.CharField(_('title'), max_length=100, null=True, blank=True)
     description = models.TextField(_('description'), null=True, blank=True)

@@ -19,6 +19,18 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
 
     def get_config_search_data_keys(self):
         return ['name', 'category_id', 'date', 'visible_on_geoportal']
+    
+    def get_additional_categories(self, obj, type):
+        categories = []
+        for category in obj.additional_categories.all():
+            if obj.category and obj.category.pk == category.pk:
+                continue
+            if type == 'pk':
+                categories.append(category.pk)
+            elif type == 'name':
+                category_name = (category.title or '').split(Category.SEPARATOR) if category else []
+                categories.append(category_name) if category_name else None
+        return categories
 
     def prepare_children(self, obj):
         return []
@@ -31,6 +43,8 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
         data['catalog'] = (obj.category.title or '').split(Category.SEPARATOR) if obj.category else []
         data['catalog_icon'] = self.get_catalog_icon(obj, data['children'])
         data['catalog_color'] = obj.catalog_color if hasattr(obj, 'catalog_color') else None
+        data['additional_categories_id'] = self.get_additional_categories(obj, 'pk')
+        data['additional_categories'] = self.get_additional_categories(obj, 'name')
         return data
 
     def prepare_search_data(self, obj):

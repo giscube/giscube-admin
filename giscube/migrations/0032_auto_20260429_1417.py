@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('giscube', '0031_accesslog_userslog'),
+        ('oauth2_provider', '__latest__'),
     ]
 
     operations = [
