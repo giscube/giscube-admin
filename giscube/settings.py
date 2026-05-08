@@ -340,6 +340,9 @@ OAUTH2_PROVIDER = {
     'RESOURCE_SERVER_TOKEN_CACHING_SECONDS': 60 * 60 * 10,
 
     'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 365 * 10,
+
+    "OAUTH2_VALIDATOR_CLASS":
+        "giscube.oauth_validators.CustomOAuth2Validator",
 }
 MAX_REFRESH_TOKEN_DAYS = int(os.environ.get("MAX_REFRESH_TOKEN_DAYS", 182))
 MAX_INACTIVE_USER_DAYS = int(os.environ.get("MAX_INACTIVE_USER_DAYS", 365))
