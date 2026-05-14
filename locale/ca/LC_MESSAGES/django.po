@@ -1750,6 +1750,17 @@ msgstr "Cognoms"
 msgid "Emails sent"
 msgstr "Correus enviats"
 
+#: giscube/templates/axes/account_lockout.html:8
+msgid "Account Locked"
+msgstr "Compte Bloquejat"
+
+#: giscube/templates/axes/account_lockout.html:9
+#, python-format
+msgid ""
+"The account <strong><em>%(username)s</em></strong> has been locked due to "
+"too many failed login attempts."
+msgstr "El compte <strong><em>%(username)s</em></strong> ha estat bloquejat a causa de massa intents fallits d'inici de sessió."
+
 #: giscube/templates/two_factor/_wizard_actions.html:11
 #: giscube/templates/two_factor/_wizard_actions.html:13
 msgid "Back"

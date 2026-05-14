@@ -34,3 +34,5 @@ flower==2.0.1
 celery-progress==0.5
 django-two-factor-auth==1.16.0
 phonenumbers==9.0.28
+django-axes==7.0.2
+django-ipware==7.0.1

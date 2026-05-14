@@ -117,3 +117,9 @@ def is_authenticated(request):
         return HttpResponse('true')
     else:
         return HttpResponseForbidden()
+
+
+def axes_lockout(request, lockout_data, *args, **kwargs):
+    template_name = 'axes/account_lockout.html'
+    context = {'username': lockout_data.get('username')}
+    return render(request, template_name, context)

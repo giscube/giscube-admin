@@ -7,6 +7,7 @@ https://docs.djangoproject.com/en/1.7/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
+from datetime import timedelta
 import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -94,6 +95,7 @@ INSTALLED_APPS += [
     'django_admin_listfilter_dropdown',
     'django_db_logger',
     'admin_auto_filters',
+    'axes',
 ]
 
 if GISCUBE_ENABLE_2FA:
@@ -167,6 +169,7 @@ MIDDLEWARE += [
     'django.contrib.messages.middleware.MessageMiddleware',
     'giscube.middleware.CheckRunningCeleryTasksMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'giscube.urls'
@@ -337,6 +340,7 @@ if USE_CAS:
     ] + AUTHENTICATION_BACKENDS
 else:
     AUTHENTICATION_BACKENDS = [
+        'axes.backends.AxesStandaloneBackend',
         'oauth2_provider.backends.OAuth2Backend',
         'django.contrib.auth.backends.ModelBackend',
     ]
@@ -577,6 +581,14 @@ LEAFLET_CONFIG = {
         ],
     ],
 }
+
+AXES_LOCKOUT_PARAMETERS = ["username"]
+# Uncomment the next line to disable logging the IP address of failed login attempts
+# AXES_CLIENT_IP_CALLABLE = lambda x: None  # noqa: E731
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(minutes=2)
+AXES_ATTEMPT_EXPIRATION_TIME = timedelta(minutes=1)
+AXES_LOCKOUT_CALLABLE = "giscube.views.axes_lockout"
 
 
 # Plugins
