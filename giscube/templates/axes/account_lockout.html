@@ -1,0 +1,13 @@
+{% extends "admin/login.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 col-sm-12" style="margin-bottom: 40px;">
+            <h2 class="text-left"><i class="fa fa-lock" aria-hidden="true"></i> {% trans "Account Locked" %}</h2>
+            {% blocktrans %}The account <strong><em>{{ username }}</em></strong> has been locked due to too many failed login attempts.{% endblocktrans %}
+        </div>
+    </div>
+</div>
+{% endblock %}
