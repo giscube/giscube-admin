@@ -127,7 +127,7 @@ class GeoportalCategoryCatalogView(GeoportalCategoryView):
                     content[r.output_data['category_id']] = []
                 content[r.output_data['category_id']].append(r.output_data)
 
-            if r.output_data['additional_categories_id']:
+            if r.output_data.get('additional_categories_id'):
                 for category_id in r.output_data['additional_categories_id']:
                     if r.output_data['category_id'] == category_id:
                         continue
