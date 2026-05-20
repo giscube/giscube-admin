@@ -1,11 +1,5 @@
 import os
 
-
-from two_factor.admin import AdminSiteOTPRequired
-from two_factor.urls import urlpatterns as tf_urls
-
-from giscube.views import CustomLoginView
-
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
@@ -19,7 +13,9 @@ from giscube import api
 from . import views
 
 
-admin.site.__class__ = AdminSiteOTPRequired
+if settings.GISCUBE_ENABLE_2FA:
+    from two_factor.admin import AdminSiteOTPRequired
+    admin.site.__class__ = AdminSiteOTPRequired
 
 
 router = routers.DefaultRouter()
@@ -119,28 +115,34 @@ if settings.CELERY_FLOWER_API:
         path('celery-progress/', include('celery_progress.urls')),
     ]
 
+if settings.GISCUBE_ENABLE_2FA:
+    from two_factor.urls import urlpatterns as tf_urls
+    from . import views_two_factor
+    urlpatterns += [
+        path(
+            "account/two_factor/setup/",
+            views_two_factor.Custom2FASetupView.as_view(),
+            name="two_factor_setup",
+        ),
+        path(
+            "account/two_factor/disable/",
+            views_two_factor.Custom2FADisableView.as_view(),
+            name="two_factor_disable",
+        ),
+        path(
+            "account/login/callback/",
+            views_two_factor.ClientLogin.as_view(),
+            name="account_login_callback",
+        ),
+        path("account/login/", views_two_factor.CustomLoginView.as_view(), name="two_factor_login"),
+        path(
+            "account/logout/",
+            views_two_factor.ClientLogout.as_view(),
+            name="account_logout",
+        ),
+        path("", include(tf_urls)),
+    ]
+
 urlpatterns += [
-    path(
-        "account/two_factor/setup/",
-        views.Custom2FASetupView.as_view(),
-        name="two_factor_setup",
-    ),
-    path(
-        "account/two_factor/disable/",
-        views.Custom2FADisableView.as_view(),
-        name="two_factor_disable",
-    ),
-    path(
-        "account/login/callback/",
-        views.ClientLogin.as_view(),
-        name="account_login_callback",
-    ),
-    path("account/login/", CustomLoginView.as_view(), name="two_factor_login"),
-    path(
-        "account/logout/",
-        views.ClientLogout.as_view(),
-        name="account_logout",
-    ),
-    path("", include(tf_urls)),
     path('admin/', admin.site.urls),
 ]

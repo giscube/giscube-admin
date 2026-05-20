@@ -55,6 +55,8 @@ GISCUBE_GEOPORTAL_ORIGINS = list(
     filter(None, os.getenv('GISCUBE_GEOPORTAL_ORIGINS', '').split(','))
 )
 
+GISCUBE_ENABLE_2FA = os.getenv('GISCUBE_ENABLE_2FA', 'False').lower() == 'true'
+
 GISCUBE_LAYERSERVER_DISABLED = os.environ.get('GISCUBE_LAYERSERVER_DISABLED',
                                               'False').lower() == 'true'
 
@@ -92,17 +94,20 @@ INSTALLED_APPS += [
     'django_admin_listfilter_dropdown',
     'django_db_logger',
     'admin_auto_filters',
-
-    'django_otp',
-    'django_otp.plugins.otp_static',
-    'django_otp.plugins.otp_totp',
-    'django_otp.plugins.otp_email',  # <- for email capability.
-    # 'otp_yubikey',  # <- for yubikey capability.
-    'two_factor',
-    # 'two_factor.plugins.phonenumber',  # <- for phone number capability.
-    'two_factor.plugins.email',  # <- for email capability.
-    # 'two_factor.plugins.yubikey',  # <- for yubikey capability.
 ]
+
+if GISCUBE_ENABLE_2FA:
+    INSTALLED_APPS += [
+        'django_otp',
+        'django_otp.plugins.otp_static',
+        'django_otp.plugins.otp_totp',
+        'django_otp.plugins.otp_email',  # <- for email capability.
+        # 'otp_yubikey',  # <- for yubikey capability.
+        'two_factor',
+        # 'two_factor.plugins.phonenumber',  # <- for phone number capability.
+        'two_factor.plugins.email',  # <- for email capability.
+        # 'two_factor.plugins.yubikey',  # <- for yubikey capability.
+    ]
 
 
 INSTALLED_APPS += ['imageserver.apps.ImageServerConfig']
@@ -151,7 +156,14 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_otp.middleware.OTPMiddleware',
+]
+
+if GISCUBE_ENABLE_2FA:
+    MIDDLEWARE += [
+        'django_otp.middleware.OTPMiddleware',
+    ]
+
+MIDDLEWARE += [
     'django.contrib.messages.middleware.MessageMiddleware',
     'giscube.middleware.CheckRunningCeleryTasksMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -170,6 +182,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'giscube.context_processors.giscube_settings',
             ],
         },
     },
@@ -243,9 +256,13 @@ SITE_HEADER = os.getenv('SITE_HEADER', 'Àrea clients')
 SITE_URL = os.getenv('SITE_URL', 'http://localhost')
 SITE_INTERNAL_URL = os.getenv('SITE_INTERNAL_URL', SITE_URL)
 
-LOGIN_URL = "two_factor:login"
-LOGIN_REDIRECT_URL = "%s/admin/" % APP_URL
-LOGOUT_REDIRECT_URL = LOGIN_URL
+LOGIN_URL = '%s/admin/login/' % APP_URL
+LOGIN_REDIRECT_URL = '%s/admin/' % APP_URL
+
+if GISCUBE_ENABLE_2FA:
+    LOGIN_URL = "two_factor:login"
+    LOGIN_REDIRECT_URL = "%s/admin/" % APP_URL
+    LOGOUT_REDIRECT_URL = LOGIN_URL
 
 MEDIA_URL = '%s/media/' % APP_URL
 MEDIA_URL = os.getenv('MEDIA_URL', MEDIA_URL)

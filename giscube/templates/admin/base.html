@@ -3,7 +3,7 @@
 
 {% block userlinks %}
     {{ block.super }}
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and GISCUBE_ENABLE_2FA %}
      / <a href="{% url 'two_factor:profile' %}">{% trans "Profile" %}</a>
     {% endif %}
 {% endblock %}
