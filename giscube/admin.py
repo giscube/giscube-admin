@@ -26,6 +26,7 @@ from django_vue_tabs.admin import TabsMixin
 
 from .admin_forms import DBConnectionForm
 from .admin_mixins import MetadataInlineMixin, ResourceAdminMixin
+from .admin_utils import CatalogPermissionsMixin
 from .models import (AccessLog, BaseLayer, Category, Dataset, DatasetGroupPermission, DatasetMetadata,
                      DatasetResource, DatasetUserPermission, DBConnection, MapConfig, MapConfigBaseLayer,
                      MapTool, MapToolGroupPermission, MapToolUserPermission, MetadataCategory, Server, UsersLog)
@@ -104,8 +105,26 @@ def email_recover_password_html(modeladmin, request, queryset):
 email_recover_password_html.short_description = 'Email format HTML per recuperació de contrasenyes'
 
 
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(CatalogPermissionsMixin, BaseUserAdmin):
     actions = list(BaseUserAdmin.actions) + [csv_recover_password, email_recover_password, email_recover_password_html]
+
+    readonly_fields = tuple(BaseUserAdmin.readonly_fields) + ('permissions_info',)
+
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        (_('Permissions'), {
+            'fields': (
+                'is_active',
+                'is_staff',
+                'is_superuser',
+                'groups',
+                'user_permissions',
+                'permissions_info',
+            ),
+        }),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
 
     def get_urls(self):
         urls = super().get_urls()
