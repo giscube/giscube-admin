@@ -41,7 +41,7 @@ RUN --mount=type=ssh \
 #
 # The actuall system that will be run
 #
-FROM microdisseny/py3-development:ubuntu-20.04
+FROM microdisseny/py3-development:ubuntu-24.04
 
 # Copy files
 RUN mkdir -p /app
