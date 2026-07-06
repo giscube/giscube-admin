@@ -73,6 +73,7 @@ class GeoJsonLayer(BaseLayerMixin, ShapeStyleMixin, PopupMixin, TooltipMixin, Cl
                                     blank=True, null=True, on_delete=models.SET_NULL)
     legend = models.TextField(_('legend'), null=True, blank=True)
     catalog_color = models.CharField(_('catalog color'), max_length=50, null=True, blank=True)
+    overlapping_geometries = models.BooleanField(_('overlapping geometries'), default=False)
 
     def get_data_file_path(self):
         if self.service_path:

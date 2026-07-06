@@ -45,6 +45,7 @@ class GeoportalSearchIndexMixin(BaseGeomIndexMixin, BaseModelIndex):
         data['catalog_color'] = obj.catalog_color if hasattr(obj, 'catalog_color') else None
         data['additional_categories_id'] = self.get_additional_categories(obj, 'pk')
         data['additional_categories'] = self.get_additional_categories(obj, 'name')
+        data['overlapping_geometries'] = obj.overlapping_geometries if hasattr(obj, 'overlapping_geometries') else False
         return data
 
     def prepare_search_data(self, obj):
