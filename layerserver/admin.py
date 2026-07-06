@@ -124,7 +124,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'url', 'headers', 'data_file', ('cache_time', 'max_outdated_time',), 'last_fetch_on',
-                'generated_on',
+                'generated_on', 'overlapping_geometries',
             ],
             'classes': ('tab-geojson',),
         }),
@@ -167,7 +167,7 @@ class GeoJsonLayerAdmin(ResourceAdminMixin, TabsMixin, admin.ModelAdmin):
         (None, {
             'fields': [
                 'url', 'headers', 'data_file', ('cache_time', 'max_outdated_time',), 'last_fetch_on',
-                'generated_on', 'force_refresh_data_file',
+                'generated_on', 'overlapping_geometries', 'force_refresh_data_file',
             ],
             'classes': ('tab-geojson',),
         }),

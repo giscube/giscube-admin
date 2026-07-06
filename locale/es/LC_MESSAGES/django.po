@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-26 17:39+0200\n"
+"POT-Creation-Date: 2026-07-20 17:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,17 +207,17 @@ msgstr ""
 #: giscube/admin.py:254 giscube/admin.py:399 giscube/models.py:275
 #: giscube/models.py:282 giscube/models.py:436 giscube/models.py:443
 #: imageserver/admin.py:39 imageserver/models.py:131 imageserver/models.py:139
-#: layerserver/admin.py:43 layerserver/admin.py:289 layerserver/models.py:201
-#: layerserver/models.py:208 layerserver/models.py:671
-#: layerserver/models.py:685 qgisserver/admin.py:54 qgisserver/models.py:229
+#: layerserver/admin.py:43 layerserver/admin.py:289 layerserver/models.py:202
+#: layerserver/models.py:209 layerserver/models.py:672
+#: layerserver/models.py:686 qgisserver/admin.py:54 qgisserver/models.py:229
 #: qgisserver/models.py:237
 msgid "Group"
 msgstr ""
 
 #: giscube/admin.py:255 giscube/admin.py:400 giscube/models.py:283
 #: giscube/models.py:444 imageserver/admin.py:40 imageserver/models.py:140
-#: layerserver/admin.py:44 layerserver/admin.py:290 layerserver/models.py:209
-#: layerserver/models.py:686 qgisserver/admin.py:55 qgisserver/models.py:238
+#: layerserver/admin.py:44 layerserver/admin.py:290 layerserver/models.py:210
+#: layerserver/models.py:687 qgisserver/admin.py:55 qgisserver/models.py:238
 msgid "Groups"
 msgstr ""
 
@@ -227,17 +227,17 @@ msgstr ""
 #: giscube/templates/admin/giscube/recover_password/email_body.txt:24
 #: giscube/templates/admin/giscube/recover_password/form.html:13
 #: imageserver/admin.py:47 imageserver/models.py:146 imageserver/models.py:154
-#: layerserver/admin.py:51 layerserver/admin.py:298 layerserver/models.py:214
-#: layerserver/models.py:221 layerserver/models.py:691
-#: layerserver/models.py:701 qgisserver/admin.py:62 qgisserver/models.py:243
+#: layerserver/admin.py:51 layerserver/admin.py:298 layerserver/models.py:215
+#: layerserver/models.py:222 layerserver/models.py:692
+#: layerserver/models.py:702 qgisserver/admin.py:62 qgisserver/models.py:243
 #: qgisserver/models.py:251
 msgid "User"
 msgstr ""
 
 #: giscube/admin.py:263 giscube/admin.py:408 giscube/models.py:296
 #: giscube/models.py:459 imageserver/admin.py:48 imageserver/models.py:155
-#: layerserver/admin.py:52 layerserver/admin.py:299 layerserver/models.py:222
-#: layerserver/models.py:702 qgisserver/admin.py:63 qgisserver/models.py:252
+#: layerserver/admin.py:52 layerserver/admin.py:299 layerserver/models.py:223
+#: layerserver/models.py:703 qgisserver/admin.py:63 qgisserver/models.py:252
 msgid "Users"
 msgstr ""
 
@@ -1150,20 +1150,20 @@ msgstr ""
 #: giscube/models.py:252 giscube/models.py:305 giscube/models.py:316
 #: giscube/models.py:324 imageserver/models.py:34 imageserver/models.py:164
 #: imageserver/models.py:193 imageserver/models.py:202
-#: layerserver/models.py:301 layerserver/models.py:503
-#: layerserver/models.py:598 layerserver/models_mixins.py:26
+#: layerserver/models.py:302 layerserver/models.py:504
+#: layerserver/models.py:599 layerserver/models_mixins.py:26
 #: qgisserver/models.py:63 qgisserver/models.py:256
 msgid "name"
 msgstr ""
 
 #: giscube/model_mixins.py:55 giscube/models.py:254 imageserver/models.py:36
-#: layerserver/models.py:190 layerserver/models_mixins.py:28
+#: layerserver/models.py:191 layerserver/models_mixins.py:28
 #: qgisserver/models.py:65 qgisserver/models.py:215
 msgid "description"
 msgstr ""
 
 #: giscube/model_mixins.py:56 giscube/models.py:253 imageserver/models.py:35
-#: imageserver/models.py:194 layerserver/models.py:189
+#: imageserver/models.py:194 layerserver/models.py:190
 #: layerserver/models_mixins.py:27 qgisserver/models.py:64
 #: qgisserver/models.py:213
 msgid "title"
@@ -1181,7 +1181,7 @@ msgstr ""
 msgid "file"
 msgstr ""
 
-#: giscube/model_mixins.py:61 layerserver/models.py:652
+#: giscube/model_mixins.py:61 layerserver/models.py:653
 msgid "format"
 msgstr ""
 
@@ -1376,7 +1376,7 @@ msgid "options"
 msgstr ""
 
 #: giscube/models.py:261 imageserver/models.py:48 layerserver/models.py:74
-#: layerserver/models.py:332 qgisserver/models.py:91
+#: layerserver/models.py:333 qgisserver/models.py:91
 msgid "legend"
 msgstr ""
 
@@ -1392,9 +1392,9 @@ msgstr ""
 
 #: giscube/models.py:276 giscube/models.py:289 giscube/models.py:437
 #: giscube/models.py:452 imageserver/models.py:132 imageserver/models.py:147
-#: layerserver/models.py:202 layerserver/models.py:215
-#: layerserver/models.py:322 layerserver/models.py:672
-#: layerserver/models.py:692 qgisserver/models.py:230 qgisserver/models.py:244
+#: layerserver/models.py:203 layerserver/models.py:216
+#: layerserver/models.py:323 layerserver/models.py:673
+#: layerserver/models.py:693 qgisserver/models.py:230 qgisserver/models.py:244
 msgid "Can view"
 msgstr ""
 
@@ -1551,7 +1551,7 @@ msgstr ""
 msgid "Access Logs"
 msgstr ""
 
-#: giscube/models.py:477 layerserver/models.py:488
+#: giscube/models.py:477 layerserver/models.py:489
 msgid "Date"
 msgstr ""
 
@@ -2026,8 +2026,8 @@ msgstr ""
 msgid "Tile cache config"
 msgstr ""
 
-#: giscube/tilecache/models_mixins.py:8 layerserver/models.py:507
-#: layerserver/models.py:600 qgisserver/model_mixins.py:7
+#: giscube/tilecache/models_mixins.py:8 layerserver/models.py:508
+#: layerserver/models.py:601 qgisserver/model_mixins.py:7
 msgid "enabled"
 msgstr ""
 
@@ -2141,8 +2141,8 @@ msgstr ""
 msgid "authenticated users can write"
 msgstr ""
 
-#: imageserver/models.py:57 layerserver/models.py:75 layerserver/models.py:193
-#: layerserver/models.py:333 qgisserver/models.py:103 qgisserver/models.py:216
+#: imageserver/models.py:57 layerserver/models.py:75 layerserver/models.py:194
+#: layerserver/models.py:334 qgisserver/models.py:103 qgisserver/models.py:216
 msgid "catalog color"
 msgstr "color catálogo"
 
@@ -2277,15 +2277,15 @@ msgstr ""
 msgid "Data base"
 msgstr ""
 
-#: layerserver/admin.py:393 layerserver/admin.py:404 layerserver/models.py:586
+#: layerserver/admin.py:393 layerserver/admin.py:404 layerserver/models.py:587
 msgid "Fields"
 msgstr ""
 
-#: layerserver/admin.py:394 layerserver/admin.py:405 layerserver/models.py:623
+#: layerserver/admin.py:394 layerserver/admin.py:405 layerserver/models.py:624
 msgid "Virtual Fields"
 msgstr ""
 
-#: layerserver/admin.py:408 layerserver/models.py:661
+#: layerserver/admin.py:408 layerserver/models.py:662
 msgid "References"
 msgstr ""
 
@@ -2412,236 +2412,240 @@ msgstr ""
 msgid "get design from"
 msgstr ""
 
-#: layerserver/models.py:152
+#: layerserver/models.py:76
+msgid "overlapping geometries"
+msgstr "geometrias sobrepuestas"
+
+#: layerserver/models.py:153
 msgid "GeoJSONLayer"
 msgstr ""
 
-#: layerserver/models.py:153
+#: layerserver/models.py:154
 msgid "GeoJSONLayers"
 msgstr ""
 
-#: layerserver/models.py:191
+#: layerserver/models.py:192
 msgid "filter"
 msgstr ""
 
-#: layerserver/models.py:245 layerserver/models.py:629
+#: layerserver/models.py:246 layerserver/models.py:630
 msgid "field"
 msgstr ""
 
-#: layerserver/models.py:246 layerserver/models.py:630
+#: layerserver/models.py:247 layerserver/models.py:631
 msgid "comparator"
 msgstr ""
 
-#: layerserver/models.py:247 layerserver/models.py:631
+#: layerserver/models.py:248 layerserver/models.py:632
 msgid "value"
 msgstr ""
 
-#: layerserver/models.py:248 layerserver/models.py:632
+#: layerserver/models.py:249 layerserver/models.py:633
 msgid "order"
 msgstr ""
 
-#: layerserver/models.py:255 layerserver/models.py:639
+#: layerserver/models.py:256 layerserver/models.py:640
 msgid "Style rule"
 msgstr ""
 
-#: layerserver/models.py:256 layerserver/models.py:640
+#: layerserver/models.py:257 layerserver/models.py:641
 msgid "Style rules"
 msgstr ""
 
-#: layerserver/models.py:292
+#: layerserver/models.py:293
 msgid "Enabled"
 msgstr ""
 
-#: layerserver/models.py:293
+#: layerserver/models.py:294
 msgid "Error misconfigured"
 msgstr ""
 
-#: layerserver/models.py:302
+#: layerserver/models.py:303
 msgid "table"
 msgstr ""
 
-#: layerserver/models.py:303 layerserver/models.py:676
+#: layerserver/models.py:304 layerserver/models.py:677
 msgid "data filter"
 msgstr ""
 
-#: layerserver/models.py:308
+#: layerserver/models.py:309
 msgid "pk field"
 msgstr ""
 
-#: layerserver/models.py:309
+#: layerserver/models.py:310
 msgid "geom field"
 msgstr ""
 
-#: layerserver/models.py:310
+#: layerserver/models.py:311
 msgid "srid"
 msgstr ""
 
-#: layerserver/models.py:311
+#: layerserver/models.py:312
 msgid "Allow page size=0 (Disables pagination)"
 msgstr ""
 
-#: layerserver/models.py:313
+#: layerserver/models.py:314
 msgid "page size"
 msgstr ""
 
-#: layerserver/models.py:313
+#: layerserver/models.py:314
 #, python-format
 msgid "Default value is %s. Value 0 disables pagination."
 msgstr ""
 
-#: layerserver/models.py:316
+#: layerserver/models.py:317
 msgid "maximum page size"
 msgstr ""
 
-#: layerserver/models.py:316
+#: layerserver/models.py:317
 #, python-format
 msgid "Default value is %s"
 msgstr ""
 
-#: layerserver/models.py:319
+#: layerserver/models.py:320
 msgid "list fields"
 msgstr ""
 
-#: layerserver/models.py:320
+#: layerserver/models.py:321
 msgid "form fields"
-msgstr ""
-
-#: layerserver/models.py:323 layerserver/models.py:673
-#: layerserver/models.py:693
-msgid "Can add"
 msgstr ""
 
 #: layerserver/models.py:324 layerserver/models.py:674
 #: layerserver/models.py:694
-msgid "Can update"
+msgid "Can add"
 msgstr ""
 
 #: layerserver/models.py:325 layerserver/models.py:675
 #: layerserver/models.py:695
+msgid "Can update"
+msgstr ""
+
+#: layerserver/models.py:326 layerserver/models.py:676
+#: layerserver/models.py:696
 msgid "Can delete"
 msgstr ""
 
-#: layerserver/models.py:331
+#: layerserver/models.py:332
 msgid "Use generated WMS as reference"
 msgstr ""
 
-#: layerserver/models.py:483
+#: layerserver/models.py:484
 msgid "Auto"
 msgstr ""
 
-#: layerserver/models.py:484
+#: layerserver/models.py:485
 msgid "Choices, one line per value"
 msgstr ""
 
-#: layerserver/models.py:485
+#: layerserver/models.py:486
 msgid "Creation date"
 msgstr ""
 
-#: layerserver/models.py:486
+#: layerserver/models.py:487
 msgid "Creation datetime"
 msgstr ""
 
-#: layerserver/models.py:487
+#: layerserver/models.py:488
 msgid "Creation user"
 msgstr ""
 
-#: layerserver/models.py:489
+#: layerserver/models.py:490
 msgid "Date time"
 msgstr ""
 
-#: layerserver/models.py:490
+#: layerserver/models.py:491
 msgid "Distinct values"
 msgstr ""
 
-#: layerserver/models.py:491
+#: layerserver/models.py:492
 msgid "Foreign key"
 msgstr ""
 
-#: layerserver/models.py:492 layerserver/models_mixins.py:12
+#: layerserver/models.py:493 layerserver/models_mixins.py:12
 msgid "Image"
 msgstr ""
 
-#: layerserver/models.py:493 layerserver/models.py:593
+#: layerserver/models.py:494 layerserver/models.py:594
 msgid "Linked Field"
 msgstr ""
 
-#: layerserver/models.py:494
+#: layerserver/models.py:495
 msgid "Modification date"
 msgstr ""
 
-#: layerserver/models.py:495
+#: layerserver/models.py:496
 msgid "Modification datetime"
 msgstr ""
 
-#: layerserver/models.py:496
+#: layerserver/models.py:497
 msgid "Modification user"
 msgstr ""
 
-#: layerserver/models.py:497
+#: layerserver/models.py:498
 msgid "SQL choices"
 msgstr ""
 
-#: layerserver/models.py:504 layerserver/models.py:599
+#: layerserver/models.py:505 layerserver/models.py:600
 msgid "label"
 msgstr ""
 
-#: layerserver/models.py:505
+#: layerserver/models.py:506
 msgid "search"
 msgstr ""
 
-#: layerserver/models.py:506
+#: layerserver/models.py:507
 msgid "full search"
 msgstr ""
 
-#: layerserver/models.py:508
+#: layerserver/models.py:509
 msgid "readonly"
 msgstr ""
 
-#: layerserver/models.py:509
+#: layerserver/models.py:510
 msgid "blank"
 msgstr ""
 
-#: layerserver/models.py:511 layerserver/models.py:601
+#: layerserver/models.py:512 layerserver/models.py:602
 msgid "widget"
 msgstr ""
 
-#: layerserver/models.py:512 layerserver/models.py:602
+#: layerserver/models.py:513 layerserver/models.py:603
 msgid "widget options"
 msgstr ""
 
-#: layerserver/models.py:578
+#: layerserver/models.py:579
 msgid "Geom field must be enabled"
 msgstr ""
 
-#: layerserver/models.py:580
+#: layerserver/models.py:581
 msgid "full search is not available for geom fields"
 msgstr ""
 
-#: layerserver/models.py:582
+#: layerserver/models.py:583
 msgid "pk field must be enabled"
 msgstr ""
 
-#: layerserver/models.py:585
+#: layerserver/models.py:586
 msgid "Field"
 msgstr ""
 
-#: layerserver/models.py:592
+#: layerserver/models.py:593
 msgid "1:N Relation"
 msgstr ""
 
-#: layerserver/models.py:622
+#: layerserver/models.py:623
 msgid "Virtual Field"
 msgstr ""
 
-#: layerserver/models.py:653
+#: layerserver/models.py:654
 msgid "transparent"
 msgstr ""
 
-#: layerserver/models.py:654
+#: layerserver/models.py:655
 msgid "refresh on data changes"
 msgstr ""
 
-#: layerserver/models.py:660
+#: layerserver/models.py:661
 msgid "Reference"
 msgstr ""
 
