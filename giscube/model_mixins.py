@@ -38,6 +38,7 @@ class MetadataModelMixin(models.Model):
 RESOURCE_TYPE_CHOICES = Choices(
     ('TMS', 'TMS'),
     ('WMS', 'WMS'),
+    ('WMTS', 'WMTS'),
     ('document', 'Document'),
     ('url', 'URL'),
 )
@@ -66,6 +67,8 @@ class ResourceModelMixin(models.Model):
     downloadable = models.BooleanField(_('downloadable'), default=False)
     separate_layers = models.BooleanField(_('use separate layers'), default=False)
     layer_list = models.TextField(_('layer_list'), null=True, blank=True)
+    style = models.CharField(_('style'), max_length=255, null=True, blank=True)
+    tile_matrix_set = models.CharField(_('tile matrix set'), max_length=255, null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
