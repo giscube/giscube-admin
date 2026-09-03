@@ -1,0 +1,11 @@
+[
+  {
+    "model": "giscube.mapconfigbaselayer",
+    "pk": 1,
+    "fields": {
+      "map_config": 1,
+      "base_layer": 1,
+      "order": 1
+    }
+  }
+]

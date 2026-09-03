@@ -1,0 +1,15 @@
+[
+  {
+    "model": "giscube.dbconnection",
+    "pk": 1,
+    "fields": {
+      "alias": "Demo DB",
+      "engine": "django.contrib.gis.db.backends.postgis",
+      "name": "giscube-admin",
+      "user": "giscube-admin",
+      "password": "giscube-admin",
+      "host": "db",
+      "port": "5432"
+    }
+  }
+]

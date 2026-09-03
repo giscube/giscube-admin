@@ -1,0 +1,26 @@
+[
+  {
+    "model": "layerserver.dblayeruser",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "user": 2,
+      "can_view": true,
+      "can_add": true,
+      "can_update": true,
+      "can_delete": false
+    }
+  },
+  {
+    "model": "layerserver.dblayeruser",
+    "pk": 2,
+    "fields": {
+      "layer": 1,
+      "user": 3,
+      "can_view": true,
+      "can_add": false,
+      "can_update": false,
+      "can_delete": false
+    }
+  }
+]

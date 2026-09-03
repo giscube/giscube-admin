@@ -1,0 +1,35 @@
+[
+  {
+    "model": "layerserver.databaselayer",
+    "pk": 1,
+    "fields": {
+      "db_connection": 1,
+      "category": 1,
+      "name": "categories-demo",
+      "title": "Categories (demo)",
+      "description": "Capa d'exemple sobre la taula interna de categories",
+      "keywords": "demo, categories, exemple",
+      "active": true,
+      "visible_on_geoportal": true,
+      "table": "giscube_category",
+      "data_filter": {},
+      "data_filter_status": null,
+      "data_filter_error": null,
+      "pk_field": "id",
+      "geom_field": null,
+      "srid": null,
+      "allow_page_size_0": false,
+      "page_size": null,
+      "max_page_size": null,
+      "list_fields": null,
+      "form_fields": null,
+      "anonymous_view": true,
+      "anonymous_add": false,
+      "anonymous_update": false,
+      "anonymous_delete": false,
+      "service_path": null,
+      "wms_as_reference": false,
+      "legend": ""
+    }
+  }
+]

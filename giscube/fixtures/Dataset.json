@@ -1,0 +1,19 @@
+[
+  {
+    "model": "giscube.dataset",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "name": "dataset-demo",
+      "title": "Dataset de demostració",
+      "description": "Conjunt de dades d'exemple per a proves i desenvolupament",
+      "keywords": "demo, exemple, proves",
+      "active": true,
+      "visible_on_geoportal": true,
+      "options": "{\"maxZoom\": 20}",
+      "legend": "",
+      "anonymous_view": true,
+      "authenticated_user_view": true
+    }
+  }
+]

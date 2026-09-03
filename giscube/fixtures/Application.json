@@ -1,0 +1,19 @@
+[
+  {
+    "model": "oauth2_provider.application",
+    "pk": 1,
+    "fields": {
+      "client_id": "clinet-key",
+      "user": null,
+      "redirect_uris": "",
+      "client_type": "public",
+      "authorization_grant_type": "password",
+      "client_secret": "",
+      "name": "Frontend Geoportal",
+      "skip_authorization": true,
+      "algorithm": "",
+      "created": "2026-01-01T00:00:00Z",
+      "updated": "2026-01-01T00:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "model": "giscube.server",
+    "pk": 1,
+    "fields": {
+      "name": "localhost",
+      "url": "http://localhost:8000",
+      "token": "",
+      "this_server": true
+    }
+  }
+]

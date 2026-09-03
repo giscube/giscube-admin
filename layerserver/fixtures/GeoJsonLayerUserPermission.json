@@ -1,0 +1,20 @@
+[
+  {
+    "model": "layerserver.geojsonlayeruserpermission",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "user": 2,
+      "can_view": true
+    }
+  },
+  {
+    "model": "layerserver.geojsonlayeruserpermission",
+    "pk": 2,
+    "fields": {
+      "layer": 1,
+      "user": 3,
+      "can_view": true
+    }
+  }
+]

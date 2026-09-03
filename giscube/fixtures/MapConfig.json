@@ -1,0 +1,12 @@
+[
+  {
+    "model": "giscube.mapconfig",
+    "pk": 1,
+    "fields": {
+      "name": "mapa-demo",
+      "center_lat": "41.900000",
+      "center_lng": "2.800000",
+      "initial_zoom": 12
+    }
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "model": "layerserver.databaselayermetadata",
+    "pk": 1,
+    "fields": {
+      "date": "2026-01-01",
+      "language": "ca",
+      "category": "planningCadastre",
+      "information": "Metadades de la capa de categories de demostració",
+      "provider_name": "Organització Demo",
+      "provider_web": "https://example.org",
+      "provider_email": "info@example.org",
+      "summary": "Capa de categories internes d'exemple",
+      "bbox": null
+    }
+  }
+]

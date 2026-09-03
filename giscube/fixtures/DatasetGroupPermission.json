@@ -1,0 +1,11 @@
+[
+  {
+    "model": "giscube.datasetgrouppermission",
+    "pk": 1,
+    "fields": {
+      "dataset": 1,
+      "group": 1,
+      "can_view": true
+    }
+  }
+]

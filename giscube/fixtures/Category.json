@@ -1,0 +1,20 @@
+[
+  {
+    "model": "giscube.category",
+    "pk": 1,
+    "fields": {
+      "name": "Cartografia",
+      "color": "#3388ff",
+      "parent": null
+    }
+  },
+  {
+    "model": "giscube.category",
+    "pk": 2,
+    "fields": {
+      "name": "Urbanisme",
+      "color": "#ff8833",
+      "parent": 1
+    }
+  }
+]

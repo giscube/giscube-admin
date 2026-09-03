@@ -1,0 +1,27 @@
+[
+  {
+    "model": "layerserver.geojsonlayer",
+    "pk": 1,
+    "fields": {
+      "name": "geojson-demo",
+      "title": "Estacions de metro (demo)",
+      "description": "Capa GeoJSON d'exemple amb les estacions de metro de Nova York",
+      "keywords": "demo, geojson, exemple, metro",
+      "active": true,
+      "visible_on_geoportal": true,
+      "category": 1,
+      "url": "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/subway_stations.geojson",
+      "headers": "",
+      "service_path": "layerserver/geojsonlayer/1",
+      "cache_time": 3600,
+      "max_outdated_time": 86400,
+      "last_fetch_on": null,
+      "generated_on": null,
+      "anonymous_view": true,
+      "authenticated_user_view": true,
+      "fields": "name,line,notes",
+      "design_from": null,
+      "legend": ""
+    }
+  }
+]

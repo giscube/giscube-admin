@@ -1,0 +1,66 @@
+[
+  {
+    "model": "layerserver.databaselayerfield",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "name": "id",
+      "label": "Id",
+      "search": false,
+      "fullsearch": false,
+      "enabled": true,
+      "readonly": true,
+      "blank": false,
+      "widget": "auto",
+      "widget_options": null
+    }
+  },
+  {
+    "model": "layerserver.databaselayerfield",
+    "pk": 2,
+    "fields": {
+      "layer": 1,
+      "name": "name",
+      "label": "Nom",
+      "search": true,
+      "fullsearch": true,
+      "enabled": true,
+      "readonly": false,
+      "blank": false,
+      "widget": "auto",
+      "widget_options": null
+    }
+  },
+  {
+    "model": "layerserver.databaselayerfield",
+    "pk": 3,
+    "fields": {
+      "layer": 1,
+      "name": "color",
+      "label": "Color",
+      "search": true,
+      "fullsearch": true,
+      "enabled": true,
+      "readonly": false,
+      "blank": true,
+      "widget": "auto",
+      "widget_options": null
+    }
+  },
+  {
+    "model": "layerserver.databaselayerfield",
+    "pk": 4,
+    "fields": {
+      "layer": 1,
+      "name": "parent_id",
+      "label": "Categoria pare",
+      "search": true,
+      "fullsearch": true,
+      "enabled": true,
+      "readonly": false,
+      "blank": true,
+      "widget": "foreignkey",
+      "widget_options": "{\"dblayer\": \"categories-demo\", \"to_field\": \"id\"}"
+    }
+  }
+]

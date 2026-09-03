@@ -1,0 +1,20 @@
+[
+  {
+    "model": "layerserver.geojsonlayergrouppermission",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "group": 1,
+      "can_view": true
+    }
+  },
+  {
+    "model": "layerserver.geojsonlayergrouppermission",
+    "pk": 2,
+    "fields": {
+      "layer": 1,
+      "group": 2,
+      "can_view": true
+    }
+  }
+] 

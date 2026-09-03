@@ -1,0 +1,17 @@
+[
+  {
+    "model": "layerserver.geojsonlayermetadata",
+    "pk": 1,
+    "fields": {
+      "date": "2026-01-01",
+      "language": "ca",
+      "category": "boundaries",
+      "information": "Metadades de la capa GeoJSON de demostració (estacions de metro de Nova York)",
+      "provider_name": "Organització Demo",
+      "provider_web": "https://example.org",
+      "provider_email": "info@example.org",
+      "summary": "Capa GeoJSON d'exemple amb dades de punts",
+      "bbox": "-74.05,40.68,-73.90,40.90"
+    }
+  }
+]

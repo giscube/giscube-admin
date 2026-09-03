@@ -1,0 +1,32 @@
+[
+  {
+    "model": "layerserver.dblayergroup",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "group": 1,
+      "can_view": true,
+      "can_add": true,
+      "can_update": true,
+      "can_delete": true,
+      "data_filter": {},
+      "data_filter_status": null,
+      "data_filter_error": null
+    }
+  },
+  {
+    "model": "layerserver.dblayergroup",
+    "pk": 2,
+    "fields": {
+      "layer": 1,
+      "group": 2,
+      "can_view": true,
+      "can_add": false,
+      "can_update": false,
+      "can_delete": false,
+      "data_filter": {},
+      "data_filter_status": null,
+      "data_filter_error": null
+    }
+  }
+]

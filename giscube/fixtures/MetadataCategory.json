@@ -1,0 +1,18 @@
+[
+  {
+    "model": "giscube.metadatacategory",
+    "pk": 1,
+    "fields": {
+      "code": "boundaries",
+      "name": "Boundaries"
+    }
+  },
+  {
+    "model": "giscube.metadatacategory",
+    "pk": 2,
+    "fields": {
+      "code": "planningCadastre",
+      "name": "Planning Cadastre"
+    }
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "model": "giscube.datasetuserpermission",
+    "pk": 1,
+    "fields": {
+      "dataset": 1,
+      "user": 2,
+      "can_view": true
+    }
+  },
+  {
+    "model": "giscube.datasetuserpermission",
+    "pk": 2,
+    "fields": {
+      "dataset": 1,
+      "user": 3,
+      "can_view": true
+    }
+  }
+]

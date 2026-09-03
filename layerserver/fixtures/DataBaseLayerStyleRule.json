@@ -1,0 +1,13 @@
+[
+  {
+    "model": "layerserver.databaselayerstylerule",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "field": "color",
+      "comparator": "=",
+      "value": "#3388ff",
+      "order": 1
+    }
+  }
+]

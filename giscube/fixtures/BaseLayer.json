@@ -1,0 +1,10 @@
+[
+  {
+    "model": "giscube.baselayer",
+    "pk": 1,
+    "fields": {
+      "name": "OSM",
+      "properties": {"type": "tile", "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"}
+    }
+  }
+]

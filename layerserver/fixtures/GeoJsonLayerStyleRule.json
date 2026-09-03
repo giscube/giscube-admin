@@ -1,0 +1,13 @@
+[
+  {
+    "model": "layerserver.geojsonlayerstylerule",
+    "pk": 1,
+    "fields": {
+      "layer": 1,
+      "field": "line",
+      "comparator": "=",
+      "value": "L",
+      "order": 1
+    }
+  }
+]
