@@ -7,6 +7,7 @@ class LayerRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = LayerRegister
         fields = '__all__'
+        read_only_fields = ('permission',)
 
 
 class ToolRegisterSerializer(serializers.ModelSerializer):

@@ -23,7 +23,7 @@ def download_visor_csv(modeladmin, request, queryset):
 
 @admin.action(description=_("Download selected registers (CSV)"))
 def download_layers_csv(modeladmin, request, queryset):
-    headers = ('layer_name', 'giscube_id', 'datetime', 'username')
+    headers = ('layer_name', 'giscube_id', 'datetime', 'username', 'permission')
     data = TablibDataset(headers=headers)
 
     for layer in queryset:
@@ -31,7 +31,8 @@ def download_layers_csv(modeladmin, request, queryset):
             layer.layer_name,
             layer.giscube_id,
             layer.datetime,
-            layer.username
+            layer.username,
+            layer.get_permission_display()
         ])
 
     response = HttpResponse(data.export('csv'), 'text/csv')

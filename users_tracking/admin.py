@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from django_admin_listfilter_dropdown.filters import DropdownFilter
+from django_admin_listfilter_dropdown.filters import ChoiceDropdownFilter, DropdownFilter
 from rangefilter.filter import DateRangeFilter
 
 from .actions import download_layers_csv, download_tools_csv, download_visor_csv
@@ -30,12 +30,13 @@ class VisorUserTrackAdmin(admin.ModelAdmin):
 
 @admin.register(LayerRegister)
 class LayerRegisterAdmin(admin.ModelAdmin):
-    list_display = ['layer_name', 'giscube_id', 'datetime', 'username']
-    readonly_fields = ['layer_name', 'giscube_id', 'datetime', 'username']
+    list_display = ['layer_name', 'giscube_id', 'datetime', 'username', 'permission']
+    readonly_fields = ['layer_name', 'giscube_id', 'datetime', 'username', 'permission']
     search_fields = ['username']
     list_filter = [
         ('datetime', DateRangeFilter),
-        ('username', DropdownFilter)
+        ('username', DropdownFilter),
+        ('permission', ChoiceDropdownFilter)
     ]
     actions = [download_layers_csv]
 
