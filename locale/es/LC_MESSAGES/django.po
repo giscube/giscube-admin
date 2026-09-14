@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-20 17:59+0200\n"
+"POT-Creation-Date: 2026-09-14 17:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -304,7 +304,7 @@ msgstr "Editar"
 #: giscube/admin_utils.py:164
 #, python-format
 msgid "Error to get catalogs: %s"
-msgstr "Error al obtener catálogos"
+msgstr "Error al obtener catálogos: %s"
 
 #: giscube/admin_utils.py:194
 msgid "Visible catalogs"
@@ -2934,11 +2934,11 @@ msgstr ""
 msgid "Transaction requests enabled"
 msgstr ""
 
-#: qgisserver/models.py:21
+#: qgisserver/models.py:21 users_tracking/models.py:25
 msgid "Private"
 msgstr ""
 
-#: qgisserver/models.py:22
+#: qgisserver/models.py:22 users_tracking/models.py:24
 msgid "Public"
 msgstr ""
 
@@ -2995,7 +2995,7 @@ msgstr ""
 msgid "Download selected visor users (CSV)"
 msgstr ""
 
-#: users_tracking/actions.py:24 users_tracking/actions.py:42
+#: users_tracking/actions.py:24 users_tracking/actions.py:43
 msgid "Download selected registers (CSV)"
 msgstr ""
 
@@ -3003,52 +3003,60 @@ msgstr ""
 msgid "User tracks"
 msgstr ""
 
-#: users_tracking/models.py:6 users_tracking/models.py:22
-#: users_tracking/models.py:32
+#: users_tracking/models.py:8 users_tracking/models.py:33
+#: users_tracking/models.py:62
 msgid "username"
 msgstr ""
 
-#: users_tracking/models.py:7
+#: users_tracking/models.py:9
 msgid "ip"
 msgstr ""
 
-#: users_tracking/models.py:8 users_tracking/models.py:21
-#: users_tracking/models.py:31
+#: users_tracking/models.py:10 users_tracking/models.py:32
+#: users_tracking/models.py:61
 msgid "datetime"
 msgstr ""
 
-#: users_tracking/models.py:11
+#: users_tracking/models.py:13
 msgid "Visor user track"
 msgstr ""
 
-#: users_tracking/models.py:12
+#: users_tracking/models.py:14
 msgid "Visor user tracks"
 msgstr ""
 
-#: users_tracking/models.py:19
+#: users_tracking/models.py:30
 msgid "layer name"
 msgstr ""
 
-#: users_tracking/models.py:20
+#: users_tracking/models.py:31
 msgid "Giscube ID"
 msgstr ""
 
-#: users_tracking/models.py:25
+#: users_tracking/models.py:35
+msgid "permission"
+msgstr "permiso"
+
+#: users_tracking/models.py:36
+msgid "Visibility of the layer when it was registered"
+msgstr "Visibilidad de la capa en el momento del registro"
+
+#: users_tracking/models.py:39
 msgid "Layer register"
 msgstr ""
 
-#: users_tracking/models.py:26
+#: users_tracking/models.py:40
 msgid "Layers register"
 msgstr ""
 
-#: users_tracking/models.py:30
+#: users_tracking/models.py:60
 msgid "tool name"
 msgstr ""
 
-#: users_tracking/models.py:35
+#: users_tracking/models.py:65
 msgid "Tool register"
 msgstr ""
 
-#: users_tracking/models.py:36
+#: users_tracking/models.py:66
 msgid "Tools register"
 msgstr ""
