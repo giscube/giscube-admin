@@ -7,7 +7,8 @@
       'TMS': ['name', 'description', 'title', 'url', 'layers', 'projection'],
       'WMS': ['name', 'description', 'title', 'url', 'layers', 'projection', 'getfeatureinfo_support', 'single_image', 'separate_layers'],
       'document': ['name', 'description', 'title', 'file'],
-      'url': ['name', 'description', 'title', 'url', 'projection', 'content_type']
+      'url': ['name', 'description', 'title', 'url', 'projection', 'content_type'],
+      'WMTS': ['name', 'description', 'title', 'url', 'layers', 'style', 'tile_matrix_set', 'content_type']
     };
 
     var item = $(this);

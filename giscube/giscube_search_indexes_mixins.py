@@ -26,6 +26,8 @@ class ResourcesIndexMixin:
                     'content_type': r.content_type,
                     'separate_layers': r.separate_layers,
                     'layer_list': r.layer_list,
+                    'style': r.style,
+                    'tile_matrix_set': r.tile_matrix_set
                 }
             })
         return children
